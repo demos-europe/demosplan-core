@@ -111,14 +111,10 @@ export default {
 
     getInstitutionsByPage (page) {
       this.listInvitableInstitution({
-        page: {
-          number: page,
-          size: 50,
-        },
-        sort: '-createdDate',
-        fields: {
-          InstitutionTag: ['label', 'id'].join(),
-        },
+        page,
+        itemsPerPage: 50,
+        pagination: true,
+        order: { createdDate: 'desc' },
       })
         .then(() => {
           this.needToReset = false

@@ -78,6 +78,17 @@
               </li>
             </ul>
           </template>
+          <template v-slot:email="institution">
+            <span v-if="institution.email">
+              {{ institution.email }}
+            </span>
+            <span
+              v-else
+              class="color--grey"
+            >
+              {{ Translator.trans('no.participation.email') }}
+            </span>
+          </template>
           <template
             v-for="(category, idx) in institutionTagCategoriesCopy"
             v-slot:[category.attributes.name]="institution"
@@ -170,10 +181,10 @@
     </template>
 
     <dp-sliding-pagination
-      v-if="totalPages > 1"
+      v-if="pagination.totalPages > 1"
       class="mr-1 ml-2 mt-2"
-      :current="currentPage"
-      :total="totalPages"
+      :current="pagination.currentPage"
+      :total="pagination.totalPages"
       :non-sliding-size="50"
       @page-change="getInstitutionsByPage"
     />
@@ -237,6 +248,7 @@ export default {
       initiallySelectedColumns: [],
       institutionTagCategoriesCopy: {},
       isLoading: true,
+      pagination: { currentPage: 1, totalPages: 1 },
       searchTerm: '',
     }
   },
@@ -252,8 +264,6 @@ export default {
 
     ...mapState('InvitableInstitution', {
       invitableInstitutionList: 'items',
-      currentPage: 'currentPage',
-      totalPages: 'totalPages',
     }),
 
     allFilterCategories () {
@@ -300,6 +310,13 @@ export default {
         label: Translator.trans('institution'),
       }
 
+      const emailField = {
+        colWidth: '220px',
+        field: 'email',
+        initialMinWidth: 200,
+        label: Translator.trans('email.participation'),
+      }
+
       const categoryFields = this.categoryFieldsAvailable
         .filter(headerField => this.currentlySelectedColumns.includes(headerField.field))
         .map(headerField => ({
@@ -310,7 +327,7 @@ export default {
 
       const selectedCustomFieldColumns = this.customFieldsAvailable.filter(headerField => this.currentlySelectedColumns.includes(headerField.field))
 
-      return [institutionField, ...categoryFields, ...selectedCustomFieldColumns]
+      return [institutionField, emailField, ...categoryFields, ...selectedCustomFieldColumns]
     },
 
     institutionList () {
@@ -318,9 +335,10 @@ export default {
         const { id, attributes, relationships } = tag
 
         return {
-          createdDate: attributes.createdDate.date,
+          createdDate: attributes.createdDate,
           customFields: this.customFieldValuesByInstitutionId[id] || {},
           edit: this.editingInstitutionId === id,
+          email: this.cleanEmail(attributes.participationFeedbackEmailAddress),
           id,
           name: attributes.name,
           tags: relationships.assignedTags.data
@@ -402,6 +420,17 @@ export default {
     },
 
     /**
+     * The participation email may be empty, a single hyphen or untrimmed.
+     * @param {string|null} email
+     * @returns {string}
+     */
+    cleanEmail (email) {
+      const trimmed = (email ?? '').trim()
+
+      return trimmed === '-' ? '' : trimmed
+    },
+
+    /**
      * Format date for display
      * @param {string} d - Date string to format
      * @returns {string} Formatted date
@@ -476,15 +505,15 @@ export default {
     getInstitutionsByPage (page) {
       const customFields = hasPermission('feature_organisations_custom_fields') ? ['customFields'] : []
       const args = {
-        page: {
-          number: page,
-          size: 50,
-        },
-        sort: '-createdDate',
+        page,
+        itemsPerPage: 50,
+        pagination: true,
+        order: { createdDate: 'desc' },
         fields: {
           InvitableInstitution: [
             'name',
             'createdDate',
+            'participationFeedbackEmailAddress',
             'assignedTags',
             ...customFields,
           ].join(),
@@ -496,26 +525,33 @@ export default {
             'name',
           ].join(),
         },
-        filter: {
-          namefilter: {
-            condition: {
-              path: 'name',
-              operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-              value: this.searchTerm,
-            },
-          },
-        },
         include: [
           'assignedTags',
           'assignedTags.category',
         ].join(),
       }
 
+      if (this.searchTerm !== '') {
+        args.name = this.searchTerm
+      }
+
       return this.fetchInvitableInstitution(args)
-        .then(() => this.extractCustomFieldValues())
+        .then(response => {
+          this.updatePagination(response?.meta)
+          this.extractCustomFieldValues()
+        })
         .catch(err => {
           console.error(err)
         })
+    },
+
+    updatePagination (meta) {
+      const itemsPerPage = meta?.itemsPerPage || 50
+
+      this.pagination = {
+        currentPage: meta?.currentPage ?? 1,
+        totalPages: Math.max(1, Math.ceil((meta?.totalItems ?? 0) / itemsPerPage)),
+      }
     },
 
     getInstitutionTagCategories (isInitial = false) {
