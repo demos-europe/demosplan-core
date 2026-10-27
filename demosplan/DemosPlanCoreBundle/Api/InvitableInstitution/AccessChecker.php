@@ -31,7 +31,8 @@ class AccessChecker
     }
 
     /**
-     * Mirrors InvitableInstitutionResourceType::isGetAllowed()/isListAllowed().
+     * Shared with the legacy {@see \demosplan\DemosPlanCoreBundle\ResourceTypes\InvitableInstitutionResourceType}
+     * (get, list and readable properties).
      */
     public function isAvailable(): bool
     {
@@ -47,7 +48,7 @@ class AccessChecker
     }
 
     /**
-     * Mirrors InvitableInstitutionResourceType::getAccessConditions().
+     * Shared with the legacy {@see \demosplan\DemosPlanCoreBundle\ResourceTypes\InvitableInstitutionResourceType}.
      *
      * @return list<ClauseFunctionInterface<bool>>
      */

@@ -28,7 +28,7 @@ class AccessChecker
     }
 
     /**
-     * Mirrors InstitutionTagResourceType::isAvailable().
+     * Shared with the legacy {@see \demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagResourceType}.
      */
     public function isAvailable(): bool
     {
@@ -41,7 +41,7 @@ class AccessChecker
     }
 
     /**
-     * Mirrors InstitutionTagResourceType::getAccessConditions().
+     * Shared with the legacy {@see \demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagResourceType}.
      *
      * @return list<ClauseFunctionInterface<bool>>
      */
