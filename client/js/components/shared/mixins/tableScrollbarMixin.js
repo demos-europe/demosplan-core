@@ -54,7 +54,8 @@ export default {
       const scrollWidth = this.dataTableContainerElement.scrollWidth
       const clientWidth = this.dataTableContainerElement.clientWidth
 
-      if (scrollWidth > clientWidth) {
+      // Ignore an overflow of a pixel or two (rounding, sticky cell pseudo elements)
+      if (scrollWidth - clientWidth > 2) {
         this.scrollbarVisible = true
         this.scrollbarInnerStyle = {
           height: '1px',
