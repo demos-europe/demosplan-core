@@ -1008,6 +1008,7 @@ export default {
 
     resetColumnSelection () {
       localStorage.removeItem('statementsList')
+      localStorage.removeItem('dpDataTable:columnOrder:statementsList')
       this.setCurrentSelection([...this.defaultColumnSelection])
 
       // Clear persisted column widths
