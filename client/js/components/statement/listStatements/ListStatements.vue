@@ -122,7 +122,6 @@
           />
         </div>
         <dp-column-selector
-          v-if="customFieldsReady"
           :key="columnSelectorKey"
           :initial-selection="currentSelection"
           :selectable-columns="selectableColumns"
@@ -633,7 +632,6 @@ export default {
       columnSelectorKey: 0,
       // Prefilled so the column selector starts with the defaults when localStorage is empty
       currentSelection: [...defaultColumnSelection],
-      customFieldsReady: !hasPermission('field_statements_custom_fields'),
       defaultColumnSelection,
       defaultPagination: {
         currentPage: 1,
