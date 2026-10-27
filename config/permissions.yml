@@ -596,7 +596,7 @@ feature_2fa:
     loginRequired: true
 feature_orga_two_factor_required:
     description: |-
-        Project switch: enables the per-organisation two-factor authentication requirement.
+        Feature permission for the per-organisation two-factor authentication requirement.
         Users of organisations with the flag are forced to set up 2FA at login. Requires feature_2fa.
     label: 'Zwei-Faktor-Pflicht pro Organisation erzwingen'
     loginRequired: true
