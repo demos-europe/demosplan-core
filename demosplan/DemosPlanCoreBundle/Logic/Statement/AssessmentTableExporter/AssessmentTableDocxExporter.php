@@ -16,7 +16,6 @@ use Carbon\Carbon;
 use demosplan\DemosPlanCoreBundle\Exception\HandlerException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\AssessmentTable\ViewOrientation;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\Enum\ExportTemplate;
 use Exception;
 
 class AssessmentTableDocxExporter extends AssessmentTableFileExporterAbstract
@@ -48,9 +47,7 @@ class AssessmentTableDocxExporter extends AssessmentTableFileExporterAbstract
         $parameters = $this->addStatementsFromCurrentQueryHashToFilter($parameters, $procedureId, $original);
         $outputResult = $this->assessmentHandler->prepareOutputResult($procedureId, $original, $parameters);
         try {
-            $viewOrientation = str_contains((string) $parameters['template'], ExportTemplate::LANDSCAPE->value)
-                ? ViewOrientation::createLandscape()
-                : ViewOrientation::createPortrait();
+            $viewOrientation = ViewOrientation::createForTemplate((string) $parameters['template']);
             $objWriter = $this->assessmentTableOutput->generateDocx(
                 $outputResult,
                 $parameters['template'],

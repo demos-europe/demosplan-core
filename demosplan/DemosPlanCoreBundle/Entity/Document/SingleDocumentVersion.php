@@ -75,7 +75,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
      *
      **/
     #[ORM\JoinColumn(name: '_e_id', referencedColumnName: '_e_id', nullable: true, onDelete: 'SET NULL')]
-    #[ORM\ManyToOne(targetEntity: Elements::class, inversedBy: 'documents')]
+    #[ORM\ManyToOne(targetEntity: Elements::class)]
     protected $element;
 
     /**
