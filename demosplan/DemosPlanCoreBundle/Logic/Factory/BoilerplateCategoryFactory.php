@@ -15,7 +15,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Factory;
 use DemosEurope\DemosplanAddon\Contracts\Entities\BoilerplateCategoryInterface;
 use DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateCategoryFactoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateCategory;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
+#[AsAlias(BoilerplateCategoryFactoryInterface::class)]
 class BoilerplateCategoryFactory implements BoilerplateCategoryFactoryInterface
 {
     public function createBoilerplateCategory(): BoilerplateCategoryInterface
