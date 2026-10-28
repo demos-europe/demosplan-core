@@ -47,6 +47,29 @@ export default {
 
   methods: {
     /**
+     * Observe the current dataTable and its scroll container to update the scrollbar accordingly.
+     * Has to be called again if the dataTable is replaced, because the former one is not observed anymore.
+     */
+    observeDataTable () {
+      if (!this.dataTableContainerElement) {
+        return
+      }
+
+      this.dataTableObserver?.disconnect()
+      this.dataTableElement = this.$refs?.dataTable?.$refs?.tableEl
+      this.dataTableObserver = new ResizeObserver(this.updateScrollbarStyles.bind(this))
+
+      if (this.dataTableElement) {
+        this.dataTableObserver.observe(this.dataTableElement)
+      }
+
+      this.dataTableObserver.observe(this.dataTableContainerElement)
+
+      // Set scrollbar width or conditionally hide it.
+      this.updateScrollbarStyles()
+    },
+
+    /**
      * Adjust the width of the inner element of the footer scrollbar to the width of the Table,
      * conditionally hide or show scrollbar.
      */
@@ -180,7 +203,6 @@ export default {
         this.dataTableContainerElement = this.$refs?.scrollContainer ?? this.$refs?.dataTable?.$el
 
         this.updateScrollContainerHeight()
-        this.dataTableElement = this.$refs?.dataTable?.$refs?.tableEl
 
         if (!this.dataTableContainerElement) {
           return
@@ -196,18 +218,20 @@ export default {
           this.updateThumb()
         })
 
-        // Observe changes to dataTable to update scrollbar accordingly
-        this.dataTableObserver = new ResizeObserver(this.updateScrollbarStyles.bind(this))
-
-        if (this.dataTableElement) {
-          this.dataTableObserver.observe(this.dataTableElement)
-        }
-
-        this.dataTableObserver.observe(this.dataTableContainerElement)
-
-        // Set scrollbar width or conditionally hide it.
-        this.updateScrollbarStyles()
+        this.observeDataTable()
       })
+    })
+
+    /**
+     * When the dataTable is replaced by a new one (columnSelectorKey changes), observe the new dataTable.
+     * Only has effect in components that remount the dataTable by changing columnSelectorKey.
+     */
+    this.$watch('columnSelectorKey', () => {
+      if (!this.dataTableContainerElement) {
+        return
+      }
+
+      this.$nextTick(() => this.observeDataTable())
     })
   },
 }
