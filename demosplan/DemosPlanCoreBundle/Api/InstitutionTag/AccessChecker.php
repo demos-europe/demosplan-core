@@ -13,10 +13,12 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Api\InstitutionTag;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
+use EDT\Querying\Contracts\PropertyPathInterface;
 
 class AccessChecker
 {
@@ -28,7 +30,8 @@ class AccessChecker
     }
 
     /**
-     * Shared with the legacy {@see \demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagResourceType}.
+     * Shared with the legacy {@see \demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagResourceType}
+     * and {@see \demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagCategoryResourceType}.
      */
     public function isAvailable(): bool
     {
@@ -45,7 +48,37 @@ class AccessChecker
      *
      * @return list<ClauseFunctionInterface<bool>>
      */
-    public function getAccessConditions(): array
+    public function getTagAccessConditions(): array
+    {
+        return $this->getCustomerScopedConditions(['category', 'customer', 'id']);
+    }
+
+    /**
+     * Shared with the legacy {@see \demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionTagCategoryResourceType}.
+     *
+     * @return list<ClauseFunctionInterface<bool>>
+     */
+    public function getCategoryAccessConditions(): array
+    {
+        return $this->getCustomerScopedConditions(Paths::institutionTagCategory()->customer->id);
+    }
+
+    /**
+     * In-memory counterpart of {@see self::getTagAccessConditions()}, for tags that are
+     * already loaded (e.g. the tags assigned to an institution).
+     */
+    public function canRead(InstitutionTag $tag): bool
+    {
+        return $this->currentUser->hasPermission('feature_institution_tag_read')
+            && $tag->getCategory()->getCustomer()->getId() === $this->currentCustomerService->getCurrentCustomer()->getId();
+    }
+
+    /**
+     * Tags and categories are only readable with the read permission, and only those of the current customer.
+     *
+     * @return list<ClauseFunctionInterface<bool>>
+     */
+    private function getCustomerScopedConditions(array|PropertyPathInterface $customerIdPath): array
     {
         if (!$this->currentUser->hasPermission('feature_institution_tag_read')) {
             return [$this->conditionFactory->false()];
@@ -54,18 +87,8 @@ class AccessChecker
         return [
             $this->conditionFactory->propertyHasValue(
                 $this->currentCustomerService->getCurrentCustomer()->getId(),
-                ['category', 'customer', 'id']
+                $customerIdPath
             ),
         ];
-    }
-
-    /**
-     * In-memory counterpart of {@see self::getAccessConditions()}, for tags that are
-     * already loaded (e.g. the tags assigned to an institution).
-     */
-    public function canRead(InstitutionTag $tag): bool
-    {
-        return $this->currentUser->hasPermission('feature_institution_tag_read')
-            && $tag->getCategory()->getCustomer()->getId() === $this->currentCustomerService->getCurrentCustomer()->getId();
     }
 }

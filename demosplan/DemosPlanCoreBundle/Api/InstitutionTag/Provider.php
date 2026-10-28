@@ -43,7 +43,7 @@ class Provider implements ProviderInterface
         try {
             $tag = $this->tagRepository->getEntityByIdentifier(
                 $uriVariables['id'],
-                $this->accessChecker->getAccessConditions(),
+                $this->accessChecker->getTagAccessConditions(),
                 ['id']
             );
         } catch (InvalidArgumentException) {

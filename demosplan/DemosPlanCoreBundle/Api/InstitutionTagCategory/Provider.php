@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Api\InstitutionTagCategory;
 
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
+use demosplan\DemosPlanCoreBundle\Api\InstitutionTag\AccessChecker;
 use demosplan\DemosPlanCoreBundle\Api\InstitutionTagCategory\Resource as InstitutionTagCategoryResource;
 use demosplan\DemosPlanCoreBundle\Repository\InstitutionTagCategoryRepository;
 use InvalidArgumentException;
@@ -43,7 +44,7 @@ class Provider implements ProviderInterface
         try {
             $category = $this->categoryRepository->getEntityByIdentifier(
                 $uriVariables['id'],
-                $this->accessChecker->getAccessConditions(),
+                $this->accessChecker->getCategoryAccessConditions(),
                 ['id']
             );
         } catch (InvalidArgumentException) {

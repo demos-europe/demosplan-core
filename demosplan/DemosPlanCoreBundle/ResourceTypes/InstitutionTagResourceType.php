@@ -142,7 +142,7 @@ class InstitutionTagResourceType extends DplanResourceType
 
     protected function getAccessConditions(): array
     {
-        return $this->accessChecker->getAccessConditions();
+        return $this->accessChecker->getTagAccessConditions();
     }
 
     public function isCreateAllowed(): bool

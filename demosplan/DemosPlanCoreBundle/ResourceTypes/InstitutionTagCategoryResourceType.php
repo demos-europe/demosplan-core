@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use demosplan\DemosPlanCoreBundle\Api\InstitutionTagCategory\AccessChecker;
+use demosplan\DemosPlanCoreBundle\Api\InstitutionTag\AccessChecker;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository;
@@ -87,7 +87,7 @@ class InstitutionTagCategoryResourceType extends DplanResourceType
 
     protected function getAccessConditions(): array
     {
-        return $this->accessChecker->getAccessConditions();
+        return $this->accessChecker->getCategoryAccessConditions();
     }
 
     public function isCreateAllowed(): bool
