@@ -56,8 +56,8 @@ class NameGenerator
         if (false !== stripos(getenv('HTTP_USER_AGENT'), 'MSIE')
             || false !== stripos(getenv('HTTP_USER_AGENT'), 'Internet Explorer')) {
             return sprintf('attachment;filename="%s";', $filenameURLEncoded);
-        } else {
-            return sprintf('attachment;filename="%s"; filename*=UTF-8\'\'%s', $filename, $filenameURLEncoded);
         }
+
+        return sprintf('attachment;filename="%s"; filename*=UTF-8\'\'%s', $filename, $filenameURLEncoded);
     }
 }
