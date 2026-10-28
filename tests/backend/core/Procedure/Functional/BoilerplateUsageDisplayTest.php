@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFacto
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateUsageRepository;
 use Tests\Base\FunctionalTestCase;
@@ -57,7 +58,7 @@ class BoilerplateUsageDisplayTest extends FunctionalTestCase
         ])->_real();
         $segment->setPlace($place);
         $boilerplate = $this->createBoilerplateFor($segment->getProcedure());
-        $this->boilerplateUsageRepository->addUsage($boilerplate, $segment);
+        $this->linkByTag($boilerplate, $segment);
         $this->getEntityManager()->flush();
 
         // act
@@ -84,7 +85,7 @@ class BoilerplateUsageDisplayTest extends FunctionalTestCase
         $place = PlaceFactory::createOne(['locked' => true, 'procedure' => $segment->getProcedure()])->_real();
         $segment->setPlace($place);
         $boilerplate = $this->createBoilerplateFor($segment->getProcedure());
-        $this->boilerplateUsageRepository->addUsage($boilerplate, $segment);
+        $this->linkByTag($boilerplate, $segment);
         $this->getEntityManager()->flush();
 
         // act
@@ -121,7 +122,7 @@ class BoilerplateUsageDisplayTest extends FunctionalTestCase
         // arrange
         $statement = StatementFactory::createOne(['externId' => 'M40'])->_real();
         $boilerplate = $this->createBoilerplateFor($statement->getProcedure());
-        $this->boilerplateUsageRepository->addUsage($boilerplate, $statement);
+        $this->linkByTag($boilerplate, $statement);
         $this->getEntityManager()->flush();
 
         // act
@@ -144,7 +145,7 @@ class BoilerplateUsageDisplayTest extends FunctionalTestCase
         $this->disablePermissions(['feature_boilerplate_usage_list']);
         $segment = SegmentFactory::createOne()->_real();
         $boilerplate = $this->createBoilerplateFor($segment->getProcedure());
-        $this->boilerplateUsageRepository->addUsage($boilerplate, $segment);
+        $this->linkByTag($boilerplate, $segment);
         $this->getEntityManager()->flush();
 
         // act
@@ -159,7 +160,7 @@ class BoilerplateUsageDisplayTest extends FunctionalTestCase
         // arrange
         $segment = SegmentFactory::createOne()->_real();
         $boilerplate = $this->createBoilerplateFor($segment->getProcedure());
-        $this->boilerplateUsageRepository->addUsage($boilerplate, $segment);
+        $this->linkByTag($boilerplate, $segment);
         $otherProcedure = ProcedureFactory::createOne()->_real();
         $this->getEntityManager()->flush();
 
@@ -176,7 +177,7 @@ class BoilerplateUsageDisplayTest extends FunctionalTestCase
         $this->disablePermissions(['feature_boilerplate_usage_list']);
         $segment = SegmentFactory::createOne()->_real();
         $boilerplate = $this->createBoilerplateFor($segment->getProcedure());
-        $this->boilerplateUsageRepository->addUsage($boilerplate, $segment);
+        $this->linkByTag($boilerplate, $segment);
         $this->getEntityManager()->flush();
 
         // act & assert
@@ -188,7 +189,7 @@ class BoilerplateUsageDisplayTest extends FunctionalTestCase
         // arrange
         $segment = SegmentFactory::createOne()->_real();
         $boilerplate = $this->createBoilerplateFor($segment->getProcedure());
-        $this->boilerplateUsageRepository->addUsage($boilerplate, $segment);
+        $this->linkByTag($boilerplate, $segment);
         $otherProcedure = ProcedureFactory::createOne()->_real();
         $this->getEntityManager()->flush();
 
@@ -197,8 +198,46 @@ class BoilerplateUsageDisplayTest extends FunctionalTestCase
         static::assertSame(0, $this->sut->getBoilerplateUsageCount($boilerplate->getId(), $otherProcedure->getId()));
     }
 
+    public function testIgnoresLegacyUsageWithoutTagInRowsAndCount(): void
+    {
+        // arrange
+        $linkedSegment = SegmentFactory::createOne()->_real();
+        $legacySegment = SegmentFactory::createOne([
+            'parentStatementOfSegment' => $linkedSegment->getParentStatementOfSegment(),
+            'procedure'                => $linkedSegment->getProcedure(),
+            'recommendation'           => '<p>Kopierter Text ohne Verknüpfung</p>',
+        ])->_real();
+        $boilerplate = $this->createBoilerplateFor($linkedSegment->getProcedure());
+        $this->linkByTag($boilerplate, $linkedSegment);
+        $this->boilerplateUsageRepository->addUsage($boilerplate, $legacySegment);
+        $this->getEntityManager()->flush();
+
+        // act
+        $rows = $this->sut->getBoilerplateUsagesForDisplay($boilerplate->getId(), $boilerplate->getProcedureId());
+        $count = $this->sut->getBoilerplateUsageCount($boilerplate->getId(), $boilerplate->getProcedureId());
+
+        // assert
+        static::assertCount(1, $rows);
+        static::assertSame($linkedSegment->getId(), $rows[0]['id']);
+        static::assertSame(1, $count);
+    }
+
     private function createBoilerplateFor(object $procedure, string $text = 'Textbaustein'): Boilerplate
     {
         return BoilerplateFactory::createOne(['procedure' => $procedure, 'text' => $text])->_real();
+    }
+
+    /**
+     * Links the boilerplate the way the editor does: the recommendation holds the reference
+     * tag and a usage row exists. A usage row alone (a pasted copy from before DPLAN-18271)
+     * is deliberately not enough to count as linked.
+     */
+    private function linkByTag(Boilerplate $boilerplate, Statement $statementOrSegment): void
+    {
+        $statementOrSegment->setRecommendation(
+            "<dp-boilerplate boilerplate-id=\"{$boilerplate->getId()}\"></dp-boilerplate>"
+        );
+        $this->getEntityManager()->flush();
+        $this->boilerplateUsageRepository->addUsage($boilerplate, $statementOrSegment);
     }
 }
