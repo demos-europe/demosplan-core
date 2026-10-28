@@ -57,6 +57,17 @@ class ViewOrientation
         return self::create(ExportTemplate::LANDSCAPE->value);
     }
 
+    /**
+     * Templates containing "landscape" and the prioritization template are exported in landscape.
+     */
+    public static function createForTemplate(string $template): ViewOrientation
+    {
+        $isLandscape = str_contains($template, ExportTemplate::LANDSCAPE->value)
+            || ExportTemplate::PORTRAIT_WITH_PRIORITIZATION->value === $template;
+
+        return $isLandscape ? self::createLandscape() : self::createPortrait();
+    }
+
     public function isLandscape(): bool
     {
         return ExportTemplate::LANDSCAPE->value === $this->getName();
