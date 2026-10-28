@@ -985,6 +985,11 @@ services:
         arguments:
             $segmentPersister: '@fos_elastica.object_persister.statementSegments'
 
+    demosplan\DemosPlanCoreBundle\Logic\Procedure\BoilerplateTextChangePropagator:
+        arguments:
+            $segmentPersister: '@fos_elastica.object_persister.statementSegments'
+            $statementPersister: '@fos_elastica.object_persister.statements'
+
 
     demosplan\DemosPlanCoreBundle\Logic\Statement\SegmentMarkParser: ~
 
