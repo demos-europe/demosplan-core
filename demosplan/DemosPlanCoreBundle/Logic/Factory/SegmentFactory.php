@@ -15,7 +15,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Factory;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\Factory\SegmentFactoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
+#[AsAlias(SegmentFactoryInterface::class)]
 class SegmentFactory implements SegmentFactoryInterface
 {
     public function createNew(): SegmentInterface

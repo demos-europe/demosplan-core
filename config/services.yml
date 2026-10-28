@@ -88,24 +88,7 @@ services:
         arguments:
             $strategies: !tagged_iterator entity_custom_field_usage_removal_strategy
 
-
-    DemosEurope\DemosplanAddon\Contracts\Services\TagServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Statement\TagService'
-
-    DemosEurope\DemosplanAddon\Contracts\Services\ProcedureTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTypeService'
-
-    DemosEurope\DemosplanAddon\Contracts\Services\ProcedurePhaseDefinitionServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService'
-
-    DemosEurope\DemosplanAddon\Contracts\Services\CustomerServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\User\CustomerService'
-
     DemosEurope\DemosplanAddon\Contracts\Services\MailServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\MailService'
-
-    DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\GisLayerFactory'
-
-    DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\BoilerplateFactory'
-
-    DemosEurope\DemosplanAddon\Contracts\Factory\BoilerplateCategoryFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\BoilerplateCategoryFactory'
-
-    DemosEurope\DemosplanAddon\Contracts\Factory\SegmentFactoryInterface: '@demosplan\DemosPlanCoreBundle\Logic\Factory\SegmentFactory'
 
     DemosEurope\DemosplanAddon\Contracts\Factory\PercentageDistributionFactoryInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
@@ -119,15 +102,11 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Services\TransactionServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\TransactionService'
 
-    DemosEurope\DemosplanAddon\Contracts\Services\ServiceImporterInterface: '@demosplan\DemosPlanCoreBundle\Tools\ServiceImporter'
-
     DemosEurope\DemosplanAddon\Contracts\FileUploadServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\FileUploadService'
 
     DemosEurope\DemosplanAddon\Contracts\CurrentContextProviderInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\CurrentContextProvider
-
-    DemosEurope\DemosplanAddon\Contracts\Repositories\UserRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\UserRepository'
 
     DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService'
@@ -150,8 +129,6 @@ services:
     DemosEurope\DemosplanAddon\Contracts\StatementCreatorInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Statement\SimplifiedStatement\ManualSimplifiedStatementCreator
 
-    DemosEurope\DemosplanAddon\Contracts\FileServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\FileService'
-
     DemosEurope\DemosplanAddon\Contracts\CurrentProcedureServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService
 
@@ -163,8 +140,6 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\PercentageDistributionTransformerInterface:
         class: demosplan\DemosPlanCoreBundle\Transformers\PercentageDistributionTransformer
-
-    DemosEurope\DemosplanAddon\Contracts\PermissionsInterface: '@demosplan\DemosPlanCoreBundle\Permissions\Permissions'
 
     DemosEurope\DemosplanAddon\Contracts\Handler\StatementHandlerInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler'
@@ -266,12 +241,8 @@ services:
     DemosEurope\DemosplanAddon\Contracts\Events\IsFileAvailableEventInterface:
         class: demosplan\DemosPlanCoreBundle\Event\IsFileAvailableEvent
 
-    DemosEurope\DemosplanAddon\Contracts\Services\MapProjectionConverterInterface: '@demosplan\DemosPlanCoreBundle\Logic\Maps\MapProjectionConverter'
-
     DemosEurope\DemosplanAddon\Contracts\Services\StatementServiceInterface:
         class: demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService
-
-    DemosEurope\DemosplanAddon\Permission\AccessControl\AccessControlRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\AccessControlRepository'
 
     DemosEurope\DemosplanAddon\Contracts\Services\UserServiceInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\User\UserService'
@@ -553,8 +524,6 @@ services:
         arguments:
             $attributeValidationDepth: 20
             $attributeAllowAnythingBelowValidationDepth: true
-
-    DemosEurope\DemosplanAddon\Contracts\ApiRequest\JsonApiEsServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiEsService'
 
     demosplan\DemosPlanCoreBundle\Logic\Logger\ApiLogger: ~
 
@@ -1226,8 +1195,6 @@ services:
     demosplan\DemosPlanCoreBundle\Logic\User\AddressBookEntryService:
         lazy: true
 
-    DemosEurope\DemosplanAddon\Contracts\Services\OrgaServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\User\OrgaService'
-
     demosplan\DemosPlanCoreBundle\Logic\User\OrgaService:
         lazy: true
         public: true
@@ -1454,14 +1421,6 @@ services:
 
     # HEY YOU, YES YOU! STOP! Please follow the alphabetical order and
     # do NOT just add new code to the end of this file.
-
-    DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface: '@demosplan\DemosPlanCoreBundle\Permissions\Permissions'
-
-    DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\ApiRequest\JsonApiResourceTypeService'
-
-    DemosEurope\DemosplanAddon\Contracts\Services\SegmentServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService'
-
-    DemosEurope\DemosplanAddon\Contracts\Services\SegmentTransformerInterface: '@demosplan\DemosPlanCoreBundle\Transformers\Segment\DraftsInfoToSegmentTransformer'
 
     # API Platform: Decorate the JSON:API normalizer to return plain UUIDs
     # instead of IRIs (e.g., "550e8400-..." instead of "/api/3.0/Resource/550e8400-...").
