@@ -2527,22 +2527,13 @@ class DemosPlanProcedureController extends BaseController
         );
         $form->handleRequest($request);
 
-        $confirmMessage = 'confirm.boilerplate.edited';
+        // boilerplateId is set to 'new' via route defaults if the value in form is empty
+        // string comparison for readable urls
+        $confirmMessage = 'new' === $boilerplateId ? 'confirm.boilerplate.created' : 'confirm.boilerplate.edited';
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var BoilerplateVO $boilerplate */
             $boilerplate = $form->getData();
-            // boilerplateId is set to 'new' via route defaults if the value in form is empty
-            // string comparison for readable urls
-            try {
-                if ('new' === $boilerplateId) {
-                    $updatedBoilerplate = $procedureService->addBoilerplateVO($procedure, $boilerplate);
-                    $confirmMessage = 'confirm.boilerplate.created';
-                } else {
-                    $updatedBoilerplate = $procedureService->updateBoilerplateVO($boilerplate);
-                }
-            } catch (Exception $e) {
-                $this->logger->error('Could not save boilerplate', ['boilerplateId' => $boilerplateId, 'exception' => $e]);
-            }
+            $updatedBoilerplate = $this->saveBoilerplate($procedure, $boilerplateId, $boilerplate);
 
             if (!$updatedBoilerplate instanceof Boilerplate) {
                 // leave the edit view: after a failed flush the entity manager may be closed
@@ -2568,28 +2559,7 @@ class DemosPlanProcedureController extends BaseController
             ]);
         }
 
-        $includeNewsCategory = $this->permissions->hasPermission('area_news');
-        $includeEmailCategory = $this->permissions->hasPermissions(
-            [
-                'field_send_final_email', // "Classic Schlussmitteilung"
-                'area_admin_invitable_institution', // There seems to be no distinct permission to invite orgas to participate...
-                'area_procedure_send_submitter_email', // "E-Mail an alle Einreichenden"
-                'area_invite_unregistered_public_agencies', // "Unregistrierte TöB einladen"
-                'area_customer_send_mail_to_users', // E-mail to all customer users
-            ],
-            'OR'
-        );
-
-        try {
-            $boilerplateCategories = $procedureService->getBoilerplateCategoryList(
-                $procedure,
-                $includeNewsCategory,
-                $includeEmailCategory
-            );
-        } catch (Exception $e) {
-            $this->logger->error('Failed to load boilerplate categories', [$procedure, $e]);
-            $boilerplateCategories = [];
-        }
+        $boilerplateCategories = $this->getBoilerplateCategoriesOrEmpty($procedure);
         $boilerplateGroups = $procedureService->getBoilerplateGroups($procedure);
 
         return $this->render(
@@ -2607,6 +2577,54 @@ class DemosPlanProcedureController extends BaseController
                 'bluePrintIsTarget'            => $isBluePrintTarget,
             ]
         );
+    }
+
+    /**
+     * Saves a new or an existing boilerplate.
+     *
+     * @return Boilerplate|null null if saving failed
+     */
+    private function saveBoilerplate(string $procedure, string $boilerplateId, BoilerplateVO $boilerplate): ?Boilerplate
+    {
+        try {
+            return 'new' === $boilerplateId
+                ? $this->procedureService->addBoilerplateVO($procedure, $boilerplate)
+                : $this->procedureService->updateBoilerplateVO($boilerplate);
+        } catch (Exception $e) {
+            $this->logger->error('Could not save boilerplate', ['boilerplateId' => $boilerplateId, 'exception' => $e]);
+
+            return null;
+        }
+    }
+
+    /**
+     * Categories the user may choose from in the edit view; an empty list if they cannot be loaded.
+     */
+    private function getBoilerplateCategoriesOrEmpty(string $procedure): array
+    {
+        $includeNewsCategory = $this->permissions->hasPermission('area_news');
+        $includeEmailCategory = $this->permissions->hasPermissions(
+            [
+                'field_send_final_email', // "Classic Schlussmitteilung"
+                'area_admin_invitable_institution', // There seems to be no distinct permission to invite orgas to participate...
+                'area_procedure_send_submitter_email', // "E-Mail an alle Einreichenden"
+                'area_invite_unregistered_public_agencies', // "Unregistrierte TöB einladen"
+                'area_customer_send_mail_to_users', // E-mail to all customer users
+            ],
+            'OR'
+        );
+
+        try {
+            return $this->procedureService->getBoilerplateCategoryList(
+                $procedure,
+                $includeNewsCategory,
+                $includeEmailCategory
+            );
+        } catch (Exception $e) {
+            $this->logger->error('Failed to load boilerplate categories', [$procedure, $e]);
+
+            return [];
+        }
     }
 
     /**
