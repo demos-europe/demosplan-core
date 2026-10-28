@@ -16,7 +16,7 @@ All rights reserved
       <h3
         class="text-lg font-semibold"
         data-cy="boilerplateSaveConfirm:title"
-        v-text="Translator.trans('boilerplate.usage.confirm.title', { count })"
+        v-text="Translator.trans('boilerplate.usage.confirm.title', { count: countText })"
       />
     </template>
 
@@ -25,7 +25,7 @@ All rights reserved
       data-cy="boilerplateSaveConfirm:hint"
       type="warning"
     >
-      <span v-text="Translator.trans('boilerplate.usage.confirm.hint.before', { count })" />
+      <span v-text="Translator.trans('boilerplate.usage.confirm.hint.before', { count: countText })" />
       <span
         class="font-semibold"
         v-text="title"
@@ -47,10 +47,10 @@ All rights reserved
 </template>
 
 <script setup lang="ts">
+import { computed, ref } from 'vue'
 import { DpButtonRow, DpInlineNotification, DpModal } from '@demos-europe/demosplan-ui'
-import { ref } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   // Number of segments that use the boilerplate
   count: number
   // Saved title of the boilerplate
@@ -60,6 +60,9 @@ defineProps<{
 const emit = defineEmits<{
   confirm: []
 }>()
+
+// Translator expects string params
+const countText = computed(() => String(props.count))
 
 const modal = ref<{ toggle(): void } | null>(null)
 
