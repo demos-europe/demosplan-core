@@ -96,8 +96,6 @@ class DemosPlanDocumentController extends BaseController
      * @param string $procedure
      * @param string $elementId
      *
-     * @return RedirectResponse|Response
-     *
      * @throws Exception
      */
     #[DplanPermissions('area_admin_paragraphed_document')]
@@ -686,8 +684,6 @@ class DemosPlanDocumentController extends BaseController
 
     /**
      * Save imported elements and redirect to route: @see elementAdminListAction.
-     *
-     * @return Response
      *
      * @throws Exception
      */

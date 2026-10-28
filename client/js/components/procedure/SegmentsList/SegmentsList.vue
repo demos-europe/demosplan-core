@@ -540,6 +540,7 @@ import {
   tableSelectAllItems,
   VPopover,
 } from '@demos-europe/demosplan-ui'
+import { CUSTOM_FIELD_GROUP_PREFIX, useApiPlatformFilters } from '@DpJs/composables/useApiPlatformFilters'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
 import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
@@ -555,7 +556,6 @@ import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaToolti
 import StatusBadge from '../Shared/StatusBadge'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
-import { useApiPlatformFilters } from '@DpJs/composables/useApiPlatformFilters'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 
@@ -563,6 +563,9 @@ const SEGMENT_EXPORT_ROUTES = {
   xlsx_normal: 'dplan_segment_xlsx_export',
   csv_normal: 'dplan_segment_csv_export',
 }
+
+// Shown for a filter value without a known label, so no raw UUID is shown
+const UNRESOLVED_LABEL_PLACEHOLDER = '…'
 
 export default {
   name: 'SegmentsList',
@@ -857,30 +860,7 @@ export default {
 
     // Filter categories for the export modal, shaped [{ label, values: [String] }]
     appliedFiltersSummary () {
-      const LABEL_PENDING = '…'
-      const valuesByPath = {}
-
-      Object.values(this.getLastAppliedFilterQuery).forEach((filter) => {
-        if (!filter.condition) {
-          return
-        }
-
-        const { path, value } = filter.condition
-
-        valuesByPath[path] = [...(valuesByPath[path] ?? []), value ?? 'unassigned']
-      })
-
-      return Object.entries(valuesByPath).map(([path, values]) => {
-        const labelKey = Object.values(this.filterNames).find(
-          (filterName) => filterName.rootPath === path,
-        )?.labelTranslationKey
-
-        return {
-          label: Translator.trans(labelKey ?? path),
-          // Never surface a raw UUID; show a placeholder until the label resolves
-          values: values.map((id) => this.filterSummaryLabels[id] ?? LABEL_PENDING),
-        }
-      })
+      return [...this.filterSummaryStatic, ...this.filterSummaryCustomFields]
     },
 
     // Overrides tableSelectAllItems mixin to exclude locked segments from selection for users without unlock permission
@@ -920,6 +900,30 @@ export default {
         Translator.trans('filter')
     },
 
+    // Custom field categories of the applied filter, ordered like the filter panel
+    filterSummaryCustomFields () {
+      const valuesByFieldId = {}
+
+      Object.values(this.getLastAppliedFilterQuery).forEach((filter) => {
+        const { memberOf, value } = filter.condition ?? {}
+
+        if (memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX) !== true) {
+          return
+        }
+
+        const fieldId = memberOf.slice(CUSTOM_FIELD_GROUP_PREFIX.length)
+
+        valuesByFieldId[fieldId] = [...(valuesByFieldId[fieldId] ?? []), value]
+      })
+
+      return this.customFieldDefinitions
+        .filter((definition) => valuesByFieldId[definition.id])
+        .map((definition) => ({
+          label: definition.attributes.name,
+          values: valuesByFieldId[definition.id].map((optionId) => this.filterSummaryLabels[optionId] ?? UNRESOLVED_LABEL_PLACEHOLDER),
+        }))
+    },
+
     // Option label by filter value id, sourced from the filter flyout's fetched options
     filterSummaryLabels () {
       // Seed the unassigned label so it resolves regardless of which category was fetched
@@ -937,6 +941,33 @@ export default {
         }))
 
       return labels
+    },
+
+    // Static filter categories of the applied filter, ordered as applied
+    filterSummaryStatic () {
+      const valuesByPath = {}
+
+      Object.values(this.getLastAppliedFilterQuery).forEach((filter) => {
+        // Custom fields are summarized in filterSummaryCustomFields
+        if (!filter.condition || filter.condition.memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX) === true) {
+          return
+        }
+
+        const { path, value } = filter.condition
+
+        valuesByPath[path] = [...(valuesByPath[path] ?? []), value ?? 'unassigned']
+      })
+
+      return Object.entries(valuesByPath).map(([path, values]) => {
+        const labelKey = Object.values(this.filterNames).find(
+          (filterName) => filterName.rootPath === path,
+        )?.labelTranslationKey
+
+        return {
+          label: Translator.trans(labelKey ?? path),
+          values: values.map((id) => this.filterSummaryLabels[id] ?? UNRESOLVED_LABEL_PLACEHOLDER),
+        }
+      })
     },
 
     hasLockedInSelection () {
@@ -1142,18 +1173,11 @@ export default {
         ...defaultFilter,
       }
 
-      const defaultOrder = {
-        'parentStatementOfSegment.submit': 'asc',
-        'parentStatementOfSegment.externId': 'asc',
-        orderInProcedure: 'asc',
-      }
-      const order = this.getSelectedSortParams() ?? defaultOrder
-
       const payload = {
         include,
         fields,
         pagination: true,
-        order,
+        order: this.getSortParams(),
         page,
         itemsPerPage: this.pagination.perPage,
         ...filter,
@@ -1209,43 +1233,25 @@ export default {
     },
 
     /*
-     * Mirrors the filter/search/sort construction in applyQuery() so the export always contains
-     * exactly the segments currently shown in the list - no more (StatementSegmentResourceType's
-     * access conditions alone would also allow segments from procedures coupled via
-     * getAllowedSegmentAccessProcedures(), which sameProcedure excludes here just like it does
-     * for the list itself). columns mirrors orderedHeaderFields, same as buildClipboardText(): the
-     * user's current column selection in their current drag&drop order, externId always first.
+     * Sends the list's filter, search, and sort parameters to the export.
+     * The procedure comes from the route, so no sameProcedure filter is needed.
      */
     handleExportSegments ({ type }) {
       const selectedSegmentIds = this.resolveSelectedSegmentIds()
 
       const filter = {
-        ...this.getLastAppliedFilterQuery,
-        sameProcedure: {
-          condition: {
-            path: 'parentStatement.procedure.id',
-            value: this.procedureId,
-          },
-        },
-        ...(selectedSegmentIds.length > 0 ? {
-          selectedSegments: {
-            condition: {
-              path: 'id',
-              operator: 'IN',
-              value: selectedSegmentIds,
-            },
-          },
-        } : {}),
+        ...this.transformFiltersToApiPlatform(this.getLastAppliedFilterQuery),
+        // The id filter also marks the export as a manual selection
+        ...(selectedSegmentIds.length > 0 ? { id: selectedSegmentIds } : {}),
       }
 
       const orderedFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
-      const columns = orderedFields.map(headerField => headerField.field)
 
       const params = {
         procedureId: this.procedureId,
-        filter,
-        sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
-        columns: columns.join(','),
+        ...filter,
+        order: this.getSortParams(),
+        columns: orderedFields.map(headerField => headerField.field).join(','),
       }
 
       if (this.searchTerm !== '') {
@@ -1538,7 +1544,14 @@ export default {
       return parts.filter(Boolean).join(', ')
     },
 
-    getSelectedSortParams () {
+    // Effective order of the list and its export: the user-selected sort, or the default order
+    getSortParams () {
+      const defaultOrder = {
+        'parentStatementOfSegment.submit': 'asc',
+        'parentStatementOfSegment.externId': 'asc',
+        orderInProcedure: 'asc',
+      }
+
       const sortPaths = {
         deadline: 'deadline',
         externId: 'externId',
@@ -1552,7 +1565,7 @@ export default {
 
       return sortPath && direction ?
         { [sortPath]: direction } :
-        null
+        defaultOrder
     },
 
     /**
@@ -1984,7 +1997,7 @@ export default {
               isLoading: false,
             })
             if (this.getIsExpandedByCategoryId(category.id)) {
-              document.getElementById(`searchField_${path}`).focus()
+              document.getElementById(`searchField_${path}`)?.focus()
             }
           }
         },
@@ -2112,6 +2125,26 @@ export default {
   },
 
   async mounted () {
+    // Seed the store before awaiting anything, so a quick reset can't be overwritten by the URL filter
+    if (
+      Array.isArray(this.initialFilter) === false &&
+      Object.keys(this.initialFilter).length
+    ) {
+      Object.values(this.initialFilter).forEach((filter) => {
+        if (!filter.condition) {
+          return
+        }
+
+        const query = {}
+
+        query[filter.condition.value] = filter
+        this.updateFilterQuery(query)
+      })
+    }
+
+    // Snapshot the initial filters as applied so the first applyQuery fetches with them
+    this.commitFilterQuery()
+
     const addons = await loadAddonComponents('tag.style.segments.list')
 
     this.hasStyledTopicalTags = addons.length > 0
@@ -2133,25 +2166,6 @@ export default {
     if (lscache.get(`${this.procedureId}:navigation:source`)) {
       lscache.remove(`${this.procedureId}:navigation:source`)
     }
-
-    if (
-      Array.isArray(this.initialFilter) === false &&
-      Object.keys(this.initialFilter).length
-    ) {
-      Object.values(this.initialFilter).forEach((filter) => {
-        if (!filter.condition) {
-          return
-        }
-
-        const query = {}
-
-        query[filter.condition.value] = filter
-        this.updateFilterQuery(query)
-      })
-    }
-
-    // Snapshot the initial filters as applied so the first applyQuery fetches with them
-    this.commitFilterQuery()
 
     this.initPagination()
     if (hasPermission('field_segments_custom_fields')) {
