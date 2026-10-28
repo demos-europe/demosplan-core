@@ -646,7 +646,7 @@ export default {
         createHeaderField('internId', Translator.trans('internId.shortened'), 120),
         createHeaderField('meta', Translator.trans('submitter.invitable_institution'), 180),
         createHeaderField('text', Translator.trans('text'), 270),
-        createHeaderField('segmentsCount', Translator.trans('segments'), 120),
+        createHeaderField('segmentsCount', Translator.trans('segments'), 150),
       ],
       isFullscreen: false,
       lsKey: {
