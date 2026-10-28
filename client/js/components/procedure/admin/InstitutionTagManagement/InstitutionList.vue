@@ -509,6 +509,10 @@ export default {
         itemsPerPage: 50,
         pagination: true,
         order: { createdDate: 'desc' },
+        /*
+         * API Platform (3.0): the main resource is keyed by type name, included resources by their
+         * relationship path as given in `include`. Without a matching key an include is dropped.
+         */
         fields: {
           InvitableInstitution: [
             'name',
@@ -517,11 +521,11 @@ export default {
             'assignedTags',
             ...customFields,
           ].join(),
-          InstitutionTag: [
+          assignedTags: [
             'category',
             'name',
           ].join(),
-          InstitutionTagCategory: [
+          'assignedTags.category': [
             'name',
           ].join(),
         },

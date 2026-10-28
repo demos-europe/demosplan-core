@@ -91,6 +91,43 @@ class InvitableInstitutionResourceApiTest extends AbstractApiTest
         self::assertSame([$ownTag->getId()], $tagIds);
     }
 
+    /**
+     * The request InstitutionList.vue sends: sparse fieldsets keyed by type for the main resource and by
+     * relationship path for the included ones, as API Platform expects them.
+     */
+    public function testListReturnsIncludedTagsAndCategoriesWithSparseFieldsets(): void
+    {
+        $institution = $this->getInstitution();
+        $currentCustomer = $this->getCurrentCustomerOf($institution);
+        $tag = InstitutionTagFactory::createOne([
+            'label'    => 'own-tag',
+            'category' => InstitutionTagCategoryFactory::new(['name' => 'own-category', 'customer' => $currentCustomer]),
+        ])->_real();
+        $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
+        $entityManager->find(Orga::class, $institution->getId())->addAssignedTag($tag);
+        $entityManager->flush();
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        $response = $this->sendRequest(
+            self::ROUTE.'?include=assignedTags,assignedTags.category'
+            .'&fields[InvitableInstitution]=name,assignedTags&fields[assignedTags]=name,category&fields[assignedTags.category]=name',
+            'GET',
+            $this->user,
+            null
+        );
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $content = Json::decodeToArray($response->getContent());
+        $row = current(array_filter($content['data'], fn (array $d): bool => $d['id'] === $institution->getId()));
+        self::assertSame(['name'], array_keys($row['attributes']));
+        $included = [];
+        foreach ($content['included'] as $resource) {
+            $included[$resource['type']] = $resource['attributes']['name'];
+        }
+        self::assertSame(['InstitutionTag' => 'own-tag', 'InstitutionTagCategory' => 'own-category'], $included);
+    }
+
     public function testListIsPaginatedAndFilterableByName(): void
     {
         $institution = $this->getInstitution();
