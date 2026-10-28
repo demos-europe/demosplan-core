@@ -65,7 +65,7 @@ class ZipImportService
             Assert::notNull($extractDir);
             $this->finder->files()->in($extractDir);
             if ($this->finder->hasResults()) {
-                /** @var SplFileInfo $file */
+                /** @var \Symfony\Component\Finder\SplFileInfo $file */
                 foreach ($this->finder as $file) {
                     $extension = $file->getExtension();
                     $fileNameParts = explode('_', $file->getFilename());

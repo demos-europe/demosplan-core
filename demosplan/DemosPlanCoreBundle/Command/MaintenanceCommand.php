@@ -115,11 +115,15 @@ class MaintenanceCommand extends CoreCommand implements SignalableCommandInterfa
      * Exit after each export so the memory PhpWord and Elastica allocated is returned to the OS, and
      * only ever run one export at a time. The supervision loop restarts the process.
      *
+     * -vv makes the messenger worker log each received and handled message, which is the only trace
+     * of an export run in the service log. The scheduler consumer stays quiet: it ticks every five seconds.
+     *
      * @return string[]
      */
     private function getExportConsumerOptions(): array
     {
         return [
+            '-vv',
             '--limit=1',
             '--memory-limit='.$this->parameterBag->get('async_export_memory_limit'),
             '--time-limit='.$this->parameterBag->get('async_export_time_limit'),
