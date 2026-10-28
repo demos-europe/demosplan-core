@@ -170,7 +170,7 @@
             lock-checkbox-by="lockedForSelection"
             lock-message-by="lockedForSelectionMessage"
             track-by="id"
-            has-borders
+            expanded-rowspan
             has-flyout
             has-sticky-header
             is-columns-draggable
