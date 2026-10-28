@@ -69,6 +69,8 @@ class EntityContentChangeService
      */
     final public const BOILERPLATE_MATERIALIZED_CONTENT_CHANGE_TYPE = 'boilerplateMaterialized';
 
+    private const TIMEZONE = 'Europe/Berlin';
+
     /**
      * Mapping from classes to a list of properties, with each property mapping to a list of meta information.
      *
@@ -525,7 +527,7 @@ class EntityContentChangeService
             $contentChange,
             $this->determineChanger(false),
             $this->doctrine->getManager()->getClassMetadata(Segment::class)->getName(),
-            new DateTime('now', new DateTimeZone('Europe/Berlin')),
+            new DateTime('now', new DateTimeZone(self::TIMEZONE)),
         );
         $this->entityContentChangeRepository->persistEntities([$entry]);
     }
@@ -571,7 +573,7 @@ class EntityContentChangeService
             $contentChange,
             $this->determineChanger(false),
             ClassUtils::getClass($statementOrSegment),
-            new DateTime('now', new DateTimeZone('Europe/Berlin')),
+            new DateTime('now', new DateTimeZone(self::TIMEZONE)),
         );
         // Runs in the background purge job, where the current user is the anonymous
         // user ("Privatperson"). Attribute the entry to the system instead, as the
@@ -613,7 +615,7 @@ class EntityContentChangeService
                 $diffJson,
                 $this->determineChanger(false),
                 $entityType,
-                new DateTime('now', new DateTimeZone('Europe/Berlin')),
+                new DateTime('now', new DateTimeZone(self::TIMEZONE)),
             ),
         ]);
     }
