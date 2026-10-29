@@ -474,6 +474,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { inlineImageAnchors, stripInlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import CustomSearchStatements from './CustomSearchStatements'
 import { defineAsyncComponent } from 'vue'
 import DpClaim from '@DpJs/components/statement/DpClaim'
@@ -489,6 +490,7 @@ export default {
 
   components: {
     CopyStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal')),
+    CustomFieldsList,
     CustomSearchStatements,
     DpBulkEditHeader,
     DpButton,
@@ -575,6 +577,7 @@ export default {
       },
       // Member counts per group head (keyed by head statement id), fetched from the 3.0 StatementGroup endpoint.
       groupMemberCounts: {},
+      hasCustomFieldContent: null, // was ist das?????
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'status', label: Translator.trans('status') },
@@ -582,6 +585,8 @@ export default {
         { field: 'meta', label: Translator.trans('submitter.invitable_institution') },
         { field: 'text', label: Translator.trans('text') },
         { field: 'segmentsCount', label: Translator.trans('segments') },
+        { field: 'customFieldsCollection', label: Translator.trans('custom.fields.collection') },
+
       ],
       isFullscreen: false,
       lsKey: {
