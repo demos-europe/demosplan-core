@@ -13,7 +13,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Factory;
 use DemosEurope\DemosplanAddon\Contracts\Entities\GisLayerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Factory\GisLayerFactoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Map\GisLayer;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
+#[AsAlias(GisLayerFactoryInterface::class)]
 class GisLayerFactory implements GisLayerFactoryInterface
 {
     public function createGisLayer(): GisLayerInterface

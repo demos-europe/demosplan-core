@@ -19,9 +19,11 @@ use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Service\ResetInterface;
 
+#[AsAlias(CustomerServiceInterface::class)]
 class CustomerService implements CustomerServiceInterface, ResetInterface
 {
     /**
