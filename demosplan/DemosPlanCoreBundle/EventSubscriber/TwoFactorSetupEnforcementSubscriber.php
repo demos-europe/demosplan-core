@@ -54,6 +54,14 @@ class TwoFactorSetupEnforcementSubscriber extends BaseEventSubscriber
     ];
 
     /**
+     * Imprint and data protection stay reachable.
+     */
+    private const LEGAL_ROUTES = [
+        'DemosPlan_misccontent_static_dataprotection',
+        'DemosPlan_misccontent_static_imprint',
+    ];
+
+    /**
      * The welcome page (CheckOrgadataMissingSubscriber) comes first: a new user completes the profile,
      * then sets up the second factor. Remove these routes to reverse the order.
      */
@@ -111,6 +119,7 @@ class TwoFactorSetupEnforcementSubscriber extends BaseEventSubscriber
         // Internal routes like the profiler, web debug toolbar and error pages
         return str_starts_with($route, '_')
             || in_array($route, self::ALLOWED_ROUTES, true)
+            || in_array($route, self::LEGAL_ROUTES, true)
             || in_array($route, self::WELCOME_ROUTES, true);
     }
 
