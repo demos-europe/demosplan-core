@@ -161,6 +161,8 @@ export default {
     return {
       addonPayload: { /** The payload required for addon requests. When a value is entered in the addon field, it emits data that must include the following fields */
         attributes: null,
+        // Optional () => Promise<boolean> of the addon, e.g. to ask for a confirmation; false cancels the save
+        beforeSave: null,
         id: '',
         initValue: '',
         resourceType: '',
@@ -376,6 +378,13 @@ export default {
           const toggleConfirmed = await this.confirmProcedureCreationToggle()
 
           if (!toggleConfirmed) {
+            return
+          }
+
+          // Cancelling keeps the form open with all changes
+          const isAddonSaveAllowed = await (this.addonPayload.beforeSave?.() ?? true)
+
+          if (!isAddonSaveAllowed) {
             return
           }
 
