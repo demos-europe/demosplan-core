@@ -25,7 +25,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && apt-get --no-install-recommends install acl bind9-host ca-certificates curl  \
     gettext-base npm unzip -y \
     && mkdir -p /opt/uploads
-COPY --link --from=composer:2.9.8 /usr/bin/composer /usr/bin/composer
+COPY --link --from=composer:2.10.3 /usr/bin/composer /usr/bin/composer
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod
@@ -210,7 +210,9 @@ RUN rm /srv/www/projects/$PROJECT_NAME/app/config/parameters.yml && \
     chown -R www-data /opt/uploads && \
     chown -R www-data /srv/www/public/uploads && \
 # build-time only, see the sbom-js stage \
-    rm -f /srv/www/sbom-prod-filter.php
+    rm -f /srv/www/sbom-prod-filter.php && \
+# the package's own Swagger UI tooling lockfile (dompurify 1.0.11); never loaded at runtime \
+    rm -f /srv/www/vendor/cebe/php-openapi/yarn.lock /srv/www/vendor/cebe/php-openapi/package.json
 
 # Runtime OS + PHP, without build tools (Node.js, npm, composer, compiler)
 FROM php-base AS runtime-base
@@ -226,7 +228,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && apt-get --no-install-recommends install acl bind9-host ca-certificates curl \
        default-mysql-client gettext-base libfcgi-bin lnav unzip vim-tiny -y \
     && apt-get purge -y --auto-remove autoconf dpkg-dev file g++ gcc libc-dev make pkg-config re2c \
-       binutils cpp-12 g++-12 gcc-12 libc6-dev libgcc-12-dev libstdc++-12-dev \
+       binutils cpp-12 g++-12 gcc-12 libc6-dev libgcc-12-dev libstdc++-12-dev linux-libc-dev \
     && test ! -e /usr/lib/gcc \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /usr/src/php.tar.xz* /usr/local/include/php \

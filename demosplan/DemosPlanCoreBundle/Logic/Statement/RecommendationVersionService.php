@@ -105,6 +105,29 @@ class RecommendationVersionService
     }
 
     /**
+     * A boilerplate's text changed, so the rendered recommendation of every statement/segment
+     * using it changed while its stored (tag-form) value did not. Records the rendered text
+     * from BEFORE the change, unless nothing visible changed.
+     *
+     * @return RecommendationVersion|null null if the rendered text is unchanged
+     */
+    public function recordVersionForBoilerplateTextChange(
+        Statement $statement,
+        string $oldSubstitutedRecommendation,
+        string $newSubstitutedRecommendation,
+    ): ?RecommendationVersion {
+        if ($oldSubstitutedRecommendation === $newSubstitutedRecommendation) {
+            return null;
+        }
+
+        return $this->createVersionIfNeeded(
+            $statement,
+            $oldSubstitutedRecommendation,
+            $this->repository->getLatestVersionNumber($statement->getId())
+        );
+    }
+
+    /**
      * Batch-aware version of {@see recordVersion()} for bulk edits.
      *
      * Pre-fetches all latest version numbers in a single query to avoid N+1.

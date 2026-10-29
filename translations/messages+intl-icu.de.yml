@@ -296,6 +296,18 @@ boilerplate.materialized.in.recommendation: "Der Textbaustein „{title}“ wurd
 boilerplate.none: "Kein Textbaustein"
 boilerplate.none.defined: "Keine Textbausteine definiert."
 boilerplate.none.generated: "Keine Textbausteine angelegt"
+boilerplate.usage.confirm.button: "Änderung übernehmen"
+boilerplate.usage.confirm.hint.after: "“ verwendet wird."
+boilerplate.usage.confirm.hint.before: |
+    {count, plural,
+        =1 { Die Änderung betrifft den Abschnitt, in dem der Textbaustein „ }
+        other { Die Änderung betrifft alle # Abschnitte, in denen der Textbaustein „ }
+    }
+boilerplate.usage.confirm.title: |
+    {count, plural,
+        =1 { Änderung für einen Abschnitt übernehmen? }
+        other { Änderung für # Abschnitte übernehmen? }
+    }
 boilerplate.usage.filter.locked: "Nur gesperrte Abschnitte anzeigen"
 boilerplate.usage.headline: "Verknüpfte Abschnitte ({count}):"
 boilerplate.usage.headline.locked: "Verknüpfte Abschnitte ({count}), davon {lockedCount} gesperrt:"
@@ -1779,6 +1791,7 @@ export.image.load.error: "Bild konnte nicht geladen werden"
 export.pageLayout: "Seitenlayout"
 export.landscape: "Querformat"
 export.landscape.fragments: "Querformat (mit Datensätzen)"
+export.landscape.prioritization_structure: "Querformat (mit Priorisierung und Gliederung)"
 export.newPagePerStatement: "Seitenumbruch nach jeder Stellungnahme einfügen"
 export.numbered_statements: "Nummeriert"
 export.options: "Exportoptionen"
@@ -1786,7 +1799,6 @@ export.pdf.anonymous: "PDF (anonymisiert)"
 export.pdf: "PDF"
 export.portrait: "Hochformat"
 export.portrait.fragments: "Hochformat (mit Datensätzen)"
-export.portrait.prioritization_structure: "Hochformat (mit Priorisierung und Gliederung)"
 export.potentialAreas: "Potenzialflächen"
 export.segments: "Abschnitte exportieren"
 export.segments.count: "{count, plural, one {# Abschnitt exportieren} other {# Abschnitte exportieren}}"
