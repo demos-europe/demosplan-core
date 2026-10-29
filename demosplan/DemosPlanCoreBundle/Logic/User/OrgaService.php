@@ -747,14 +747,14 @@ class OrgaService implements OrgaServiceInterface
             $this->reportService->persistAndFlushReportEntries($showlistEntry);
         }
 
-        if (array_key_exists('twoFactorRequired', $data)
+        if (array_key_exists(Orga::TWO_FACTOR_REQUIRED, $data)
             && null !== $twoFactorRequiredBefore
-            && (bool) $data['twoFactorRequired'] !== $twoFactorRequiredBefore) {
+            && (bool) $data[Orga::TWO_FACTOR_REQUIRED] !== $twoFactorRequiredBefore) {
             $twoFactorEntry = $this->organisationReportEntryFactory->createTwoFactorRequiredEntry(
                 $user,
                 $orgaId,
                 (string) ($data['name'] ?? ''),
-                (bool) $data['twoFactorRequired']
+                (bool) $data[Orga::TWO_FACTOR_REQUIRED]
             );
 
             $this->reportService->persistAndFlushReportEntries($twoFactorEntry);

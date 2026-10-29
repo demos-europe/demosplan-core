@@ -186,7 +186,7 @@ class OrgaHandler extends CoreHandler
         }
 
         if ($this->currentUser->hasPermission('field_organisation_two_factor_required')) {
-            $writableAttributes[] = 'twoFactorRequired';
+            $writableAttributes[] = Orga::TWO_FACTOR_REQUIRED;
         }
 
         // these are writable in 'portal' mode only

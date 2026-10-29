@@ -428,8 +428,8 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
             $entity->setShowname(true);
         }
 
-        if (array_key_exists('twoFactorRequired', $data)) {
-            $entity->setTwoFactorRequired((bool) $data['twoFactorRequired']);
+        if (array_key_exists(Orga::TWO_FACTOR_REQUIRED, $data)) {
+            $entity->setTwoFactorRequired((bool) $data[Orga::TWO_FACTOR_REQUIRED]);
         }
 
         if (array_key_exists('copy', $data)) {
