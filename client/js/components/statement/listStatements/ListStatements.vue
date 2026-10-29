@@ -350,6 +350,17 @@
             </button>
           </dp-flyout>
         </template>
+        <template v-slot:customFieldsCollection="{ id }">
+          <custom-fields-list
+            :definition-source-id="procedureId"
+            :resource-id="id"
+            batch-filter-path="procedure.id"
+            resource-type="Statement"
+            source-entity="PROCEDURE"
+            target-entity="STATEMENT"
+          >
+          </custom-fields-list>
+        </template>
         <template v-slot:expandedContent="{ text, fullText, id }">
           <!-- Statement meta data -->
           <statement-meta-data
@@ -577,7 +588,6 @@ export default {
       },
       // Member counts per group head (keyed by head statement id), fetched from the 3.0 StatementGroup endpoint.
       groupMemberCounts: {},
-      hasCustomFieldContent: null, // was ist das?????
       headerFields: [
         { field: 'externId', label: Translator.trans('id') },
         { field: 'status', label: Translator.trans('status') },
