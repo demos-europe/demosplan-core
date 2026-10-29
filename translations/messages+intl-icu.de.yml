@@ -31,7 +31,11 @@
 2fa.required.optional.hint: "Nutzer*innen müssen sich nicht mit einem zweiten Faktor anmelden."
 2fa.required.update.failed: "Die Zwei-Faktor-Authentifizierung konnte für {count, plural, one {eine Organisation} other {# Organisationen}} nicht geändert werden."
 2fa.required.updated: "Die Zwei-Faktor-Authentifizierung wurde für {count, plural, one {eine Organisation} other {# Organisationen}} geändert."
-2fa.setup.required.hint: "{count, plural, one {Ihre Organisation} other {Ihre Organisationen}} {orgaNames} {count, plural, one {verlangt} other {verlangen}} eine Zwei-Faktor-Authentifizierung. Bitte richten Sie unten einen zweiten Faktor ein (Authenticator-App oder Code per E-Mail). Bis dahin können Sie die Anwendung nicht nutzen. Bei Rückfragen wenden Sie sich an die Administration Ihrer Organisation."
+2fa.setup.required.hint: >-
+    {count, plural, one {Ihre Organisation} other {Ihre Organisationen}} {orgaNames}
+    {count, plural, one {verlangt} other {verlangen}} eine Zwei-Faktor-Authentifizierung. Bitte richten Sie unten einen
+    zweiten Faktor ein (Authenticator-App oder Code per E-Mail). Bis dahin können Sie die Anwendung nicht nutzen. Bei
+    Rückfragen wenden Sie sich an die Administration Ihrer Organisation.
 2fa.email.login.explanation: '<p class="weight--normal">Sollten Sie nach kurzer Zeit keine Email bekommen haben, brechen Sie den Vorgang bitte ab und melden sich erneut an. Bei der Anmeldung wird automatisch eine Email an die im System hinterlegte Adresse verschickt.</p>'
 abort: "Abbrechen"
 abort.and.back: "Abbrechen und zurück"
@@ -1225,6 +1229,9 @@ entries.search: "Einträge durchsuchen"
 entries.selected: "Einträge ausgewählt"
 entry.selected: "Eintrag ausgewählt"
 error.2fa.code.invalid: "Der eingegebene Code ist ungültig."
+error.2fa.disable.required: >-
+    Ihre Organisation verlangt eine Zwei-Faktor-Authentifizierung. Der letzte eingerichtete Faktor kann deshalb nicht
+    deaktiviert werden. Richten Sie zuerst einen anderen Faktor ein, wenn Sie wechseln möchten.
 error.404.title: "Seite nicht gefunden"
 error.404: "Unter dem angefragten Pfad {path} wurde kein Inhalt gefunden."
 error.404.action: "Zurück zur <a href=\"{homepage}\">Startseite</a>."

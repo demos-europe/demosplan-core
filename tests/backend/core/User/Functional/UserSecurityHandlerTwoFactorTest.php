@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\User\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
@@ -19,17 +20,21 @@ use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\UserReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\User\TwoFactorRequirementResolver;
+use demosplan\DemosPlanCoreBundle\Logic\User\TwoFactorSetupEnforcer;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserSecurityHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use Doctrine\ORM\EntityManagerInterface;
 use OTPHP\TOTP;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\NullLogger;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Totp\TotpAuthenticator;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Tests\Base\FunctionalTestCase;
 
 /**
- * Setup report of the UserSecurityHandler with real services.
+ * Setup report and last-factor guard of the UserSecurityHandler with real services.
  */
 class UserSecurityHandlerTwoFactorTest extends FunctionalTestCase
 {
@@ -53,6 +58,11 @@ class UserSecurityHandlerTwoFactorTest extends FunctionalTestCase
             $container->get(UserService::class),
             $container->get(UserReportEntryFactory::class),
             $container->get(ReportService::class),
+            new TwoFactorSetupEnforcer(
+                $container->get(CurrentUserInterface::class),
+                new TwoFactorRequirementResolver(),
+                new RequestStack()
+            ),
             new NullLogger()
         );
     }
@@ -109,6 +119,59 @@ class UserSecurityHandlerTwoFactorTest extends FunctionalTestCase
 
         self::assertFalse($user->isTotpEnabled());
         self::assertSame([], $this->findSetupEntries($user));
+    }
+
+    /**
+     * @param list<string> $disabledPermissions
+     */
+    #[DataProvider('guardProvider')]
+    public function testDisableGuard(
+        string $method,
+        bool $totpEnabled,
+        bool $emailEnabled,
+        bool $orgaRequires,
+        array $disabledPermissions,
+        bool $expectRejected,
+    ): void {
+        $user = $this->arrangeUser($totpEnabled, $emailEnabled, $orgaRequires, $disabledPermissions);
+        $user->setTotpSecret(self::TOTP_SECRET);
+        $user->setEmailAuthCode(self::EMAIL_CODE);
+        $data = 'totp' === $method
+            ? ['disableTwoFactorCode' => $this->validTotpCode()]
+            : ['disableTwoFactorCodeEmail' => self::EMAIL_CODE];
+        if ($expectRejected) {
+            $this->messageBag->expects(self::once())->method('add')->with('error', 'error.2fa.disable.required');
+        } else {
+            $this->messageBag->expects(self::never())->method('add');
+        }
+
+        $this->sut->handleUserSecurityPropertiesUpdate($user, $data);
+
+        $stillEnabled = 'totp' === $method ? $user->isTotpEnabled() : $user->isEmailAuthEnabled();
+        self::assertSame($expectRejected, $stillEnabled);
+    }
+
+    public static function guardProvider(): array
+    {
+        return [
+            'only totp, required'      => ['totp', true, false, true, [], true],
+            'only email, required'     => ['email', false, true, true, [], true],
+            'both, disable totp'       => ['totp', true, true, true, [], false],
+            'both, disable email'      => ['email', true, true, true, [], false],
+            'orga feature missing'     => ['totp', true, false, true, [self::FEATURE_ORGA_REQUIREMENT], false],
+            'feature 2fa missing'      => ['email', false, true, true, [self::FEATURE_2FA], false],
+            'orga does not require it' => ['totp', true, false, false, [], false],
+        ];
+    }
+
+    public function testAdminResetIsNotAffectedByGuard(): void
+    {
+        $user = $this->arrangeUser(true, false);
+
+        $this->sut->resetTwoFactorAuthentication($user);
+
+        self::assertFalse($user->isTotpEnabled());
+        self::assertFalse($user->isEmailAuthEnabled());
     }
 
     /**

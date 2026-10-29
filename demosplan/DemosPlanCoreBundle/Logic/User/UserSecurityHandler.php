@@ -28,6 +28,7 @@ class UserSecurityHandler
         private readonly UserService $userService,
         private readonly UserReportEntryFactory $userReportEntryFactory,
         private readonly ReportService $reportService,
+        private readonly TwoFactorSetupEnforcer $twoFactorSetupEnforcer,
         private readonly LoggerInterface $logger,
     ) {
     }
@@ -71,7 +72,9 @@ class UserSecurityHandler
         }
 
         if (isset($updateUserData['disableTwoFactorCode']) && '' !== $updateUserData['disableTwoFactorCode']) {
-            if ($this->totpAuthenticator->checkCode($user, $updateUserData['disableTwoFactorCode'])) {
+            if ($this->twoFactorSetupEnforcer->isDisableLockedFor($user, 'totp')) {
+                $this->messageBag->add('error', 'error.2fa.disable.required');
+            } elseif ($this->totpAuthenticator->checkCode($user, $updateUserData['disableTwoFactorCode'])) {
                 $user->setTotpEnabled(false);
                 $user->setTotpSecret(null);
                 $this->userService->updateUserObject($user);
@@ -96,7 +99,9 @@ class UserSecurityHandler
         }
 
         if (isset($updateUserData['disableTwoFactorCodeEmail']) && '' !== $updateUserData['disableTwoFactorCodeEmail']) {
-            if ($user->getEmailAuthCode() === $updateUserData['disableTwoFactorCodeEmail']) {
+            if ($this->twoFactorSetupEnforcer->isDisableLockedFor($user, 'email')) {
+                $this->messageBag->add('error', 'error.2fa.disable.required');
+            } elseif ($user->getEmailAuthCode() === $updateUserData['disableTwoFactorCodeEmail']) {
                 $user->setAuthCodeEmailEnabled(false);
                 $user->setEmailAuthCode('');
                 $this->userService->updateUserObject($user);

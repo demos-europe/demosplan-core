@@ -1,3 +1,4 @@
+{% set disableLocked = templateVars.twoFactorSetup.disableLocked|default(false) %}
 {% if hasPermission('feature_2fa') %}
     <h2 class="mt-6">{{ '2fa'|trans }}</h2>
 
@@ -23,14 +24,18 @@
 
             {% if user.totpEnabled %}
                 <p>{{ '2fa.totp.activated'|trans|wysiwyg }}</p>
-                {{ uiComponent('form.element', {
-                    label: { text: '2fa.code'|trans },
-                    control: { name: 'disableTwoFactorCode' },
-                    type: 'text',
-                    id: 'disableTwoFactorCode',
-                    elementClass: 'u-mb-0_25',
-                    disabled: false
-                }) }}
+                {% if disableLocked %}
+                    <p>{{ 'error.2fa.disable.required'|trans }}</p>
+                {% else %}
+                    {{ uiComponent('form.element', {
+                        label: { text: '2fa.code'|trans },
+                        control: { name: 'disableTwoFactorCode' },
+                        type: 'text',
+                        id: 'disableTwoFactorCode',
+                        elementClass: 'u-mb-0_25',
+                        disabled: false
+                    }) }}
+                {% endif %}
             {% endif %}
         </div>
         <div>
@@ -53,14 +58,18 @@
             {% endif %}
             {% if user.emailAuthEnabled %}
                 <p>{{ '2fa.email.activated'|trans({'link': path('DemosPlan_user_2fa_email_send') })|wysiwyg }}</p>
-                {{ uiComponent('form.element', {
-                    label: { text: '2fa.code'|trans },
-                    control: { name: 'disableTwoFactorCodeEmail' },
-                    type: 'text',
-                    id: 'disableTwoFactorCodeEmail',
-                    elementClass: 'u-mb-0_25',
-                    disabled: false
-                }) }}
+                {% if disableLocked %}
+                    <p>{{ 'error.2fa.disable.required'|trans }}</p>
+                {% else %}
+                    {{ uiComponent('form.element', {
+                        label: { text: '2fa.code'|trans },
+                        control: { name: 'disableTwoFactorCodeEmail' },
+                        type: 'text',
+                        id: 'disableTwoFactorCodeEmail',
+                        elementClass: 'u-mb-0_25',
+                        disabled: false
+                    }) }}
+                {% endif %}
             {% endif %}
         </div>
     </div>

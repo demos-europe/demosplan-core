@@ -107,7 +107,7 @@ class TwoFactorSetupEnforcerTest extends FunctionalTestCase
     {
         $this->arrangeUser(['A' => true], setupPending: false);
 
-        self::assertSame(['required' => false, 'orgaNames' => []], $this->sut->getSetupState());
+        self::assertSame(['required' => false, 'orgaNames' => [], 'disableLocked' => false], $this->sut->getSetupState());
     }
 
     #[DataProvider('completionProvider')]
@@ -134,6 +134,38 @@ class TwoFactorSetupEnforcerTest extends FunctionalTestCase
         ];
     }
 
+    #[DataProvider('disableInputProvider')]
+    public function testProfileTemplateHidesDisableInputOfLastFactor(
+        bool $totpEnabled,
+        bool $emailAuthEnabled,
+        bool $orgaRequires,
+        bool $expectLocked,
+    ): void {
+        $user = $this->arrangeUser(['A' => $orgaRequires], $totpEnabled, $emailAuthEnabled, false);
+        $user->setTotpSecret('SECRET');
+
+        $html = self::getContainer()->get('twig')->render(
+            '@DemosPlanCore/DemosPlanUser/portal_profile.html.twig',
+            ['templateVars' => ['twoFactorSetup' => $this->sut->getSetupState()], 'user' => $user, 'hasIdentityprovider' => false, 'projectName' => 'test']
+        );
+
+        $hint = 'Der letzte eingerichtete Faktor kann deshalb nicht deaktiviert werden';
+        self::assertSame($expectLocked, str_contains($html, $hint));
+        self::assertSame($totpEnabled && !$expectLocked, str_contains($html, 'name="disableTwoFactorCode"'));
+        self::assertSame($emailAuthEnabled && !$expectLocked, str_contains($html, 'name="disableTwoFactorCodeEmail"'));
+    }
+
+    public static function disableInputProvider(): array
+    {
+        return [
+            'only totp, required'  => [true, false, true, true],
+            'only email, required' => [false, true, true, true],
+            'both, required'       => [true, true, true, false],
+            'only totp, optional'  => [true, false, false, false],
+            'only email, optional' => [false, true, false, false],
+        ];
+    }
+
     #[DataProvider('renderProvider')]
     public function testProfileTemplateRendersHintOnlyWhenRequired(bool $required): void
     {
@@ -149,6 +181,47 @@ class TwoFactorSetupEnforcerTest extends FunctionalTestCase
         self::assertStringNotContainsString('<b>Tatort</b>', $html);
     }
 
+    /**
+     * @param array<string, bool> $orgas
+     * @param list<string>        $disabledPermissions
+     */
+    #[DataProvider('requirementProvider')]
+    public function testIsRequirementActiveAndDisableLocked(
+        bool $expectedActive,
+        bool $expectedLocked,
+        array $orgas,
+        bool $totpEnabled,
+        bool $emailAuthEnabled,
+        array $disabledPermissions = [],
+    ): void {
+        // The session flag is irrelevant for the requirement
+        $this->arrangeUser($orgas, $totpEnabled, $emailAuthEnabled, false, $disabledPermissions);
+
+        self::assertSame($expectedActive, $this->sut->isRequirementActive());
+        self::assertSame($expectedLocked, $this->sut->getSetupState()['disableLocked']);
+    }
+
+    public static function requirementProvider(): array
+    {
+        return [
+            'only totp'                  => [true, true, ['A' => true], true, false],
+            'only email'                 => [true, true, ['A' => true], false, true],
+            'both factors'               => [true, false, ['A' => true], true, true],
+            'no factor'                  => [true, false, ['A' => true], false, false],
+            'orga does not require it'   => [false, false, ['A' => false], true, false],
+            'orga feature missing'       => [false, false, ['A' => true], true, false, [self::FEATURE_ORGA_REQUIREMENT]],
+            'feature 2fa missing'        => [false, false, ['A' => true], true, false, [self::FEATURE_2FA]],
+        ];
+    }
+
+    public function testIsDisableLockedForIgnoresOtherUsers(): void
+    {
+        $this->arrangeUser(['A' => true], true, false);
+        $other = UserFactory::createOne(['totpEnabled' => true, 'authCodeEmailEnabled' => false])->_real();
+
+        self::assertFalse($this->sut->isDisableLockedFor($other, 'totp'));
+    }
+
     public function testNothingIsEnforcedWithoutRequest(): void
     {
         $this->arrangeUser(['A' => true]);
@@ -156,7 +229,7 @@ class TwoFactorSetupEnforcerTest extends FunctionalTestCase
 
         self::assertFalse($sut->isEnforced());
         self::assertFalse($sut->completeSetupIfDone());
-        self::assertSame(['required' => false, 'orgaNames' => []], $sut->getSetupState());
+        self::assertSame(['required' => false, 'orgaNames' => [], 'disableLocked' => false], $sut->getSetupState());
     }
 
     public static function renderProvider(): array
