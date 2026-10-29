@@ -752,7 +752,7 @@ export default {
     },
 
     isSelected (id) {
-      return typeof this.selectedOrganisations[id] !== 'undefined'
+      return this.selectedOrganisations[id] !== undefined
     },
 
     onTwoFactorModalToggled (isOpen) {
@@ -804,7 +804,9 @@ export default {
     },
 
     removeFromSelection (id) {
-      const { [id]: _removed, ...rest } = this.selectedOrganisations
+      const rest = { ...this.selectedOrganisations }
+
+      delete rest[id]
 
       this.selectedOrganisations = rest
     },
