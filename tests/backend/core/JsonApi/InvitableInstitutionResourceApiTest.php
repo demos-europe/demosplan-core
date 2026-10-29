@@ -104,14 +104,16 @@ class InvitableInstitutionResourceApiTest extends AbstractApiTest
             'category' => InstitutionTagCategoryFactory::new(['name' => 'own-category', 'customer' => $currentCustomer]),
         ])->_real();
         $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
-        $entityManager->find(Orga::class, $institution->getId())->addAssignedTag($tag);
+        $managedInstitution = $entityManager->find(Orga::class, $institution->getId());
+        $managedInstitution->addAssignedTag($tag);
+        $managedInstitution->setParticipationEmail('beteiligung@example.org');
         $entityManager->flush();
         $this->enablePermissions(['feature_institution_tag_read']);
         $this->loginForApiPlatform();
 
         $response = $this->sendRequest(
             self::ROUTE.'?include=assignedTags,assignedTags.category'
-            .'&fields[InvitableInstitution]=name,assignedTags&fields[assignedTags]=name,category&fields[assignedTags.category]=name',
+            .'&fields[InvitableInstitution]=name,createdDate,participationFeedbackEmailAddress,assignedTags&fields[assignedTags]=name,category&fields[assignedTags.category]=name',
             'GET',
             $this->user,
             null
@@ -120,7 +122,8 @@ class InvitableInstitutionResourceApiTest extends AbstractApiTest
         self::assertSame(Response::HTTP_OK, $response->getStatusCode());
         $content = Json::decodeToArray($response->getContent());
         $row = current(array_filter($content['data'], fn (array $d): bool => $d['id'] === $institution->getId()));
-        self::assertSame(['name'], array_keys($row['attributes']));
+        self::assertSame(['name', 'createdDate', 'participationFeedbackEmailAddress'], array_keys($row['attributes']));
+        self::assertSame('beteiligung@example.org', $row['attributes']['participationFeedbackEmailAddress']);
         $included = [];
         foreach ($content['included'] as $resource) {
             $included[$resource['type']] = $resource['attributes']['name'];
@@ -178,6 +181,43 @@ class InvitableInstitutionResourceApiTest extends AbstractApiTest
         self::assertSame('own-category', Json::decodeToArray($category->getContent())['data']['attributes']['name']);
     }
 
+    public function testListIsOrderedByCreatedDate(): void
+    {
+        $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+        $ids = $this->getIds($this->sendRequest(self::ROUTE.'?pagination=false', 'GET', $this->user, null));
+        self::assertGreaterThan(1, count($ids));
+        foreach ($ids as $index => $id) {
+            $entityManager->find(Orga::class, $id)->setCreatedDate(new \DateTime('2020-01-0'.($index + 1)));
+        }
+        $entityManager->flush();
+
+        $default = $this->getIds($this->sendRequest(self::ROUTE, 'GET', $this->user, null));
+        $ascending = $this->getIds($this->sendRequest(self::ROUTE.'?order[createdDate]=asc', 'GET', $this->user, null));
+        $descending = $this->getIds($this->sendRequest(self::ROUTE.'?order[createdDate]=desc', 'GET', $this->user, null));
+
+        self::assertSame(array_reverse($ids), $default);
+        self::assertSame($ids, $ascending);
+        self::assertSame(array_reverse($ids), $descending);
+    }
+
+    public function testGetRestrictsAttributesToTheRequestedFields(): void
+    {
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        $response = $this->sendRequest(
+            self::ROUTE.'/'.$this->getInstitution()->getId().'?fields[InvitableInstitution]=name',
+            'GET',
+            $this->user,
+            null
+        );
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        self::assertSame(['name'], array_keys(Json::decodeToArray($response->getContent())['data']['attributes']));
+    }
+
     public function testListExcludesDeletedInstitutions(): void
     {
         $institution = $this->getInstitution();
@@ -211,6 +251,16 @@ class InvitableInstitutionResourceApiTest extends AbstractApiTest
         $response = $this->sendRequest(self::ROUTE.'/00000000-0000-4000-8000-000000000000', 'GET', $this->user, null);
 
         self::assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getIds(Response $response): array
+    {
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+
+        return array_column(Json::decodeToArray($response->getContent())['data'], 'id');
     }
 
     private function getInstitution(): Orga

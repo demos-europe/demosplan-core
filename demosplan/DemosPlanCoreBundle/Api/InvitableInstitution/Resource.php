@@ -12,13 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\InvitableInstitution;
 
-use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
-use ApiPlatform\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
+use ApiPlatform\Doctrine\Orm\Filter\SortFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
 use demosplan\DemosPlanCoreBundle\Api\InstitutionTag\Resource as InstitutionTagResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
@@ -40,6 +41,10 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
             paginationClientEnabled: true,
             paginationClientItemsPerPage: true,
             order: ['createdDate' => 'DESC'],
+            parameters: [
+                'name' => new QueryParameter(filter: new PartialSearchFilter(), property: 'name'),
+                'order[:property]' => new QueryParameter(filter: new SortFilter(), properties: ['createdDate']),
+            ],
         ),
         new Get(uriTemplate: '/InvitableInstitution/{id}'),
     ],
@@ -48,13 +53,11 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
     provider: Provider::class,
 )]
 #[ApiFilter(PropertyFilter::class)]
-#[ApiFilter(OrderFilter::class, properties: ['createdDate'])]
 class Resource
 {
     #[ApiProperty(readable: false, identifier: true)]
     public string $id = '';
 
-    #[ApiFilter(SearchFilter::class, strategy: 'ipartial')]
     #[ApiProperty(readable: true, writable: false)]
     public string $name = '';
 
