@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\JsonApi;
 
+use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
@@ -189,7 +190,7 @@ class InvitableInstitutionResourceApiTest extends AbstractApiTest
         $ids = $this->getIds($this->sendRequest(self::ROUTE.'?pagination=false', 'GET', $this->user, null));
         self::assertGreaterThan(1, count($ids));
         foreach ($ids as $index => $id) {
-            $entityManager->find(Orga::class, $id)->setCreatedDate(new \DateTime('2020-01-0'.($index + 1)));
+            $entityManager->find(Orga::class, $id)->setCreatedDate(new DateTime('2020-01-0'.($index + 1)));
         }
         $entityManager->flush();
 

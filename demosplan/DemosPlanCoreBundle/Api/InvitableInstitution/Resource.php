@@ -42,7 +42,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
             paginationClientItemsPerPage: true,
             order: ['createdDate' => 'DESC'],
             parameters: [
-                'name' => new QueryParameter(filter: new PartialSearchFilter(), property: 'name'),
+                'name'             => new QueryParameter(filter: new PartialSearchFilter(), property: 'name'),
                 'order[:property]' => new QueryParameter(filter: new SortFilter(), properties: ['createdDate']),
             ],
         ),
