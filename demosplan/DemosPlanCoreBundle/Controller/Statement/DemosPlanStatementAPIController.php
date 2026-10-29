@@ -55,7 +55,6 @@ use EDT\Wrapping\Utilities\SchemaPathProcessor;
 use Exception;
 use League\Fractal\Resource\Collection;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
@@ -98,8 +97,6 @@ class DemosPlanStatementAPIController extends APIController
     // @improve T12984
     /**
      * Copy Statement into (another) procedure.
-     *
-     * @return APIResponse|JsonResponse
      *
      * @throws MessageBagException
      */
@@ -204,8 +201,6 @@ class DemosPlanStatementAPIController extends APIController
 
     // @improve T12984
     /**
-     * @return APIResponse|JsonResponse
-     *
      * @throws MessageBagException
      */
     #[DplanPermissions('feature_statement_move_to_procedure')]
@@ -314,8 +309,6 @@ class DemosPlanStatementAPIController extends APIController
     // @improve T12984
     /**
      * @param string $statementId
-     *
-     * @return JsonResponse
      */
     #[DplanPermissions('area_admin_assessmenttable')]
     #[Route(path: '/api/1.0/statements/{procedureId}/{statementId}/edit', name: 'dplan_api_statement_edit', options: ['expose' => true], methods: ['POST'])]
@@ -587,8 +580,6 @@ class DemosPlanStatementAPIController extends APIController
      * <li>User sent placeholder statements (only or together with other statements): Show message "%count% der markierten Stellungnahmen befinden sich nicht im aktuellen Verfahren und wurden Ihnen nicht zugewiesen."
      * <li>User sent claim and edit action together for one or more unclaimed statements
      * </ul>
-     *
-     * @return JsonResponse
      *
      * @throws MessageBagException
      */

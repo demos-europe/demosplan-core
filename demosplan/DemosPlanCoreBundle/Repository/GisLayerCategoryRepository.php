@@ -28,10 +28,12 @@ use Doctrine\ORM\OptimisticLockException;
 use Exception;
 use Faker\Provider\Uuid;
 use InvalidArgumentException;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
 /**
  * @template-extends FluentRepository<GisLayerCategory>
  */
+#[AsAlias(GisLayerCategoryRepositoryInterface::class)]
 class GisLayerCategoryRepository extends FluentRepository implements ArrayInterface, ObjectInterface, GisLayerCategoryRepositoryInterface
 {
     /**

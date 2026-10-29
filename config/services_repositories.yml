@@ -26,11 +26,3 @@ services:
 
     demosplan\DemosPlanCoreBundle\Repository\PersonalDataLogEntryRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\PersonalDataLogEntry'
-
-    DemosEurope\DemosplanAddon\Contracts\Repositories\ProcedurePhaseRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseRepository'
-
-    DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository'
-
-    DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\MapRepository'
-
-    DemosEurope\DemosplanAddon\Contracts\Repositories\EmailAddressRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository'

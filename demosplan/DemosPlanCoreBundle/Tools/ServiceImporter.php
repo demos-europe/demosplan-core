@@ -31,6 +31,7 @@ use League\Flysystem\FilesystemOperator;
 use Monolog\Logger;
 use OldSound\RabbitMqBundle\RabbitMq\RpcClient;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\File;
@@ -43,6 +44,7 @@ use ZipArchive;
 /**
  * Import von Planunterlagen-Absaetzen.
  */
+#[AsAlias(ServiceImporterInterface::class)]
 class ServiceImporter implements ServiceImporterInterface
 {
     private const ODT_EXTENSION = '.odt';
