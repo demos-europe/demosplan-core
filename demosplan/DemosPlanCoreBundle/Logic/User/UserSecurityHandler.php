@@ -16,7 +16,9 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\UserReportEntryFactory;
+use Psr\Log\LoggerInterface;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Totp\TotpAuthenticator;
+use Throwable;
 
 class UserSecurityHandler
 {
@@ -26,6 +28,7 @@ class UserSecurityHandler
         private readonly UserService $userService,
         private readonly UserReportEntryFactory $userReportEntryFactory,
         private readonly ReportService $reportService,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -61,6 +64,7 @@ class UserSecurityHandler
             if ($this->totpAuthenticator->checkCode($user, $updateUserData['twoFactorCode'])) {
                 $user->setTotpEnabled(true);
                 $this->userService->updateUserObject($user);
+                $this->logSetup($user, 'totp');
             } else {
                 $this->messageBag->add('error', 'error.2fa.code.invalid');
             }
@@ -85,6 +89,7 @@ class UserSecurityHandler
             if ($user->getEmailAuthCode() === $updateUserData['twoFactorCodeEmail']) {
                 $user->setAuthCodeEmailEnabled(true);
                 $this->userService->updateUserObject($user);
+                $this->logSetup($user, 'email');
             } else {
                 $this->messageBag->add('error', 'error.2fa.code.invalid');
             }
@@ -101,5 +106,24 @@ class UserSecurityHandler
         }
 
         return $user;
+    }
+
+    /**
+     * Logs the setup of a factor. A failing report must not undo the setup, so errors are only logged.
+     *
+     * @param 'totp'|'email' $method
+     */
+    private function logSetup(UserInterface $user, string $method): void
+    {
+        try {
+            $this->reportService->persistAndFlushReportEntry(
+                $this->userReportEntryFactory->createTwoFactorSetupEntry($user, $method)
+            );
+        } catch (Throwable $e) {
+            $this->logger->warning('Failed to persist two-factor setup report entry', [
+                'exception' => $e,
+                'method'    => $method,
+            ]);
+        }
     }
 }

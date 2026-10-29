@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\UserReportEntryFactory;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserSecurityHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use Psr\Log\NullLogger;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Totp\TotpAuthenticator;
 use Tests\Base\FunctionalTestCase;
 
@@ -32,6 +33,7 @@ class UserSecurityHandlerTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->totpAuthenticator = $this->createMock(TotpAuthenticator::class);
         $this->messageBag = $this->createMock(MessageBagInterface::class);
         $this->userService = $this->createMock(UserService::class);
@@ -43,7 +45,8 @@ class UserSecurityHandlerTest extends FunctionalTestCase
             $this->messageBag,
             $this->userService,
             $this->userReportEntryFactory,
-            $this->reportService
+            $this->reportService,
+            new NullLogger()
         );
     }
 
