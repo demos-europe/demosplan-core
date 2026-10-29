@@ -49,6 +49,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Orga extends SluggedEntity implements OrgaInterface, Stringable
 {
     /**
+     * Data key and API attribute name of the two-factor requirement.
+     */
+    final public const TWO_FACTOR_REQUIRED = 'twoFactorRequired';
+
+    /**
      * @var string|null
      */
     #[ORM\Column(name: '_o_id', type: 'string', length: 36, options: ['fixed' => true])]

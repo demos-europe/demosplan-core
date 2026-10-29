@@ -480,7 +480,7 @@ class UserServiceTest extends FunctionalTestCase
         $orgaId = $this->testOrgaFp->getId();
         static::assertFalse($this->testOrgaFp->isTwoFactorRequired());
 
-        $orga = $this->sut->updateOrga($orgaId, ['twoFactorRequired' => true]);
+        $orga = $this->sut->updateOrga($orgaId, [Orga::TWO_FACTOR_REQUIRED => true]);
 
         static::assertTrue($orga->isTwoFactorRequired());
         $entries = $this->getEntries(ReportEntry::class, [

@@ -2286,7 +2286,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 'city', 'competence', 'copy', 'copySpec', 'cssvars', 'email2', 'emailNotificationEndingPhase',
                 'emailNotificationNewStatement', 'houseNumber', 'name', 'phone', 'postalcode', 'registrationStatuses',
                 'showlist', 'showlistChangeReason', 'showname', 'street', 'url', 'imprint', 'dataProtection',
-                'twoFactorRequired',
+                Orga::TWO_FACTOR_REQUIRED,
             ];
             foreach ($keyArray as $key) {
                 if (isset($data['attributes'][$key])) {
@@ -2358,9 +2358,9 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
         }
 
         if ($this->permissions->hasPermission('field_organisation_two_factor_required')
-            && isset($data['twoFactorRequired'])
+            && isset($data[Orga::TWO_FACTOR_REQUIRED])
         ) {
-            $dataPermissionChecked['twoFactorRequired'] = $data['twoFactorRequired'];
+            $dataPermissionChecked[Orga::TWO_FACTOR_REQUIRED] = $data[Orga::TWO_FACTOR_REQUIRED];
         }
 
         // if the user may edit all fields, then assume that all non-explicitly checked changes are allowed

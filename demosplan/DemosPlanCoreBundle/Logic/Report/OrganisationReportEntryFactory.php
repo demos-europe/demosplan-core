@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 
 class OrganisationReportEntryFactory extends AbstractReportEntryFactory
 {
@@ -66,9 +67,9 @@ class OrganisationReportEntryFactory extends AbstractReportEntryFactory
         $entry->setIdentifier($identifier);
         $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_ORGANISATION);
         $entry->setMessage(Json::encode([
-            'ident'             => $identifier,
-            'name'              => $orgaName,
-            'twoFactorRequired' => $twoFactorRequired,
+            'ident'                   => $identifier,
+            'name'                    => $orgaName,
+            Orga::TWO_FACTOR_REQUIRED => $twoFactorRequired,
         ], JSON_UNESCAPED_UNICODE));
 
         return $entry;

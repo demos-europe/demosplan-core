@@ -471,7 +471,7 @@ class DemosPlanOrganisationAPIController extends APIController
 
             // the create form always sends the flag; only the permission decides whether it is honored
             if (!$permissions->hasPermission('field_organisation_two_factor_required')) {
-                unset($orgaDataArray['twoFactorRequired']);
+                unset($orgaDataArray[Orga::TWO_FACTOR_REQUIRED]);
             }
 
             $orgaDataArray['customerSubdomain'] = $customerHandler->getCurrentCustomer()->getSubdomain();

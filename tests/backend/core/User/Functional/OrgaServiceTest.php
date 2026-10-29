@@ -76,13 +76,13 @@ class OrgaServiceTest extends FunctionalTestCase
 
     public function testAddOrgaWithTwoFactorRequiredWritesReportEntry(): void
     {
-        $orga = $this->sut->addOrga(['name' => 'twoFactorOrga', 'twoFactorRequired' => true]);
+        $orga = $this->sut->addOrga(['name' => 'twoFactorOrga', Orga::TWO_FACTOR_REQUIRED => true]);
 
         static::assertTrue($orga->isTwoFactorRequired());
         $entries = $this->getTwoFactorReportEntries($orga->getId());
         static::assertCount(1, $entries);
         $message = json_decode($entries[0]->getMessage(), true, 512, JSON_THROW_ON_ERROR);
-        static::assertTrue($message['twoFactorRequired']);
+        static::assertTrue($message[Orga::TWO_FACTOR_REQUIRED]);
         static::assertSame('twoFactorOrga', $message['name']);
     }
 
@@ -90,22 +90,22 @@ class OrgaServiceTest extends FunctionalTestCase
     {
         $orgaId = $this->testOrgaFp->getId();
 
-        $this->sut->addReport($orgaId, ['name' => 'x', 'twoFactorRequired' => true], false, false);
+        $this->sut->addReport($orgaId, ['name' => 'x', Orga::TWO_FACTOR_REQUIRED => true], false, false);
         static::assertCount(1, $this->getTwoFactorReportEntries($orgaId));
 
         // unchanged value
-        $this->sut->addReport($orgaId, ['name' => 'x', 'twoFactorRequired' => true], false, true);
+        $this->sut->addReport($orgaId, ['name' => 'x', Orga::TWO_FACTOR_REQUIRED => true], false, true);
         static::assertCount(1, $this->getTwoFactorReportEntries($orgaId));
 
         // attribute not part of the request
         $this->sut->addReport($orgaId, ['name' => 'x'], false, true);
         static::assertCount(1, $this->getTwoFactorReportEntries($orgaId));
 
-        $this->sut->addReport($orgaId, ['name' => 'x', 'twoFactorRequired' => false], false, true);
+        $this->sut->addReport($orgaId, ['name' => 'x', Orga::TWO_FACTOR_REQUIRED => false], false, true);
         $entries = $this->getTwoFactorReportEntries($orgaId);
         static::assertCount(2, $entries);
         $message = json_decode($entries[1]->getMessage(), true, 512, JSON_THROW_ON_ERROR);
-        static::assertFalse($message['twoFactorRequired']);
+        static::assertFalse($message[Orga::TWO_FACTOR_REQUIRED]);
     }
 
     /**
