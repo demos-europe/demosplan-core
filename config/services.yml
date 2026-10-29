@@ -10,6 +10,11 @@ services:
 
     Cocur\Slugify\Slugify: ~
 
+    # Documents `fields[<ResourceName>]` instead of the PropertyFilter's `properties[]` in the OpenAPI docs.
+    demosplan\DemosPlanCoreBundle\Api\Common\SparseFieldsetOpenApiFactory:
+        decorates: 'api_platform.openapi.factory'
+        arguments: ['@.inner']
+
     demosplan\DemosPlanCoreBundle\Transformers\AssessmentTable\StatementBulkEditTransformer:
         tags:
             - name: dplan.json_api_transformer
