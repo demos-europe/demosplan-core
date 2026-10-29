@@ -446,6 +446,18 @@ class DemosPlanOrganisationAPIController extends APIController
     }
 
     /**
+     * The create form always sends the flag; only the permission decides whether it is honored.
+     */
+    private function removeTwoFactorRequiredWithoutPermission(array $orgaDataArray, PermissionsInterface $permissions): array
+    {
+        if (!$permissions->hasPermission('field_organisation_two_factor_required')) {
+            unset($orgaDataArray[Orga::TWO_FACTOR_REQUIRED]);
+        }
+
+        return $orgaDataArray;
+    }
+
+    /**
      * Creates a new Organisation.
      *
      * @throws MessageBagException
@@ -469,10 +481,7 @@ class DemosPlanOrganisationAPIController extends APIController
             // user who are allowed to add users may set their visibility
             $orgaDataArray['updateShowlist'] = true;
 
-            // the create form always sends the flag; only the permission decides whether it is honored
-            if (!$permissions->hasPermission('field_organisation_two_factor_required')) {
-                unset($orgaDataArray[Orga::TWO_FACTOR_REQUIRED]);
-            }
+            $orgaDataArray = $this->removeTwoFactorRequiredWithoutPermission($orgaDataArray, $permissions);
 
             $orgaDataArray['customerSubdomain'] = $customerHandler->getCurrentCustomer()->getSubdomain();
 
