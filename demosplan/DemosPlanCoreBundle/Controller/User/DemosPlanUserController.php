@@ -415,8 +415,6 @@ class DemosPlanUserController extends BaseController
     }
 
     /**
-     * @return RedirectResponse|Response
-     *
      * @throws MessageBagException
      */
     #[DplanPermissions('feature_citizen_registration')]
@@ -524,8 +522,6 @@ class DemosPlanUserController extends BaseController
 
     /**
      * Speichere Nutzerdaten.
-     *
-     * @return RedirectResponse|Response
      *
      * @throws MessageBagException
      */

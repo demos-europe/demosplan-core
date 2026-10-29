@@ -36,9 +36,11 @@ use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Contracts\PathException;
 use EDT\Querying\Contracts\PropertyPathInterface;
 use Exception;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\HttpFoundation\Exception\BadRequestException;
 use Symfony\Component\HttpFoundation\Request;
 
+#[AsAlias(ProcedureTypeServiceInterface::class)]
 class ProcedureTypeService implements ProcedureTypeServiceInterface
 {
     public function __construct(

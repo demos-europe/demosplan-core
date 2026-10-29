@@ -39,6 +39,7 @@ use InvalidArgumentException;
 use JsonSchema\Exception\InvalidSchemaException;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -47,6 +48,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
  *
  * Class DraftsInfoToSegmentTransformer
  */
+#[AsAlias(SegmentTransformerInterface::class)]
 class DraftsInfoToSegmentTransformer implements SegmentTransformerInterface
 {
     public function __construct(
