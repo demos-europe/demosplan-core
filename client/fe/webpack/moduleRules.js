@@ -101,11 +101,6 @@ const postCssPlugins = [
 const moduleRules =
   [
     {
-      test: /\.css$/,
-      use: [MiniCssExtractPlugin.loader],
-      exclude: [/client\/css\/(tailwind|preflight)\.css/],
-    },
-    {
       test: /\.scss$/,
       use: [
         MiniCssExtractPlugin.loader,
