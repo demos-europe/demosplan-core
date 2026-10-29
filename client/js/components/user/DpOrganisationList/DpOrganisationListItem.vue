@@ -384,7 +384,12 @@ export default {
           const addonHasValue = this.addonPayload.value || this.addonPayload.initValue
 
           if (addonExists && addonHasValue) {
-            await this.handleAddonRequest().then(() => this.submitOrganisationForm())
+            await this.handleAddonRequest().then(() => {
+              // The cached addon options still hold the old value, so the addon has to fetch them again
+              this.setAdditionalFieldOptions([])
+
+              return this.submitOrganisationForm()
+            })
           } else {
             await this.submitOrganisationForm()
           }
