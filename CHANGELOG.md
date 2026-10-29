@@ -5,6 +5,16 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Organisations can be marked as requiring two-factor authentication. Support and customer administrators set this in
+  the organisation administration, also for several organisations at once; every change is recorded in the report
+  (DPLAN-17501)
+- When an organisation requires two-factor authentication (feature permission `feature_orga_two_factor_required`),
+  its users without a second factor are sent to their profile page after login and cannot use any other part of the
+  application until a factor is set up; imprint and data protection stay reachable. Sessions that started before the
+  requirement was switched on stay valid until the next login (DPLAN-17433)
+- Setting up a second factor is recorded in the report (DPLAN-17433)
+- While an organisation requires two-factor authentication, the last second factor of a user cannot be disabled on the
+  profile page (DPLAN-17433)
 - `MailService` implements the new `MailServiceInterface` of the contract layer, so addons can queue mails
 - composer.json declares every PHP extension the application needs (adds apcu, exif, pcntl, pdo_mysql; drops soap, posix), so a missing extension fails the image build
 - production image: PHP extensions bcmath, bz2, calendar, ffi, gettext, mysqli, shmop, soap, sysvmsg, sysvsem, sysvshm and xsl removed; compiler toolchain removed from the fpm image (~220 MB smaller)
