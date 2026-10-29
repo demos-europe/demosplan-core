@@ -34,29 +34,24 @@ class TwoFactorSetupEnforcementSubscriber extends BaseEventSubscriber
     /**
      * The existing profile page "Meine Daten" holds the 2FA setup.
      */
-    private const SETUP_ROUTE = 'DemosPlan_user_portal';
+    private const SETUP_PAGE_ROUTE = 'DemosPlan_user_portal';
 
     /**
-     * Routes the user needs to be able to finish the setup or to leave.
+     * "Meine Daten", saving it, and the actions of its two-factor block.
      */
-    private const ALLOWED_ROUTES = [
-        '2fa_login',
-        '2fa_login_check',
+    private const SETUP_ROUTES = [
         'DemosPlan_user_2fa_email_enable',
         'DemosPlan_user_2fa_email_send',
         'DemosPlan_user_2fa_enable',
         'DemosPlan_user_edit',
-        'DemosPlan_user_logout',
-        'DemosPlan_user_logout_success',
         'DemosPlan_user_portal',
         'DemosPlan_user_qr_code',
-        'DemosPlan_user_select_organisation',
     ];
 
     /**
      * Imprint and data protection stay reachable.
      */
-    private const LEGAL_ROUTES = [
+    private const IMPRINT_AND_DATA_PROTECTION_ROUTES = [
         'DemosPlan_misccontent_static_dataprotection',
         'DemosPlan_misccontent_static_imprint',
     ];
@@ -65,9 +60,8 @@ class TwoFactorSetupEnforcementSubscriber extends BaseEventSubscriber
      * The welcome page (CheckOrgadataMissingSubscriber) comes first: a new user completes the profile,
      * then sets up the second factor. Remove these routes to reverse the order.
      */
-    private const WELCOME_ROUTES = [
+    private const PROFILE_COMPLETION_ROUTES = [
         'DemosPlan_user_complete_data',
-        'user_update_additional_information',
     ];
 
     public function __construct(
@@ -116,11 +110,9 @@ class TwoFactorSetupEnforcementSubscriber extends BaseEventSubscriber
     {
         $route = (string) $request->attributes->get('_route', '');
 
-        // Internal routes like the profiler, web debug toolbar and error pages
-        return str_starts_with($route, '_')
-            || in_array($route, self::ALLOWED_ROUTES, true)
-            || in_array($route, self::LEGAL_ROUTES, true)
-            || in_array($route, self::WELCOME_ROUTES, true);
+        return in_array($route, self::SETUP_ROUTES, true)
+            || in_array($route, self::IMPRINT_AND_DATA_PROTECTION_ROUTES, true)
+            || in_array($route, self::PROFILE_COMPLETION_ROUTES, true);
     }
 
     private function createResponse(Request $request): Response
@@ -132,7 +124,7 @@ class TwoFactorSetupEnforcementSubscriber extends BaseEventSubscriber
             );
         }
 
-        return new RedirectResponse($this->router->generate(self::SETUP_ROUTE));
+        return new RedirectResponse($this->router->generate(self::SETUP_PAGE_ROUTE));
     }
 
     private function isXhrOrApiRequest(Request $request): bool

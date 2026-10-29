@@ -39,7 +39,7 @@ class TwoFactorSetupEnforcementSubscriberTest extends FunctionalTestCase
 {
     private const FEATURE_ORGA_REQUIREMENT = 'feature_orga_two_factor_required';
     private const FEATURE_2FA = 'feature_2fa';
-    private const SETUP_ROUTE = 'DemosPlan_user_portal';
+    private const SETUP_PAGE_ROUTE = 'DemosPlan_user_portal';
 
     protected ?TwoFactorSetupEnforcementSubscriber $sut = null;
     protected ?TwoFactorRequirementResolver $resolver = null;
@@ -90,7 +90,7 @@ class TwoFactorSetupEnforcementSubscriberTest extends FunctionalTestCase
 
         self::assertInstanceOf(RedirectResponse::class, $response);
         self::assertSame(
-            self::getContainer()->get(RouterInterface::class)->generate(self::SETUP_ROUTE),
+            self::getContainer()->get(RouterInterface::class)->generate(self::SETUP_PAGE_ROUTE),
             $response->getTargetUrl()
         );
         self::assertTrue($this->logHandler->hasDebugThatContains('Two-factor setup pending'));
@@ -147,20 +147,12 @@ class TwoFactorSetupEnforcementSubscriberTest extends FunctionalTestCase
             'meine daten'              => ['DemosPlan_user_portal'],
             'meine daten save'         => ['DemosPlan_user_edit'],
             'welcome page'             => ['DemosPlan_user_complete_data'],
-            'welcome page save'        => ['user_update_additional_information'],
             'qr code'                  => ['DemosPlan_user_qr_code'],
             'totp enable'              => ['DemosPlan_user_2fa_enable'],
             'email enable'             => ['DemosPlan_user_2fa_email_enable'],
             'email send'               => ['DemosPlan_user_2fa_email_send'],
-            'logout'                   => ['DemosPlan_user_logout'],
-            'logout success'           => ['DemosPlan_user_logout_success'],
-            'scheb login'              => ['2fa_login'],
-            'scheb login check'        => ['2fa_login_check'],
-            'select orga'              => ['DemosPlan_user_select_organisation'],
             'data protection'          => ['DemosPlan_misccontent_static_dataprotection'],
             'imprint'                  => ['DemosPlan_misccontent_static_imprint'],
-            'profiler'                 => ['_profiler'],
-            'web debug toolbar'        => ['_wdt'],
         ];
     }
 
