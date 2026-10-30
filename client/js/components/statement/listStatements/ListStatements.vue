@@ -121,6 +121,20 @@
             @select="applySort"
           />
         </div>
+        <dp-column-selector
+          :key="columnSelectorKey"
+          :initial-selection="currentSelection"
+          :selectable-columns="selectableColumns"
+          appearance="subtle"
+          class="ml-2"
+          data-cy="statementList:selectableColumns"
+          has-reset-option
+          has-select-all-option
+          local-storage-key="statementsList"
+          use-local-storage
+          @reset="resetColumnSelection"
+          @selection-changed="setCurrentSelection"
+        />
       </div>
     </dp-sticky-element>
 
@@ -130,317 +144,343 @@
     />
 
     <template v-else>
-      <dp-data-table
-        v-if="items.length > 0"
-        :class="{ 'px-2 overflow-y-scroll grow': isFullscreen }"
-        :header-fields="headerFields"
-        :is-selectable="(isSourceAndCoupledProcedure && hasPermission('feature_statements_sync_to_procedure')) || hasPermission('feature_statement_cluster')"
-        :items="items"
-        :multi-page-all-selected="allSelectedVisually"
-        :multi-page-selection-items-toggled="toggledItems.length"
-        :multi-page-selection-items-total="allItemsCount"
-        :should-be-selected-items="currentlySelectedItems"
-        :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection') }"
-        data-cy="listStatements"
-        lock-checkbox-by="lockedForSelection"
-        lock-message-by="lockedForSelectionMessage"
-        track-by="id"
-        has-flyout
-        is-expandable
-        @items-toggled="handleToggleItem"
-        @select-all="handleSelectAll"
-      >
-        <template v-slot:externId="{ assignee = {}, externId, id: statementId, isCluster, isPlaceholder, synchronized }">
-          <dp-icon
-            v-if="isCluster"
-            class="mr-1 text-interactive"
-            icon="folders"
-            weight="fill"
-          />
-          <span
-            class="weight--bold"
-            v-text="externId"
-          />
-          <dp-claim
-            v-if="!synchronized && !isPlaceholder && hasPermission('feature_statement_claim')"
-            :assigned-id="assignee.id || ''"
-            :assigned-name="assignee.name || ''"
-            :assigned-organisation="assignee.orgaName || ''"
-            :current-user-id="currentUserId"
-            :is-loading="claimLoadingIds.indexOf(statementId) >= 0"
-            entity-type="statement"
-            @click="toggleClaimStatement(assignee.id, statementId)"
-          />
-        </template>
-        <template
-          v-slot:meta="{
-            authorName,
-            isSubmittedByCitizen,
-            initialOrganisationName,
-            isPlaceholder,
-            submitDate,
-            submitName
-          }"
+      <template v-if="items.length > 0">
+        <div
+          id="statementsListScrollContainer"
+          ref="scrollContainer"
+          class="overflow-x-auto scrollbar-none isolate"
         >
-          <ul
-            v-if="!isPlaceholder"
-            class="o-list max-w-12"
+          <dp-data-table
+            ref="dataTable"
+            :key="columnSelectorKey"
+            :class="{ 'px-2': isFullscreen, 'scrollbar-none': !isFullscreen }"
+            :header-fields="headerFields"
+            :is-selectable="(isSourceAndCoupledProcedure && hasPermission('feature_statements_sync_to_procedure')) || hasPermission('feature_statement_cluster')"
+            :items="items"
+            :multi-page-all-selected="allSelectedVisually"
+            :multi-page-selection-items-toggled="toggledItems.length"
+            :multi-page-selection-items-total="allItemsCount"
+            :should-be-selected-items="currentlySelectedItems"
+            :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection') }"
+            class="min-h-12"
+            column-storage-key="statementsList"
+            column-width-storage-key="statementsListColumnWidths"
+            data-cy="listStatements"
+            density="spacious"
+            lock-checkbox-by="lockedForSelection"
+            lock-message-by="lockedForSelectionMessage"
+            track-by="id"
+            expanded-rowspan
+            has-flyout
+            has-sticky-header
+            is-columns-draggable
+            is-expandable
+            is-resizable
+            @items-toggled="handleToggleItem"
+            @select-all="handleSelectAll"
           >
-            <li
-              v-if="authorName !== '' || submitName !== ''"
-              class="o-list__item o-hellip--nowrap"
-            >
-              {{ authorName ? authorName : (submitName ? submitName : Translator.trans('citizen')) }}
-            </li>
-            <li
-              v-if="initialOrganisationName !== '' && !isSubmittedByCitizen"
-              class="o-list__item o-hellip--nowrap"
-            >
-              {{ initialOrganisationName }}
-            </li>
-            <li class="o-list__item o-hellip--nowrap">
-              {{ date(submitDate) }}
-            </li>
-          </ul>
-        </template>
-        <template v-slot:status="{ isPlaceholder, status }">
-          <status-badge
-            v-if="!isPlaceholder"
-            :status="status"
-            class="mt-0.5"
-          />
-        </template>
-        <template v-slot:internId="{ internId }">
-          <div class="o-hellip__wrapper">
-            <div
-              v-tooltip="internId"
-              class="o-hellip--nowrap text-right"
-              v-text="internId"
-            />
-          </div>
-        </template>
-        <template v-slot:text="{ isPlaceholder, movedStatementId, movedToProcedureId, movedToProcedureName, text }">
-          <p v-if="isPlaceholder">
-            {{ Translator.trans('movedTo') }}:
-            <a
-              v-if="isMovedToAccessibleProcedure(movedToProcedureId)"
-              :href="Routing.generate('dplan_statement_segments_list', { statementId: movedStatementId, procedureId: movedToProcedureId })"
-            >
-              {{ movedToProcedureName }}
-            </a>
-            <template v-else>
-              {{ movedToProcedureName }} ({{ Translator.trans('inaccessible') }})
+            <template v-slot:externId="{ assignee = {}, externId, id: statementId, isCluster, isPlaceholder, synchronized }">
+              <dp-icon
+                v-if="isCluster"
+                class="mr-1 text-interactive"
+                icon="folders"
+                weight="fill"
+              />
+              <span
+                class="weight--bold"
+                v-text="externId"
+              />
+              <dp-claim
+                v-if="!synchronized && !isPlaceholder && hasPermission('feature_statement_claim')"
+                :assigned-id="assignee.id || ''"
+                :assigned-name="assignee.name || ''"
+                :assigned-organisation="assignee.orgaName || ''"
+                :current-user-id="currentUserId"
+                :is-loading="claimLoadingIds.indexOf(statementId) >= 0"
+                entity-type="statement"
+                @click="toggleClaimStatement(assignee.id, statementId)"
+              />
             </template>
-          </p>
-          <div
-            v-else
-            v-cleanhtml="renderStatementText(text)"
-            class="line-clamp-3 c-styled-html"
-          />
-        </template>
-        <template v-slot:flyout="{ assignee, id, isCluster, isPlaceholder, movedStatementId, movedToProcedureId, originalId, originalPdf, segmentsCount, synchronized }">
-          <dp-flyout
-            v-if="isPlaceholder && isMovedToAccessibleProcedure(movedToProcedureId)"
-            data-cy="listStatements:placeholderActionsMenu"
-          >
-            <a
-              :href="Routing.generate('dplan_statement_segments_list', { statementId: movedStatementId, procedureId: movedToProcedureId })"
-              class="block leading-[2] whitespace-nowrap"
-              data-cy="listStatements:movedStatementLink"
-              rel="noopener"
-            >
-              {{ Translator.trans('statement.moved.link') }}
-            </a>
-          </dp-flyout>
-          <dp-flyout
-            v-else-if="!isPlaceholder"
-            data-cy="listStatements:statementActionsMenu"
-          >
-            <button
-              v-if="hasPermission('feature_segmentation_start')"
-              :class="{
-                'is-disabled': segmentsCount > 0 && segmentsCount !== '-',
-                'hover:underline active:underline': segmentsCount <= 0 || segmentsCount === '-' }"
-              :disabled="segmentsCount > 0 && segmentsCount !== '-'"
-              class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
-              data-cy="listStatements:statementSplit"
-              rel="noopener"
-              @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)"
-            >
-              {{ Translator.trans('split') }}
-            </button>
-            <a
-              :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
-              class="block leading-[2] whitespace-nowrap"
-              data-cy="listStatements:statementDetailsAndRecommendation"
-              rel="noopener"
-              @click="storeNavigationContextInLocalStorage"
-            >
-              {{ Translator.trans('statement.details_and_recommendation') }}
-            </a>
-            <a
-              v-if="hasPermission('feature_read_source_statement_via_api') && hasPermission('area_admin_import')"
-              :class="{'is-disabled': !originalPdf}"
-              :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
-              class="block leading-[2] whitespace-nowrap"
-              data-cy="listStatements:originalPDF"
-              rel="noreferrer noopener"
-              target="_blank"
-            >
-              {{ Translator.trans('original.pdf') }}
-            </a>
-            <a
-              v-if="hasPermission('area_admin_original_statement_list')"
-              :class="{'is-disabled': !originalId}"
-              :href="Routing.generate('dplan_procedure_original_statement_list', { procedureId: procedureId })"
-              class="block leading-[2] whitespace-nowrap"
-              data-cy="listStatements:originalStatement"
-              rel="noreferrer noopener"
-            >
-              {{ Translator.trans('statement.original') }}
-            </a>
-            <span
-              v-if="hasPermission('feature_statement_copy_to_procedure')"
-              v-tooltip="isCluster || (segmentsCount > 0 && segmentsCount !== '-') ? Translator.trans('statement.copy.disabled.segmented') : ''"
-              class="block"
-            >
-              <button
-                :class="{
-                  'is-disabled': isCluster || (segmentsCount > 0 && segmentsCount !== '-'),
-                  'hover:underline active:underline': !isCluster && (segmentsCount <= 0 || segmentsCount === '-') }"
-                :disabled="isCluster || (segmentsCount > 0 && segmentsCount !== '-')"
-                class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
-                data-cy="listStatements:statementCopy"
-                type="button"
-                @click="openCopyStatementModal(id)"
-              >
-                {{ Translator.trans('copy.to.procedure') }}
-              </button>
-            </span>
-            <span
-              v-if="hasPermission('feature_statement_move_to_procedure')"
-              v-tooltip="isCluster || (segmentsCount > 0 && segmentsCount !== '-') ? Translator.trans('statement.move.disabled.segmented') : ''"
-              class="block"
-            >
-              <button
-                :class="{
-                  'is-disabled': isCluster || (segmentsCount > 0 && segmentsCount !== '-'),
-                  'hover:underline active:underline': !isCluster && (segmentsCount <= 0 || segmentsCount === '-') }"
-                :disabled="isCluster || (segmentsCount > 0 && segmentsCount !== '-')"
-                class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
-                data-cy="listStatements:statementMove"
-                type="button"
-                @click="openMoveStatementModal(id)"
-              >
-                {{ Translator.trans('move.to.procedure') }}
-              </button>
-            </span>
-            <button
-              v-if="hasPermission('feature_statement_delete')"
-              :class="{
-                'is-disabled': synchronized || assignee.id !== currentUserId,
-                'hover:underline active:underline': !(synchronized || assignee.id !== currentUserId) }"
-              :disabled="synchronized || assignee.id !== currentUserId"
-              class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
-              data-cy="listStatements:statementDelete"
-              type="button"
-              @click="triggerStatementDeletion(id)"
-            >
-              {{ Translator.trans('delete') }}
-            </button>
-          </dp-flyout>
-        </template>
-        <template v-slot:expandedContent="{ text, fullText, id }">
-          <!-- Statement meta data -->
-          <statement-meta-data
-            :statement="statementsObject[id]"
-            :submit-type-options="submitTypeOptions"
-            class="u-pt-0_5"
-          >
             <template
-              v-slot:default="{
+              v-slot:meta="{
                 authorName,
-                formattedAuthoredDate,
-                formattedSubmitDate,
                 isSubmittedByCitizen,
-                initialOrganisationDepartmentName,
                 initialOrganisationName,
-                internId,
-                memo,
-                submitName,
-                submitType,
-                location
+                isPlaceholder,
+                submitDate,
+                submitName
               }"
             >
-              <div class="layout">
-                <dl class="description-list-inline layout__item u-1-of-2">
-                  <dt>{{ Translator.trans('submitter') }}:</dt>
-                  <dd>{{ authorName ? authorName : submitName }}</dd>
-                  <template
-                    v-if="!isSubmittedByCitizen"
-                  >
-                    <dt>{{ Translator.trans('organisation') }}:</dt>
-                    <dd>{{ initialOrganisationName }}</dd>
-                    <dt>{{ Translator.trans('department') }}:</dt>
-                    <dd>{{ initialOrganisationDepartmentName }}</dd>
-                  </template>
-                  <dt>{{ Translator.trans('address') }}:</dt>
-                  <dd>{{ location }}</dd>
-                  <template v-if="hasPermission('field_statement_memo')">
-                    <dt>{{ Translator.trans('memo') }}:</dt>
-                    <dd>{{ memo }}</dd>
-                  </template>
-                </dl><!--
-
-             --><dl class="description-list-inline layout__item u-1-of-2">
-                  <dt>{{ Translator.trans('internId') }}:</dt>
-                  <dd>{{ internId }}</dd>
-                  <dt>{{ Translator.trans('statement.date.authored') }}:</dt>
-                  <dd>{{ formattedAuthoredDate }}</dd>
-                  <dt>{{ Translator.trans('statement.date.submitted') }}:</dt>
-                  <dd>{{ formattedSubmitDate }}</dd>
-                  <dt class="whitespace-nowrap">
-                    {{ Translator.trans('submit.type') }}:
-                  </dt>
-                  <dd>{{ submitType }}</dd>
-                  <dt>{{ Translator.trans('statement.associated.group') }}:</dt>
-                  <dd v-if="statementsObject[id].attributes.isCluster">
-                    {{ statementsObject[id].attributes.name }}
-                    <span
-                      v-if="groupMemberCounts[id] != null"
-                      class="block color--grey"
-                    >
-                      {{ Translator.trans('statements.count.parenthesized', { count: groupMemberCounts[id] }) }}
-                    </span>
-                  </dd>
-                  <dd v-else>
-                    -
-                  </dd>
-                  <template v-if="hasPermission('field_procedure_elements')">
-                    <dt>{{ Translator.trans('plandocument') }}:</dt>
-                    <dd>{{ planningDocumentLabel(statementsObject[id]) }}</dd>
-                  </template>
-                </dl>
+              <ul
+                v-if="!isPlaceholder"
+                class="o-list max-w-12"
+              >
+                <li
+                  v-if="authorName !== '' || submitName !== ''"
+                  class="o-list__item o-hellip--nowrap"
+                >
+                  {{ authorName ? authorName : (submitName ? submitName : Translator.trans('citizen')) }}
+                </li>
+                <li
+                  v-if="initialOrganisationName !== '' && !isSubmittedByCitizen"
+                  class="o-list__item o-hellip--nowrap"
+                >
+                  {{ initialOrganisationName }}
+                </li>
+                <li class="o-list__item o-hellip--nowrap">
+                  {{ date(submitDate) }}
+                </li>
+              </ul>
+            </template>
+            <template v-slot:status="{ isPlaceholder, status }">
+              <status-badge
+                v-if="!isPlaceholder"
+                :status="status"
+                class="mt-0.5"
+              />
+            </template>
+            <template v-slot:internId="{ internId }">
+              <div class="o-hellip__wrapper">
+                <div
+                  v-tooltip="internId"
+                  class="o-hellip--nowrap text-right"
+                  v-text="internId"
+                />
               </div>
             </template>
-          </statement-meta-data>
+            <template v-slot:text="{ isPlaceholder, movedStatementId, movedToProcedureId, movedToProcedureName, text }">
+              <p v-if="isPlaceholder">
+                {{ Translator.trans('movedTo') }}:
+                <a
+                  v-if="isMovedToAccessibleProcedure(movedToProcedureId)"
+                  :href="Routing.generate('dplan_statement_segments_list', { statementId: movedStatementId, procedureId: movedToProcedureId })"
+                >
+                  {{ movedToProcedureName }}
+                </a>
+                <template v-else>
+                  {{ movedToProcedureName }} ({{ Translator.trans('inaccessible') }})
+                </template>
+              </p>
+              <div
+                v-else
+                v-cleanhtml="renderStatementText(text)"
+                class="line-clamp-3 c-styled-html"
+              />
+            </template>
+            <template v-slot:flyout="{ assignee, id, isCluster, isPlaceholder, movedStatementId, movedToProcedureId, originalId, originalPdf, segmentsCount, synchronized }">
+              <dp-flyout
+                v-if="isPlaceholder && isMovedToAccessibleProcedure(movedToProcedureId)"
+                data-cy="listStatements:placeholderActionsMenu"
+              >
+                <a
+                  :href="Routing.generate('dplan_statement_segments_list', { statementId: movedStatementId, procedureId: movedToProcedureId })"
+                  class="block leading-[2] whitespace-nowrap"
+                  data-cy="listStatements:movedStatementLink"
+                  rel="noopener"
+                >
+                  {{ Translator.trans('statement.moved.link') }}
+                </a>
+              </dp-flyout>
+              <dp-flyout
+                v-else-if="!isPlaceholder"
+                data-cy="listStatements:statementActionsMenu"
+              >
+                <button
+                  v-if="hasPermission('feature_segmentation_start')"
+                  :class="{
+                    'is-disabled': segmentsCount > 0 && segmentsCount !== '-',
+                    'hover:underline active:underline': segmentsCount <= 0 || segmentsCount === '-' }"
+                  :disabled="segmentsCount > 0 && segmentsCount !== '-'"
+                  class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
+                  data-cy="listStatements:statementSplit"
+                  rel="noopener"
+                  @click.prevent="handleStatementSegmentation(id, assignee, segmentsCount)"
+                >
+                  {{ Translator.trans('split') }}
+                </button>
+                <a
+                  :href="Routing.generate('dplan_statement_segments_list', { statementId: id, procedureId: procedureId })"
+                  class="block leading-[2] whitespace-nowrap"
+                  data-cy="listStatements:statementDetailsAndRecommendation"
+                  rel="noopener"
+                  @click="storeNavigationContextInLocalStorage"
+                >
+                  {{ Translator.trans('statement.details_and_recommendation') }}
+                </a>
+                <a
+                  v-if="hasPermission('feature_read_source_statement_via_api') && hasPermission('area_admin_import')"
+                  :class="{'is-disabled': !originalPdf}"
+                  :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
+                  class="block leading-[2] whitespace-nowrap"
+                  data-cy="listStatements:originalPDF"
+                  rel="noreferrer noopener"
+                  target="_blank"
+                >
+                  {{ Translator.trans('original.pdf') }}
+                </a>
+                <a
+                  v-if="hasPermission('area_admin_original_statement_list')"
+                  :class="{'is-disabled': !originalId}"
+                  :href="Routing.generate('dplan_procedure_original_statement_list', { procedureId: procedureId })"
+                  class="block leading-[2] whitespace-nowrap"
+                  data-cy="listStatements:originalStatement"
+                  rel="noreferrer noopener"
+                >
+                  {{ Translator.trans('statement.original') }}
+                </a>
+                <span
+                  v-if="hasPermission('feature_statement_copy_to_procedure')"
+                  v-tooltip="isCluster || (segmentsCount > 0 && segmentsCount !== '-') ? Translator.trans('statement.copy.disabled.segmented') : ''"
+                  class="block"
+                >
+                  <button
+                    :class="{
+                      'is-disabled': isCluster || (segmentsCount > 0 && segmentsCount !== '-'),
+                      'hover:underline active:underline': !isCluster && (segmentsCount <= 0 || segmentsCount === '-') }"
+                    :disabled="isCluster || (segmentsCount > 0 && segmentsCount !== '-')"
+                    class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
+                    data-cy="listStatements:statementCopy"
+                    type="button"
+                    @click="openCopyStatementModal(id)"
+                  >
+                    {{ Translator.trans('copy.to.procedure') }}
+                  </button>
+                </span>
+                <span
+                  v-if="hasPermission('feature_statement_move_to_procedure')"
+                  v-tooltip="isCluster || (segmentsCount > 0 && segmentsCount !== '-') ? Translator.trans('statement.move.disabled.segmented') : ''"
+                  class="block"
+                >
+                  <button
+                    :class="{
+                      'is-disabled': isCluster || (segmentsCount > 0 && segmentsCount !== '-'),
+                      'hover:underline active:underline': !isCluster && (segmentsCount <= 0 || segmentsCount === '-') }"
+                    :disabled="isCluster || (segmentsCount > 0 && segmentsCount !== '-')"
+                    class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
+                    data-cy="listStatements:statementMove"
+                    type="button"
+                    @click="openMoveStatementModal(id)"
+                  >
+                    {{ Translator.trans('move.to.procedure') }}
+                  </button>
+                </span>
+                <button
+                  v-if="hasPermission('feature_statement_delete')"
+                  :class="{
+                    'is-disabled': synchronized || assignee.id !== currentUserId,
+                    'hover:underline active:underline': !(synchronized || assignee.id !== currentUserId) }"
+                  :disabled="synchronized || assignee.id !== currentUserId"
+                  class="btn--blank o-link--default block leading-[2] whitespace-nowrap"
+                  data-cy="listStatements:statementDelete"
+                  type="button"
+                  @click="triggerStatementDeletion(id)"
+                >
+                  {{ Translator.trans('delete') }}
+                </button>
+              </dp-flyout>
+            </template>
+            <template v-slot:expandedContent="{ text, fullText, id }">
+              <!-- Statement meta data -->
+              <statement-meta-data
+                :statement="statementsObject[id]"
+                :submit-type-options="submitTypeOptions"
+                class="u-pt-0_5"
+              >
+                <template
+                  v-slot:default="{
+                    authorName,
+                    formattedAuthoredDate,
+                    formattedSubmitDate,
+                    isSubmittedByCitizen,
+                    initialOrganisationDepartmentName,
+                    initialOrganisationName,
+                    internId,
+                    memo,
+                    submitName,
+                    submitType,
+                    location
+                  }"
+                >
+                  <div class="layout">
+                    <dl class="description-list-inline layout__item u-1-of-2">
+                      <dt>{{ Translator.trans('submitter') }}:</dt>
+                      <dd>{{ authorName ? authorName : submitName }}</dd>
+                      <template
+                        v-if="!isSubmittedByCitizen"
+                      >
+                        <dt>{{ Translator.trans('organisation') }}:</dt>
+                        <dd>{{ initialOrganisationName }}</dd>
+                        <dt>{{ Translator.trans('department') }}:</dt>
+                        <dd>{{ initialOrganisationDepartmentName }}</dd>
+                      </template>
+                      <dt>{{ Translator.trans('address') }}:</dt>
+                      <dd>{{ location }}</dd>
+                      <template v-if="hasPermission('field_statement_memo')">
+                        <dt>{{ Translator.trans('memo') }}:</dt>
+                        <dd>{{ memo }}</dd>
+                      </template>
+                    </dl><!--
 
-          <!-- Statement text -->
-          <div class="u-pt-0_5 c-styled-html">
-            <strong>{{ Translator.trans('statement.text.short') }}:</strong>
-            <p v-cleanhtml="displayedText(id)" />
-            <a
-              v-if="statementsObject[id].attributes.textIsTruncated"
-              :class="{ 'show-more': !statementsObject[id].attributes.isFulltextDisplayed }"
-              class="cursor-pointer"
-              rel="noopener"
-              @click.prevent="handleFullTextAction(id)"
-            >
-              {{ toggleFullTextLabel(id) }}
-            </a>
-          </div>
-        </template>
-      </dp-data-table>
+                 --><dl class="description-list-inline layout__item u-1-of-2">
+                      <dt>{{ Translator.trans('internId') }}:</dt>
+                      <dd>{{ internId }}</dd>
+                      <dt>{{ Translator.trans('statement.date.authored') }}:</dt>
+                      <dd>{{ formattedAuthoredDate }}</dd>
+                      <dt>{{ Translator.trans('statement.date.submitted') }}:</dt>
+                      <dd>{{ formattedSubmitDate }}</dd>
+                      <dt class="whitespace-nowrap">
+                        {{ Translator.trans('submit.type') }}:
+                      </dt>
+                      <dd>{{ submitType }}</dd>
+                      <dt>{{ Translator.trans('statement.associated.group') }}:</dt>
+                      <dd v-if="statementsObject[id].attributes.isCluster">
+                        {{ statementsObject[id].attributes.name }}
+                        <span
+                          v-if="groupMemberCounts[id] != null"
+                          class="block color--grey"
+                        >
+                          {{ Translator.trans('statements.count.parenthesized', { count: groupMemberCounts[id] }) }}
+                        </span>
+                      </dd>
+                      <dd v-else>
+                        -
+                      </dd>
+                      <template v-if="hasPermission('field_procedure_elements')">
+                        <dt>{{ Translator.trans('plandocument') }}:</dt>
+                        <dd>{{ planningDocumentLabel(statementsObject[id]) }}</dd>
+                      </template>
+                    </dl>
+                  </div>
+                </template>
+              </statement-meta-data>
+
+              <!-- Statement text -->
+              <div class="u-pt-0_5 c-styled-html">
+                <strong>{{ Translator.trans('statement.text.short') }}:</strong>
+                <p v-cleanhtml="displayedText(id)" />
+                <a
+                  v-if="statementsObject[id].attributes.textIsTruncated"
+                  :class="{ 'show-more': !statementsObject[id].attributes.isFulltextDisplayed }"
+                  class="cursor-pointer"
+                  rel="noopener"
+                  @click.prevent="handleFullTextAction(id)"
+                >
+                  {{ toggleFullTextLabel(id) }}
+                </a>
+              </div>
+            </template>
+          </dp-data-table>
+        </div>
+        <table-scrollbar
+          v-show="scrollbarVisible"
+          ref="scrollBar"
+          :is-fullscreen="isFullscreen"
+          :scroll-percent="scrollPercent"
+          :thumb-style="thumbStyle"
+          controls="statementsListScrollContainer"
+          @thumb-mousedown="onThumbMousedown"
+        />
+      </template>
 
       <dp-inline-notification
         v-else
@@ -458,6 +498,7 @@ import {
   dpApi,
   DpBulkEditHeader,
   DpButton,
+  DpColumnSelector,
   DpDataTable,
   DpFlyout,
   DpIcon,
@@ -483,6 +524,17 @@ import { pollExportJob } from '@DpJs/lib/shared/persistentExportPoll'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
+import TableScrollbar from '@DpJs/components/shared/TableScrollbar'
+import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
+
+// The initial width of a column is also its minimum width
+const createHeaderField = (field, label, width, options = {}) => ({
+  field,
+  label,
+  colWidth: `${width}px`,
+  initialMinWidth: width,
+  ...options,
+})
 
 export default {
   name: 'ListStatements',
@@ -493,6 +545,7 @@ export default {
     DpBulkEditHeader,
     DpButton,
     DpClaim,
+    DpColumnSelector,
     DpDataTable,
     DpFlyout,
     DpIcon,
@@ -505,13 +558,14 @@ export default {
     StatementExportModal,
     StatementMetaData,
     StatusBadge,
+    TableScrollbar,
   },
 
   directives: {
     cleanhtml: CleanHtml,
   },
 
-  mixins: [paginationMixin, sessionStorageMixin, tableSelectAllItems],
+  mixins: [paginationMixin, sessionStorageMixin, tableScrollbarMixin, tableSelectAllItems],
 
   props: {
     accessibleProcedures: {
@@ -566,8 +620,19 @@ export default {
   },
 
   data () {
+    const defaultColumnSelection = [
+      'status',
+      'internId',
+      'meta',
+      'segmentsCount',
+    ]
+
     return {
       claimLoadingIds: [],
+      columnSelectorKey: 0,
+      // Prefilled so the column selector starts with the defaults when localStorage is empty
+      currentSelection: [...defaultColumnSelection],
+      defaultColumnSelection,
       defaultPagination: {
         currentPage: 1,
         limits: [10, 25, 50, 100],
@@ -575,13 +640,13 @@ export default {
       },
       // Member counts per group head (keyed by head statement id), fetched from the 3.0 StatementGroup endpoint.
       groupMemberCounts: {},
-      headerFields: [
-        { field: 'externId', label: Translator.trans('id') },
-        { field: 'status', label: Translator.trans('status') },
-        { field: 'internId', label: Translator.trans('internId.shortened'), colClass: 'w-8' },
-        { field: 'meta', label: Translator.trans('submitter.invitable_institution') },
-        { field: 'text', label: Translator.trans('text') },
-        { field: 'segmentsCount', label: Translator.trans('segments') },
+      headerFieldsAvailable: [
+        createHeaderField('externId', Translator.trans('id'), 120, { fixed: true }),
+        createHeaderField('status', Translator.trans('status'), 180),
+        createHeaderField('internId', Translator.trans('internId.shortened'), 120),
+        createHeaderField('meta', Translator.trans('submitter.invitable_institution'), 180),
+        createHeaderField('text', Translator.trans('text'), 270),
+        createHeaderField('segmentsCount', Translator.trans('segments'), 150),
       ],
       isFullscreen: false,
       lsKey: {
@@ -706,6 +771,16 @@ export default {
       return !this.isLoading && this.items.length > 0
     },
 
+    headerFields () {
+      const externIdField = this.headerFieldsAvailable.find(headerField => headerField.field === 'externId')
+      const userHeaderFields = this.headerFieldsAvailable.filter(headerField =>
+        headerField.field !== 'externId' && this.currentSelection.includes(headerField.field),
+      )
+
+      // Always include externId as the first column
+      return [externIdField, ...userHeaderFields]
+    },
+
     items () {
       return Object.values(this.statementsObject)
         .map(statement => {
@@ -724,6 +799,13 @@ export default {
             originalPdf,
           }
         })
+    },
+
+    selectableColumns () {
+      // ExternId is always displayed, so it is not selectable
+      return this.headerFieldsAvailable
+        .filter(headerField => headerField.field !== 'externId')
+        .map(headerField => [headerField.field, headerField.label])
     },
 
     storageKeyPagination () {
@@ -922,6 +1004,25 @@ export default {
        * image + link renders in the expanded detail panel (see displayedText).
        */
       return stripInlineImageAnchors(text)
+    },
+
+    resetColumnSelection () {
+      localStorage.removeItem('statementsList')
+      localStorage.removeItem('dpDataTable:columnOrder:statementsList')
+      this.setCurrentSelection([...this.defaultColumnSelection])
+
+      // Clear persisted column widths
+      Object.keys(localStorage)
+        .filter((key) =>
+          key.startsWith('dpDataTable:colWidth:statementsListColumnWidths:'),
+        )
+        .forEach((key) => localStorage.removeItem(key))
+
+      this.columnSelectorKey++
+    },
+
+    setCurrentSelection (selection) {
+      this.currentSelection = selection
     },
 
     applySearch (term) {
