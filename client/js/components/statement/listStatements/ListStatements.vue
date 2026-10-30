@@ -77,6 +77,14 @@
         data-cy="listStatements:export"
         @export="showHintAndDoExport"
       />
+      <assign-entity-modal
+        v-if="hasPermission('feature_statement_assignment') && assignEntityModal.show"
+        :assign-action="assignStatement"
+        :authorised-users="assignableUsers"
+        :current-user-id="currentUserId"
+        :procedure-id="procedureId"
+        @assigned="handleEntityAssigned"
+      />
       <copy-statement-modal
         v-if="hasPermission('feature_statement_copy_to_procedure') && copyStatementModal.show"
         :accessible-procedures="accessibleProcedures"
@@ -278,6 +286,19 @@
             >
               {{ Translator.trans('statement.details_and_recommendation') }}
             </a>
+            <button
+              v-if="hasPermission('feature_statement_assignment')"
+              :class="{
+                'is-disabled': synchronized,
+                'hover:underline active:underline': !synchronized }"
+              :disabled="synchronized"
+              class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
+              data-cy="listStatements:statementAssign"
+              type="button"
+              @click="toggleAssignEntityModal(id, assignee.id)"
+            >
+              {{ Translator.trans('assignment.generic.assign.to.other') }}
+            </button>
             <a
               v-if="hasPermission('feature_read_source_statement_via_api') && hasPermission('area_admin_import')"
               :class="{'is-disabled': !originalPdf}"
@@ -474,6 +495,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { inlineImageAnchors, stripInlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import AssignEntityModal from '@DpJs/components/statement/assessmentTable/AssignEntityModal'
 import CustomSearchStatements from './CustomSearchStatements'
 import { defineAsyncComponent } from 'vue'
 import DpClaim from '@DpJs/components/statement/DpClaim'
@@ -488,6 +510,7 @@ export default {
   name: 'ListStatements',
 
   components: {
+    AssignEntityModal,
     CopyStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal')),
     CustomSearchStatements,
     DpBulkEditHeader,
@@ -611,6 +634,7 @@ export default {
 
   computed: {
     ...mapGetters('AssessmentTable', [
+      'assignEntityModal',
       'copyStatementModal',
       'moveStatementModal',
     ]),
@@ -987,6 +1011,60 @@ export default {
       } else {
         this.unclaimStatement(statementId)
       }
+    },
+
+    // The statement list doesn't register the assessment table's `Statement/setAssigneeAction`.
+    assignStatement ({ statementId, assigneeId }) {
+      return dpApi({
+        method: 'PATCH',
+        url: Routing.generate('dplan_claim_statements_api', { statementId }),
+        data: {
+          data: {
+            type: 'user',
+            id: assigneeId,
+          },
+        },
+        headers: {
+          'Content-type': 'application/vnd.api+json',
+          Accept: 'application/vnd.api+json',
+        },
+      }).then(response => {
+        const assignee = assigneeId ?
+          {
+            id: response.data.data.id,
+            uId: response.data.data.id,
+            name: response.data.data.attributes.name,
+            orgaName: response.data.data.attributes.orgaName,
+          } :
+          { id: '', name: '', orgaName: '', uId: '' }
+
+        return { id: statementId, assignee }
+      })
+    },
+
+    // The modal already dispatched the assignment; update the row here so it reflects it without a reload.
+    handleEntityAssigned ({ entityId, assignee }) {
+      const statement = this.statementsObject[entityId]
+
+      if (!statement) {
+        return
+      }
+
+      const dataToUpdate = { ...statement, relationships: { ...statement.relationships, assignee: { data: assignee.id ? { type: 'AssignableUser', id: assignee.id } : null } } }
+
+      this.setStatement({ ...dataToUpdate, id: entityId })
+    },
+
+    toggleAssignEntityModal (statementId, assigneeId) {
+      this.setModalProperty({
+        prop: 'assignEntityModal',
+        val: {
+          entityId: statementId,
+          entityType: 'statement',
+          initialAssigneeId: assigneeId,
+          show: true,
+        },
+      })
     },
 
     storeToggledStatements () {
