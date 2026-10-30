@@ -101,11 +101,6 @@ const postCssPlugins = [
 const moduleRules =
   [
     {
-      test: /\.css$/,
-      use: [MiniCssExtractPlugin.loader],
-      exclude: [/client\/css\/(tailwind|preflight)\.css/],
-    },
-    {
       test: /\.scss$/,
       use: [
         MiniCssExtractPlugin.loader,
@@ -177,7 +172,6 @@ const moduleRules =
           compatConfig: {
             MODE: 2,
           },
-          isCustomElement: (tag) => tag === 'diplan-karte',
         },
       },
     },
