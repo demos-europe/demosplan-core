@@ -149,7 +149,7 @@ class TwoFactorSetupEnforcerTest extends FunctionalTestCase
             ['templateVars' => ['twoFactorSetup' => $this->sut->getSetupState()], 'user' => $user, 'hasIdentityprovider' => false, 'projectName' => 'test']
         );
 
-        $hint = 'Der letzte eingerichtete Faktor kann deshalb nicht deaktiviert werden';
+        $hint = 'Dieser Faktor kann deshalb nicht deaktiviert werden';
         self::assertSame($expectLocked, str_contains($html, $hint));
         self::assertSame($totpEnabled && !$expectLocked, str_contains($html, 'name="disableTwoFactorCode"'));
         self::assertSame($emailAuthEnabled && !$expectLocked, str_contains($html, 'name="disableTwoFactorCodeEmail"'));

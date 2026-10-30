@@ -73,7 +73,7 @@ class UserSecurityHandler
 
         if (isset($updateUserData['disableTwoFactorCode']) && '' !== $updateUserData['disableTwoFactorCode']) {
             if ($this->twoFactorSetupEnforcer->isDisableLockedFor($user, 'totp')) {
-                $this->messageBag->add('error', 'error.2fa.disable.required');
+                $this->messageBag->add('error', 'error.2fa.disable.locked');
             } elseif ($this->totpAuthenticator->checkCode($user, $updateUserData['disableTwoFactorCode'])) {
                 $user->setTotpEnabled(false);
                 $user->setTotpSecret(null);
@@ -100,7 +100,7 @@ class UserSecurityHandler
 
         if (isset($updateUserData['disableTwoFactorCodeEmail']) && '' !== $updateUserData['disableTwoFactorCodeEmail']) {
             if ($this->twoFactorSetupEnforcer->isDisableLockedFor($user, 'email')) {
-                $this->messageBag->add('error', 'error.2fa.disable.required');
+                $this->messageBag->add('error', 'error.2fa.disable.locked');
             } elseif ($user->getEmailAuthCode() === $updateUserData['disableTwoFactorCodeEmail']) {
                 $user->setAuthCodeEmailEnabled(false);
                 $user->setEmailAuthCode('');
