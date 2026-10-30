@@ -19,7 +19,9 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseDefinitionRepository;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
+#[AsAlias(ProcedurePhaseDefinitionServiceInterface::class)]
 readonly class ProcedurePhaseDefinitionService implements ProcedurePhaseDefinitionServiceInterface
 {
     public function __construct(

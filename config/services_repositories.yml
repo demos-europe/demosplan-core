@@ -29,11 +29,3 @@ services:
 
     demosplan\DemosPlanCoreBundle\Repository\ScheduledExportRepository:
         $entityClass: 'demosplan\DemosPlanCoreBundle\Entity\Statement\ExportSchedule'
-
-    DemosEurope\DemosplanAddon\Contracts\Repositories\ProcedurePhaseRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\ProcedurePhaseRepository'
-
-    DemosEurope\DemosplanAddon\Contracts\Repositories\GisLayerCategoryRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\GisLayerCategoryRepository'
-
-    DemosEurope\DemosplanAddon\Contracts\Repositories\MapRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\MapRepository'
-
-    DemosEurope\DemosplanAddon\Contracts\Repositories\EmailAddressRepositoryInterface: '@demosplan\DemosPlanCoreBundle\Repository\EmailAddressRepository'
