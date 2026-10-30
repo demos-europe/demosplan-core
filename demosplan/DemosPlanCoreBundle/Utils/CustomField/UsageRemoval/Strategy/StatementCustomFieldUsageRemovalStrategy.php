@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Strategy;
+namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\UsageRemoval\Strategy;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
