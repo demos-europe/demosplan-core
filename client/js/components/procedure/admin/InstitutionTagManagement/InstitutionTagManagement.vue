@@ -20,7 +20,10 @@
         :is-active="activeTabId === 'institutionList'"
         :label="Translator.trans('invitable_institution.group')"
       >
-        <institution-list :is-active="isInstitutionListActive" />
+        <institution-list
+          ref="institutionList"
+          :is-active="isInstitutionListActive"
+        />
       </dp-tab>
       <dp-tab
         id="tagList"
@@ -57,7 +60,6 @@ import {
 } from '@demos-europe/demosplan-ui'
 import AdministrationCustomFieldsList from '@DpJs/components/procedure/admin/AdministrationCustomFieldsList'
 import InstitutionList from './InstitutionList'
-import { mapActions } from 'vuex'
 import TagList from './TagList'
 
 export default {
@@ -74,7 +76,6 @@ export default {
   data () {
     return {
       activeTabId: 'institutionList',
-      needToReset: false,
       organisationCustomFieldTargets: {
         ORGA: Translator.trans('institution.customFields.fields'),
       },
@@ -93,38 +94,7 @@ export default {
     },
   },
 
-  watch: {
-    needToReset: {
-      handler (newValue) {
-        if (newValue) {
-          this.getInstitutionsByPage(1)
-        }
-      },
-      deep: false, // Set default for migrating purpose. To know this occurrence is checked
-    },
-  },
-
   methods: {
-    ...mapActions('InvitableInstitution', {
-      listInvitableInstitution: 'list',
-    }),
-
-    getInstitutionsByPage (page) {
-      this.listInvitableInstitution({
-        page: {
-          number: page,
-          size: 50,
-        },
-        sort: '-createdDate',
-        fields: {
-          InstitutionTag: ['label', 'id'].join(),
-        },
-      })
-        .then(() => {
-          this.needToReset = false
-        })
-    },
-
     setActiveTabId (id) {
       if (id) {
         window.localStorage.setItem('tagManagementActiveTabId', id)
@@ -135,8 +105,12 @@ export default {
       }
     },
 
+    /**
+     * The institution list owns its fetching and pagination, so it reloads itself
+     * to keep the rows and the pager in sync (e.g. after a tag was removed).
+     */
     institutionListReset () {
-      this.needToReset = true
+      return this.$refs.institutionList.getInstitutionsByPage(1)
     },
   },
 }

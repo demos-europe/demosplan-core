@@ -13,10 +13,10 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use demosplan\DemosPlanCoreBundle\Api\InstitutionTag\AccessChecker;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository;
@@ -26,7 +26,6 @@ use Doctrine\Common\Collections\Collection;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
 use EDT\PathBuilding\End;
-use EDT\Querying\Contracts\PathException;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 use EDT\Wrapping\PropertyBehavior\Relationship\ToOne\CallbackToOneRelationshipSetBehavior;
 use Symfony\Component\Validator\ConstraintViolationList;
@@ -43,6 +42,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class InstitutionTagResourceType extends DplanResourceType
 {
     public function __construct(
+        private readonly AccessChecker $accessChecker,
         private readonly ValidatorInterface $validator,
         private readonly InstitutionTagRepository $institutionTagRepository,
     ) {
@@ -132,12 +132,7 @@ class InstitutionTagResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasAnyPermissions(
-            'feature_institution_tag_create',
-            'feature_institution_tag_read',
-            'feature_institution_tag_update',
-            'feature_institution_tag_delete',
-        );
+        return $this->accessChecker->isAvailable();
     }
 
     public function isUpdateAllowed(): bool
@@ -145,24 +140,9 @@ class InstitutionTagResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('feature_institution_tag_update');
     }
 
-    /**
-     * @throws CustomerNotFoundException
-     * @throws PathException
-     */
     protected function getAccessConditions(): array
     {
-        if ($this->currentUser->hasPermission(
-            'feature_institution_tag_read',
-        )) {
-            $currentCustomerId = $this->currentCustomerService->getCurrentCustomer()->getId();
-
-            return [$this->conditionFactory->propertyHasValue(
-                $currentCustomerId,
-                $this->category->customer->id
-            )];
-        }
-
-        return [$this->conditionFactory->false()];
+        return $this->accessChecker->getTagAccessConditions();
     }
 
     public function isCreateAllowed(): bool

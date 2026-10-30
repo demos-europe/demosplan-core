@@ -26,4 +26,14 @@ const apiStores = [
   'InvitableInstitution',
 ]
 
-initialize(components, stores, apiStores)
+/**
+ * Use API Platform 3.0 for reading InvitableInstitution on this page, updates stay on 2.0
+ */
+const pageSpecificApi3Modules = {
+  InvitableInstitution: [
+    'list',
+    'get',
+  ],
+}
+
+initialize(components, stores, apiStores, {}, () => {}, pageSpecificApi3Modules)
