@@ -29,6 +29,9 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  */
 readonly class TwoFactorSetupEnforcer
 {
+    public const METHOD_TOTP = 'totp';
+    public const METHOD_EMAIL = 'email';
+
     public function __construct(
         private CurrentUserInterface $currentUser,
         private TwoFactorRequirementResolver $twoFactorRequirementResolver,
@@ -77,20 +80,36 @@ readonly class TwoFactorSetupEnforcer
      * Only applies to the current user editing their own data, so administrative changes of other users are not
      * affected.
      *
-     * @param string $method 'totp' or 'email'
+     * @param self::METHOD_* $method
      */
     public function isDisableLockedFor(UserInterface $target, string $method): bool
     {
-        $user = $this->getUser();
-        if (null === $user || $target->getId() !== $user->getId() || !$this->isRequirementActive()) {
+        if (!$target instanceof User || !$this->isOwnAccount($target)) {
             return false;
         }
 
-        $subject = $target instanceof User ? $target : $user;
-        $totp = $subject->isTotpEnabled();
-        $email = $subject->isEmailAuthEnabled();
+        return $this->isRequirementActive() && $this->isOnlyEnabledFactor($target, $method);
+    }
 
-        return 'totp' === $method ? $totp && !$email : $email && !$totp;
+    private function isOwnAccount(User $target): bool
+    {
+        return $target->getId() === $this->getUser()?->getId();
+    }
+
+    /**
+     * @param self::METHOD_* $method
+     */
+    private function isOnlyEnabledFactor(User $user, string $method): bool
+    {
+        $enabledFactors = [];
+        if ($user->isTotpEnabled()) {
+            $enabledFactors[] = self::METHOD_TOTP;
+        }
+        if ($user->isEmailAuthEnabled()) {
+            $enabledFactors[] = self::METHOD_EMAIL;
+        }
+
+        return [$method] === $enabledFactors;
     }
 
     /**

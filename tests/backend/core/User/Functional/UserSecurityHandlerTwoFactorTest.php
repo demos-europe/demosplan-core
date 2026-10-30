@@ -83,7 +83,7 @@ class UserSecurityHandlerTwoFactorTest extends FunctionalTestCase
         $this->sut->handleUserSecurityPropertiesUpdate($user, ['twoFactorCode' => $this->validTotpCode()]);
 
         self::assertTrue($user->isTotpEnabled());
-        $this->assertSingleSetupEntry($user, 'totp');
+        $this->assertSingleSetupEntry($user, TwoFactorSetupEnforcer::METHOD_TOTP);
     }
 
     public function testEnablingEmailWithValidCodeWritesOneSetupEntry(): void
@@ -94,7 +94,7 @@ class UserSecurityHandlerTwoFactorTest extends FunctionalTestCase
         $this->sut->handleUserSecurityPropertiesUpdate($user, ['twoFactorCodeEmail' => self::EMAIL_CODE]);
 
         self::assertTrue($user->isEmailAuthEnabled());
-        $this->assertSingleSetupEntry($user, 'email');
+        $this->assertSingleSetupEntry($user, TwoFactorSetupEnforcer::METHOD_EMAIL);
     }
 
     public function testInvalidCodesWriteNoEntry(): void
@@ -136,7 +136,7 @@ class UserSecurityHandlerTwoFactorTest extends FunctionalTestCase
         $user = $this->arrangeUser($totpEnabled, $emailEnabled, $orgaRequires, $disabledPermissions);
         $user->setTotpSecret(self::TOTP_SECRET);
         $user->setEmailAuthCode(self::EMAIL_CODE);
-        $data = 'totp' === $method
+        $data = TwoFactorSetupEnforcer::METHOD_TOTP === $method
             ? ['disableTwoFactorCode' => $this->validTotpCode()]
             : ['disableTwoFactorCodeEmail' => self::EMAIL_CODE];
         if ($expectRejected) {
@@ -147,20 +147,20 @@ class UserSecurityHandlerTwoFactorTest extends FunctionalTestCase
 
         $this->sut->handleUserSecurityPropertiesUpdate($user, $data);
 
-        $stillEnabled = 'totp' === $method ? $user->isTotpEnabled() : $user->isEmailAuthEnabled();
+        $stillEnabled = TwoFactorSetupEnforcer::METHOD_TOTP === $method ? $user->isTotpEnabled() : $user->isEmailAuthEnabled();
         self::assertSame($expectRejected, $stillEnabled);
     }
 
     public static function guardProvider(): array
     {
         return [
-            'only totp, required'      => ['totp', true, false, true, [], true],
-            'only email, required'     => ['email', false, true, true, [], true],
-            'both, disable totp'       => ['totp', true, true, true, [], false],
-            'both, disable email'      => ['email', true, true, true, [], false],
-            'orga feature missing'     => ['totp', true, false, true, [self::FEATURE_ORGA_REQUIREMENT], false],
-            'feature 2fa missing'      => ['email', false, true, true, [self::FEATURE_2FA], false],
-            'orga does not require it' => ['totp', true, false, false, [], false],
+            'only totp, required'      => [TwoFactorSetupEnforcer::METHOD_TOTP, true, false, true, [], true],
+            'only email, required'     => [TwoFactorSetupEnforcer::METHOD_EMAIL, false, true, true, [], true],
+            'both, disable totp'       => [TwoFactorSetupEnforcer::METHOD_TOTP, true, true, true, [], false],
+            'both, disable email'      => [TwoFactorSetupEnforcer::METHOD_EMAIL, true, true, true, [], false],
+            'orga feature missing'     => [TwoFactorSetupEnforcer::METHOD_TOTP, true, false, true, [self::FEATURE_ORGA_REQUIREMENT], false],
+            'feature 2fa missing'      => [TwoFactorSetupEnforcer::METHOD_EMAIL, false, true, true, [self::FEATURE_2FA], false],
+            'orga does not require it' => [TwoFactorSetupEnforcer::METHOD_TOTP, true, false, false, [], false],
         ];
     }
 

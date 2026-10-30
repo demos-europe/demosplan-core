@@ -65,14 +65,14 @@ class UserSecurityHandler
             if ($this->totpAuthenticator->checkCode($user, $updateUserData['twoFactorCode'])) {
                 $user->setTotpEnabled(true);
                 $this->userService->updateUserObject($user);
-                $this->logSetup($user, 'totp');
+                $this->logSetup($user, TwoFactorSetupEnforcer::METHOD_TOTP);
             } else {
                 $this->messageBag->add('error', 'error.2fa.code.invalid');
             }
         }
 
         if (isset($updateUserData['disableTwoFactorCode']) && '' !== $updateUserData['disableTwoFactorCode']) {
-            if ($this->twoFactorSetupEnforcer->isDisableLockedFor($user, 'totp')) {
+            if ($this->twoFactorSetupEnforcer->isDisableLockedFor($user, TwoFactorSetupEnforcer::METHOD_TOTP)) {
                 $this->messageBag->add('warning', 'warning.2fa.disable.locked');
             } elseif ($this->totpAuthenticator->checkCode($user, $updateUserData['disableTwoFactorCode'])) {
                 $user->setTotpEnabled(false);
@@ -92,14 +92,14 @@ class UserSecurityHandler
             if ($user->getEmailAuthCode() === $updateUserData['twoFactorCodeEmail']) {
                 $user->setAuthCodeEmailEnabled(true);
                 $this->userService->updateUserObject($user);
-                $this->logSetup($user, 'email');
+                $this->logSetup($user, TwoFactorSetupEnforcer::METHOD_EMAIL);
             } else {
                 $this->messageBag->add('error', 'error.2fa.code.invalid');
             }
         }
 
         if (isset($updateUserData['disableTwoFactorCodeEmail']) && '' !== $updateUserData['disableTwoFactorCodeEmail']) {
-            if ($this->twoFactorSetupEnforcer->isDisableLockedFor($user, 'email')) {
+            if ($this->twoFactorSetupEnforcer->isDisableLockedFor($user, TwoFactorSetupEnforcer::METHOD_EMAIL)) {
                 $this->messageBag->add('warning', 'warning.2fa.disable.locked');
             } elseif ($user->getEmailAuthCode() === $updateUserData['disableTwoFactorCodeEmail']) {
                 $user->setAuthCodeEmailEnabled(false);
@@ -116,7 +116,7 @@ class UserSecurityHandler
     /**
      * Logs the setup of a factor. A failing report must not undo the setup, so errors are only logged.
      *
-     * @param 'totp'|'email' $method
+     * @param TwoFactorSetupEnforcer::METHOD_* $method
      */
     private function logSetup(UserInterface $user, string $method): void
     {

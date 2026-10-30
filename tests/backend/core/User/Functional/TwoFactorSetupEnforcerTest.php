@@ -219,7 +219,7 @@ class TwoFactorSetupEnforcerTest extends FunctionalTestCase
         $this->arrangeUser(['A' => true], true, false);
         $other = UserFactory::createOne(['totpEnabled' => true, 'authCodeEmailEnabled' => false])->_real();
 
-        self::assertFalse($this->sut->isDisableLockedFor($other, 'totp'));
+        self::assertFalse($this->sut->isDisableLockedFor($other, TwoFactorSetupEnforcer::METHOD_TOTP));
     }
 
     public function testNothingIsEnforcedWithoutRequest(): void
