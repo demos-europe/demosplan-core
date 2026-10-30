@@ -162,12 +162,15 @@ class OrgaHandler extends CoreHandler
             'emailNotificationEndingPhase',
             'emailNotificationNewStatement',
             'participationEmail',
-            'registrationStatuses',
             'showlist',
             'showlistChangeReason',
             'showname',
             'canCreateProcedures',
         ];
+
+        if ($this->currentUser->hasPermission('feature_orga_registration_status_edit')) {
+            $writableAttributes[] = 'registrationStatuses';
+        }
 
         if ($this->currentUser->hasPermission('field_organisation_email2_cc')) {
             $writableAttributes[] = 'email2';

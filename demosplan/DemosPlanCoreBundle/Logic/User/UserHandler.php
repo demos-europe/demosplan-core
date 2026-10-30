@@ -2344,7 +2344,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $dataPermissionChecked['imprint'] = $data['imprint'];
         }
 
-        if ($this->permissions->hasPermission('area_organisations_applications_manage')
+        if ($this->permissions->hasPermission('feature_orga_registration_status_edit')
             && isset($data['registrationStatuses'])
         ) {
             $dataPermissionChecked['registrationStatuses'] = $data['registrationStatuses'];
@@ -2361,7 +2361,13 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $this->permissions->hasPermission('feature_orga_edit_all_fields'),
             $this->permissions->hasPermission('area_manage_orgadata'),
         ], true)) {
+            $mayEditRegistrationStatuses = isset($dataPermissionChecked['registrationStatuses']);
             $dataPermissionChecked = $data;
+
+            // the organisation types require their own permission, "all fields" does not cover them
+            if (!$mayEditRegistrationStatuses) {
+                unset($dataPermissionChecked['registrationStatuses']);
+            }
         }
 
         return $dataPermissionChecked;
