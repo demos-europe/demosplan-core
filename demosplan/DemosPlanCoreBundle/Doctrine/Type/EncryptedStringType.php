@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Exception\CryptoException;
 use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\StringType;
+use Psr\Log\LoggerInterface;
 
 /**
  * Doctrine DBAL type that transparently encrypts values before storing
@@ -29,12 +30,19 @@ class EncryptedStringType extends StringType
 
     private static ?SecretEncryptor $encryptor = null;
 
+    private static ?LoggerInterface $logger = null;
+
     /**
      * Called once by a compiler pass or service bootstrap to inject the encryptor.
      */
     public static function setEncryptor(SecretEncryptor $encryptor): void
     {
         self::$encryptor = $encryptor;
+    }
+
+    public static function setLogger(LoggerInterface $logger): void
+    {
+        self::$logger = $logger;
     }
 
     public function convertToDatabaseValue($value, AbstractPlatform $platform): ?string
@@ -57,6 +65,8 @@ class EncryptedStringType extends StringType
         } catch (CryptoException) {
             // Legacy plaintext value not yet encrypted — return as-is.
             // It will be encrypted on next persist/flush.
+            self::$logger?->warning('Encrypted column value could not be decrypted, returning stored value as-is');
+
             return (string) $value;
         }
     }
