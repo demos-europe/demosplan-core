@@ -22,33 +22,29 @@ use Psr\Log\NullLogger;
 
 class AiModeResolverTest extends TestCase
 {
+    private const MODE_A = 'mode-a';
+    private const MODE_B = 'mode-b';
+
     public function testStoredModeWins(): void
     {
-        $sut = $this->resolver($this->provider([AiModes::CLASSIC, AiModes::LLM], AiModes::LLM));
+        $sut = $this->resolver($this->provider([self::MODE_A, self::MODE_B], self::MODE_B));
 
-        self::assertSame(AiModes::CLASSIC, $sut->resolve($this->orga('a', AiModes::CLASSIC)));
+        self::assertSame(self::MODE_A, $sut->resolve($this->orga('a', self::MODE_A)));
     }
 
     public function testNullUsesFirstProviderDefault(): void
     {
         $sut = $this->resolver(
-            $this->provider([AiModes::CLASSIC, AiModes::LLM], null),
-            $this->provider([AiModes::CLASSIC], AiModes::CLASSIC),
+            $this->provider([self::MODE_A, self::MODE_B], null),
+            $this->provider([self::MODE_A], self::MODE_A),
         );
 
-        self::assertSame(AiModes::CLASSIC, $sut->resolve($this->orga('a', null)));
+        self::assertSame(self::MODE_A, $sut->resolve($this->orga('a', null)));
     }
 
-    public function testNullWithLlmDeclaredButNoDefaultGivesLlm(): void
+    public function testNullWithoutAnyProviderDefaultGivesNone(): void
     {
-        $sut = $this->resolver($this->provider([AiModes::CLASSIC, AiModes::LLM], null));
-
-        self::assertSame(AiModes::LLM, $sut->resolve($this->orga('a', null)));
-    }
-
-    public function testNullWithOnlyClassicDeclaredGivesNone(): void
-    {
-        $sut = $this->resolver($this->provider([AiModes::CLASSIC], null));
+        $sut = $this->resolver($this->provider([self::MODE_A, self::MODE_B], null));
 
         self::assertSame(AiModes::NONE, $sut->resolve($this->orga('a', null)));
     }
@@ -60,9 +56,9 @@ class AiModeResolverTest extends TestCase
 
     public function testDisallowedStoredModeDegrades(): void
     {
-        $sut = $this->resolver($this->provider([AiModes::CLASSIC], null));
+        $sut = $this->resolver($this->provider([self::MODE_A], null));
 
-        self::assertSame(AiModes::NONE, $sut->resolve($this->orga('a', AiModes::LLM)));
+        self::assertSame(AiModes::NONE, $sut->resolve($this->orga('a', self::MODE_B)));
     }
 
     public function testNoneIsAlwaysAllowed(): void
@@ -76,8 +72,8 @@ class AiModeResolverTest extends TestCase
     public function testResultIsMemoisedPerOrgaUntilReset(): void
     {
         $provider = $this->createMock(AiModeProviderInterface::class);
-        $provider->method('getAvailableModes')->willReturn([AiModes::LLM]);
-        $provider->expects(self::exactly(2))->method('getDefaultMode')->willReturn(AiModes::LLM);
+        $provider->method('getAvailableModes')->willReturn([self::MODE_B]);
+        $provider->expects(self::exactly(2))->method('getDefaultMode')->willReturn(self::MODE_B);
         $sut = $this->resolver($provider);
         $orga = $this->orga('a', null);
 

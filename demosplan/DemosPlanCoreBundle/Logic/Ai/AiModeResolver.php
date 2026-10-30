@@ -92,6 +92,6 @@ class AiModeResolver implements AiModeResolverInterface, ResetInterface
             }
         }
 
-        return in_array(AiModes::LLM, $allowed, true) ? AiModes::LLM : AiModes::NONE;
+        return AiModes::NONE;
     }
 }

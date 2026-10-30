@@ -29,6 +29,9 @@ use Zenstruck\Foundry\Persistence\Proxy;
 
 class OrgaAiModeCommandTest extends FunctionalTestCase
 {
+    public const MODE_A = 'mode-a';
+    public const MODE_B = 'mode-b';
+
     protected $sut;
     private ?CommandTester $commandTester = null;
     /** @var Orga|Proxy<Orga>|null */
@@ -48,7 +51,7 @@ class OrgaAiModeCommandTest extends FunctionalTestCase
         $provider = new class implements AiModeProviderInterface {
             public function getAvailableModes(): array
             {
-                return [AiModes::CLASSIC, AiModes::LLM];
+                return [OrgaAiModeCommandTest::MODE_A, OrgaAiModeCommandTest::MODE_B];
             }
 
             public function getDefaultMode(OrgaInterface $orga): ?string
@@ -75,17 +78,17 @@ class OrgaAiModeCommandTest extends FunctionalTestCase
         self::assertSame(Command::SUCCESS, $exitCode);
         $output = $this->commandTester->getDisplay();
         self::assertStringContainsString('(none chosen)', $output);
-        self::assertMatchesRegularExpression('/Resolved\s+llm/', $output);
+        self::assertMatchesRegularExpression('/Resolved\s+none/', $output);
         self::assertNull($this->reloadedAiMode());
     }
 
     public function testStoresAllowedMode(): void
     {
-        $exitCode = $this->execute(['orga' => $this->orga->getId(), 'mode' => AiModes::CLASSIC]);
+        $exitCode = $this->execute(['orga' => $this->orga->getId(), 'mode' => self::MODE_A]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
-        self::assertMatchesRegularExpression('/Resolved\s+classic/', $this->commandTester->getDisplay());
-        self::assertSame(AiModes::CLASSIC, $this->reloadedAiMode());
+        self::assertMatchesRegularExpression('/Resolved\s+mode-a/', $this->commandTester->getDisplay());
+        self::assertSame(self::MODE_A, $this->reloadedAiMode());
     }
 
     public function testRejectsModeThatIsNotAllowed(): void
@@ -99,7 +102,7 @@ class OrgaAiModeCommandTest extends FunctionalTestCase
 
     public function testUnsetRemovesStoredMode(): void
     {
-        $this->storeClassicMode();
+        $this->storeMode();
 
         $exitCode = $this->execute(['orga' => $this->orga->getId(), '--unset' => true]);
 
@@ -109,12 +112,12 @@ class OrgaAiModeCommandTest extends FunctionalTestCase
 
     public function testRejectsModeTogetherWithUnset(): void
     {
-        $this->storeClassicMode();
+        $this->storeMode();
 
-        $exitCode = $this->execute(['orga' => $this->orga->getId(), 'mode' => AiModes::LLM, '--unset' => true]);
+        $exitCode = $this->execute(['orga' => $this->orga->getId(), 'mode' => self::MODE_B, '--unset' => true]);
 
         self::assertSame(Command::FAILURE, $exitCode);
-        self::assertSame(AiModes::CLASSIC, $this->reloadedAiMode());
+        self::assertSame(self::MODE_A, $this->reloadedAiMode());
     }
 
     public function testListsAllowedModes(): void
@@ -123,25 +126,25 @@ class OrgaAiModeCommandTest extends FunctionalTestCase
 
         self::assertSame(Command::SUCCESS, $exitCode);
         $output = $this->commandTester->getDisplay();
-        foreach ([AiModes::NONE, AiModes::CLASSIC, AiModes::LLM] as $mode) {
+        foreach ([AiModes::NONE, self::MODE_A, self::MODE_B] as $mode) {
             self::assertStringContainsString($mode, $output);
         }
     }
 
     public function testFindsOrgaByCode(): void
     {
-        $exitCode = $this->execute(['orga' => $this->orga->getCode(), 'mode' => AiModes::LLM]);
+        $exitCode = $this->execute(['orga' => $this->orga->getCode(), 'mode' => self::MODE_B]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
-        self::assertSame(AiModes::LLM, $this->reloadedAiMode());
+        self::assertSame(self::MODE_B, $this->reloadedAiMode());
     }
 
     public function testFindsOrgaByUniqueNamePart(): void
     {
-        $exitCode = $this->execute(['orga' => substr($this->orga->getName(), 5), 'mode' => AiModes::LLM]);
+        $exitCode = $this->execute(['orga' => substr($this->orga->getName(), 5), 'mode' => self::MODE_B]);
 
         self::assertSame(Command::SUCCESS, $exitCode);
-        self::assertSame(AiModes::LLM, $this->reloadedAiMode());
+        self::assertSame(self::MODE_B, $this->reloadedAiMode());
     }
 
     public function testAmbiguousNameFailsWithoutInteraction(): void
@@ -150,7 +153,7 @@ class OrgaAiModeCommandTest extends FunctionalTestCase
         OrgaFactory::createOne(['name' => $sharedName.' A', 'deleted' => false]);
         OrgaFactory::createOne(['name' => $sharedName.' B', 'deleted' => false]);
 
-        $exitCode = $this->execute(['orga' => $sharedName, 'mode' => AiModes::LLM]);
+        $exitCode = $this->execute(['orga' => $sharedName, 'mode' => self::MODE_B]);
 
         self::assertSame(Command::FAILURE, $exitCode);
         self::assertStringContainsString('is ambiguous', $this->commandTester->getDisplay());
@@ -180,9 +183,9 @@ class OrgaAiModeCommandTest extends FunctionalTestCase
         return $this->commandTester->execute($input, ['interactive' => false]);
     }
 
-    private function storeClassicMode(): void
+    private function storeMode(): void
     {
-        $this->orga->_real()->setAiMode(AiModes::CLASSIC);
+        $this->orga->_real()->setAiMode(self::MODE_A);
         $this->getEntityManager()->flush();
     }
 
