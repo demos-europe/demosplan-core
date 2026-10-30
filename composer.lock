@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7f526bb7296c51922db92f9fca1daa5d",
+    "content-hash": "205bbf207699e8613744496e7ff7d636",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -1711,16 +1711,16 @@
         },
         {
             "name": "demos-europe/demosplan-addon",
-            "version": "v0.84",
+            "version": "v0.85",
             "source": {
                 "type": "git",
                 "url": "https://github.com/demos-europe/demosplan-addon.git",
-                "reference": "85a123e790faf0fd1121a50bad704640e4280424"
+                "reference": "6f1bf005ee61840b0b42e6db600623fdefcbaf79"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/85a123e790faf0fd1121a50bad704640e4280424",
-                "reference": "85a123e790faf0fd1121a50bad704640e4280424",
+                "url": "https://api.github.com/repos/demos-europe/demosplan-addon/zipball/6f1bf005ee61840b0b42e6db600623fdefcbaf79",
+                "reference": "6f1bf005ee61840b0b42e6db600623fdefcbaf79",
                 "shasum": ""
             },
             "require": {
@@ -1733,7 +1733,7 @@
                 "doctrine/doctrine-bundle": "^2",
                 "illuminate/collections": "^10.48",
                 "league/csv": "^9.18",
-                "php": "^8.2",
+                "php": "^8.2.35 || ^8.3.36 || ^8.4.27",
                 "proj4php/proj4php": "^2.0",
                 "ramsey/uuid": "^4",
                 "symfony/cache": "6.*.*",
@@ -1788,9 +1788,9 @@
             ],
             "description": "This is the base package for all demosplan addons",
             "support": {
-                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.84"
+                "source": "https://github.com/demos-europe/demosplan-addon/tree/v0.85"
             },
-            "time": "2026-10-19T12:01:20+00:00"
+            "time": "2026-10-30T14:32:45+00:00"
         },
         {
             "name": "demos-europe/edt-access-definitions",

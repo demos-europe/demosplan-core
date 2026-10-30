@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\DependencyInjection;
 
+use DemosEurope\DemosplanAddon\Contracts\Ai\AiModeProviderInterface;
 use DemosEurope\DemosplanAddon\Logic\Rpc\RpcMethodSolverInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\CustomFactory\DataGeneratorInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -35,7 +36,15 @@ final class ServiceTagAutoconfigurator
      */
     private const FAKE_DATA_GENERATOR = 'dplan.data.generator';
 
+    /**
+     * Addon-provided AI modes and defaults.
+     *
+     * @const string
+     */
+    public const AI_MODE_PROVIDER = 'dplan.ai.mode.provider';
+
     private const CLASS_MAP = [
+        self::AI_MODE_PROVIDER      => AiModeProviderInterface::class,
         self::FAKE_DATA_GENERATOR   => DataGeneratorInterface::class,
         self::RPC_METHOD_SOLVERS    => RpcMethodSolverInterface::class,
     ];
