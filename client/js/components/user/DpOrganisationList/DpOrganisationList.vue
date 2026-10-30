@@ -83,50 +83,105 @@
         inline
         @update="handleFilter"
       />
-
-      <div
-        v-if="hasPermission('feature_orga_delete')"
-        class="block u-mb"
-      >
-        <div
-          class="layout__item u-3-of-7 u-mt u-pl-0_5"
-        >
-          <div class="o-form__element--checkbox">
-            <input
-              id="select_all"
-              type="checkbox"
-              data-cy="allSelected"
-              class="o-form__control-input"
-              :checked="allSelected"
-              @change="dpToggleAll(!allSelected, items)"
-            >
-            <label
-              for="select_all"
-              class="o-form__label"
-            >
-              {{ Translator.trans('select.all.on.page') }}
-            </label>
-          </div>
-        </div><!--
-     --><div
-          class="layout__item text-right u-4-of-7 u-mt u-mb-0_5"
-        >
-          <dp-button
-            color="warning"
-            data-cy="deleteSelectedItems"
-            :text="Translator.trans('entities.marked.delete', { entities: Translator.trans('organisations'), sum: selectedItems.length })"
-            @click.prevent="deleteItems(selectedItems)"
-          />
-          <dp-button
-            class="u-ml-0_25"
-            color="secondary"
-            data-cy="resetSelectedItems"
-            :text="Translator.trans('unselect')"
-            @click="dpToggleAll(false, items)"
-          />
-        </div>
-      </div>
     </div>
+
+    <template v-if="canBulkEdit">
+      <dp-selection-card
+        v-if="isOrganisationSelected"
+        :count-text="Translator.trans('organisations.selected', { count: selectedCount })"
+        :items="selectedOrganisationsList"
+        :show-items="showSelectionList"
+        data-cy="organisationList:selectionCard"
+        @remove:item="toggleOne"
+        @reset="resetSelection"
+        @toggle:items="showSelectionList = !showSelectionList"
+      >
+        <template v-slot:actions>
+          <dp-button
+            v-if="hasPermission('feature_orga_delete')"
+            :disabled="isUpdatingTwoFactor"
+            :text="Translator.trans('delete') + ` (${selectedCount})`"
+            class="p-1"
+            color="primary"
+            data-cy="deleteSelectedItems"
+            variant="outline"
+            @click.prevent="deleteItems"
+          />
+          <dp-button
+            v-if="canEditTwoFactor"
+            :disabled="isUpdatingTwoFactor"
+            :text="Translator.trans('2fa.required.change') + ` (${selectedCount})`"
+            class="p-1"
+            color="primary"
+            data-cy="organisationList:changeTwoFactor"
+            @click="openTwoFactorModal"
+          />
+        </template>
+      </dp-selection-card>
+      <dp-checkbox
+        id="select_all"
+        :checked="allOnPageSelected"
+        :label="{ text: Translator.trans('select.all.on.page') }"
+        class="my-4 ml-2"
+        data-cy="allSelected"
+        @change="toggleAll(!allOnPageSelected)"
+      />
+    </template>
+
+    <dp-modal
+      v-if="canEditTwoFactor"
+      ref="twoFactorModal"
+      content-classes="w-2/5"
+      data-cy="organisationList:twoFactorModal"
+      @modal:toggled="onTwoFactorModalToggled"
+    >
+      <template v-slot:header>
+        <h2 class="mb-0">
+          {{ Translator.trans('2fa.required.change') }}
+        </h2>
+      </template>
+      <dp-inline-notification
+        v-if="hasMixedTwoFactorValues"
+        :message="Translator.trans('2fa.required.mixed.hint')"
+        class="mb-3"
+        data-cy="organisationList:twoFactorMixedHint"
+        type="info"
+      />
+      <p>
+        {{ Translator.trans('2fa.required.bulk.explanation') }}
+      </p>
+      <dp-radio
+        id="organisationList:twoFactorRequired:mandatory"
+        :checked="twoFactorTarget === true"
+        :label="{ text: Translator.trans('2fa.required.mandatory'), hint: Translator.trans('2fa.required.mandatory.hint') }"
+        data-cy="organisationList:setTwoFactorRequired"
+        name="organisationList:twoFactorRequired"
+        value="1"
+        @change="twoFactorTarget = true"
+      />
+      <dp-radio
+        id="organisationList:twoFactorRequired:optional"
+        :checked="twoFactorTarget === false"
+        :label="{ text: Translator.trans('2fa.required.optional'), hint: Translator.trans('2fa.required.optional.hint') }"
+        class="mt-2"
+        data-cy="organisationList:unsetTwoFactorRequired"
+        name="organisationList:twoFactorRequired"
+        value="0"
+        @change="twoFactorTarget = false"
+      />
+      <template v-slot:footer>
+        <dp-button-row
+          :busy="isUpdatingTwoFactor"
+          :disabled="{ primary: !isTwoFactorChoiceChanged || isUpdatingTwoFactor, secondary: isUpdatingTwoFactor }"
+          data-cy="organisationList:twoFactorButtons"
+          primary
+          secondary
+          secondary-btn-variant="outline"
+          @primary-action="applyTwoFactorRequired"
+          @secondary-action="closeTwoFactorModal"
+        />
+      </template>
+    </dp-modal>
     <div
       v-if="noResults"
       v-cleanhtml="Translator.trans('search.no.results', {searchterm: searchTerm})"
@@ -163,11 +218,11 @@
             :available-orga-types="availableOrgaTypes"
             class="o-list__item bg-surface border border-neutral"
             data-cy="organisationListBlk"
-            :selected="hasOwnProp(itemSelections, item.id) && itemSelections[item.id] === true"
-            :selectable="hasPermission('feature_orga_delete')"
+            :selected="isSelected(item.id)"
+            :selectable="canBulkEdit"
             :organisation="item"
             @addon-options:loaded="setAdditionalFieldOptions"
-            @item:selected="dpToggleOne"
+            @item:selected="toggleOne"
             @items:get="fetchPendingAndAllOrganisations()"
           />
         </ul>
@@ -188,17 +243,21 @@
 import {
   CleanHtml,
   DpButton,
+  DpButtonRow,
+  DpCheckbox,
   DpCheckboxGroup,
+  DpInlineNotification,
   DpLoading,
+  DpModal,
+  DpRadio,
   DpSearchField,
-  dpSelectAllMixin,
   DpSkeletonBox,
   DpSlidingPagination,
-  hasOwnProp,
   hasPermission,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
+import DpSelectionCard from '@DpJs/components/shared/DpSelectionCard'
 
 const orgaFieldsArrays = {
   Branding: [
@@ -253,6 +312,10 @@ if (hasPermission('feature_manage_procedure_creation_permission')) {
   orgaFieldsArrays.Orga.push('canCreateProcedures')
 }
 
+if (hasPermission('field_organisation_two_factor_required')) {
+  orgaFieldsArrays.Orga.push('twoFactorRequired')
+}
+
 const orgaFields = {
   Branding: orgaFieldsArrays.Branding.join(),
   Customer: orgaFieldsArrays.Customer.join(),
@@ -275,10 +338,16 @@ export default {
 
   components: {
     DpButton,
+    DpButtonRow,
+    DpCheckbox,
     DpCheckboxGroup,
+    DpInlineNotification,
     DpLoading,
+    DpModal,
     DpOrganisationListItem,
+    DpRadio,
     DpSearchField,
+    DpSelectionCard,
     DpSkeletonBox,
     DpSlidingPagination,
   },
@@ -286,8 +355,6 @@ export default {
   directives: {
     cleanhtml: CleanHtml,
   },
-
-  mixins: [dpSelectAllMixin],
 
   /**
    * These are needed in deeply nested components, passing them via props seemed too messy
@@ -367,11 +434,20 @@ export default {
       filterLabel: Translator.trans('organisation.kind') + ':',
       isInitialLoad: true,
       isLoading: true,
+      isUpdatingTwoFactor: false,
       noResults: false,
       pendingOrgs: {},
       pendingOrganisationsLoading: true,
       searchTerm: '',
       selectedFilters: {},
+      /**
+       * Keyed by id, holds { id, name, twoFactorRequired } so the selection survives paging, and the
+       * selection list and the mixed-values hint work without the items of other pages
+       */
+      selectedOrganisations: {},
+      showSelectionList: false,
+      // The value chosen in the modal
+      twoFactorTarget: null,
     }
   },
 
@@ -388,12 +464,54 @@ export default {
       pendingOrganisationsTotalPages: 'totalPages',
     }),
 
+    allOnPageSelected () {
+      const ids = Object.keys(this.items)
+
+      return ids.length > 0 && ids.every(id => this.isSelected(id))
+    },
+
+    canBulkEdit () {
+      return hasPermission('feature_orga_delete') || this.canEditTwoFactor
+    },
+
+    canEditTwoFactor () {
+      return hasPermission('field_organisation_two_factor_required')
+    },
+
+    hasMixedTwoFactorValues () {
+      return this.selectedTwoFactorValues.size > 1
+    },
+
+    selectedTwoFactorValues () {
+      return new Set(this.selectedOrganisationsList.map(organisation => organisation.twoFactorRequired === true))
+    },
+
     isFiltered () {
       return Object.keys(this.selectedFilters).length > 0
     },
 
-    selectedItems () {
-      return Object.keys(this.items).filter(id => this.itemSelections[id])
+    isOrganisationSelected () {
+      return this.selectedCount > 0
+    },
+
+    /**
+     * A choice counts as a change when at least one selected organisation holds a different value
+     */
+    isTwoFactorChoiceChanged () {
+      return this.twoFactorTarget !== null &&
+        (this.hasMixedTwoFactorValues || !this.selectedTwoFactorValues.has(this.twoFactorTarget))
+    },
+
+    selectedCount () {
+      return this.selectedIds.length
+    },
+
+    selectedIds () {
+      return Object.keys(this.selectedOrganisations)
+    },
+
+    selectedOrganisationsList () {
+      return Object.values(this.selectedOrganisations)
     },
   },
 
@@ -415,16 +533,51 @@ export default {
       roleList: 'list',
     }),
 
-    deleteItems (ids) {
-      if (!this.selectedItems.length || dpconfirm(Translator.trans('check.entries.marked.delete')) === false) {
+    /**
+     * Writes the value chosen in the modal to every selected organisation, one request each, then reports once.
+     */
+    async applyTwoFactorRequired () {
+      if (!this.isTwoFactorChoiceChanged || !this.isOrganisationSelected || this.isUpdatingTwoFactor) {
         return
       }
 
-      const deleteOrganisations = ids.map(id =>
+      const required = this.twoFactorTarget
+
+      this.isUpdatingTwoFactor = true
+
+      const results = await Promise.allSettled(
+        this.selectedIds.map(id => this.patchTwoFactorRequired(id, required)),
+      )
+      const failedCount = results.filter(result => result.status === 'rejected').length
+      const successCount = results.length - failedCount
+
+      if (successCount > 0) {
+        dplan.notify.notify('confirm', Translator.trans('2fa.required.updated', { count: successCount }))
+      }
+
+      if (failedCount > 0) {
+        dplan.notify.notify('error', Translator.trans('2fa.required.update.failed', { count: failedCount }))
+      }
+
+      this.isUpdatingTwoFactor = false
+      this.closeTwoFactorModal()
+      this.resetSelection()
+      this.fetchPendingAndAllOrganisations()
+    },
+
+    closeTwoFactorModal () {
+      this.$refs.twoFactorModal?.toggle()
+    },
+
+    deleteItems () {
+      if (!this.isOrganisationSelected || dpconfirm(Translator.trans('check.entries.marked.delete')) === false) {
+        return
+      }
+
+      const deleteOrganisations = this.selectedIds.map(id =>
         this.deleteOrganisation(id)
           .then(() => {
-            // Remove deleted item from itemSelections
-            delete this.itemSelections[id]
+            this.removeFromSelection(id)
             // Confirm notification for organisations is done in BE
           }),
       )
@@ -598,8 +751,69 @@ export default {
       this.getItemsByPage(1)
     },
 
-    hasOwnProp (obj, prop) {
-      return hasOwnProp(obj, prop)
+    isSelected (id) {
+      return this.selectedOrganisations[id] !== undefined
+    },
+
+    onTwoFactorModalToggled (isOpen) {
+      if (!isOpen) {
+        this.twoFactorTarget = null
+      }
+    },
+
+    /**
+     * Preselects the value all selected organisations share, nothing when they differ
+     */
+    openTwoFactorModal () {
+      if (!this.isOrganisationSelected) {
+        return
+      }
+
+      this.twoFactorTarget = this.hasMixedTwoFactorValues ? null : [...this.selectedTwoFactorValues][0]
+      this.$refs.twoFactorModal?.toggle()
+    },
+
+    /**
+     * Every backend message becomes a toast when sent through dpApi, which would be one per organisation here.
+     * A bare request keeps the single summary notification of the caller.
+     */
+    async patchTwoFactorRequired (id, required) {
+      const response = await fetch(Routing.generate('organisation_update', { id }), {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-csrf-token': dplan.csrfToken,
+          'X-JWT-Authorization': `Bearer ${dplan.jwtToken}`,
+        },
+        body: JSON.stringify({
+          data: {
+            id,
+            type: 'Orga',
+            attributes: {
+              twoFactorRequired: required,
+            },
+          },
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error(`Updating organisation ${id} failed with status ${response.status}`)
+      }
+
+      return response
+    },
+
+    removeFromSelection (id) {
+      const rest = { ...this.selectedOrganisations }
+
+      delete rest[id]
+
+      this.selectedOrganisations = rest
+    },
+
+    resetSelection () {
+      this.selectedOrganisations = {}
+      this.showSelectionList = false
     },
 
     resetSearch () {
@@ -610,6 +824,52 @@ export default {
 
     setAdditionalFieldOptions (options) {
       this.additionalFieldOptions = options
+    },
+
+    /**
+     * @param {Boolean} status  Select or deselect every organisation on the current page
+     */
+    toggleAll (status) {
+      if (!status) {
+        Object.keys(this.items).forEach(id => this.removeFromSelection(id))
+
+        return
+      }
+
+      const pageSelection = Object.values(this.items).reduce((acc, item) => {
+        acc[item.id] = this.toSelectionEntry(item)
+
+        return acc
+      }, {})
+
+      this.selectedOrganisations = { ...this.selectedOrganisations, ...pageSelection }
+    },
+
+    toggleOne (id) {
+      if (this.isSelected(id)) {
+        this.removeFromSelection(id)
+
+        return
+      }
+
+      const item = this.items[id]
+
+      if (!item) {
+        return
+      }
+
+      this.selectedOrganisations = {
+        ...this.selectedOrganisations,
+        [id]: this.toSelectionEntry(item),
+      }
+    },
+
+    toSelectionEntry (item) {
+      return {
+        id: item.id,
+        name: item.attributes.name,
+        twoFactorRequired: item.attributes.twoFactorRequired === true,
+      }
     },
   },
 

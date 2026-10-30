@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Report;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 
 class OrganisationReportEntryFactory extends AbstractReportEntryFactory
 {
@@ -21,7 +22,7 @@ class OrganisationReportEntryFactory extends AbstractReportEntryFactory
         string $identifier,
         array $message,
         array $incoming,
-        $user
+        $user,
     ): ReportEntry {
         $entry = $this->createReportEntry();
         $entry->setCategory(ReportEntry::CATEGORY_UPDATE);
@@ -38,7 +39,7 @@ class OrganisationReportEntryFactory extends AbstractReportEntryFactory
         $user,
         string $identifier,
         array $message,
-        $showlistChangeReason
+        $showlistChangeReason,
     ): ReportEntry {
         $entry = $this->createReportEntry();
         $entry->setCategory(ReportEntry::CATEGORY_ORGA_SHOWLIST_CHANGE);
@@ -47,6 +48,29 @@ class OrganisationReportEntryFactory extends AbstractReportEntryFactory
         $entry->setMessage(Json::encode($showlistChangeReason, JSON_UNESCAPED_UNICODE));
         $entry->setIncoming(Json::encode($message, JSON_UNESCAPED_UNICODE));
         $entry->setIdentifier($identifier);
+
+        return $entry;
+    }
+
+    /**
+     * Documents who switched the two-factor requirement of an orga on or off.
+     */
+    public function createTwoFactorRequiredEntry(
+        $user,
+        string $identifier,
+        string $orgaName,
+        bool $twoFactorRequired,
+    ): ReportEntry {
+        $entry = $this->createReportEntry();
+        $entry->setCategory(ReportEntry::CATEGORY_ORGA_TWO_FACTOR_REQUIRED_CHANGE);
+        $entry->setUser($user);
+        $entry->setIdentifier($identifier);
+        $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_ORGANISATION);
+        $entry->setMessage(Json::encode([
+            'ident'                   => $identifier,
+            'name'                    => $orgaName,
+            Orga::TWO_FACTOR_REQUIRED => $twoFactorRequired,
+        ], JSON_UNESCAPED_UNICODE));
 
         return $entry;
     }

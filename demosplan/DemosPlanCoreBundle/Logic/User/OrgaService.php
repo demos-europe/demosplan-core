@@ -55,6 +55,7 @@ use ReflectionException;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[AsAlias(OrgaServiceInterface::class)]
@@ -587,8 +588,13 @@ class OrgaService implements OrgaServiceInterface
 
             // update ggf. Notifications
             $orga = $this->updateOrgaNotifications($orga, $data);
+            $orga = $this->updateOrgaSubmissionType($orga, $data);
 
-            return $this->updateOrgaSubmissionType($orga, $data);
+            if ($orga->isTwoFactorRequired()) {
+                $this->addTwoFactorRequiredReport($orga);
+            }
+
+            return $orga;
         } catch (Exception $e) {
             $this->logger->error('Fehler bem Anlegen der Orga: ', [$e]);
             throw $e;
@@ -692,22 +698,19 @@ class OrgaService implements OrgaServiceInterface
     }
 
     /**
-     * Add a report entry about orga update and second if value of showlist changed.
+     * Add a report entry about orga update, plus one each if showlist or the two-factor requirement changed.
      *
-     * @param array  $data
-     * @param string $showListBefore
+     * @param array $data
+     * @param bool  $showListBefore
      *
      * @throws ORMException
      * @throws OptimisticLockException
      * @throws ReflectionException
      */
-    public function addReport(string $orgaId, $data, $showListBefore)
+    public function addReport(string $orgaId, $data, $showListBefore, ?bool $twoFactorRequiredBefore = null)
     {
         $message = [];
-        $user = new AnonymousUser();
-        if ($this->tokenStorage instanceof TokenStorageInterface && $this->tokenStorage->getToken() instanceof TokenInterface) {
-            $user = $this->tokenStorage->getToken()->getUser();
-        }
+        $user = $this->getReportUser();
 
         if (!array_key_exists('showlist', $data)) {
             $data['showlist'] = false;
@@ -743,6 +746,47 @@ class OrgaService implements OrgaServiceInterface
 
             $this->reportService->persistAndFlushReportEntries($showlistEntry);
         }
+
+        if (array_key_exists(Orga::TWO_FACTOR_REQUIRED, $data)
+            && null !== $twoFactorRequiredBefore
+            && (bool) $data[Orga::TWO_FACTOR_REQUIRED] !== $twoFactorRequiredBefore) {
+            $twoFactorEntry = $this->organisationReportEntryFactory->createTwoFactorRequiredEntry(
+                $user,
+                $orgaId,
+                (string) ($data['name'] ?? ''),
+                (bool) $data[Orga::TWO_FACTOR_REQUIRED]
+            );
+
+            $this->reportService->persistAndFlushReportEntries($twoFactorEntry);
+        }
+    }
+
+    /**
+     * A failed report entry must not roll back the orga itself, hence only logged.
+     */
+    private function addTwoFactorRequiredReport(Orga $orga): void
+    {
+        try {
+            $entry = $this->organisationReportEntryFactory->createTwoFactorRequiredEntry(
+                $this->getReportUser(),
+                $orga->getId(),
+                $orga->getName(),
+                $orga->isTwoFactorRequired()
+            );
+            $this->reportService->persistAndFlushReportEntries($entry);
+        } catch (Exception $e) {
+            $this->logger->warning('Add two-factor report in addOrga() failed: ', [$e]);
+        }
+    }
+
+    private function getReportUser(): UserInterface
+    {
+        $token = $this->tokenStorage->getToken();
+        if ($token instanceof TokenInterface && $token->getUser() instanceof UserInterface) {
+            return $token->getUser();
+        }
+
+        return new AnonymousUser();
     }
 
     /**
