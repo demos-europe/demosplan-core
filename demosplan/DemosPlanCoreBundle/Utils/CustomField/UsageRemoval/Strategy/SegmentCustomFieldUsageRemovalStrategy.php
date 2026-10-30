@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Strategy;
+namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\UsageRemoval\Strategy;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
@@ -76,16 +76,32 @@ class SegmentCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRe
         if (!$originalCustomFields instanceof CustomFieldValuesList) {
             return;
         }
+
         $customFields = clone $originalCustomFields;
-        if ($customFields instanceof CustomFieldValuesList) {
-            $customFieldValue = $customFields->findById($customFieldId);
-            if ($customFieldValue instanceof CustomFieldValue
-                && in_array($customFieldValue->getValue(), $deletedOptionIds, true)) {
-                // Remove the entire custom field value if it references a deleted option
-                $customFields->removeCustomFieldValue($customFieldValue);
-                $customFields->reindexValues();
-                $segment->setCustomFields($customFields);
-            }
+        $customFieldValue = $customFields->findById($customFieldId);
+        if (!$customFieldValue instanceof CustomFieldValue) {
+            return;
         }
+
+        // Single select holds one id, multi select holds a list: treat both as a list
+        $optionIds = (array) $customFieldValue->getValue();
+        $remainingIds = array_values(array_diff($optionIds, $deletedOptionIds));
+        if ($remainingIds === $optionIds) {
+            return;
+        }
+
+        $customFields->removeCustomFieldValue($customFieldValue);
+
+        // Keep the value only if some options are left (only possible for multi select)
+        if ([] !== $remainingIds) {
+            $remainingValue = new CustomFieldValue();
+            $remainingValue->setId($customFieldId);
+            $remainingValue->setValue($remainingIds);
+            $customFields->addCustomFieldValue($remainingValue);
+            $customFields->sortByFieldId();
+        }
+
+        $customFields->reindexValues();
+        $segment->setCustomFields($customFields);
     }
 }

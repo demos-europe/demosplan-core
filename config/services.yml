@@ -84,7 +84,7 @@ services:
             $objectPersister: '@fos_elastica.object_persister.procedures'
 
     # CustomField cleanup services
-    demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\EntityCustomFieldUsageStrategyFactory:
+    demosplan\DemosPlanCoreBundle\Utils\CustomField\UsageRemoval\EntityCustomFieldUsageStrategyFactory:
         arguments:
             $strategies: !tagged_iterator entity_custom_field_usage_removal_strategy
 

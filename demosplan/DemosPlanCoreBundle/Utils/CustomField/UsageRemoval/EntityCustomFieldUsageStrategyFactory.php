@@ -10,10 +10,10 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory;
+namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\UsageRemoval;
 
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\Strategy\EntityCustomFieldUsageRemovalStrategyInterface;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\UsageRemoval\Strategy\EntityCustomFieldUsageRemovalStrategyInterface;
 
 class EntityCustomFieldUsageStrategyFactory
 {
