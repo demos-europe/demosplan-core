@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Strategy;
 
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
+
 interface EntityCustomFieldUsageRemovalStrategyInterface
 {
     /**
@@ -19,8 +21,13 @@ interface EntityCustomFieldUsageRemovalStrategyInterface
      */
     public function removeUsages(string $customFieldId): void;
 
-    // Option-specific removal method
-    public function removeOptionUsages(string $customFieldId, array $deletedOptionIds): void;
+    /**
+     * Remove the deleted options from the values of the target entities.
+     * How a value is trimmed depends on the field type, see CustomFieldInterface::removeOptionsFromValue().
+     *
+     * @param list<string> $deletedOptionIds
+     */
+    public function removeOptionUsages(CustomFieldInterface $customField, array $deletedOptionIds): void;
 
     /**
      * Check if this strategy supports the given target entity class.

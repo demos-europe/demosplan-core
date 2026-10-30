@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Strategy;
 
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
@@ -38,7 +39,7 @@ class StatementCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsage
         }
     }
 
-    public function removeOptionUsages(string $customFieldId, array $deletedOptionIds): void
+    public function removeOptionUsages(CustomFieldInterface $customField, array $deletedOptionIds): void
     {
         // Statement custom fields cannot be updated when the procedure has statements
         // (blocked by ProcedureWithStatementsCustomFieldConstraint in CustomFieldUpdater),

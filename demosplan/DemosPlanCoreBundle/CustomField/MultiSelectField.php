@@ -106,6 +106,17 @@ class MultiSelectField extends AbstractCustomField
             ->implode(', ');
     }
 
+    public function removeOptionsFromValue(mixed $value, array $optionIds): mixed
+    {
+        if (!is_array($value)) {
+            return $value;
+        }
+
+        $remaining = array_values(array_diff($value, $optionIds));
+
+        return [] === $remaining ? null : $remaining;
+    }
+
     protected function validateFieldSpecific(array $options): void
     {
         if (count($options) < 2) {
