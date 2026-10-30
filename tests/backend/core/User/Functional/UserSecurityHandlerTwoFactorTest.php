@@ -140,7 +140,7 @@ class UserSecurityHandlerTwoFactorTest extends FunctionalTestCase
             ? ['disableTwoFactorCode' => $this->validTotpCode()]
             : ['disableTwoFactorCodeEmail' => self::EMAIL_CODE];
         if ($expectRejected) {
-            $this->messageBag->expects(self::once())->method('add')->with('error', 'error.2fa.disable.locked');
+            $this->messageBag->expects(self::once())->method('add')->with('warning', 'warning.2fa.disable.locked');
         } else {
             $this->messageBag->expects(self::never())->method('add');
         }
