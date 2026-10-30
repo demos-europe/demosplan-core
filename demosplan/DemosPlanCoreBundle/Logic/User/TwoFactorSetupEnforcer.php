@@ -49,9 +49,9 @@ readonly class TwoFactorSetupEnforcer
             return false;
         }
 
-        return $this->isRequirementActive()
-            && $this->twoFactorRequirementResolver->isSetupPending($session)
-            && !$this->twoFactorRequirementResolver->hasSecondFactor($user);
+        return $this->twoFactorRequirementResolver->isSetupPending($session)
+            && !$this->twoFactorRequirementResolver->hasSecondFactor($user)
+            && $this->isRequirementActive();
     }
 
     /**
