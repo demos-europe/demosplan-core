@@ -95,7 +95,7 @@ class CustomFieldUpdater
 
         if ([] !== $deletedOptionIds) {
             $entityStrategy = $this->entityCustomFieldUsageStrategyFactory->createUsageRemovalStrategy($targetEntityClass);
-            $entityStrategy->removeOptionUsages($customField, $deletedOptionIds);
+            $entityStrategy->removeOptionUsages($customField->getId(), $deletedOptionIds);
         }
 
         $updatedOptions = $this->processOptionsUpdate($currentOptions, $newOptions);

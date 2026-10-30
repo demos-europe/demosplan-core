@@ -69,14 +69,4 @@ interface CustomFieldInterface
      * Each field type is responsible for resolving its own value format.
      */
     public function formatValueForDisplay(mixed $value): string;
-
-    /**
-     * Returns the stored value without the given (deleted) option ids.
-     * Each field type is responsible for its own value format.
-     *
-     * @param list<string> $optionIds
-     *
-     * @return mixed null when nothing is left of the value
-     */
-    public function removeOptionsFromValue(mixed $value, array $optionIds): mixed;
 }

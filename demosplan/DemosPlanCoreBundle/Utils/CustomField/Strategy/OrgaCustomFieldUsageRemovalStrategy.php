@@ -12,7 +12,6 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Strategy;
 
-use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -39,12 +38,12 @@ class OrgaCustomFieldUsageRemovalStrategy implements EntityCustomFieldUsageRemov
         }
     }
 
-    public function removeOptionUsages(CustomFieldInterface $customField, array $deletedOptionIds): void
+    public function removeOptionUsages(string $customFieldId, array $deletedOptionIds): void
     {
         // Orga currently supports only text custom fields, which have no options.
         // When option-bearing field types (single/multi-select) are added for Orga,
-        // implement this analogously to removeUsages, using
-        // $customField->removeOptionsFromValue() to trim the deleted option ids.
+        // implement this analogously to removeUsages, deciding per field type
+        // whether to drop the value or trim deleted option ids from it.
     }
 
     private function removeCustomFieldFromOrga(Orga $orga, string $customFieldId): void

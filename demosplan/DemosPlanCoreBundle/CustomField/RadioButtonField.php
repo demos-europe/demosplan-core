@@ -87,11 +87,6 @@ class RadioButtonField extends AbstractCustomField
         return $this->getCustomOptionValueById($value)?->getLabel() ?? '';
     }
 
-    public function removeOptionsFromValue(mixed $value, array $optionIds): mixed
-    {
-        return in_array($value, $optionIds, true) ? null : $value;
-    }
-
     protected function validateFieldSpecific(array $options): void
     {
         if (count($options) < 2) {

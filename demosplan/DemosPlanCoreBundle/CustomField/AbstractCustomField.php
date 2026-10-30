@@ -99,14 +99,6 @@ abstract class AbstractCustomField implements CustomFieldInterface
         return $attributes;
     }
 
-    /**
-     * Fields without options (e.g. text) have nothing to remove.
-     */
-    public function removeOptionsFromValue(mixed $value, array $optionIds): mixed
-    {
-        return $value;
-    }
-
     public function setId($id): void
     {
         $this->id = $id;
