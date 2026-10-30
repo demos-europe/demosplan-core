@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\MenuBuilder;
 
+use DemosEurope\DemosplanAddon\Permission\PermissionEvaluatorInterface;
+use DemosEurope\DemosplanAddon\Permission\PermissionIdentifier;
 use demosplan\DemosPlanCoreBundle\Event\ConfigureMenuEvent;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
@@ -44,9 +46,10 @@ class MenuBuilder
         private readonly CurrentUserService $currentUserService,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly FactoryInterface $factory,
+        private readonly PermissionEvaluatorInterface $permissionEvaluator,
         ParameterBagInterface $parameterBag,
         RequestStack $requestStack,
-        private readonly TranslatorInterface $translator
+        private readonly TranslatorInterface $translator,
     ) {
         $this->availableMenus = $parameterBag->get('menu_definitions');
         $this->currentProcedure = $currentProcedureService->getProcedure();
@@ -238,10 +241,35 @@ class MenuBuilder
             if (is_string($menuEntry['permission'])) {
                 $menuEntry['permission'] = [$menuEntry['permission']];
             }
-            $userHasPermission = $this->currentUserService->hasAnyPermissions(...$menuEntry['permission']);
+            $userHasPermission = isset($menuEntry['addon'])
+                ? $this->hasAnyPermissionOfAddon($menuEntry['addon'], $menuEntry['permission'])
+                : $this->currentUserService->hasAnyPermissions(...$menuEntry['permission']);
         }
 
         return $userHasPermission;
+    }
+
+    /**
+     * Menu entries of an addon may require permissions of that addon. As these live in a collection of their own,
+     * they have to be addressed with the addon. Names the addon does not know are looked up in the core.
+     *
+     * @param non-empty-string       $addonIdentifier
+     * @param list<non-empty-string> $permissionNames
+     */
+    private function hasAnyPermissionOfAddon(string $addonIdentifier, array $permissionNames): bool
+    {
+        foreach ($permissionNames as $permissionName) {
+            $addonPermission = PermissionIdentifier::forAddon($permissionName, $addonIdentifier);
+            $identifier = $this->permissionEvaluator->isPermissionKnown($addonPermission)
+                ? $addonPermission
+                : PermissionIdentifier::forCore($permissionName);
+
+            if ($this->permissionEvaluator->isPermissionEnabled($identifier)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -257,7 +285,13 @@ class MenuBuilder
 
         if (isset($menuEntry['path_params']) && is_array($menuEntry['path_params'])) {
             // set parameters
-            foreach ($menuEntry['path_params'] as $param) {
+            foreach ($menuEntry['path_params'] as $key => $param) {
+                // a named entry is a fixed value, e.g. `hookName: 'some.hook'` for the page of an addon
+                if (is_string($key)) {
+                    $parameters[$key] = $param;
+                    continue;
+                }
+
                 if (isset($this->availableRouteParameters[$param])) {
                     $parameters[$param] = $this->availableRouteParameters[$param];
                 }
