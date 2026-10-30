@@ -122,14 +122,17 @@ readonly class TwoFactorSetupEnforcer
     public function getSetupState(): array
     {
         $user = $this->getUser();
-        $required = null !== $user && $this->isEnforced();
+        if (null === $user) {
+            return ['required' => false, 'orgaNames' => [], 'disableLocked' => false];
+        }
+
+        $required = $this->isEnforced();
+        $enabledFactor = $user->isTotpEnabled() ? self::METHOD_TOTP : self::METHOD_EMAIL;
 
         return [
             'required'      => $required,
             'orgaNames'     => $required ? $this->twoFactorRequirementResolver->getRequiringOrgaNames($user) : [],
-            'disableLocked' => null !== $user
-                && $this->isRequirementActive()
-                && $user->isTotpEnabled() !== $user->isEmailAuthEnabled(),
+            'disableLocked' => $this->isDisableLockedFor($user, $enabledFactor),
         ];
     }
 
