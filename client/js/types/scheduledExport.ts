@@ -40,7 +40,9 @@ export interface DaySelect {
   selected: string | number
 }
 
-export type JobStatus = 'completed' | 'failed' | 'pending'
+export type JobStatus = 'completed' | 'failed'
+
+export type DisplayStatus = JobStatus | 'expired'
 
 export interface ExportJob {
   status: JobStatus
@@ -53,6 +55,4 @@ export interface TranslationKeys {
   message: string
 }
 
-export type StatusTranslationMap = Record<JobStatus, TranslationKeys> & {
-  default: TranslationKeys
-}
+export type StatusTranslationMap = Record<DisplayStatus, TranslationKeys>

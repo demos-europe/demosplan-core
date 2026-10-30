@@ -16,7 +16,7 @@ All rights reserved
       {{ job.fileName }}
     </h4>
     <div
-      v-if="!isFailed"
+      v-if="isCompleted || isExpired"
       class="flex"
     >
       <span class="mr-1">
@@ -27,7 +27,7 @@ All rights reserved
       </span>
     </div>
     <div
-      v-if="downloadUrl && !isFailed"
+      v-if="(isCompleted || isExpired) && downloadUrl"
       class="flex"
     >
       <span class="mr-1">
@@ -41,10 +41,9 @@ All rights reserved
       </a>
     </div>
     <dp-inline-notification
-      v-if="job.deleteAfter"
       class="my-4"
       :message="statusMessage"
-      type="info"
+      :type="isFailed ? 'warning' : 'info'"
     />
     <p
       v-if="isCompleted"
@@ -52,7 +51,10 @@ All rights reserved
     >
       {{ Translator.trans('export.xlsx.scheduled.download.manual_start_text') }}
     </p>
-    <div class="text-right">
+    <p v-if="isFailed">
+      {{ Translator.trans('export.xlsx.scheduled.download.failed.hint') }}
+    </p>
+    <div class="text-right mt-4">
       <dp-button
         data-cy="scheduledExportDownload:manualTrigger"
         :href="actionUrl"
@@ -63,7 +65,7 @@ All rights reserved
 </template>
 
 <script setup lang="ts">
-import type { ExportJob, StatusTranslationMap, TranslationKeys } from '@DpJs/types/scheduledExport'
+import type { DisplayStatus, ExportJob, StatusTranslationMap, TranslationKeys } from '@DpJs/types/scheduledExport'
 import { computed, onMounted } from 'vue'
 import { DpButton, DpInlineNotification } from '@demos-europe/demosplan-ui'
 
@@ -74,7 +76,15 @@ interface Props {
 
 const props = defineProps<Props>()
 
-const isCompleted = computed((): boolean => props.job.status === 'completed')
+const isExpired = computed((): boolean => {
+  if (!props.job.deleteAfter) {
+    return false
+  }
+
+  return new Date(props.job.deleteAfter) < new Date()
+})
+
+const isCompleted = computed((): boolean => props.job.status === 'completed' && !isExpired.value)
 const isFailed = computed((): boolean => props.job.status === 'failed')
 
 const formattedDeleteAfter = computed((): string => {
@@ -96,18 +106,21 @@ const statusTranslationKeys: StatusTranslationMap = {
     heading: 'export.xlsx.scheduled.download.failed.heading',
     message: 'export.xlsx.scheduled.download.failed',
   },
-  pending: {
-    heading: 'export.xlsx.scheduled.download.not_ready.heading',
-    message: 'export.xlsx.scheduled.download.not_ready',
-  },
-  default: {
-    heading: 'export.xlsx.scheduled.download.not_ready.heading',
-    message: 'export.xlsx.scheduled.download.not_ready',
+  expired: {
+    heading: 'export.xlsx.scheduled.download.expired.heading',
+    message: 'export.xlsx.scheduled.download.expired',
   },
 }
 
+const displayStatus = computed((): DisplayStatus => {
+  if (isExpired.value) {
+    return 'expired'
+  }
+  return props.job.status
+})
+
 const currentTranslationKeys = computed((): TranslationKeys =>
-  statusTranslationKeys[props.job.status] ?? statusTranslationKeys.default,
+  statusTranslationKeys[displayStatus.value],
 )
 
 const heading = computed((): string =>
@@ -137,8 +150,8 @@ const actionUrl = computed((): string =>
 )
 
 onMounted((): void => {
-  // Auto-download when status is completed
-  if (isCompleted.value && props.downloadUrl) {
+  // Auto-download only when status is completed and not expired
+  if (isCompleted.value && props.downloadUrl && !isExpired.value) {
     setTimeout((): void => {
       window.location.href = props.downloadUrl
     }, 1000)
