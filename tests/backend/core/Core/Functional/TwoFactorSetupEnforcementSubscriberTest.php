@@ -93,7 +93,7 @@ class TwoFactorSetupEnforcementSubscriberTest extends FunctionalTestCase
             self::getContainer()->get(RouterInterface::class)->generate(self::SETUP_PAGE_ROUTE),
             $response->getTargetUrl()
         );
-        self::assertTrue($this->logHandler->hasDebugThatContains('Two-factor setup pending'));
+        self::assertTrue($this->logHandler->hasInfoThatContains('Two-factor setup pending'));
     }
 
     public function testEnforcedXhrRequestGetsForbiddenJson(): void

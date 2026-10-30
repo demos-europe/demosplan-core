@@ -97,7 +97,7 @@ class TwoFactorSetupEnforcementSubscriber extends BaseEventSubscriber
             return;
         }
 
-        $this->logger->debug('Two-factor setup pending, blocking request', [
+        $this->logger->info('Two-factor setup pending, blocking request', [
             'userId' => $this->currentUser->getUser()->getId(),
             'route'  => $request->attributes->get('_route'),
         ]);
