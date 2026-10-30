@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\CustomField\TextField;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Creation\CustomFieldCreator;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Base\UnitTestCase;
@@ -99,6 +99,24 @@ class CustomFieldCreatorTest extends UnitTestCase
             static::assertNotEmpty($option->getId());
             static::assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $option->getId());
         }
+    }
+
+    /**
+     * The segment form does not send isRequired, so it must default to false.
+     */
+    public function testCreateMultiSelectFieldForSegmentWithoutIsRequired(): void
+    {
+        // Arrange
+        $this->attributes['fieldType'] = 'multiSelect';
+        $this->attributes['targetEntity'] = 'SEGMENT';
+        unset($this->attributes['isRequired']);
+
+        // Act
+        $result = $this->sut->createCustomField($this->attributes);
+
+        // Assert
+        static::assertInstanceOf(MultiSelectField::class, $result);
+        static::assertFalse($result->getRequired());
     }
 
     /**

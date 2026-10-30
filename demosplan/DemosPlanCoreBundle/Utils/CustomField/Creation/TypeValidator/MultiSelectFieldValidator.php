@@ -10,15 +10,15 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
+namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Creation\TypeValidator;
 
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 
-class SingleSelectFieldValidator extends CustomFieldValidator
+class MultiSelectFieldValidator extends CustomFieldValidator
 {
     public function getFieldType(): string
     {
-        return 'singleSelect';
+        return 'multiSelect';
     }
 
     public function getSourceToTargetMapping(): array

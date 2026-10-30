@@ -10,10 +10,11 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
+namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Creation;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\CustomFieldFactoryRegistry;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Creation\Factory\CustomFieldFactoryRegistry;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Creation\TypeValidator\CustomFieldTypeValidatorRegistry;
 
 class CustomFieldFactory
 {
