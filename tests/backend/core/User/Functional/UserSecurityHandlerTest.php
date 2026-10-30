@@ -10,14 +10,19 @@
 
 namespace Tests\Core\User\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\UserReportEntryFactory;
+use demosplan\DemosPlanCoreBundle\Logic\User\TwoFactorRequirementResolver;
+use demosplan\DemosPlanCoreBundle\Logic\User\TwoFactorSetupEnforcer;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserSecurityHandler;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
+use Psr\Log\NullLogger;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Totp\TotpAuthenticator;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Tests\Base\FunctionalTestCase;
 
 class UserSecurityHandlerTest extends FunctionalTestCase
@@ -32,6 +37,7 @@ class UserSecurityHandlerTest extends FunctionalTestCase
 
     protected function setUp(): void
     {
+        parent::setUp();
         $this->totpAuthenticator = $this->createMock(TotpAuthenticator::class);
         $this->messageBag = $this->createMock(MessageBagInterface::class);
         $this->userService = $this->createMock(UserService::class);
@@ -43,7 +49,13 @@ class UserSecurityHandlerTest extends FunctionalTestCase
             $this->messageBag,
             $this->userService,
             $this->userReportEntryFactory,
-            $this->reportService
+            $this->reportService,
+            new TwoFactorSetupEnforcer(
+                self::getContainer()->get(CurrentUserInterface::class),
+                new TwoFactorRequirementResolver(),
+                new RequestStack()
+            ),
+            new NullLogger()
         );
     }
 

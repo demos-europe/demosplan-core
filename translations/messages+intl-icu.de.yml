@@ -14,6 +14,9 @@
 2fa.totp.enable.explanation: "Um die Zwei-Faktor-Authentifizierung zu nutzen, müssen Sie diese zunächst aktivieren."
 2fa.totp.enable: "Zwei-Faktor-Authentifizierung per App aktivieren"
 2fa.code: "Zwei-Faktor-Authentifizierungscode"
+2fa.disable.locked.hint: >-
+    Ihre Organisation verlangt eine Zwei-Faktor-Authentifizierung. Dieser Faktor kann deshalb nicht deaktiviert werden.
+    Um zu wechseln, richten Sie zuerst einen anderen Faktor ein.
 2fa.email.subject: 'Zwei-Faktor-Authentifizierung für Ihr {projectName} Konto'
 2fa.reset: "Zwei-Faktor-Authentifizierung zurücksetzen"
 2fa.reset.confirm: "Soll die Zwei-Faktor-Authentifizierung für {name} wirklich zurückgesetzt werden? Der Nutzer kann sich danach allein mit Passwort anmelden und die Zwei-Faktor-Authentifizierung neu einrichten."
@@ -31,6 +34,10 @@
 2fa.required.optional.hint: "Nutzer*innen müssen sich nicht mit einem zweiten Faktor anmelden."
 2fa.required.update.failed: "Die Zwei-Faktor-Authentifizierung konnte für {count, plural, one {eine Organisation} other {# Organisationen}} nicht geändert werden."
 2fa.required.updated: "Die Zwei-Faktor-Authentifizierung wurde für {count, plural, one {eine Organisation} other {# Organisationen}} geändert."
+2fa.setup.required.hint: >-
+    Ihre Organisation {orgaName} verlangt eine Zwei-Faktor-Authentifizierung. Bitte richten Sie unten einen zweiten
+    Faktor ein (Authenticator-App oder Code per E-Mail). Bis dahin können Sie die Anwendung nicht nutzen. Bei Rückfragen
+    wenden Sie sich an die Administration Ihrer Organisation.
 2fa.email.login.explanation: '<p class="weight--normal">Sollten Sie nach kurzer Zeit keine Email bekommen haben, brechen Sie den Vorgang bitte ab und melden sich erneut an. Bei der Anmeldung wird automatisch eine Email an die im System hinterlegte Adresse verschickt.</p>'
 abort: "Abbrechen"
 abort.and.back: "Abbrechen und zurück"
@@ -532,6 +539,7 @@ competence: "Zuständigkeit"
 competence.explanation: "Erläuterung der Zuständigkeit"
 configuration: "Konfiguration"
 configure: "Konfigurieren"
+confirm.2fa.setup.done: "Die Zwei-Faktor-Authentifizierung ist eingerichtet."
 confirm.abort.submission: "Aktuelle Bearbeitung abbrechen und neu hinzugefügte Objekte löschen?"
 confirm.addressBookEntry.created: "E-Mail-Adressbucheintrag wurde erfolgreich erstellt."
 confirm.addressBookEntry.deleted: "E-Mail-Adressbucheintrag wurde erfolgreich gelöscht."
@@ -4498,6 +4506,9 @@ voters: "Mitzeichnende"
 voting: "Mitzeichnung"
 voting.activated: "Mitzeichung: Aktiviert"
 voting.deactivated: "Mitzeichnung: Deaktiviert"
+warning.2fa.disable.locked: >-
+    Der Faktor wurde nicht deaktiviert, da Ihre Organisation eine Zwei-Faktor-Authentifizierung verlangt und er der
+    letzte eingerichtete Faktor ist.
 warning.access.denied: "Der Zugriff auf diese Funktion wurde verweigert."
 warning.addressBookEntry.not.found: "Adressbucheintrag konnte nicht gefunden werden."
 warning.boilerplate.delete: "Der Textbaustein konnte nicht gelöscht werden."

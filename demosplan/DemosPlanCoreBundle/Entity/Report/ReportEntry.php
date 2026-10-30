@@ -63,6 +63,7 @@ class ReportEntry extends CoreEntity implements UuidEntityInterface, ReportEntry
     final public const CATEGORY_ORGA_TWO_FACTOR_REQUIRED_CHANGE = 'orgaTwoFactorRequiredChange';
     final public const CATEGORY_REGISTER_INVITATION = 'register_invitation';
     final public const CATEGORY_RESET_TWO_FACTOR = 'resetTwoFactor';
+    final public const CATEGORY_SETUP_TWO_FACTOR = 'setupTwoFactor';
     final public const CATEGORY_STATEMENT_SYNC_INSOURCE = 'syncStatementSourceCategory';
     final public const CATEGORY_STATEMENT_SYNC_INTARGET = 'syncStatementTargetCategory';
     final public const CATEGORY_UPDATE = 'update';

@@ -16,7 +16,9 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\UserInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\UserReportEntryFactory;
+use Psr\Log\LoggerInterface;
 use Scheb\TwoFactorBundle\Security\TwoFactor\Provider\Totp\TotpAuthenticator;
+use Throwable;
 
 class UserSecurityHandler
 {
@@ -26,6 +28,8 @@ class UserSecurityHandler
         private readonly UserService $userService,
         private readonly UserReportEntryFactory $userReportEntryFactory,
         private readonly ReportService $reportService,
+        private readonly TwoFactorSetupEnforcer $twoFactorSetupEnforcer,
+        private readonly LoggerInterface $logger,
     ) {
     }
 
@@ -61,13 +65,16 @@ class UserSecurityHandler
             if ($this->totpAuthenticator->checkCode($user, $updateUserData['twoFactorCode'])) {
                 $user->setTotpEnabled(true);
                 $this->userService->updateUserObject($user);
+                $this->logSetup($user, TwoFactorSetupEnforcer::METHOD_TOTP);
             } else {
                 $this->messageBag->add('error', 'error.2fa.code.invalid');
             }
         }
 
         if (isset($updateUserData['disableTwoFactorCode']) && '' !== $updateUserData['disableTwoFactorCode']) {
-            if ($this->totpAuthenticator->checkCode($user, $updateUserData['disableTwoFactorCode'])) {
+            if ($this->twoFactorSetupEnforcer->isDisableLockedFor($user, TwoFactorSetupEnforcer::METHOD_TOTP)) {
+                $this->messageBag->add('warning', 'warning.2fa.disable.locked');
+            } elseif ($this->totpAuthenticator->checkCode($user, $updateUserData['disableTwoFactorCode'])) {
                 $user->setTotpEnabled(false);
                 $user->setTotpSecret(null);
                 $this->userService->updateUserObject($user);
@@ -85,13 +92,16 @@ class UserSecurityHandler
             if ($user->getEmailAuthCode() === $updateUserData['twoFactorCodeEmail']) {
                 $user->setAuthCodeEmailEnabled(true);
                 $this->userService->updateUserObject($user);
+                $this->logSetup($user, TwoFactorSetupEnforcer::METHOD_EMAIL);
             } else {
                 $this->messageBag->add('error', 'error.2fa.code.invalid');
             }
         }
 
         if (isset($updateUserData['disableTwoFactorCodeEmail']) && '' !== $updateUserData['disableTwoFactorCodeEmail']) {
-            if ($user->getEmailAuthCode() === $updateUserData['disableTwoFactorCodeEmail']) {
+            if ($this->twoFactorSetupEnforcer->isDisableLockedFor($user, TwoFactorSetupEnforcer::METHOD_EMAIL)) {
+                $this->messageBag->add('warning', 'warning.2fa.disable.locked');
+            } elseif ($user->getEmailAuthCode() === $updateUserData['disableTwoFactorCodeEmail']) {
                 $user->setAuthCodeEmailEnabled(false);
                 $user->setEmailAuthCode('');
                 $this->userService->updateUserObject($user);
@@ -101,5 +111,24 @@ class UserSecurityHandler
         }
 
         return $user;
+    }
+
+    /**
+     * Logs the setup of a factor. A failing report must not undo the setup, so errors are only logged.
+     *
+     * @param TwoFactorSetupEnforcer::METHOD_* $method
+     */
+    private function logSetup(UserInterface $user, string $method): void
+    {
+        try {
+            $this->reportService->persistAndFlushReportEntry(
+                $this->userReportEntryFactory->createTwoFactorSetupEntry($user, $method)
+            );
+        } catch (Throwable $e) {
+            $this->logger->warning('Failed to persist two-factor setup report entry', [
+                'exception' => $e,
+                'method'    => $method,
+            ]);
+        }
     }
 }
