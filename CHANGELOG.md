@@ -14,6 +14,7 @@
 - menu entries can name the `addon` they belong to, so their permissions are looked up in the permissions of that addon
 - `path_params` of a menu entry can contain fixed values, e.g. `hookName: 'some.hook'`
 - new generic page `/addon/page/{hookName}` (`DemosPlan_addon_page`) that shows the components an addon provides for a hook, for users who may see that hook
+- addons can cancel saving an organisation, e.g. to ask for a confirmation first
 
 ## v4.65.0 (2026-10-22)
 
