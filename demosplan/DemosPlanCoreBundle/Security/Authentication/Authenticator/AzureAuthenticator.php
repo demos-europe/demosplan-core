@@ -46,11 +46,14 @@ class AzureAuthenticator extends OAuth2Authenticator implements AuthenticationEn
 
     public function authenticate(Request $request): Passport
     {
-        $client = $this->ozgKeycloakClientFactory->isCurrentCustomerAzure()
+        $useCustomerConfig = $this->ozgKeycloakClientFactory->isCurrentCustomerAzure();
+        $client = $useCustomerConfig
             ? $this->ozgKeycloakClientFactory->createAzureClientForCurrentCustomer()
             : $this->clientRegistry->getClient('azure');
         $accessToken = $this->fetchAccessToken($client);
-        $this->logger->info('Azure OAuth login attempt', ['accessToken' => $accessToken]);
+        $this->logger->info('Azure OAuth login attempt', [
+            'clientSource' => $useCustomerConfig ? 'customer-config' : 'env',
+        ]);
 
         $userIdentifier = $accessToken->getToken();
         $resourceOwner = $client->fetchUserFromToken($accessToken);
