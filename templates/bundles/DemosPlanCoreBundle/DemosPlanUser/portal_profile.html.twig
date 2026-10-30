@@ -3,8 +3,7 @@
 {% if templateVars.twoFactorSetup.required|default(false) %}
     {{ uiComponent('inline-notification', {
         message: '2fa.setup.required.hint'|trans({
-            count: templateVars.twoFactorSetup.orgaNames|length,
-            orgaNames: templateVars.twoFactorSetup.orgaNames|map(name => name|e)|join(', ')
+            orgaName: templateVars.twoFactorSetup.orgaNames|map(name => name|e)|join(', ')
         }),
         type: 'warning'
     }) }}
