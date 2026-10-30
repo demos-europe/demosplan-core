@@ -245,7 +245,7 @@ export default {
       editingInstitutionCustomFields: {},
       editingInstitutionTags: {},
       filteredItems: null,
-      initiallySelectedColumns: [],
+      initiallySelectedColumns: ['email'],
       institutionTagCategoriesCopy: {},
       isLoading: true,
       pagination: { currentPage: 1, totalPages: 1 },
@@ -293,6 +293,15 @@ export default {
       }))
     },
 
+    emailFieldAvailable () {
+      return {
+        field: 'email',
+        label: Translator.trans('email.participation'),
+        colWidth: '220px',
+        initialMinWidth: 200,
+      }
+    },
+
     customFieldsAvailable () {
       return this.customFieldDefinitions.map(definition => ({
         field: `cf_${definition.id}`,
@@ -310,12 +319,9 @@ export default {
         label: Translator.trans('institution'),
       }
 
-      const emailField = {
-        colWidth: '220px',
-        field: 'email',
-        initialMinWidth: 200,
-        label: Translator.trans('email.participation'),
-      }
+      const emailFields = this.currentlySelectedColumns.includes(this.emailFieldAvailable.field) ?
+        [this.emailFieldAvailable] :
+        []
 
       const categoryFields = this.categoryFieldsAvailable
         .filter(headerField => this.currentlySelectedColumns.includes(headerField.field))
@@ -327,7 +333,7 @@ export default {
 
       const selectedCustomFieldColumns = this.customFieldsAvailable.filter(headerField => this.currentlySelectedColumns.includes(headerField.field))
 
-      return [institutionField, emailField, ...categoryFields, ...selectedCustomFieldColumns]
+      return [institutionField, ...emailFields, ...categoryFields, ...selectedCustomFieldColumns]
     },
 
     institutionList () {
@@ -369,7 +375,7 @@ export default {
     },
 
     selectableColumns () {
-      return [...this.categoryFieldsAvailable, ...this.customFieldsAvailable]
+      return [this.emailFieldAvailable, ...this.categoryFieldsAvailable, ...this.customFieldsAvailable]
         .map(headerField => ([headerField.field, headerField.label]))
     },
 
@@ -712,9 +718,12 @@ export default {
     },
 
     setInitiallySelectedColumns () {
-      this.initiallySelectedColumns = this.institutionTagCategoriesValues
-        .slice(0, 5)
-        .map(category => category.attributes.name)
+      this.initiallySelectedColumns = [
+        this.emailFieldAvailable.field,
+        ...this.institutionTagCategoriesValues
+          .slice(0, 5)
+          .map(category => category.attributes.name),
+      ]
     },
 
     updateEditingCustomField (definitionId, value) {
