@@ -102,6 +102,24 @@ class CustomFieldCreatorTest extends UnitTestCase
     }
 
     /**
+     * The segment form does not send isRequired, so it must default to false.
+     */
+    public function testCreateMultiSelectFieldForSegmentWithoutIsRequired(): void
+    {
+        // Arrange
+        $this->attributes['fieldType'] = 'multiSelect';
+        $this->attributes['targetEntity'] = 'SEGMENT';
+        unset($this->attributes['isRequired']);
+
+        // Act
+        $result = $this->sut->createCustomField($this->attributes);
+
+        // Assert
+        static::assertInstanceOf(MultiSelectField::class, $result);
+        static::assertFalse($result->getRequired());
+    }
+
+    /**
      * Test MultiSelect field creation with isRequired attribute.
      */
     public function testCreateMultiSelectFieldSuccessfully(): void
