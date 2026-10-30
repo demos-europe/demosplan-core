@@ -52,10 +52,12 @@ use EDT\Querying\Contracts\FunctionInterface;
 use Exception;
 use Psr\Log\LoggerInterface;
 use ReflectionException;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+#[AsAlias(OrgaServiceInterface::class)]
 class OrgaService implements OrgaServiceInterface
 {
     /** @var MailService */

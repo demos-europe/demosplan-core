@@ -2527,17 +2527,19 @@ class DemosPlanProcedureController extends BaseController
         );
         $form->handleRequest($request);
 
-        $confirmMessage = 'confirm.boilerplate.edited';
+        // boilerplateId is set to 'new' via route defaults if the value in form is empty
+        // string comparison for readable urls
+        $confirmMessage = 'new' === $boilerplateId ? 'confirm.boilerplate.created' : 'confirm.boilerplate.edited';
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var BoilerplateVO $boilerplate */
             $boilerplate = $form->getData();
-            // boilerplateId is set to 'new' via route defaults if the value in form is empty
-            // string comparison for readable urls
-            if ('new' === $boilerplateId) {
-                $updatedBoilerplate = $procedureService->addBoilerplateVO($procedure, $boilerplate);
-                $confirmMessage = 'confirm.boilerplate.created';
-            } else {
-                $updatedBoilerplate = $procedureService->updateBoilerplateVO($boilerplate);
+            $updatedBoilerplate = $this->saveBoilerplate($procedure, $boilerplateId, $boilerplate);
+
+            if (!$updatedBoilerplate instanceof Boilerplate) {
+                // leave the edit view: after a failed flush the entity manager may be closed
+                $this->getMessageBag()->add('error', 'error.save');
+
+                return $this->redirectToRoute('DemosPlan_procedure_boilerplate_list', ['procedure' => $procedure]);
             }
         }
 
@@ -2557,6 +2559,49 @@ class DemosPlanProcedureController extends BaseController
             ]);
         }
 
+        $boilerplateCategories = $this->getBoilerplateCategoriesOrEmpty($procedure);
+        $boilerplateGroups = $procedureService->getBoilerplateGroups($procedure);
+
+        return $this->render(
+            '@DemosPlanCore/DemosPlanProcedure/administration_edit_boilerplate.html.twig',
+            [
+                'form'                         => $form,
+                'boilerplateCategories'        => $boilerplateCategories,
+                'boilerplateGroupsOfProcedure' => $boilerplateGroups,
+                'boilerplateUsages'            => $this->procedureService->getBoilerplateUsagesForDisplay($boilerplateId, $procedure),
+                'boilerplateUsageCount'        => $this->procedureService->getBoilerplateUsageCount($boilerplateId, $procedure),
+                'selectedGroup'                => '',
+                'title'                        => 'procedure.boilerplate.edit',
+                'procedure'                    => $procedure,
+                'verified'                     => $verified,
+                'bluePrintIsTarget'            => $isBluePrintTarget,
+            ]
+        );
+    }
+
+    /**
+     * Saves a new or an existing boilerplate.
+     *
+     * @return Boilerplate|null null if saving failed
+     */
+    private function saveBoilerplate(string $procedure, string $boilerplateId, BoilerplateVO $boilerplate): ?Boilerplate
+    {
+        try {
+            return 'new' === $boilerplateId
+                ? $this->procedureService->addBoilerplateVO($procedure, $boilerplate)
+                : $this->procedureService->updateBoilerplateVO($boilerplate);
+        } catch (Exception $e) {
+            $this->logger->error('Could not save boilerplate', ['boilerplateId' => $boilerplateId, 'exception' => $e]);
+
+            return null;
+        }
+    }
+
+    /**
+     * Categories the user may choose from in the edit view; an empty list if they cannot be loaded.
+     */
+    private function getBoilerplateCategoriesOrEmpty(string $procedure): array
+    {
         $includeNewsCategory = $this->permissions->hasPermission('area_news');
         $includeEmailCategory = $this->permissions->hasPermissions(
             [
@@ -2570,31 +2615,16 @@ class DemosPlanProcedureController extends BaseController
         );
 
         try {
-            $boilerplateCategories = $procedureService->getBoilerplateCategoryList(
+            return $this->procedureService->getBoilerplateCategoryList(
                 $procedure,
                 $includeNewsCategory,
                 $includeEmailCategory
             );
         } catch (Exception $e) {
             $this->logger->error('Failed to load boilerplate categories', [$procedure, $e]);
-            $boilerplateCategories = [];
-        }
-        $boilerplateGroups = $procedureService->getBoilerplateGroups($procedure);
 
-        return $this->render(
-            '@DemosPlanCore/DemosPlanProcedure/administration_edit_boilerplate.html.twig',
-            [
-                'form'                         => $form,
-                'boilerplateCategories'        => $boilerplateCategories,
-                'boilerplateGroupsOfProcedure' => $boilerplateGroups,
-                'boilerplateUsages'            => $this->procedureService->getBoilerplateUsagesForDisplay($boilerplateId, $procedure),
-                'selectedGroup'                => '',
-                'title'                        => 'procedure.boilerplate.edit',
-                'procedure'                    => $procedure,
-                'verified'                     => $verified,
-                'bluePrintIsTarget'            => $isBluePrintTarget,
-            ]
-        );
+            return [];
+        }
     }
 
     /**

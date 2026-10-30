@@ -28,8 +28,10 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Pagination\PagePagination;
 use EDT\Querying\Utilities\Iterables;
 use Elastica\Index;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Webmozart\Assert\Assert;
 
+#[AsAlias(JsonApiEsServiceInterface::class)]
 class JsonApiEsService implements JsonApiEsServiceInterface
 {
     use ElasticsearchQueryTrait;

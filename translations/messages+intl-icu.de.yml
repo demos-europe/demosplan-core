@@ -296,6 +296,18 @@ boilerplate.materialized.in.recommendation: "Der Textbaustein „{title}“ wurd
 boilerplate.none: "Kein Textbaustein"
 boilerplate.none.defined: "Keine Textbausteine definiert."
 boilerplate.none.generated: "Keine Textbausteine angelegt"
+boilerplate.usage.confirm.button: "Änderung übernehmen"
+boilerplate.usage.confirm.hint.after: "“ verwendet wird."
+boilerplate.usage.confirm.hint.before: |
+    {count, plural,
+        =1 { Die Änderung betrifft den Abschnitt, in dem der Textbaustein „ }
+        other { Die Änderung betrifft alle # Abschnitte, in denen der Textbaustein „ }
+    }
+boilerplate.usage.confirm.title: |
+    {count, plural,
+        =1 { Änderung für einen Abschnitt übernehmen? }
+        other { Änderung für # Abschnitte übernehmen? }
+    }
 boilerplate.usage.filter.locked: "Nur gesperrte Abschnitte anzeigen"
 boilerplate.usage.headline: "Verknüpfte Abschnitte ({count}):"
 boilerplate.usage.headline.locked: "Verknüpfte Abschnitte ({count}), davon {lockedCount} gesperrt:"
