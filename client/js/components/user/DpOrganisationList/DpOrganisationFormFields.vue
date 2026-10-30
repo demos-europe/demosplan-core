@@ -248,12 +248,15 @@
       />
 
       <div class="layout__item u-1-of-1 u-mt">
-        <legend class="u-pb-0_5">
+        <legend
+          v-if="canEditRegistrationStatuses"
+          class="u-pb-0_5"
+        >
           {{ Translator.trans('organisation.types.permissions') }}
         </legend>
 
         <!-- Currently assigned or requested permissions -->
-        <template v-if="registrationStatuses.length > 0 && canEdit('registrationStatuses') || hasPermission('area_organisations_applications_manage')">
+        <template v-if="registrationStatuses.length > 0 && canEditRegistrationStatuses">
           <div
             v-for="(registrationStatus, idx) in registrationStatuses"
             :key="`lbl${idx}`"
@@ -290,7 +293,7 @@
         </template>
 
         <!-- Readonly: Currently assigned or requested permissions -->
-        <template v-if="!canEdit('registrationStatuses') && !hasPermission('area_organisations_applications_manage')">
+        <template v-if="!canEditRegistrationStatuses">
           <div
             v-for="(registrationStatus, idx) in registrationStatuses"
             :key="idx"
@@ -311,7 +314,7 @@
 
         <!-- Assign new permissions -->
         <template
-          v-if="availableRegistrationTypes.length > 0 && (canEdit('registrationStatuses') || hasPermission('area_organisations_applications_manage'))"
+          v-if="availableRegistrationTypes.length > 0 && canEditRegistrationStatuses"
         >
           <button
             v-if="!showAddStatusForm"
@@ -502,7 +505,7 @@
       </div>
 
       <div
-        v-if="organisationId !== ''"
+        v-if="organisationId !== '' && hasPermission('field_organisation_customer')"
         class="layout__item u-mt"
       >
         <label class="u-mb-0_25">
@@ -1068,6 +1071,10 @@ export default {
   },
 
   computed: {
+    canEditRegistrationStatuses () {
+      return hasPermission('feature_orga_registration_status_edit') && this.writableFields.includes('registrationStatuses')
+    },
+
     availableRegistrationTypes () {
       const activeTypes = this.registrationStatuses.map(status => status.type) || []
 
@@ -1102,20 +1109,22 @@ export default {
     },
 
     /**
-     * Individual grants only exist for the admin roles of Kommune and Anhörungsbehörde, and only in
-     * projects that expose the per-user permission
+     * Individual grants only exist for the admin roles of Kommune and Anhörungsbehörde, only in
+     * projects that expose the per-user permission, and are only manageable (and thus worth
+     * pointing at) for users who have access to the user management
      */
     showsIndividualGrants () {
       return hasPermission('feature_manage_procedure_creation_permission') &&
         hasPermission('feature_manage_user_procedure_creation_permission') &&
-        isOrgaAcceptedAsType(this.registrationStatuses, ['OLAUTH', 'OHAUTH'])
+        hasPermission('area_manage_users') &&
+        isOrgaAcceptedAsType(this.orgaRegistrationStatuses, ['OLAUTH', 'OHAUTH'])
     },
 
     /**
      * The orga-wide grant also covers Planungsbüro, whose users hold the RMOPPO role
      */
     isProcedureCreationOrgaTypeAccepted () {
-      return isOrgaAcceptedAsType(this.registrationStatuses, ['OLAUTH', 'OHAUTH', 'OPAUTH'])
+      return isOrgaAcceptedAsType(this.orgaRegistrationStatuses, ['OLAUTH', 'OHAUTH', 'OPAUTH'])
     },
 
     /**
@@ -1143,14 +1152,15 @@ export default {
       return Array.from({ length: 11 }, (_, i) => ({ value: i, label: String(i) }))
     },
 
-    registrationStatuses () {
-      const registrationStatuses = hasOwnProp(this.localOrganisation.attributes, 'registrationStatuses') ?
+    // Types of the current subdomain, independent of whether the user may see or edit them
+    orgaRegistrationStatuses () {
+      return hasOwnProp(this.localOrganisation.attributes, 'registrationStatuses') ?
         Object.values(this.localOrganisation.attributes.registrationStatuses).filter(el => el.subdomain === this.subdomain) :
         []
+    },
 
-      return (this.canEdit('registrationStatuses') || hasPermission('area_organisations_applications_manage')) ?
-        registrationStatuses :
-        []
+    registrationStatuses () {
+      return this.canEditRegistrationStatuses ? this.orgaRegistrationStatuses : []
     },
 
     visibleProcedureCreationUsers () {

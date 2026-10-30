@@ -5,6 +5,9 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Editing the organisation types and showing the customer (Bundesland) of an organisation
+are gated by the new permissions `feature_orga_registration_status_edit` and `field_organisation_customer`;
+projects must grant them explicitly, `CUSTOMER_MASTER_USER` no longer holds them by default (DPLAN-18505)
 - Node.js 24.22.1 for the image build, CI and `engines` (October 2026 security release)
 - `MailService` implements the new `MailServiceInterface` of the contract layer, so addons can queue mails
 - composer.json declares every PHP extension the application needs (adds apcu, exif, pcntl, pdo_mysql; drops soap, posix), so a missing extension fails the image build

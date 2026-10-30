@@ -1501,6 +1501,14 @@ feature_orga_registration:
     expose: true
     label: 'Allow organizations to register by themselves'
     loginRequired: false
+feature_orga_registration_status_edit:
+    description: |-
+        Allows the user to set the organisation types (permissions of an organisation in the customer),
+        for example municipality or hearing authority.
+    expose: true
+    label: 'edit organisation types'
+    loginRequired: true
+    parent: [area_manage_orgas, area_manage_orgas_all]
 feature_orga_slug:
     description: 'An orga slug is an URL part chosen by a user. The URL can be used to filter procedures to show by their corresponding orga. This feature enables everything regarding orga slugs: Showing/creating them (for editing: feature_orga_slug_edit). Using them in redirects.'
     expose: true
@@ -2918,6 +2926,12 @@ field_organisation_competence:
 field_organisation_contact_person:
     label: 'Ansprechpartner des Verfahrensträger'
     loginRequired: false
+    parent: field_organisation
+field_organisation_customer:
+    description: 'Shows the customer (Bundesland) of an organisation in the organisation form.'
+    expose: true
+    label: 'Bundesland der Organisation anzeigen'
+    loginRequired: true
     parent: field_organisation
 field_organisation_email2_cc:
     expose: true
