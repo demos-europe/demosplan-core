@@ -57,7 +57,7 @@ describe('SelectionCard', () => {
   it('emits reset and toggle events', async () => {
     const wrapper = mountCard()
 
-    await wrapper.find('[data-cy="resetSelectedItems"]').trigger('click')
+    await wrapper.find('[data-cy="selectionCard:reset"]').trigger('click')
     await wrapper.find('[data-cy="selectionCard:toggleItems"]').trigger('click')
 
     expect(wrapper.emitted('reset')).toHaveLength(1)
