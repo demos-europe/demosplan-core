@@ -6,15 +6,15 @@
  *
  * All rights reserved
  */
-import DpSelectionCard from '@DpJs/components/shared/DpSelectionCard.vue'
 import { mount } from '@vue/test-utils'
+import SelectionCard from '@DpJs/components/shared/SelectionCard.vue'
 
 const items = [
   { id: 'a', name: 'Alpha' },
   { id: 'b', name: 'Beta' },
 ]
 
-const mountCard = (props = {}, slots = {}) => mount(DpSelectionCard, {
+const mountCard = (props = {}, slots = {}) => mount(SelectionCard, {
   props: {
     countText: '2 selected',
     items,
@@ -29,7 +29,7 @@ const mountCard = (props = {}, slots = {}) => mount(DpSelectionCard, {
   },
 })
 
-describe('DpSelectionCard', () => {
+describe('SelectionCard', () => {
   it('renders the count and the item names by default', () => {
     const wrapper = mountCard()
 

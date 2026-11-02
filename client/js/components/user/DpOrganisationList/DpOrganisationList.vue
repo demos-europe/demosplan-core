@@ -98,7 +98,7 @@
     </div>
 
     <template v-if="canBulkEdit">
-      <dp-selection-card
+      <selection-card
         v-if="isOrganisationSelected"
         :count-text="Translator.trans('organisations.selected', { count: selectedCount })"
         :is-loading-items="isLoadingSelectionList"
@@ -130,7 +130,7 @@
             @click="openTwoFactorModal"
           />
         </template>
-      </dp-selection-card>
+      </selection-card>
       <dp-checkbox
         id="select_all"
         :checked="isAllSelected"
@@ -273,7 +273,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import DpOrganisationListItem from './DpOrganisationListItem'
-import DpSelectionCard from '@DpJs/components/shared/DpSelectionCard'
+import SelectionCard from '@DpJs/components/shared/SelectionCard'
 
 // Upper limit the API accepts for page[size]
 const ALL_MATCHING_PAGE_SIZE = 1000
@@ -366,10 +366,10 @@ export default {
     DpOrganisationListItem,
     DpRadio,
     DpSearchField,
-    DpSelectionCard,
     DpSkeletonBox,
     DpSlidingPagination,
     DpToggle,
+    SelectionCard,
   },
 
   directives: {
