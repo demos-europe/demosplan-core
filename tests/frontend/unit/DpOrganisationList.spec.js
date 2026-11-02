@@ -8,14 +8,20 @@
  */
 import { createStore } from 'vuex'
 import DpOrganisationList from '@DpJs/components/user/DpOrganisationList/DpOrganisationList'
+import { flushPromises } from '@vue/test-utils'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
-const { mockDpRpc } = vi.hoisted(() => ({ mockDpRpc: vi.fn() }))
+const { mockDpApiGet, mockDpRpc } = vi.hoisted(() => ({ mockDpApiGet: vi.fn(), mockDpRpc: vi.fn() }))
 
-vi.mock('@demos-europe/demosplan-ui', async importOriginal => ({
-  ...(await importOriginal()),
-  dpRpc: (...args) => mockDpRpc(...args),
-}))
+vi.mock('@demos-europe/demosplan-ui', async importOriginal => {
+  const original = await importOriginal()
+
+  return {
+    ...original,
+    dpApi: Object.assign((...args) => original.dpApi(...args), { get: (...args) => mockDpApiGet(...args) }),
+    dpRpc: (...args) => mockDpRpc(...args),
+  }
+})
 
 const rpcResponse = (updatedIds, skippedIds = []) => Promise.resolve({
   data: [{ jsonrpc: '2.0', id: 'x', result: { updatedIds, skippedIds } }],
@@ -51,12 +57,17 @@ const DpModalStub = {
   },
 }
 
+const apiPage = (data, totalPages = 1) => Promise.resolve({
+  data: { data, meta: { pagination: { total_pages: totalPages } } },
+})
+
 let orgaModule
 
 const lastListFilter = () => orgaModule.actions.list.mock.lastCall[1].filter
 
-const mountList = () => {
+const mountList = (totalCount = 2) => {
   orgaModule = listModule({ items })
+  orgaModule.actions.list.mockResolvedValue({ meta: { pagination: { total: totalCount } } })
 
   const store = createStore({
     modules: {
@@ -83,9 +94,12 @@ const mountList = () => {
 describe('DpOrganisationList', () => {
   beforeEach(() => {
     mockDpRpc.mockImplementation(() => rpcResponse(['orga-1', 'orga-2']))
+    mockDpApiGet.mockImplementation(() => apiPage(Object.values(items)))
+    vi.stubGlobal('dpconfirm', vi.fn(() => true))
   })
 
   afterEach(() => {
+    vi.unstubAllGlobals()
     vi.clearAllMocks()
   })
 
@@ -104,18 +118,83 @@ describe('DpOrganisationList', () => {
     expect(wrapper.vm.selectedCount).toBe(0)
   })
 
-  it('selects and deselects every organisation on the page', async () => {
-    const wrapper = mountList()
+  it('selects every matching organisation across all pages without loading them', async () => {
+    const wrapper = mountList(30)
 
-    await wrapper.vm.$nextTick()
-
+    await flushPromises()
     wrapper.vm.toggleAll(true)
 
-    expect(wrapper.vm.allOnPageSelected).toBe(true)
-    expect(wrapper.vm.selectedIds).toEqual(['orga-1', 'orga-2'])
+    expect(wrapper.vm.isAllSelected).toBe(true)
+    expect(wrapper.vm.selectedCount).toBe(30)
+    expect(wrapper.vm.isSelected('orga-1')).toBe(true)
+    expect(mockDpApiGet).not.toHaveBeenCalled()
+
+    wrapper.vm.toggleOne('orga-1')
+
+    expect(wrapper.vm.isAllSelected).toBe(false)
+    expect(wrapper.vm.isSelected('orga-1')).toBe(false)
+    expect(wrapper.vm.selectedCount).toBe(29)
 
     wrapper.vm.toggleAll(false)
 
+    expect(wrapper.vm.selectedCount).toBe(0)
+  })
+
+  it('loads the selected organisations with the current filter before the modal opens', async () => {
+    const wrapper = mountList()
+
+    await flushPromises()
+    wrapper.vm.handleTwoFactorFilter(true)
+    wrapper.vm.toggleAll(true)
+    wrapper.vm.toggleOne('orga-1')
+
+    await wrapper.vm.openTwoFactorModal()
+
+    const [, params] = mockDpApiGet.mock.lastCall
+
+    expect(params.fields).toEqual({ Orga: 'name,twoFactorRequired' })
+    expect(params.filter.withoutTwoFactor.condition.value).toBe(false)
+    expect(wrapper.vm.selectedOrganisationsList).toEqual([{ id: 'orga-2', name: 'Beta', twoFactorRequired: true }])
+    expect(wrapper.vm.twoFactorTarget).toBe(true)
+    expect(DpModalStub.methods.toggle).toHaveBeenCalledTimes(1)
+  })
+
+  it('pages through all matching organisations', async () => {
+    mockDpApiGet
+      .mockImplementationOnce(() => apiPage([items['orga-1']], 2))
+      .mockImplementationOnce(() => apiPage([items['orga-2']], 2))
+    const wrapper = mountList()
+
+    await flushPromises()
+    wrapper.vm.toggleAll(true)
+
+    const ids = await wrapper.vm.resolveSelectedIds()
+
+    expect(mockDpApiGet.mock.calls.map(([, params]) => params.page.number)).toEqual([1, 2])
+    expect(ids).toEqual(['orga-1', 'orga-2'])
+  })
+
+  it('drops the select-all state when the filter changes', async () => {
+    const wrapper = mountList()
+
+    await flushPromises()
+    wrapper.vm.toggleAll(true)
+    wrapper.vm.handleSearch('Alp')
+
+    expect(wrapper.vm.isAllSelected).toBe(false)
+    expect(wrapper.vm.selectedCount).toBe(0)
+  })
+
+  it('asks with the count and deletes every selected organisation', async () => {
+    const wrapper = mountList()
+
+    await flushPromises()
+    wrapper.vm.toggleAll(true)
+
+    await wrapper.vm.deleteItems()
+
+    expect(dpconfirm).toHaveBeenCalledWith('check.organisations.delete')
+    expect(orgaModule.actions.delete).toHaveBeenCalledTimes(2)
     expect(wrapper.vm.selectedCount).toBe(0)
   })
 
@@ -149,12 +228,12 @@ describe('DpOrganisationList', () => {
     const wrapper = mountList()
 
     await wrapper.vm.$nextTick()
-    wrapper.vm.openTwoFactorModal()
+    await wrapper.vm.openTwoFactorModal()
 
     expect(DpModalStub.methods.toggle).not.toHaveBeenCalled()
 
     wrapper.vm.toggleOne('orga-1')
-    wrapper.vm.openTwoFactorModal()
+    await wrapper.vm.openTwoFactorModal()
 
     expect(DpModalStub.methods.toggle).toHaveBeenCalledTimes(1)
   })
@@ -164,12 +243,12 @@ describe('DpOrganisationList', () => {
 
     await wrapper.vm.$nextTick()
     wrapper.vm.toggleOne('orga-2')
-    wrapper.vm.openTwoFactorModal()
+    await wrapper.vm.openTwoFactorModal()
 
     expect(wrapper.vm.twoFactorTarget).toBe(true)
 
     wrapper.vm.toggleOne('orga-1')
-    wrapper.vm.openTwoFactorModal()
+    await wrapper.vm.openTwoFactorModal()
 
     expect(wrapper.vm.twoFactorTarget).toBeNull()
   })
@@ -177,7 +256,7 @@ describe('DpOrganisationList', () => {
   it('patches every selected organisation with the chosen value and reports once', async () => {
     const wrapper = mountList()
 
-    await wrapper.vm.$nextTick()
+    await flushPromises()
     wrapper.vm.toggleAll(true)
     wrapper.vm.twoFactorTarget = true
 
@@ -211,7 +290,7 @@ describe('DpOrganisationList', () => {
 
     await wrapper.vm.$nextTick()
     wrapper.vm.toggleOne('orga-1')
-    wrapper.vm.openTwoFactorModal()
+    await wrapper.vm.openTwoFactorModal()
 
     expect(wrapper.vm.isTwoFactorChoiceChanged).toBe(false)
 
@@ -240,7 +319,7 @@ describe('DpOrganisationList', () => {
     mockDpRpc.mockImplementation(() => rpcResponse(['orga-1'], ['orga-2']))
     const wrapper = mountList()
 
-    await wrapper.vm.$nextTick()
+    await flushPromises()
     wrapper.vm.toggleAll(true)
     wrapper.vm.twoFactorTarget = false
 
@@ -254,7 +333,7 @@ describe('DpOrganisationList', () => {
     mockDpRpc.mockImplementation(() => Promise.reject(new Error('boom')))
     const wrapper = mountList()
 
-    await wrapper.vm.$nextTick()
+    await flushPromises()
     wrapper.vm.toggleAll(true)
     wrapper.vm.twoFactorTarget = false
 

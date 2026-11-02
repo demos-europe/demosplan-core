@@ -470,6 +470,7 @@ check.mail.result.citizenAndVoters: "Die E-Mail geht an die/den Einreichende*n u
 check.mail.result.institutions: "Die E-Mail geht an die einreichende Institutions-Koordination und die von der Institution hinterlegte E-Mail-Adresse für die Beteiligung."
 check.master.invitable_institution.delete: "Wollen Sie diese Organisation wirklich löschen? Der Vorgang kann nicht mehr rückgängig gemacht werden."
 check.invitable_institutions.marked.delete: "Sind Sie sicher, dass Sie die markierten Institutionen aus Ihrem Verfahren löschen möchten?"
+check.organisations.delete: "Sind Sie sicher, dass Sie {count, plural, one {die ausgewählte Organisation} other {die # ausgewählten Organisationen}} löschen möchten?"
 check.release.delete: "Sind Sie sicher, dass Sie dieses Release und alle dazugehörigen User Stories löschen möchten?"
 check.sign_language_video.saved: "Sie haben Ihr Video zur Gebärdensprache nicht gespeichert. Möchten Sie dennoch fortfahren?"
 check.sort.reset: "Sind Sie sicher, dass Sie Ihre manuelle Reihenfolge zurücksetzen möchten?"
