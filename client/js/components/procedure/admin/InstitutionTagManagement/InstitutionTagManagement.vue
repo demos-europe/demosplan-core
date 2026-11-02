@@ -106,8 +106,7 @@ export default {
     },
 
     /**
-     * The institution list owns its fetching and pagination, so it reloads itself
-     * to keep the rows and the pager in sync (e.g. after a tag was removed).
+     * InstitutionList owns pagination, so it reloads itself and keeps the rows and the pager in sync
      */
     institutionListReset () {
       return this.$refs.institutionList.getInstitutionsByPage(1)

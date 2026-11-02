@@ -293,15 +293,6 @@ export default {
       }))
     },
 
-    emailFieldAvailable () {
-      return {
-        field: 'email',
-        label: Translator.trans('email.participation'),
-        colWidth: '220px',
-        initialMinWidth: 200,
-      }
-    },
-
     customFieldsAvailable () {
       return this.customFieldDefinitions.map(definition => ({
         field: `cf_${definition.id}`,
@@ -309,6 +300,15 @@ export default {
         colWidth: '180px',
         initialMinWidth: 180,
       }))
+    },
+
+    emailFieldAvailable () {
+      return {
+        field: 'email',
+        label: Translator.trans('email.participation'),
+        colWidth: '220px',
+        initialMinWidth: 200,
+      }
     },
 
     headerFields () {
