@@ -61,6 +61,13 @@ const apiPage = (data, totalPages = 1) => Promise.resolve({
   data: { data, meta: { pagination: { total_pages: totalPages } } },
 })
 
+// Answers like the API: a manual selection is requested by id, select-all by the list filter
+const apiOrganisations = (organisations = Object.values(items)) => (url, params) => {
+  const ids = params.filter.selectedIds?.condition.value
+
+  return apiPage(ids ? organisations.filter(organisation => ids.includes(organisation.id)) : organisations)
+}
+
 let orgaModule
 
 const lastListFilter = () => orgaModule.actions.list.mock.lastCall[1].filter
@@ -94,7 +101,7 @@ const mountList = (totalCount = 2) => {
 describe('DpOrganisationList', () => {
   beforeEach(() => {
     mockDpRpc.mockImplementation(() => rpcResponse(['orga-1', 'orga-2']))
-    mockDpApiGet.mockImplementation(() => apiPage(Object.values(items)))
+    mockDpApiGet.mockImplementation(apiOrganisations())
     vi.stubGlobal('dpconfirm', vi.fn(() => true))
   })
 
@@ -157,6 +164,30 @@ describe('DpOrganisationList', () => {
     expect(wrapper.vm.selectedOrganisationsList).toEqual([{ id: 'orga-2', name: 'Beta', twoFactorRequired: true }])
     expect(wrapper.vm.twoFactorTarget).toBe(true)
     expect(DpModalStub.methods.toggle).toHaveBeenCalledTimes(1)
+  })
+
+  it('opens the modal with the saved values, not the ones from when the organisation was selected', async () => {
+    const wrapper = mountList()
+
+    await flushPromises()
+    // Alpha is selected with 2FA off and then switched on in its own form
+    wrapper.vm.toggleOne('orga-1')
+    mockDpApiGet.mockImplementation(apiOrganisations([
+      { ...items['orga-1'], attributes: { name: 'Alpha', twoFactorRequired: true } },
+    ]))
+
+    await wrapper.vm.openTwoFactorModal()
+
+    expect(mockDpApiGet.mock.lastCall[1].filter.selectedIds.condition).toEqual({
+      path: 'id',
+      operator: 'IN',
+      value: ['orga-1'],
+    })
+    expect(wrapper.vm.twoFactorTarget).toBe(true)
+
+    wrapper.vm.twoFactorTarget = false
+
+    expect(wrapper.vm.isTwoFactorChoiceChanged).toBe(true)
   })
 
   it('pages through all matching organisations', async () => {

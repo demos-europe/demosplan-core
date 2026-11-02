@@ -653,6 +653,22 @@ export default {
       return filter
     },
 
+    buildSelectionFilter () {
+      if (this.trackDeselected) {
+        return this.buildListFilter()
+      }
+
+      return {
+        selectedIds: {
+          condition: {
+            path: 'id',
+            operator: 'IN',
+            value: Object.keys(this.selectedOrganisations),
+          },
+        },
+      }
+    },
+
     closeTwoFactorModal () {
       this.$refs.twoFactorModal?.toggle()
     },
@@ -685,14 +701,14 @@ export default {
      */
     async ensureSelectionLoaded () {
       if (this.trackDeselected && !this.allMatchingFetched) {
-        await this.fetchAllMatchingOrganisations()
+        await this.fetchSelectedOrganisations()
       }
     },
 
     /**
      * Pages through the API directly, as the store would replace the page currently shown
      */
-    async fetchAllMatchingOrganisations () {
+    async fetchSelectedOrganisations () {
       const url = Routing.generate('api_resource_list', { resourceType: 'Orga' })
       const fields = [
         'name',
@@ -707,7 +723,7 @@ export default {
           fields: {
             Orga: fields,
           },
-          filter: this.buildListFilter(),
+          filter: this.buildSelectionFilter(),
           page: {
             number: page,
             size: ALL_MATCHING_PAGE_SIZE,
@@ -727,7 +743,7 @@ export default {
 
         return acc
       }, {})
-      this.allMatchingFetched = true
+      this.allMatchingFetched = this.trackDeselected
     },
 
     fetchFilteredOrganisations (page) {
@@ -870,9 +886,10 @@ export default {
     },
 
     /**
+     * @param {Boolean} reload  Fetch current values even if already loaded
      * @return {Promise<Boolean>} false when loading the selected organisations failed
      */
-    async loadSelection () {
+    async loadSelection (reload = false) {
       if (this.isLoadingSelectionList) {
         return false
       }
@@ -880,7 +897,7 @@ export default {
       this.isLoadingSelectionList = true
 
       try {
-        await this.ensureSelectionLoaded()
+        await (reload ? this.fetchSelectedOrganisations() : this.ensureSelectionLoaded())
 
         return true
       } catch (error) {
@@ -907,7 +924,8 @@ export default {
         return
       }
 
-      if (!await this.loadSelection()) {
+      // Organisations may have been edited since they were selected
+      if (!await this.loadSelection(true)) {
         return
       }
 
