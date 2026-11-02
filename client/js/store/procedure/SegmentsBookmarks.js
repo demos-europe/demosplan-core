@@ -11,10 +11,10 @@ import { dpApi } from '@demos-europe/demosplan-ui'
 
 const bookmarkApiUrl = () => `${Routing.getBaseUrl()}/api/3.0/Bookmark`
 
-const SegmentsBookmarksStore = {
+const BookmarkStore = {
   namespaced: true,
 
-  name: 'SegmentsBookmarks',
+  name: 'Bookmark',
 
   state: {
     allBookmarks: [],
@@ -42,6 +42,10 @@ const SegmentsBookmarksStore = {
 
       if (index !== -1) {
         state.allBookmarks[index] = updatedBookmark
+
+        if (state.currentBookmarkId === updatedBookmark.id) {
+          state.currentBookmark = updatedBookmark
+        }
       }
     },
 
@@ -260,4 +264,4 @@ const SegmentsBookmarksStore = {
   },
 }
 
-export default SegmentsBookmarksStore
+export default BookmarkStore

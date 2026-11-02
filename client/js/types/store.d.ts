@@ -26,7 +26,7 @@ export interface Slidebar {
   segmentId: string
 }
 
-export interface SegmentsBookmarksState {
+export interface BookmarkState {
   allBookmarks: Bookmark[]
   currentBookmark: Bookmark | null
   currentBookmarkId: string | null
@@ -54,12 +54,9 @@ export interface FilterFlyoutState {
 }
 
 export interface RootState {
-  SegmentsBookmarks: SegmentsBookmarksState
+  Bookmark: BookmarkState
   SegmentSlidebar: SegmentSlidebarState
   FilterFlyout?: FilterFlyoutState
-  Bookmark?: {
-    items: Record<string, Bookmark>
-  }
   [key: string]: any
 }
 

@@ -1161,7 +1161,7 @@ export default {
       setCurrentQueryHash: 'setCurrentQueryHash',
     }),
 
-    ...mapMutations('SegmentsBookmarks', {
+    ...mapMutations('Bookmark', {
       setStoreSearchPhrase: 'setCurrentSearchPhrase',
       setStoreSorting: 'setCurrentSorting',
       setStoreSelectedColumns: 'setCurrentSelectedColumns',
@@ -1169,7 +1169,7 @@ export default {
       setViewStateInitialized: 'setViewStateInitialized',
     }),
 
-    ...mapActions('SegmentsBookmarks', {
+    ...mapActions('Bookmark', {
       resetToDefaultView: 'resetToDefaultView',
     }),
 

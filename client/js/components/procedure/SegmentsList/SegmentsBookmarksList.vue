@@ -68,12 +68,12 @@
 </template>
 
 <script setup lang="ts">
-import type { Bookmark } from '@DpJs/types/bookmarks'
 import {
   DpButton,
   DpLoading,
   DpRadio,
 } from '@demos-europe/demosplan-ui'
+import type { Bookmark } from '@DpJs/types/bookmarks'
 
 /* Props */
 const props = defineProps<{
@@ -90,7 +90,7 @@ interface BookmarksListEmits {
   (e: 'delete', bookmarkId: string): void
 }
 
-const emit = defineEmits<BookmarksListEmits>()
+defineEmits<BookmarksListEmits>()
 
 /* Methods */
 const getBookmarkSummary = (bookmark: Bookmark): string => {

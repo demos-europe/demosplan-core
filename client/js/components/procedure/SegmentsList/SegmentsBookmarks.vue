@@ -96,25 +96,25 @@
 </template>
 
 <script setup lang="ts">
+import { computed, type ComputedRef, onMounted, type Ref, ref, watch } from 'vue'
 import type {
   Bookmark,
   CreateBookmarkPayload,
   UpdateBookmarkPayload,
 } from '@DpJs/types/bookmarks'
-import type {
-  RootState,
-  Slidebar,
-} from '@DpJs/types/store'
 import {
   DpButton,
   DpButtonRow,
   DpInput,
 } from '@demos-europe/demosplan-ui'
-import { computed, type ComputedRef, onMounted, type Ref, ref, watch } from 'vue'
-import { useStore } from 'vuex'
+import type {
+  RootState,
+  Slidebar,
+} from '@DpJs/types/store'
 import lscache from 'lscache'
-import SegmentsBookmarksUnsavedChanges from './SegmentsBookmarksUnsavedChanges.vue'
-import SegmentsBookmarksList from './SegmentsBookmarksList.vue'
+import SegmentsBookmarksList from './SegmentsBookmarksList'
+import SegmentsBookmarksUnsavedChanges from './SegmentsBookmarksUnsavedChanges'
+import { useStore } from 'vuex'
 
 const { Translator, dplan } = window as typeof globalThis
 
@@ -139,21 +139,21 @@ const showNewBookmarkForm: Ref<boolean> = ref(false)
 const showUnsavedChanges: Ref<boolean> = ref(false)
 
 /* Computed */
-const bookmarks: ComputedRef<Bookmark[]> = computed(() => state.SegmentsBookmarks.allBookmarks)
-const currentBookmark: ComputedRef<Bookmark | null> = computed(() => state.SegmentsBookmarks.currentBookmark)
-const currentBookmarkId: ComputedRef<string | null> = computed(() => state.SegmentsBookmarks.currentBookmarkId)
+const bookmarks: ComputedRef<Bookmark[]> = computed(() => state.Bookmark.allBookmarks)
+const currentBookmark: ComputedRef<Bookmark | null> = computed(() => state.Bookmark.currentBookmark)
+const currentBookmarkId: ComputedRef<string | null> = computed(() => state.Bookmark.currentBookmarkId)
 const currentQueryHash: ComputedRef<string> = computed(() => state.SegmentSlidebar.currentQueryHash)
 
 const slidebar: ComputedRef<Slidebar> = computed(() => state.SegmentSlidebar.slidebar)
 const isVisible: ComputedRef<boolean> = computed(() => slidebar.value.showTab === 'bookmarks')
-const isBookmarkLoading: ComputedRef<boolean> = computed(() => state.SegmentsBookmarks.isBookmarkLoading)
+const isBookmarkLoading: ComputedRef<boolean> = computed(() => state.Bookmark.isBookmarkLoading)
 
 /* Store actions */
-const applyBookmarkAction = (payload: { bookmarkId: string, bookmark: Bookmark }): Promise<boolean> => store.dispatch('SegmentsBookmarks/applyBookmark', payload)
-const createBookmarkAction = (payload: CreateBookmarkPayload): Promise<boolean> => store.dispatch('SegmentsBookmarks/createBookmark', payload)
-const deleteBookmarkAction = (id: string): Promise<boolean> => store.dispatch('SegmentsBookmarks/deleteBookmark', id)
-const fetchBookmarksAction = (): Promise<Bookmark[]> => store.dispatch('SegmentsBookmarks/fetchBookmarks')
-const updateBookmarkAction = (payload: UpdateBookmarkPayload): Promise<boolean> => store.dispatch('SegmentsBookmarks/updateBookmark', payload)
+const applyBookmarkAction = (payload: { bookmarkId: string, bookmark: Bookmark }): Promise<boolean> => store.dispatch('Bookmark/applyBookmark', payload)
+const createBookmarkAction = (payload: CreateBookmarkPayload): Promise<boolean> => store.dispatch('Bookmark/createBookmark', payload)
+const deleteBookmarkAction = (id: string): Promise<boolean> => store.dispatch('Bookmark/deleteBookmark', id)
+const fetchBookmarksAction = (): Promise<Bookmark[]> => store.dispatch('Bookmark/fetchBookmarks')
+const updateBookmarkAction = (payload: UpdateBookmarkPayload): Promise<boolean> => store.dispatch('Bookmark/updateBookmark', payload)
 
 /* Emits */
 interface SegmentsBookmarksEmits {

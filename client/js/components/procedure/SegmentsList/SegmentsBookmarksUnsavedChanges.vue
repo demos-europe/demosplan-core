@@ -194,11 +194,11 @@ const updateLabelCache = (): void => {
 
 /* Computed */
 const currentFilters: ComputedRef<Record<string, any>> = computed(() => state.FilterFlyout?.filterQuery || {})
-const storeSearchPhrase: ComputedRef<string> = computed(() => state.SegmentsBookmarks?.currentSearchPhrase || '')
-const storeSorting: ComputedRef<string> = computed(() => state.SegmentsBookmarks?.currentSorting || '')
-const storeSelectedColumns: ComputedRef<string[]> = computed(() => state.SegmentsBookmarks?.currentSelectedColumns || [])
-const storeDefaultSelectedColumns: ComputedRef<string[]> = computed(() => state.SegmentsBookmarks?.defaultSelectedColumns || [])
-const isViewStateInitialized: ComputedRef<boolean> = computed(() => state.SegmentsBookmarks?.isViewStateInitialized || false)
+const storeSearchPhrase: ComputedRef<string> = computed(() => state.Bookmark?.currentSearchPhrase || '')
+const storeSorting: ComputedRef<string> = computed(() => state.Bookmark?.currentSorting || '')
+const storeSelectedColumns: ComputedRef<string[]> = computed(() => state.Bookmark?.currentSelectedColumns || [])
+const storeDefaultSelectedColumns: ComputedRef<string[]> = computed(() => state.Bookmark?.defaultSelectedColumns || [])
+const isViewStateInitialized: ComputedRef<boolean> = computed(() => state.Bookmark?.isViewStateInitialized || false)
 
 const detailedChanges: ComputedRef<DetailedChange[]> = computed(() => {
   if (props.currentBookmark) {
