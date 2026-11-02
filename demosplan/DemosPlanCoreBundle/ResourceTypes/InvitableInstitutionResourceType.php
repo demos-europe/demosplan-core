@@ -12,10 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
-use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use demosplan\DemosPlanCoreBundle\Api\InvitableInstitution\AccessChecker;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -37,6 +34,7 @@ use EDT\Wrapping\PropertyBehavior\Relationship\ToMany\CallbackToManyRelationship
 final class InvitableInstitutionResourceType extends DplanResourceType
 {
     public function __construct(
+        private readonly AccessChecker $accessChecker,
         private readonly CustomFieldValueCreator $customFieldValueCreator,
     ) {
     }
@@ -58,14 +56,12 @@ final class InvitableInstitutionResourceType extends DplanResourceType
 
     public function isGetAllowed(): bool
     {
-        return $this->currentUser->hasPermission('feature_institution_tag_assign')
-            || $this->currentUser->hasPermission('feature_institution_tag_read');
+        return $this->accessChecker->isAvailable();
     }
 
     public function isListAllowed(): bool
     {
-        return $this->currentUser->hasPermission('feature_institution_tag_assign')
-            || $this->currentUser->hasPermission('feature_institution_tag_read');
+        return $this->accessChecker->isAvailable();
     }
 
     public function isUpdateAllowed(): bool
@@ -78,27 +74,7 @@ final class InvitableInstitutionResourceType extends DplanResourceType
 
     protected function getAccessConditions(): array
     {
-        $customer = $this->currentCustomerService->getCurrentCustomer();
-
-        return [
-            $this->conditionFactory->propertyHasValue(false, Paths::orga()->deleted),
-            $this->conditionFactory->propertyHasValue(
-                OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
-                Paths::orga()->statusInCustomers->status
-            ),
-            $this->conditionFactory->propertyHasValue(
-                RoleInterface::GPSORG,
-                Paths::orga()->users->roleInCustomers->role->groupCode
-            ),
-            $this->conditionFactory->propertyHasValue(
-                OrgaTypeInterface::PUBLIC_AGENCY,
-                Paths::orga()->statusInCustomers->orgaType->name
-            ),
-            $this->conditionFactory->propertyHasValue(
-                $customer->getId(),
-                Paths::orga()->statusInCustomers->customer->id
-            ),
-        ];
+        return $this->accessChecker->getAccessConditions();
     }
 
     protected function getProperties(): ResourceConfigBuilderInterface
@@ -109,9 +85,7 @@ final class InvitableInstitutionResourceType extends DplanResourceType
         // Add identifier property
         $configBuilder->id->setReadableByPath();
 
-        if ($this->currentUser->hasPermission('feature_institution_tag_assign')
-            || $this->currentUser->hasPermission('feature_institution_tag_read')
-        ) {
+        if ($this->accessChecker->isAvailable()) {
             $configBuilder->name->setReadableByPath(DefaultField::YES)->setFilterable();
             $configBuilder->createdDate->setReadableByPath(DefaultField::YES)->setSortable();
             $configBuilder->assignedTags
