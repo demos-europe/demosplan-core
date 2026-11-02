@@ -104,7 +104,7 @@ class ScheduledExportProcessor implements ProcessorInterface
         $scheduledExport->setDayOfMonth($data->dayOfMonth);
         $scheduledExport->setParameters($data->parameters);
         $scheduledExport->setParametersHash(ExportJobFingerprint::forScheduledExport($data->parameters));
-        $scheduledExport->setNextRunAt($this->runCalculator->firstRunAtOrAfter($scheduledExport, new DateTime()));
+        $scheduledExport->setNextRunAt($this->runCalculator->nextRunAfter($scheduledExport, new DateTime()));
 
         if (!$this->scheduledExportRepository->addObject($scheduledExport)) {
             throw new PersistResourceException('Could not persist the scheduled export.');
@@ -154,7 +154,7 @@ class ScheduledExportProcessor implements ProcessorInterface
         }
 
         if ($timingChanged) {
-            $scheduledExport->setNextRunAt($this->runCalculator->firstRunAtOrAfter($scheduledExport, new DateTime()));
+            $scheduledExport->setNextRunAt($this->runCalculator->nextRunAfter($scheduledExport, new DateTime()));
         }
 
         $scheduledExport->setModifiedDate(new DateTime());

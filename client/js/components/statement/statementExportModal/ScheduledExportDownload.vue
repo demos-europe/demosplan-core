@@ -116,6 +116,7 @@ const displayStatus = computed((): DisplayStatus => {
   if (isExpired.value) {
     return 'expired'
   }
+
   return props.job.status
 })
 
