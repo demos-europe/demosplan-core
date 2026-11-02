@@ -12,14 +12,12 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
-use DemosEurope\DemosplanAddon\EntityPath\Paths;
+use demosplan\DemosPlanCoreBundle\Api\InstitutionTag\AccessChecker;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory;
-use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\InstitutionTagCategoryResourceConfigBuilder;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
-use EDT\Querying\Contracts\PathException;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 
 /**
@@ -27,8 +25,10 @@ use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
  */
 class InstitutionTagCategoryResourceType extends DplanResourceType
 {
-    public function __construct(private readonly InstitutionTagRepository $institutionTagRepository)
-    {
+    public function __construct(
+        private readonly AccessChecker $accessChecker,
+        private readonly InstitutionTagRepository $institutionTagRepository,
+    ) {
     }
 
     public static function getName(): string
@@ -77,12 +77,7 @@ class InstitutionTagCategoryResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasAnyPermissions(
-            'feature_institution_tag_create',
-            'feature_institution_tag_read',
-            'feature_institution_tag_update',
-            'feature_institution_tag_delete',
-        );
+        return $this->accessChecker->isAvailable();
     }
 
     public function isUpdateAllowed(): bool
@@ -90,24 +85,9 @@ class InstitutionTagCategoryResourceType extends DplanResourceType
         return $this->currentUser->hasPermission('feature_institution_tag_update');
     }
 
-    /**
-     * @throws CustomerNotFoundException
-     * @throws PathException
-     */
     protected function getAccessConditions(): array
     {
-        if ($this->currentUser->hasPermission(
-            'feature_institution_tag_read',
-        )) {
-            $currentCustomerId = $this->currentCustomerService->getCurrentCustomer()->getId();
-
-            return [$this->conditionFactory->propertyHasValue(
-                $currentCustomerId,
-                Paths::institutionTagCategory()->customer->id),
-            ];
-        }
-
-        return [$this->conditionFactory->false()];
+        return $this->accessChecker->getCategoryAccessConditions();
     }
 
     public function isCreateAllowed(): bool

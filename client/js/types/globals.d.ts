@@ -30,9 +30,13 @@ declare global {
   const dplan: DplanGlobal
 
   function hasPermission(permission: string): boolean
-  function dpconfirm(message: string): boolean
+  function dpconfirm(message: string): Promise<boolean>
 
   const URL_PATH_PREFIX: string
+
+  interface Window {
+    dpconfirm(message: string): Promise<boolean>
+  }
 }
 
 /*
