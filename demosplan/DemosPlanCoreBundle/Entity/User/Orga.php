@@ -312,6 +312,13 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     #[ORM\Column(type: 'dplan.custom_fields_value', nullable: true)]
     private ?CustomFieldValuesList $customFields = null;
 
+    /**
+     * Explicitly chosen AI mode, NULL = no explicit choice. Validity is checked at runtime against
+     * the providers registered by addons, see AiModeResolver.
+     */
+    #[ORM\Column(name: 'ai_mode', type: 'string', length: 32, nullable: true)]
+    private ?string $aiMode = null;
+
     public function __construct()
     {
         $this->addressBookEntries = new ArrayCollection();
@@ -1432,5 +1439,17 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     public function setCustomFields(?CustomFieldValuesList $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    public function getAiMode(): ?string
+    {
+        return $this->aiMode;
+    }
+
+    public function setAiMode(?string $aiMode): self
+    {
+        $this->aiMode = $aiMode;
+
+        return $this;
     }
 }

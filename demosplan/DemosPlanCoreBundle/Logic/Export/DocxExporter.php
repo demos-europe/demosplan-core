@@ -535,11 +535,11 @@ class DocxExporter
      * @param array  $item
      * @param bool   $anonymous
      * @param string $exportType
-     * @param array  $renderOptions {
-     *                              Number statements: bool $numberStatements,
-     *                              Statement number: int $statementNumber,
-     *                              Include metadata: bool $includeStatementMetadataRow,
-     *                              }
+     * @param array  $renderOptions   {
+     *                                Number statements: bool $numberStatements,
+     *                                Statement number: int $statementNumber,
+     *                                Include metadata: bool $includeStatementMetadataRow,
+     *                                }
      *
      * @throws Exception
      */
@@ -1631,12 +1631,13 @@ class DocxExporter
         bool $numberStatements,
         string $templateName,
         int $depth = 0,
-    ) {
+        int $statementNumber = 1,
+    ): int {
         foreach ($groupStructure->getSubgroups() as $subgroup) {
             // show subgroup title only if it has any entries
             if (0 < $subgroup->getTotal()) {
                 $section->addTitle($subgroup->getTitle(), $depth + 2);
-                $this->renderStatementsInGroup(
+                $statementNumber = $this->renderStatementsInGroup(
                     $subgroup,
                     $section,
                     $styles,
@@ -1644,11 +1645,11 @@ class DocxExporter
                     $anonym,
                     $numberStatements,
                     $templateName,
-                    $depth + 1
+                    $depth + 1,
+                    $statementNumber
                 );
             }
         }
-        $statementNumber = 1;
         foreach ($groupStructure->getEntries() as $entry) {
             $assessmentTable = $section->addTable('assessmentTable');
             $assessmentTable->addRow(100, $this->firstRowStyle);
@@ -1670,11 +1671,14 @@ class DocxExporter
                 $statementNumber,
                 $numberStatements
             );
+            ++$statementNumber;
         }
         // add an empty line after the table containing statements
         if (0 !== (is_countable($groupStructure->getEntries()) ? count($groupStructure->getEntries()) : 0)) {
             $section->addTextBreak();
         }
+
+        return $statementNumber;
     }
 
     /**

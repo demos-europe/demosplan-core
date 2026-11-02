@@ -28,7 +28,9 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\ORM\Exception\ORMException;
 use Doctrine\ORM\OptimisticLockException;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
+#[AsAlias(SegmentServiceInterface::class)]
 class SegmentService extends CoreService implements SegmentServiceInterface
 {
     public function __construct(

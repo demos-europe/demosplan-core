@@ -38,6 +38,7 @@ use Exception;
 use InvalidArgumentException;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\Security\Core\Exception\SessionUnavailableException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -48,6 +49,8 @@ use function is_array;
 /**
  * Zentrale Berechtigungssteuerung fuer Funktionen.
  */
+#[AsAlias(PermissionsInterface::class)]
+#[AsAlias(PermissionEvaluatorInterface::class)]
 class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
 {
     final public const PERMISSIONS_YML = 'permissions.yml';

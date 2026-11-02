@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Segment\Export;
 
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
+use demosplan\DemosPlanCoreBundle\Api\StatementSegment\Filter\CustomFieldFilter;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
@@ -19,18 +21,22 @@ use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use demosplan\DemosPlanCoreBundle\Repository\UserRepository;
 use demosplan\DemosPlanCoreBundle\Repository\Workflow\PlaceRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldExportColumnKeyCodec;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldProvider;
 use demosplan\DemosPlanCoreBundle\ValueObject\SegmentExport\SegmentExportInfo;
-use EDT\JsonApi\RequestHandling\UrlParameter;
+use Symfony\Component\HttpFoundation\HeaderUtils;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SegmentExportInfoExtractor
 {
-    private const TAG_FILTER_PARAM = 'tags';
-    private const ASSIGNEE_FILTER_PARAM = 'assignee';
-    private const PLACE_FILTER_PARAM = 'place';
+    private const TAG_FILTER_PARAM = 'tags.id';
+    private const ASSIGNEE_FILTER_PARAM = 'assignee.id';
+    private const ASSIGNEE_OR_UNASSIGNED_FILTER_PARAM = 'assigneeOrUnassigned';
+    private const PLACE_FILTER_PARAM = 'place.id';
+    private const CUSTOM_FIELD_FILTER_PARAM = 'customField';
     private const SEARCH_PARAM = 'search';
-    private const SELECTED_SEGMENT_IDS_PARAM = 'selectedSegments';
+    private const SELECTED_SEGMENT_IDS_PARAM = 'id';
     private const SELECTED_COLUMNS_PARAM = 'columns';
     private const TAG_IDS_KEY = 'tagIds';
     private const ASSIGNEE_IDS_KEY = 'assigneeIds';
@@ -46,6 +52,8 @@ class SegmentExportInfoExtractor
     ];
 
     public function __construct(
+        protected readonly CustomFieldProvider $customFieldProvider,
+        protected readonly PermissionsInterface $permissions,
         protected readonly PlaceRepository $placeRepository,
         protected readonly RequestStack $requestStack,
         protected readonly TagRepository $tagRepository,
@@ -63,8 +71,8 @@ class SegmentExportInfoExtractor
             explode(',', $request->query->get(self::SELECTED_COLUMNS_PARAM))
         );
         $selectedCustomFieldIds = CustomFieldExportColumnKeyCodec::extractIds($selectedColumnKeys);
-        $filter = $request->query->all(UrlParameter::FILTER);
-        $isManualSelection = array_key_exists(self::SELECTED_SEGMENT_IDS_PARAM, $filter);
+        $filter = $this->getFilterParameters($request);
+        $isManualSelection = $request->query->has(self::SELECTED_SEGMENT_IDS_PARAM);
 
         $filterIds = $this->extractFilterIdsByPath($filter);
         /** @var Tag[] $tagEntities */
@@ -85,7 +93,8 @@ class SegmentExportInfoExtractor
             $this->nullIfEmpty($placeNames),
             $this->nullIfEmpty($selectedColumnKeys),
             $this->nullIfEmpty($selectedCustomFieldIds),
-            $isManualSelection
+            $isManualSelection,
+            $this->nullIfEmpty($this->getCustomFieldFilterLabels($filter))
         );
     }
 
@@ -111,22 +120,65 @@ class SegmentExportInfoExtractor
 
     private function extractFilterIdsByPath(array $filter): array
     {
-        $filterIds = [self::TAG_IDS_KEY => [], self::ASSIGNEE_IDS_KEY => [], self::PLACE_IDS_KEY => []];
-        $pathToKey = [
-            self::TAG_FILTER_PARAM      => self::TAG_IDS_KEY,
-            self::ASSIGNEE_FILTER_PARAM => self::ASSIGNEE_IDS_KEY,
-            self::PLACE_FILTER_PARAM    => self::PLACE_IDS_KEY,
+        return [
+            self::TAG_IDS_KEY      => $this->getIds($filter, self::TAG_FILTER_PARAM),
+            self::ASSIGNEE_IDS_KEY => $this->getIds($filter, self::ASSIGNEE_FILTER_PARAM, self::ASSIGNEE_OR_UNASSIGNED_FILTER_PARAM),
+            self::PLACE_IDS_KEY    => $this->getIds($filter, self::PLACE_FILTER_PARAM),
         ];
+    }
 
-        foreach ($filter as $entry) {
-            $path = $entry['condition']['path'] ?? null;
-            $key = $pathToKey[$path] ?? null;
+    /**
+     * Empty values are left out, `assigneeOrUnassigned[]=` stands for "unassigned".
+     *
+     * @return list<string>
+     */
+    private function getIds(array $filter, string ...$parameters): array
+    {
+        return collect($parameters)
+            ->flatMap(static fn (string $parameter): array => (array) ($filter[$parameter] ?? []))
+            ->filter(static fn (mixed $id): bool => is_string($id) && '' !== $id)
+            ->values()
+            ->all();
+    }
 
-            if (null !== $key && isset($entry['condition']['value'])) {
-                $filterIds[$key][] = $entry['condition']['value'];
+    /**
+     * Without the permission the list ignores the custom field filter, so the export is not filtered by it.
+     * Fields and options that no longer exist are left out.
+     *
+     * @return list<array{0: string, 1: list<string>}> Field name and selected option labels per custom field
+     */
+    private function getCustomFieldFilterLabels(array $filter): array
+    {
+        $selection = $filter[self::CUSTOM_FIELD_FILTER_PARAM] ?? [];
+        if (!is_array($selection) || !$this->permissions->hasPermission(CustomFieldFilter::PERMISSION)) {
+            return [];
+        }
+
+        $customFields = $this->customFieldProvider->getCustomFieldsByIds(array_map('strval', array_keys($selection)));
+        $labels = [];
+        foreach ($customFields as $fieldId => $customField) {
+            $optionLabels = collect((array) $selection[$fieldId])
+                ->map(static fn (mixed $optionId): ?string => is_string($optionId)
+                    ? $customField->getCustomOptionValueById($optionId)?->getLabel()
+                    : null)
+                ->filter()
+                ->values()
+                ->all();
+            if ([] !== $optionLabels) {
+                $labels[] = [$customField->getName(), $optionLabels];
             }
         }
 
-        return $filterIds;
+        return $labels;
+    }
+
+    /**
+     * The filter parameters of the segment list by name. PHP replaces the dots in the names of
+     * parameters like `tags.id` when it parses a request, so `$request->query` would only know them
+     * as `tags_id`. HeaderUtils parses the raw query string and keeps the dots.
+     */
+    private function getFilterParameters(Request $request): array
+    {
+        return HeaderUtils::parseQuery((string) $request->server->get('QUERY_STRING', ''));
     }
 }

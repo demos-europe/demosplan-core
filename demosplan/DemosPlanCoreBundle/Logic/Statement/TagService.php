@@ -33,8 +33,10 @@ use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use EDT\Querying\Contracts\PathException;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
+#[AsAlias(TagServiceInterface::class)]
 class TagService implements TagServiceInterface
 {
     public function __construct(

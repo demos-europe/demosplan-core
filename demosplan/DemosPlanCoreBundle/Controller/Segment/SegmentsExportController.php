@@ -416,7 +416,7 @@ class SegmentsExportController extends BaseController
         string $procedureId,
     ): StreamedResponse {
         $segmentExportInfo = $segmentExportInfoExtractor->extract();
-        $segmentEntities = $segmentExportFilter->filter();
+        $segmentEntities = $segmentExportFilter->filter($procedureId);
 
         $response = new StreamedResponse(
             function () use ($segmentEntities, $exporter, $segmentExportInfo) {
@@ -462,7 +462,7 @@ class SegmentsExportController extends BaseController
         string $procedureId,
     ): StreamedResponse {
         $segmentExportInfo = $segmentExportInfoExtractor->extract();
-        $segmentEntities = $segmentExportFilter->filter();
+        $segmentEntities = $segmentExportFilter->filter($procedureId);
 
         $response = new StreamedResponse(
             static function () use ($segmentEntities, $exporter, $segmentExportInfo) {
