@@ -351,15 +351,10 @@
           </dp-flyout>
         </template>
         <template v-slot:customFieldsCollection="{ id }">
-          <custom-fields-list
+          <statement-custom-field-chips
             :definition-source-id="procedureId"
             :resource-id="id"
-            batch-filter-path="procedure.id"
-            resource-type="Statement"
-            source-entity="PROCEDURE"
-            target-entity="STATEMENT"
-          >
-          </custom-fields-list>
+          />
         </template>
         <template v-slot:expandedContent="{ text, fullText, id }">
           <!-- Statement meta data -->
@@ -485,13 +480,13 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { inlineImageAnchors, stripInlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import CustomSearchStatements from './CustomSearchStatements'
 import { defineAsyncComponent } from 'vue'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { pollExportJob } from '@DpJs/lib/shared/persistentExportPoll'
+import StatementCustomFieldChips from './StatementCustomFieldChips'
 import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
 import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
@@ -501,7 +496,6 @@ export default {
 
   components: {
     CopyStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal')),
-    CustomFieldsList,
     CustomSearchStatements,
     DpBulkEditHeader,
     DpButton,
@@ -515,6 +509,7 @@ export default {
     DpSelect,
     DpStickyElement,
     DpMoveStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal')),
+    StatementCustomFieldChips,
     StatementExportModal,
     StatementMetaData,
     StatusBadge,
