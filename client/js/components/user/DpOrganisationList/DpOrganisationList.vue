@@ -988,9 +988,6 @@ export default {
     },
 
     /**
-     * @param {Boolean} status  Select or deselect every organisation on the current page
-     */
-    /**
      * @param {Boolean} status  Select or deselect every organisation matching the current filter
      */
     toggleAll (status) {
