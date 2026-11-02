@@ -229,6 +229,34 @@ describe('DpOrganisationList', () => {
     expect(wrapper.vm.selectedCount).toBe(0)
   })
 
+  it('deletes at most five organisations at a time', async () => {
+    const manyOrganisations = Array.from({ length: 12 }, (_, idx) => ({
+      id: `orga-${idx}`,
+      type: 'Orga',
+      attributes: { name: `Orga ${idx}`, twoFactorRequired: false },
+    }))
+
+    mockDpApiGet.mockImplementation(apiOrganisations(manyOrganisations))
+    const wrapper = mountList(12)
+    let running = 0
+    let maxRunning = 0
+
+    orgaModule.actions.delete.mockImplementation(async () => {
+      running++
+      maxRunning = Math.max(maxRunning, running)
+      await Promise.resolve()
+      running--
+    })
+
+    await flushPromises()
+    wrapper.vm.toggleAll(true)
+
+    await wrapper.vm.deleteItems()
+
+    expect(orgaModule.actions.delete).toHaveBeenCalledTimes(12)
+    expect(maxRunning).toBe(5)
+  })
+
   it('shows the selection card only once something is selected', async () => {
     const wrapper = mountList()
 

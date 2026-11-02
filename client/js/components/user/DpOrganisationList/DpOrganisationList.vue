@@ -112,7 +112,7 @@
         <template v-slot:actions>
           <dp-button
             v-if="hasPermission('feature_orga_delete')"
-            :disabled="isUpdatingTwoFactor || isLoadingSelectionList"
+            :disabled="isDeleting || isUpdatingTwoFactor || isLoadingSelectionList"
             :text="Translator.trans('delete') + ` (${selectedCount})`"
             class="p-1"
             color="primary"
@@ -122,7 +122,7 @@
           />
           <dp-button
             v-if="canEditTwoFactor"
-            :disabled="isUpdatingTwoFactor || isLoadingSelectionList"
+            :disabled="isDeleting || isUpdatingTwoFactor || isLoadingSelectionList"
             :text="Translator.trans('2fa.required.change') + ` (${selectedCount})`"
             class="p-1"
             color="primary"
@@ -277,6 +277,9 @@ import SelectionCard from '@DpJs/components/shared/SelectionCard'
 
 // Upper limit the API accepts for page[size]
 const ALL_MATCHING_PAGE_SIZE = 1000
+
+// The API answers too many parallel requests with 429
+const DELETE_BATCH_SIZE = 5
 
 const orgaFieldsArrays = {
   Branding: [
@@ -460,6 +463,7 @@ export default {
       isInitialLoad: true,
       isLoading: true,
       isLoadingSelectionList: false,
+      isDeleting: false,
       isUpdatingTwoFactor: false,
       noResults: false,
       pendingOrgs: {},
@@ -674,23 +678,31 @@ export default {
     },
 
     async deleteItems () {
-      if (!this.isOrganisationSelected || dpconfirm(Translator.trans('check.organisations.delete', { count: this.selectedCount })) === false) {
+      if (this.isDeleting || !this.isOrganisationSelected || dpconfirm(Translator.trans('check.organisations.delete', { count: this.selectedCount })) === false) {
         return
       }
 
-      let ids
+      this.isDeleting = true
 
       try {
-        ids = await this.resolveSelectedIds()
+        const ids = await this.resolveSelectedIds()
+
+        // Delete in batches of 5 requests
+        for (let i = 0; i < ids.length; i += DELETE_BATCH_SIZE) {
+          const currentBatchRequests = ids
+            .slice(i, i + DELETE_BATCH_SIZE)
+            .map(id => this.deleteOrganisation(id))
+
+          await Promise.allSettled(currentBatchRequests)
+        }
       } catch (error) {
-        console.error('Failed to resolve the selected organisations for delete:', error)
+        console.error('Bulk delete of organisations failed:', error)
         dplan.notify.notify('error', Translator.trans('error.api.generic'))
 
         return
+      } finally {
+        this.isDeleting = false
       }
-
-      // Confirm notification for organisations is done in BE
-      await Promise.allSettled(ids.map(id => this.deleteOrganisation(id)))
 
       this.resetSelection()
       this.fetchPendingAndAllOrganisations()
