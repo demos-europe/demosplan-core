@@ -1383,13 +1383,10 @@ class DraftStatementService
      * Ruft die unveränderten freigegebenen Stellungnahmen eines Nutzers ab.
      *
      * @param string      $procedureId
-     * @param array       $filters
      * @param string      $search
      * @param array|null  $sort            deprecated
      * @param User        $user
      * @param string|null $manualSortScope
-     *
-     * @return array DraftStatementVersionList
      *
      * @throws Exception
      */

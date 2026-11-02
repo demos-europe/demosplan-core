@@ -77,6 +77,20 @@
         data-cy="listStatements:export"
         @export="showHintAndDoExport"
       />
+      <copy-statement-modal
+        v-if="hasPermission('feature_statement_copy_to_procedure') && copyStatementModal.show"
+        :accessible-procedures="accessibleProcedures"
+        :current-user-id="currentUserId"
+        :inaccessible-procedures="inaccessibleProcedures"
+        :procedure-id="procedureId"
+      />
+      <dp-move-statement-modal
+        v-if="hasPermission('feature_statement_move_to_procedure') && moveStatementModal.show"
+        :accessible-procedures="accessibleProcedures"
+        :current-user-id="currentUserId"
+        :inaccessible-procedures="inaccessibleProcedures"
+        :procedure-id="procedureId"
+      />
       <div
         v-if="items.length > 0"
         class="flex mt-2"
@@ -136,7 +150,7 @@
         @items-toggled="handleToggleItem"
         @select-all="handleSelectAll"
       >
-        <template v-slot:externId="{ assignee = {}, externId, id: statementId, isCluster, synchronized }">
+        <template v-slot:externId="{ assignee = {}, externId, id: statementId, isCluster, isPlaceholder, synchronized }">
           <dp-icon
             v-if="isCluster"
             class="mr-1 text-interactive"
@@ -148,7 +162,7 @@
             v-text="externId"
           />
           <dp-claim
-            v-if="!synchronized && hasPermission('feature_statement_claim')"
+            v-if="!synchronized && !isPlaceholder && hasPermission('feature_statement_claim')"
             :assigned-id="assignee.id || ''"
             :assigned-name="assignee.name || ''"
             :assigned-organisation="assignee.orgaName || ''"
@@ -163,11 +177,15 @@
             authorName,
             isSubmittedByCitizen,
             initialOrganisationName,
+            isPlaceholder,
             submitDate,
             submitName
           }"
         >
-          <ul class="o-list max-w-12">
+          <ul
+            v-if="!isPlaceholder"
+            class="o-list max-w-12"
+          >
             <li
               v-if="authorName !== '' || submitName !== ''"
               class="o-list__item o-hellip--nowrap"
@@ -185,8 +203,9 @@
             </li>
           </ul>
         </template>
-        <template v-slot:status="{ status }">
+        <template v-slot:status="{ isPlaceholder, status }">
           <status-badge
+            v-if="!isPlaceholder"
             :status="status"
             class="mt-0.5"
           />
@@ -200,14 +219,43 @@
             />
           </div>
         </template>
-        <template v-slot:text="{ text }">
+        <template v-slot:text="{ isPlaceholder, movedStatementId, movedToProcedureId, movedToProcedureName, text }">
+          <p v-if="isPlaceholder">
+            {{ Translator.trans('movedTo') }}:
+            <a
+              v-if="isMovedToAccessibleProcedure(movedToProcedureId)"
+              :href="Routing.generate('dplan_statement_segments_list', { statementId: movedStatementId, procedureId: movedToProcedureId })"
+            >
+              {{ movedToProcedureName }}
+            </a>
+            <template v-else>
+              {{ movedToProcedureName }} ({{ Translator.trans('inaccessible') }})
+            </template>
+          </p>
           <div
+            v-else
             v-cleanhtml="renderStatementText(text)"
             class="line-clamp-3 c-styled-html"
           />
         </template>
-        <template v-slot:flyout="{ assignee, id, originalId, originalPdf, segmentsCount, synchronized }">
-          <dp-flyout data-cy="listStatements:statementActionsMenu">
+        <template v-slot:flyout="{ assignee, id, isCluster, isPlaceholder, movedStatementId, movedToProcedureId, originalId, originalPdf, segmentsCount, synchronized }">
+          <dp-flyout
+            v-if="isPlaceholder && isMovedToAccessibleProcedure(movedToProcedureId)"
+            data-cy="listStatements:placeholderActionsMenu"
+          >
+            <a
+              :href="Routing.generate('dplan_statement_segments_list', { statementId: movedStatementId, procedureId: movedToProcedureId })"
+              class="block leading-[2] whitespace-nowrap"
+              data-cy="listStatements:movedStatementLink"
+              rel="noopener"
+            >
+              {{ Translator.trans('statement.moved.link') }}
+            </a>
+          </dp-flyout>
+          <dp-flyout
+            v-else-if="!isPlaceholder"
+            data-cy="listStatements:statementActionsMenu"
+          >
             <button
               v-if="hasPermission('feature_segmentation_start')"
               :class="{
@@ -251,6 +299,42 @@
             >
               {{ Translator.trans('statement.original') }}
             </a>
+            <span
+              v-if="hasPermission('feature_statement_copy_to_procedure')"
+              v-tooltip="isCluster || (segmentsCount > 0 && segmentsCount !== '-') ? Translator.trans('statement.copy.disabled.segmented') : ''"
+              class="block"
+            >
+              <button
+                :class="{
+                  'is-disabled': isCluster || (segmentsCount > 0 && segmentsCount !== '-'),
+                  'hover:underline active:underline': !isCluster && (segmentsCount <= 0 || segmentsCount === '-') }"
+                :disabled="isCluster || (segmentsCount > 0 && segmentsCount !== '-')"
+                class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
+                data-cy="listStatements:statementCopy"
+                type="button"
+                @click="openCopyStatementModal(id)"
+              >
+                {{ Translator.trans('copy.to.procedure') }}
+              </button>
+            </span>
+            <span
+              v-if="hasPermission('feature_statement_move_to_procedure')"
+              v-tooltip="isCluster || (segmentsCount > 0 && segmentsCount !== '-') ? Translator.trans('statement.move.disabled.segmented') : ''"
+              class="block"
+            >
+              <button
+                :class="{
+                  'is-disabled': isCluster || (segmentsCount > 0 && segmentsCount !== '-'),
+                  'hover:underline active:underline': !isCluster && (segmentsCount <= 0 || segmentsCount === '-') }"
+                :disabled="isCluster || (segmentsCount > 0 && segmentsCount !== '-')"
+                class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
+                data-cy="listStatements:statementMove"
+                type="button"
+                @click="openMoveStatementModal(id)"
+              >
+                {{ Translator.trans('move.to.procedure') }}
+              </button>
+            </span>
             <button
               v-if="hasPermission('feature_statement_delete')"
               :class="{
@@ -384,12 +468,14 @@ import {
   DpSelect,
   DpStickyElement,
   formatDate,
+  hasOwnProp,
   sessionStorageMixin,
   tableSelectAllItems,
 } from '@demos-europe/demosplan-ui'
 import { inlineImageAnchors, stripInlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
-import { mapActions, mapMutations, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import CustomSearchStatements from './CustomSearchStatements'
+import { defineAsyncComponent } from 'vue'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
@@ -402,6 +488,7 @@ export default {
   name: 'ListStatements',
 
   components: {
+    CopyStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal')),
     CustomSearchStatements,
     DpBulkEditHeader,
     DpButton,
@@ -414,6 +501,7 @@ export default {
     DpPager,
     DpSelect,
     DpStickyElement,
+    DpMoveStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal')),
     StatementExportModal,
     StatementMetaData,
     StatusBadge,
@@ -426,9 +514,21 @@ export default {
   mixins: [paginationMixin, sessionStorageMixin, tableSelectAllItems],
 
   props: {
+    accessibleProcedures: {
+      type: Object,
+      required: false,
+      default: () => ({}),
+    },
+
     currentUserId: {
       type: String,
       required: true,
+    },
+
+    inaccessibleProcedures: {
+      type: Object,
+      required: false,
+      default: () => ({}),
     },
 
     /**
@@ -510,6 +610,11 @@ export default {
   },
 
   computed: {
+    ...mapGetters('AssessmentTable', [
+      'copyStatementModal',
+      'moveStatementModal',
+    ]),
+
     ...mapState('AssignableUser', {
       assignableUsersObject: 'items',
     }),
@@ -612,8 +717,8 @@ export default {
             assignee: this.getAssignee(statement),
             id: statement.id,
             segmentsCount: segmentsCount || '-',
-            // Lock selection for synchronized statements, statements already split into segments, and groups.
-            lockedForSelection: Boolean(statement.attributes.synchronized) || segmentsCount > 0 || Boolean(statement.attributes.isCluster),
+            // Lock selection for synchronized statements, statements already split into segments, groups, and moved-away placeholders.
+            lockedForSelection: Boolean(statement.attributes.synchronized) || segmentsCount > 0 || Boolean(statement.attributes.isCluster) || Boolean(statement.attributes.isPlaceholder),
             // Per-row tooltip for the locked checkbox, specific to the reason the statement is locked.
             lockedForSelectionMessage: this.getLockMessage(statement),
             originalPdf,
@@ -636,6 +741,10 @@ export default {
       fetchStatements: 'list',
       restoreStatementAction: 'restoreFromInitial',
     }),
+
+    ...mapMutations('AssessmentTable', [
+      'setModalProperty',
+    ]),
 
     ...mapMutations('Statement', {
       setStatement: 'setItem',
@@ -959,7 +1068,11 @@ export default {
         'internId',
         'isCitizen',
         'isCluster',
+        'isPlaceholder',
         'memo',
+        'movedStatementId',
+        'movedToProcedureId',
+        'movedToProcedureName',
         'name',
         'originalId',
         'paragraphTitle',
@@ -985,6 +1098,7 @@ export default {
       }
 
       this.fetchStatements({
+        includePlaceholders: 1,
         page: {
           number: page,
           size: this.pagination.perPage,
@@ -1042,7 +1156,7 @@ export default {
      * Returns the tooltip message for a locked checkbox, specific to why the statement cannot be selected.
      */
     getLockMessage (statement) {
-      const { isCluster, segmentsCount, synchronized } = statement.attributes
+      const { isCluster, isPlaceholder, segmentsCount, synchronized } = statement.attributes
 
       if (synchronized) {
         return Translator.trans('item.lockedForSelection.sharedStatement')
@@ -1050,6 +1164,10 @@ export default {
 
       if (isCluster) {
         return Translator.trans('item.lockedForSelection.cluster')
+      }
+
+      if (isPlaceholder) {
+        return Translator.trans('item.lockedForSelection.placeholder')
       }
 
       if (segmentsCount > 0) {
@@ -1261,6 +1379,23 @@ export default {
         .catch(() => dplan.notify.error(Translator.trans('error.export')))
     },
 
+    handleMoveToProcedure () {
+      // Reload to show the placeholder row that replaces the moved statement
+      this.getItemsByPage(this.pagination.currentPage)
+    },
+
+    isMovedToAccessibleProcedure (procedureId) {
+      return hasOwnProp(this.accessibleProcedures, procedureId)
+    },
+
+    openCopyStatementModal (id) {
+      this.setModalProperty({ prop: 'copyStatementModal', val: { show: true, statementId: id } })
+    },
+
+    openMoveStatementModal (id) {
+      this.setModalProperty({ prop: 'moveStatementModal', val: { show: true, statementId: id } })
+    },
+
     storeNavigationContextInLocalStorage () {
       lscache.set(`${this.procedureId}:navigation:source`, 'StatementsList')
     },
@@ -1315,12 +1450,18 @@ export default {
     },
   },
 
+  beforeUnmount () {
+    this.$root.$off('statement:moveToProcedure', this.handleMoveToProcedure)
+  },
+
   mounted () {
     /*
      * Defer to after the whole tree (incl. the root app) is mounted, since dplan.notify is only
      * set in the root's mounted hook, which runs after this child's mounted.
      */
     this.$nextTick(() => this.notifyClusterResolved())
+
+    this.$root.$on('statement:moveToProcedure', this.handleMoveToProcedure)
 
     if (lscache.get(`${this.procedureId}:navigation:source`)) {
       lscache.remove(`${this.procedureId}:navigation:source`)

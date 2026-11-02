@@ -345,7 +345,7 @@ class StatementImportController extends BaseController
         );
         $route = 'dplan_procedure_statement_list';
         // Change redirect target if data input user
-        if ($permissions->hasPermission('feature_statement_data_input_orga')) {
+        if ($permissions->hasPermission('area_statement_data_input_orga')) {
             $route = 'DemosPlan_statement_orga_list';
         }
 

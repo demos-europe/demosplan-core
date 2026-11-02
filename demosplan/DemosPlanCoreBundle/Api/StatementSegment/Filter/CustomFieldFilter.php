@@ -26,7 +26,7 @@ use Doctrine\ORM\QueryBuilder;
 final class CustomFieldFilter implements FilterInterface
 {
     private const PARAMETER_NAME = 'customField';
-    private const PERMISSION = 'field_segments_custom_fields';
+    public const PERMISSION = 'field_segments_custom_fields';
 
     public function __construct(private readonly PermissionsInterface $permissions)
     {

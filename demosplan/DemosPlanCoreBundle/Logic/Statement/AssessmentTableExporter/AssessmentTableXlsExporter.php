@@ -233,6 +233,10 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             [$this->translator->trans('segment.tags'), $this->formatList($segmentExportInfo->getTagNames())],
             [$this->translator->trans('assignee'), $this->formatList($segmentExportInfo->getAssigneeNames())],
             [$this->translator->trans('workflow.place'), $this->formatList($segmentExportInfo->getPlaceNames())],
+            ...array_map(
+                fn (array $field): array => [$field[0], $this->formatList($field[1])],
+                $segmentExportInfo->getCustomFieldFilterLabels() ?? []
+            ),
             [$this->translator->trans('export.columns.selected'), implode(' / ', array_column($columnsDefinition, 'title'))],
             [$this->translator->trans('export.selection.manual'), $segmentExportInfo->getIsManualSelection() ? 'ja' : 'nein'],
             [$this->translator->trans('search.term'), $segmentExportInfo->getSearchPhrase() ?? ''],
@@ -598,11 +602,11 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
     /**
      * Adds a definition for a column depending on the given permission.
      *
-     * @param array       $columnsDefinition array of resulting column-definitions
-     * @param string      $key               key to get value from statement array (elasticsearch result) later on
-     * @param string|null $permission        permission to determine if column will be added
-     * @param string|null $columnTitle       translation-key used as title for column in resulting document
-     * @param int         $width             width of column in resulting document
+     * @param array  $columnsDefinition array of resulting column-definitions
+     * @param string $key               key to get value from statement array (elasticsearch result) later on
+     * @param string $permission        permission to determine if column will be added
+     * @param string $columnTitle       translation-key used as title for column in resulting document
+     * @param int    $width             width of column in resulting document
      */
     private function addColumnDefinition(
         array &$columnsDefinition,

@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateUsage;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\BoilerplateTagSubstitutionService;
 use Exception;
 
 class BoilerplateUsageRepository extends CoreRepository
@@ -129,8 +130,10 @@ class BoilerplateUsageRepository extends CoreRepository
     }
 
     /**
-     * All usages of the given boilerplate whose Statement/Segment still exists,
-     * ordered by its externId (the "M-ID"). The Statement/Segment and its assignee
+     * All usages of the given boilerplate whose Statement/Segment still exists and whose
+     * recommendation actually references it by tag, ordered by its externId (the "M-ID").
+     * Usages recorded before DPLAN-18271 (a pasted copy, no tag) are left out: nothing
+     * links them to the boilerplate, so a text change never reaches them. The Statement/Segment and its assignee
      * are fetch-joined because the display builds a row from each one; the place is
      * not, because the association lives on the Segment subclass and cannot be
      * joined through the Statement-typed relation.
@@ -147,7 +150,9 @@ class BoilerplateUsageRepository extends CoreRepository
             ->addSelect('statementOrSegment', 'assignee')
             ->where('boilerplateUsage.boilerplate = :boilerplateId')
             ->andWhere('statementOrSegment.deleted = false')
+            ->andWhere('statementOrSegment.recommendation LIKE :tagPattern')
             ->setParameter('boilerplateId', $boilerplateId)
+            ->setParameter('tagPattern', $this->getTagPattern($boilerplateId))
             ->orderBy('statementOrSegment.externId', 'ASC')
             ->getQuery()
             ->getResult();
@@ -155,6 +160,33 @@ class BoilerplateUsageRepository extends CoreRepository
         $this->loadPlaces($usages);
 
         return $usages;
+    }
+
+    /**
+     * Number of usages of the given boilerplate whose Statement/Segment still exists and
+     * references it by tag. Same filter as {@see getUsagesForBoilerplate()}, without loading the rows.
+     */
+    public function countUsagesForBoilerplate(string $boilerplateId): int
+    {
+        return (int) $this->createQueryBuilder('boilerplateUsage')
+            ->select('COUNT(boilerplateUsage.id)')
+            ->join('boilerplateUsage.statementOrSegment', 'statementOrSegment')
+            ->where('boilerplateUsage.boilerplate = :boilerplateId')
+            ->andWhere('statementOrSegment.deleted = false')
+            ->andWhere('statementOrSegment.recommendation LIKE :tagPattern')
+            ->setParameter('boilerplateId', $boilerplateId)
+            ->setParameter('tagPattern', $this->getTagPattern($boilerplateId))
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * LIKE pattern matching a recommendation that contains the reference tag of the given
+     * boilerplate. The id is a UUID, so the quoted attribute value matches exactly.
+     */
+    private function getTagPattern(string $boilerplateId): string
+    {
+        return sprintf('%%%s="%s"%%', BoilerplateTagSubstitutionService::ATTRIBUTE_NAME, $boilerplateId);
     }
 
     /**

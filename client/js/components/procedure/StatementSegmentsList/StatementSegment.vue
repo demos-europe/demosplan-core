@@ -1536,17 +1536,29 @@ export default {
 
       this.$parent.$parent.resetSlidebar()
 
-      this.toggleSlidebarContent({
-        prop: 'commentsList',
-        val: {
-          ...this.commentsList,
-          currentCommentText: '',
-          externId: this.segment.attributes.externId,
-          segmentId: this.segment.id,
-          show: true,
-        },
-      })
+      let draft = ''
+
+      try {
+        draft = sessionStorage.getItem(`commentDraft:${this.currentUserId}:${this.segment.id}`) ?? ''
+      } catch (err) {
+        console.error(err)
+      }
+
+      const commentsList = {
+        ...this.commentsList,
+        currentCommentText: '',
+        externId: this.segment.attributes.externId,
+        segmentId: this.segment.id,
+        show: true,
+      }
+
+      this.toggleSlidebarContent({ prop: 'commentsList', val: commentsList })
       this.toggleSlidebarContent({ prop: 'slidebar', val: { isOpen: true, segmentId: this.segment.id, showTab: 'comments' } })
+
+      // Set the draft after the reset was rendered, otherwise the editor never sees a value change
+      this.$nextTick(() => {
+        this.toggleSlidebarContent({ prop: 'commentsList', val: { ...commentsList, currentCommentText: draft } })
+      })
     },
 
     showMap () {

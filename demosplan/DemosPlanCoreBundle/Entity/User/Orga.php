@@ -1103,7 +1103,7 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     {
         $users = collect([]);
 
-        /** @var Department[] $departments */
+        /** @var IlluminateCollection<int, Department> $departments */
         $departments = $this->getDepartments();
         foreach ($departments as $department) {
             $users = $users->merge($department->getUsers());

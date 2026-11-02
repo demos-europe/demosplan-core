@@ -296,6 +296,18 @@ boilerplate.materialized.in.recommendation: "Der Textbaustein „{title}“ wurd
 boilerplate.none: "Kein Textbaustein"
 boilerplate.none.defined: "Keine Textbausteine definiert."
 boilerplate.none.generated: "Keine Textbausteine angelegt"
+boilerplate.usage.confirm.button: "Änderung übernehmen"
+boilerplate.usage.confirm.hint.after: "“ verwendet wird."
+boilerplate.usage.confirm.hint.before: |
+    {count, plural,
+        =1 { Die Änderung betrifft den Abschnitt, in dem der Textbaustein „ }
+        other { Die Änderung betrifft alle # Abschnitte, in denen der Textbaustein „ }
+    }
+boilerplate.usage.confirm.title: |
+    {count, plural,
+        =1 { Änderung für einen Abschnitt übernehmen? }
+        other { Änderung für # Abschnitte übernehmen? }
+    }
 boilerplate.usage.filter.locked: "Nur gesperrte Abschnitte anzeigen"
 boilerplate.usage.headline: "Verknüpfte Abschnitte ({count}):"
 boilerplate.usage.headline.locked: "Verknüpfte Abschnitte ({count}), davon {lockedCount} gesperrt:"
@@ -1781,6 +1793,7 @@ export.image.load.error: "Bild konnte nicht geladen werden"
 export.pageLayout: "Seitenlayout"
 export.landscape: "Querformat"
 export.landscape.fragments: "Querformat (mit Datensätzen)"
+export.landscape.prioritization_structure: "Querformat (mit Priorisierung und Gliederung)"
 export.newPagePerStatement: "Seitenumbruch nach jeder Stellungnahme einfügen"
 export.numbered_statements: "Nummeriert"
 export.options: "Exportoptionen"
@@ -1788,7 +1801,6 @@ export.pdf.anonymous: "PDF (anonymisiert)"
 export.pdf: "PDF"
 export.portrait: "Hochformat"
 export.portrait.fragments: "Hochformat (mit Datensätzen)"
-export.portrait.prioritization_structure: "Hochformat (mit Priorisierung und Gliederung)"
 export.potentialAreas: "Potenzialflächen"
 export.segments: "Abschnitte exportieren"
 export.segments.count: "{count, plural, one {# Abschnitt exportieren} other {# Abschnitte exportieren}}"
@@ -2233,6 +2245,7 @@ item.delete: "Element löschen"
 item.edit: "Element bearbeiten"
 item.lockedForSelection: "Element kann nicht ausgewählt werden"
 item.lockedForSelection.cluster: "Eine Gruppe kann nicht erneut gruppiert werden."
+item.lockedForSelection.placeholder: "Eine in ein anderes Verfahren verschobene Stellungnahme kann nicht ausgewählt werden."
 item.lockedForSelection.segmented: "Diese Stellungnahme kann nicht gruppiert werden, da sie bereits aufgeteilt wurde."
 item.lockedForSelection.sharedStatement: "Die Stellungnahme kann nicht ausgewählt oder bearbeitet werden, da sie bereits für den Vorhabenträger freigegeben wurde."
 items.marked.delete: "Markierte Elemente löschen"
@@ -3713,6 +3726,7 @@ statement.continue: "Weiter zur Stellungnahme..."
 statement.copy: "In Datensatz kopieren"
 statement.copy.fragments.not.claimed.by.current.user: "Die Stellungnahme {id} konnte nicht kopiert werden, da deren Datensätze Ihnen nicht alle zugewiesen sind."
 statement.copy.not.claimed.by.current.user: "Die Stellungnahme {id} konnte nicht kopiert werden, da sie Ihnen nicht zugewiesen ist."
+statement.copy.disabled.segmented: "Diese Stellungnahme kann nicht kopiert werden, da sie bereits aufgeteilt wurde."
 statement.copy.to.assessment.table.no.selection: "Sie haben keine Stellungnahme(n) ausgewählt"
 statement.copy.to.assessment.table.confirm: |
     {count, plural,
@@ -3866,6 +3880,7 @@ statement.moveto.procedure.description: "Beim Verschieben der Stellungnahme in e
 statement.moveto.procedure.description.foreignProcedures: "Wenn Sie die Stellungnahme in ein Verfahren verschieben, für das Sie nicht berechtigt sind, haben Sie <strong>keinen Zugriff</strong> mehr auf diese Stellungnahme."
 statement.moveto.procedure.target: "Zielverfahren"
 statement.moveto.procedure.fragments.not.claimed.warning: "Sie können diese Stellungnahme nicht verschieben, weil Datensätze der Stellungnahme anderen Nutzenden oder Fachbehörden zugewiesen sind."
+statement.move.disabled.segmented: "Diese Stellungnahme kann nicht verschoben werden, da sie bereits aufgeteilt wurde."
 statement.moved: "Die Stellungnahme wurde in das Verfahren „{name}“ verschoben."
 statement.moved.link: "Zur Stellungnahme im neuen Verfahren"
 statement.moved.inaccessible.foreign.procedure: "Stellungnahme in Verfahren ohne Zugriff"

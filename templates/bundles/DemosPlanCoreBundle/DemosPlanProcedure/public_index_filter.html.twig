@@ -74,7 +74,9 @@
             init-search-term="{{ templateVars.filters.search|default }}"
             :init-display-ars-filter-header="'{{ shouldDisplayArsFilterHeader|default(-1) }}' === '1'"
             search-results-header="{{ templateVars.searchResultsHeader|default }}"
-            orga-slug="{{ templateVars.orgaSlug|default }}">
+            orga-slug="{{ templateVars.orgaSlug|default }}"
+            :is-initial-list-filtered="{{ templateVars.defaultFiltersApplied|default(false) ? 'true' : 'false' }}"
+            :initial-procedure-count="{{ templateVars.list.procedurelist|default([])|length }}">
         </dp-search-procedure-map>
 
     </form>

@@ -69,6 +69,8 @@ class EntityContentChangeService
      */
     final public const BOILERPLATE_MATERIALIZED_CONTENT_CHANGE_TYPE = 'boilerplateMaterialized';
 
+    private const TIMEZONE = 'Europe/Berlin';
+
     /**
      * Mapping from classes to a list of properties, with each property mapping to a list of meta information.
      *
@@ -525,7 +527,7 @@ class EntityContentChangeService
             $contentChange,
             $this->determineChanger(false),
             $this->doctrine->getManager()->getClassMetadata(Segment::class)->getName(),
-            new DateTime('now', new DateTimeZone('Europe/Berlin')),
+            new DateTime('now', new DateTimeZone(self::TIMEZONE)),
         );
         $this->entityContentChangeRepository->persistEntities([$entry]);
     }
@@ -571,7 +573,7 @@ class EntityContentChangeService
             $contentChange,
             $this->determineChanger(false),
             ClassUtils::getClass($statementOrSegment),
-            new DateTime('now', new DateTimeZone('Europe/Berlin')),
+            new DateTime('now', new DateTimeZone(self::TIMEZONE)),
         );
         // Runs in the background purge job, where the current user is the anonymous
         // user ("Privatperson"). Attribute the entry to the system instead, as the
@@ -579,6 +581,43 @@ class EntityContentChangeService
         $entry->setUserId(null);
         $entry->setUserName($this->translator->trans('user.system.name'));
         $this->entityContentChangeRepository->persistEntities([$entry]);
+    }
+
+    /**
+     * Versionsverlauf entry for a statement/segment whose rendered recommendation changed
+     * because a boilerplate it uses was edited. Stored as an ordinary `recommendation` diff
+     * (rendered old vs. rendered new), attributed to the user who edited the boilerplate.
+     *
+     * Needed explicitly: the stored recommendation holds only the reference tag, so the
+     * generic change tracking never sees a change. Persists without flushing.
+     */
+    public function createBoilerplateTextChangeEntry(
+        Statement $statementOrSegment,
+        string $oldRenderedRecommendation,
+        string $newRenderedRecommendation,
+    ): void {
+        $entityType = ClassUtils::getClass($statementOrSegment);
+        $diffJson = $this->generateActualDiff(
+            $oldRenderedRecommendation,
+            $newRenderedRecommendation,
+            SegmentInterface::RECOMMENDATION_FIELD_NAME,
+            $entityType,
+            [],
+        );
+        if (null === $diffJson) {
+            return;
+        }
+
+        $this->entityContentChangeRepository->persistEntities([
+            $this->createEntityContentChangeEntity(
+                $statementOrSegment,
+                SegmentInterface::RECOMMENDATION_FIELD_NAME,
+                $diffJson,
+                $this->determineChanger(false),
+                $entityType,
+                new DateTime('now', new DateTimeZone(self::TIMEZONE)),
+            ),
+        ]);
     }
 
     /**
@@ -1175,9 +1214,9 @@ class EntityContentChangeService
     }
 
     /**
-     * @param string|CoreEntity|int|null $contentChange diff of values
-     * @param Department|User            $changer       (juristic) person who is executing the change. Can be a
-     *                                                  department or a user.
+     * @param string          $contentChange diff of values
+     * @param Department|User $changer       (juristic) person who is executing the change. Can be a
+     *                                       department or a user.
      */
     public function createEntityContentChangeEntity(
         CoreEntity $updatedObject,

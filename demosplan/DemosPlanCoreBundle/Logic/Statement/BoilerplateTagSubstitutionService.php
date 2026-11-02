@@ -139,6 +139,15 @@ class BoilerplateTagSubstitutionService
         return $html5->saveHTML($fragment);
     }
 
+    /**
+     * Drops the cached text of one boilerplate, so substitution reads its current text again
+     * after the boilerplate was edited within the same process.
+     */
+    public function forgetBoilerplate(string $boilerplateId): void
+    {
+        unset($this->boilerplateTextCache[$boilerplateId]);
+    }
+
     private function resolveBoilerplateText(string $boilerplateId): ?string
     {
         if (!array_key_exists($boilerplateId, $this->boilerplateTextCache)) {
