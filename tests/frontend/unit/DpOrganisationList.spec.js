@@ -51,12 +51,18 @@ const DpModalStub = {
   },
 }
 
+let orgaModule
+
+const lastListFilter = () => orgaModule.actions.list.mock.lastCall[1].filter
+
 const mountList = () => {
+  orgaModule = listModule({ items })
+
   const store = createStore({
     modules: {
       Department: listModule(),
       Orga: {
-        ...listModule({ items }),
+        ...orgaModule,
         modules: { Pending: listModule() },
       },
       Role: listModule(),
@@ -256,5 +262,41 @@ describe('DpOrganisationList', () => {
 
     expect(dplan.notify.notify).toHaveBeenCalledTimes(1)
     expect(dplan.notify.notify).toHaveBeenCalledWith('error', '2fa.required.update.failed')
+  })
+
+  it('requests only organisations without the two-factor requirement while the toggle is on', async () => {
+    const wrapper = mountList()
+
+    await wrapper.vm.$nextTick()
+    wrapper.vm.handleTwoFactorFilter(true)
+
+    expect(orgaModule.actions.list.mock.lastCall[1].page).toEqual({ number: 1 })
+    expect(lastListFilter().withoutTwoFactor).toEqual({
+      condition: { path: 'twoFactorRequired', value: false },
+    })
+
+    wrapper.vm.handleTwoFactorFilter(false)
+
+    expect(lastListFilter().withoutTwoFactor).toBeUndefined()
+  })
+
+  it('combines the two-factor toggle with search term and organisation type', async () => {
+    const wrapper = mountList()
+
+    await wrapper.vm.$nextTick()
+    wrapper.vm.handleTwoFactorFilter(true)
+    wrapper.vm.handleSearch('Alp')
+    wrapper.vm.handleFilter({ municipality: true, other: false })
+
+    const filter = lastListFilter()
+
+    expect(filter.namefilter.condition.value).toBe('Alp')
+    expect(filter.municipality.condition).toEqual({
+      path: 'statusInCustomers.orgaType.name',
+      value: 'municipality',
+      memberOf: 'orgaType',
+    })
+    expect(filter.other).toBeUndefined()
+    expect(filter.withoutTwoFactor.condition.value).toBe(false)
   })
 })

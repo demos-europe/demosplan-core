@@ -84,6 +84,18 @@
         @update="handleFilter"
       />
     </div>
+    <div
+      v-if="canEditTwoFactor"
+      class="flex items-center gap-1 py-2"
+    >
+      <dp-toggle
+        :aria-label="Translator.trans('2fa.required.filter.without')"
+        :model-value="showWithoutTwoFactorOnly"
+        data-cy="organisationList:withoutTwoFactorFilter"
+        @update:model-value="handleTwoFactorFilter"
+      />
+      <span>{{ Translator.trans('2fa.required.filter.without') }}</span>
+    </div>
 
     <template v-if="canBulkEdit">
       <dp-selection-card
@@ -254,6 +266,7 @@ import {
   DpSearchField,
   DpSkeletonBox,
   DpSlidingPagination,
+  DpToggle,
   hasPermission,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
@@ -351,6 +364,7 @@ export default {
     DpSelectionCard,
     DpSkeletonBox,
     DpSlidingPagination,
+    DpToggle,
   },
 
   directives: {
@@ -447,6 +461,7 @@ export default {
        */
       selectedOrganisations: {},
       showSelectionList: false,
+      showWithoutTwoFactorOnly: false,
       // The value chosen in the modal
       twoFactorTarget: null,
     }
@@ -576,6 +591,57 @@ export default {
       this.fetchPendingAndAllOrganisations()
     },
 
+    /**
+     * Search term, orga types and the two-factor toggle combine, so every page request sends all of them
+     */
+    buildListFilter () {
+      const filter = {
+        namefilter: {
+          condition: {
+            path: 'name',
+            operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+            value: this.searchTerm,
+          },
+        },
+      }
+      const selectedTypes = Object.keys(this.selectedFilters).filter(type => this.selectedFilters[type])
+
+      if (selectedTypes.length > 0) {
+        filter.orgaType = {
+          group: {
+            conjunction: 'OR',
+          },
+        }
+        filter.orgaStatus = {
+          condition: {
+            path: 'statusInCustomers.status',
+            operator: '<>',
+            value: 'rejected',
+          },
+        }
+        selectedTypes.forEach(type => {
+          filter[type] = {
+            condition: {
+              path: 'statusInCustomers.orgaType.name',
+              value: type,
+              memberOf: 'orgaType',
+            },
+          }
+        })
+      }
+
+      if (this.showWithoutTwoFactorOnly) {
+        filter.withoutTwoFactor = {
+          condition: {
+            path: 'twoFactorRequired',
+            value: false,
+          },
+        }
+      }
+
+      return filter
+    },
+
     closeTwoFactorModal () {
       this.$refs.twoFactorModal?.toggle()
     },
@@ -599,49 +665,15 @@ export default {
         })
     },
 
-    fetchFilteredOrganisations (selected, page) {
+    fetchFilteredOrganisations (page) {
       this.isLoading = true
-      const filterObject = {}
-
-      Object.keys(selected).forEach(filter => {
-        if (selected[filter]) {
-          filterObject[filter] = {
-            condition: {
-              path: 'statusInCustomers.orgaType.name',
-              value: filter,
-              memberOf: 'orgaType',
-            },
-          }
-
-          filterObject.orgaStatus = {
-            condition: {
-              path: 'statusInCustomers.status',
-              operator: '<>',
-              value: 'rejected',
-            },
-          }
-        }
-      })
-      filterObject.orgaType = {
-        group: {
-          conjunction: 'OR',
-        },
-      }
-
-      filterObject.namefilter = {
-        condition: {
-          path: 'name',
-          operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-          value: this.searchTerm,
-        },
-      }
 
       this.list({
         page: {
           number: page,
         },
         sort: 'name',
-        filter: filterObject,
+        filter: this.buildListFilter(),
         fields: {
           Customer: orgaFields.Customer,
           Orga: orgaFields.Orga,
@@ -669,15 +701,7 @@ export default {
           ...(orgaFields.Branding ? { Branding: orgaFields.Branding } : {}),
         },
         sort: 'name',
-        filter: {
-          namefilter: {
-            condition: {
-              path: 'name',
-              operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-              value: this.searchTerm,
-            },
-          },
-        },
+        filter: this.buildListFilter(),
         include: includeFields.join(),
       })
         .then(() => {
@@ -745,7 +769,7 @@ export default {
         this.fetchPendingOrganisations(page)
       } else {
         if (this.isFiltered) {
-          this.fetchFilteredOrganisations(this.selectedFilters, page)
+          this.fetchFilteredOrganisations(page)
         } else {
           this.fetchAllOrganisations(page)
         }
@@ -754,11 +778,16 @@ export default {
 
     handleFilter (selected) {
       this.selectedFilters = selected
-      this.fetchFilteredOrganisations(selected, 1)
+      this.fetchFilteredOrganisations(1)
     },
 
     handleSearch (searchTerm) {
       this.searchTerm = searchTerm
+      this.getItemsByPage(1)
+    },
+
+    handleTwoFactorFilter (showWithoutTwoFactorOnly) {
+      this.showWithoutTwoFactorOnly = showWithoutTwoFactorOnly
       this.getItemsByPage(1)
     },
 
