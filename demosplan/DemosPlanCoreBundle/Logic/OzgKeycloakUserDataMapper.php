@@ -198,7 +198,7 @@ class OzgKeycloakUserDataMapper
             $orga = $this->orgaRepository->findOneBy(['gwId' => $gwId]);
 
             if ($orga instanceof Orga) {
-                $organisations[] = $this->updateOrganisation($orga, $requestedRoles, $gwId);
+                $organisations[] = $this->updateOrganisation($orga, $requestedRoles, $gwId, $orgaName);
                 continue;
             }
 
@@ -343,12 +343,19 @@ class OzgKeycloakUserDataMapper
             $existingOrga->setGwId($gwId);
         }
 
-        if ('' !== $orgaName && null !== $orgaName) {
-            $existingOrga->setName($orgaName);
+        // The official name from Keycloak is kept in the technical name. The (display) name is
+        // user-editable and therefore never overwritten here, it is only set on creation.
+        $keycloakOrgaName = $orgaName ?? $this->ozgKeycloakUserData->getOrganisationName();
+        if ('' !== $keycloakOrgaName
+            && UserInterface::ANONYMOUS_USER_ORGA_NAME !== $keycloakOrgaName) {
+            $existingOrga->setTechnicalName($keycloakOrgaName);
+
+            if (null === $existingOrga->getName() || '' === $existingOrga->getName()) {
+                $existingOrga->setName($keycloakOrgaName);
+            }
         }
 
-        // Do not overwrite org name on update — FPA users can modify it via the UI.
-        // Name is only set on org creation. Address fields are still synced from the token.
+        // Address fields are still synced from the token.
         if (UserInterface::ANONYMOUS_USER_ORGA_NAME !== $orgaName) {
             $existingOrga->setStreet($this->ozgKeycloakUserData->getStreet());
             $existingOrga->setAddressExtension($this->ozgKeycloakUserData->getAddressExtension());
@@ -428,6 +435,7 @@ class OzgKeycloakUserDataMapper
         $orgaData = [
             'customer'             => $customer,
             'name'                 => $orgaName,
+            'technicalName'        => $orgaName,
             'registrationStatuses' => $registrationStatuses,
         ];
 
