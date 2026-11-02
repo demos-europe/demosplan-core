@@ -15,6 +15,7 @@ use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use DemosEurope\DemosplanAddon\Contracts\Services\OrgaServiceInterface;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\AnonymousUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -762,21 +763,41 @@ class OrgaService implements OrgaServiceInterface
     }
 
     /**
+     * Writes the flag and documents the change. Returns false when the orga already had the value.
+     */
+    public function setTwoFactorRequired(Orga $orga, bool $twoFactorRequired): bool
+    {
+        if ($orga->isTwoFactorRequired() === $twoFactorRequired) {
+            return false;
+        }
+
+        $orga->setTwoFactorRequired($twoFactorRequired);
+        $this->orgaRepository->updateObject($orga);
+        $this->reportService->persistAndFlushReportEntries($this->createTwoFactorRequiredEntry($orga));
+
+        return true;
+    }
+
+    /**
      * A failed report entry must not roll back the orga itself, hence only logged.
      */
     private function addTwoFactorRequiredReport(Orga $orga): void
     {
         try {
-            $entry = $this->organisationReportEntryFactory->createTwoFactorRequiredEntry(
-                $this->getReportUser(),
-                $orga->getId(),
-                $orga->getName(),
-                $orga->isTwoFactorRequired()
-            );
-            $this->reportService->persistAndFlushReportEntries($entry);
+            $this->reportService->persistAndFlushReportEntries($this->createTwoFactorRequiredEntry($orga));
         } catch (Exception $e) {
             $this->logger->warning('Add two-factor report in addOrga() failed: ', [$e]);
         }
+    }
+
+    private function createTwoFactorRequiredEntry(Orga $orga): ReportEntry
+    {
+        return $this->organisationReportEntryFactory->createTwoFactorRequiredEntry(
+            $this->getReportUser(),
+            $orga->getId(),
+            $orga->getName() ?? '',
+            $orga->isTwoFactorRequired()
+        );
     }
 
     private function getReportUser(): UserInterface

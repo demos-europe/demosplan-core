@@ -10,6 +10,17 @@ import { createStore } from 'vuex'
 import DpOrganisationList from '@DpJs/components/user/DpOrganisationList/DpOrganisationList'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
+const { mockDpRpc } = vi.hoisted(() => ({ mockDpRpc: vi.fn() }))
+
+vi.mock('@demos-europe/demosplan-ui', async importOriginal => ({
+  ...(await importOriginal()),
+  dpRpc: (...args) => mockDpRpc(...args),
+}))
+
+const rpcResponse = (updatedIds, skippedIds = []) => Promise.resolve({
+  data: [{ jsonrpc: '2.0', id: 'x', result: { updatedIds, skippedIds } }],
+})
+
 // The component resolves permissions at import time via the demosplan-ui helper, which reads this map
 vi.hoisted(() => {
   globalThis.dplan.permissions = {
@@ -65,13 +76,10 @@ const mountList = () => {
 
 describe('DpOrganisationList', () => {
   beforeEach(() => {
-    vi.stubGlobal('fetch', vi.fn(() => Promise.resolve({ ok: true, status: 200 })))
-    globalThis.dplan.csrfToken = 'csrf'
-    globalThis.dplan.jwtToken = 'jwt'
+    mockDpRpc.mockImplementation(() => rpcResponse(['orga-1', 'orga-2']))
   })
 
   afterEach(() => {
-    vi.unstubAllGlobals()
     vi.clearAllMocks()
   })
 
@@ -169,13 +177,10 @@ describe('DpOrganisationList', () => {
 
     await wrapper.vm.applyTwoFactorRequired()
 
-    expect(fetch).toHaveBeenCalledTimes(2)
-    const [url, options] = fetch.mock.calls[0]
-
-    expect(url).toBe('organisation_update')
-    expect(options.method).toBe('PATCH')
-    expect(JSON.parse(options.body)).toEqual({
-      data: { id: 'orga-1', type: 'Orga', attributes: { twoFactorRequired: true } },
+    expect(mockDpRpc).toHaveBeenCalledTimes(1)
+    expect(mockDpRpc).toHaveBeenCalledWith('organisations.bulk.twoFactorRequired', {
+      organisationIds: ['orga-1', 'orga-2'],
+      twoFactorRequired: true,
     })
     expect(dplan.notify.notify).toHaveBeenCalledTimes(1)
     expect(dplan.notify.notify).toHaveBeenCalledWith('confirm', '2fa.required.updated')
@@ -191,7 +196,7 @@ describe('DpOrganisationList', () => {
 
     await wrapper.vm.applyTwoFactorRequired()
 
-    expect(fetch).not.toHaveBeenCalled()
+    expect(mockDpRpc).not.toHaveBeenCalled()
     expect(wrapper.vm.selectedCount).toBe(1)
   })
 
@@ -225,10 +230,8 @@ describe('DpOrganisationList', () => {
     expect(wrapper.vm.twoFactorTarget).toBeNull()
   })
 
-  it('reports failures separately from successes', async () => {
-    fetch
-      .mockResolvedValueOnce({ ok: true, status: 200 })
-      .mockResolvedValueOnce({ ok: false, status: 403 })
+  it('reports skipped organisations separately from updated ones', async () => {
+    mockDpRpc.mockImplementation(() => rpcResponse(['orga-1'], ['orga-2']))
     const wrapper = mountList()
 
     await wrapper.vm.$nextTick()
@@ -238,6 +241,20 @@ describe('DpOrganisationList', () => {
     await wrapper.vm.applyTwoFactorRequired()
 
     expect(dplan.notify.notify).toHaveBeenCalledWith('confirm', '2fa.required.updated')
+    expect(dplan.notify.notify).toHaveBeenCalledWith('error', '2fa.required.update.failed')
+  })
+
+  it('reports every organisation as failed when the request fails', async () => {
+    mockDpRpc.mockImplementation(() => Promise.reject(new Error('boom')))
+    const wrapper = mountList()
+
+    await wrapper.vm.$nextTick()
+    wrapper.vm.toggleAll(true)
+    wrapper.vm.twoFactorTarget = false
+
+    await wrapper.vm.applyTwoFactorRequired()
+
+    expect(dplan.notify.notify).toHaveBeenCalledTimes(1)
     expect(dplan.notify.notify).toHaveBeenCalledWith('error', '2fa.required.update.failed')
   })
 })

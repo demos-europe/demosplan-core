@@ -250,6 +250,7 @@ import {
   DpLoading,
   DpModal,
   DpRadio,
+  dpRpc,
   DpSearchField,
   DpSkeletonBox,
   DpSlidingPagination,
@@ -534,25 +535,35 @@ export default {
     }),
 
     /**
-     * Writes the value chosen in the modal to every selected organisation, one request each, then reports once.
+     * Writes the value chosen in the modal to every selected organisation in one request.
+     * The backend reports which ids it could not administrate; those count as failed.
      */
     async applyTwoFactorRequired () {
       if (!this.isTwoFactorChoiceChanged || !this.isOrganisationSelected || this.isUpdatingTwoFactor) {
         return
       }
 
-      const required = this.twoFactorTarget
-
       this.isUpdatingTwoFactor = true
+      let updatedCount = 0
+      let failedCount = this.selectedCount
 
-      const results = await Promise.allSettled(
-        this.selectedIds.map(id => this.patchTwoFactorRequired(id, required)),
-      )
-      const failedCount = results.filter(result => result.status === 'rejected').length
-      const successCount = results.length - failedCount
+      try {
+        const response = await dpRpc('organisations.bulk.twoFactorRequired', {
+          organisationIds: this.selectedIds,
+          twoFactorRequired: this.twoFactorTarget,
+        })
+        const result = response.data?.[0]?.result
 
-      if (successCount > 0) {
-        dplan.notify.notify('confirm', Translator.trans('2fa.required.updated', { count: successCount }))
+        if (result) {
+          updatedCount = result.updatedIds.length
+          failedCount = result.skippedIds.length
+        }
+      } catch (error) {
+        console.error('Bulk two-factor change failed:', error)
+      }
+
+      if (updatedCount > 0) {
+        dplan.notify.notify('confirm', Translator.trans('2fa.required.updated', { count: updatedCount }))
       }
 
       if (failedCount > 0) {
@@ -771,36 +782,6 @@ export default {
 
       this.twoFactorTarget = this.hasMixedTwoFactorValues ? null : [...this.selectedTwoFactorValues][0]
       this.$refs.twoFactorModal?.toggle()
-    },
-
-    /**
-     * Every backend message becomes a toast when sent through dpApi, which would be one per organisation here.
-     * A bare request keeps the single summary notification of the caller.
-     */
-    async patchTwoFactorRequired (id, required) {
-      const response = await fetch(Routing.generate('organisation_update', { id }), {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-csrf-token': dplan.csrfToken,
-          'X-JWT-Authorization': `Bearer ${dplan.jwtToken}`,
-        },
-        body: JSON.stringify({
-          data: {
-            id,
-            type: 'Orga',
-            attributes: {
-              twoFactorRequired: required,
-            },
-          },
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Updating organisation ${id} failed with status ${response.status}`)
-      }
-
-      return response
     },
 
     removeFromSelection (id) {
