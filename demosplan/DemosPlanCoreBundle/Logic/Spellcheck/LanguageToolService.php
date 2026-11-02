@@ -13,10 +13,11 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Spellcheck;
 
 use demosplan\DemosPlanCoreBundle\Exception\LanguageToolServiceException;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Contracts\Cache\CacheInterface;
-use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class LanguageToolService
 {
@@ -32,11 +33,18 @@ class LanguageToolService
      */
     private const CHUNK_CACHE_TTL = 3600;
 
+    /**
+     * While LanguageTool does not answer, further checks return no matches instead of each
+     * waiting for the full request timeout.
+     */
+    private const CIRCUIT_BREAKER_KEY = 'languagetool_circuit_open';
+    private const CIRCUIT_BREAKER_TTL = 60;
+
     private readonly string $url;
     private readonly int $timeout;
 
     public function __construct(
-        private readonly CacheInterface $cache,
+        private readonly CacheItemPoolInterface $cache,
         private readonly HttpClientInterface $httpClient,
         ParameterBagInterface $parameterBag,
     ) {
@@ -49,57 +57,74 @@ class LanguageToolService
      */
     public function checkText(array $formData): array
     {
+        if ($this->cache->getItem(self::CIRCUIT_BREAKER_KEY)->isHit()) {
+            return ['matches' => []];
+        }
+
         if (!is_string($formData['text'] ?? null)) {
-            return $this->requestCheck($formData);
+            return $this->requestCheck($formData)->toArray();
+        }
+
+        // Cache hits are resolved first and all missing chunks are requested before any response
+        // is read, so a stalled LanguageTool costs one timeout per check, not one per chunk.
+        $chunks = $this->splitIntoChunks($formData['text']) ?: [''];
+        $results = [];
+        $pending = [];
+        foreach ($chunks as $index => $chunk) {
+            $chunkData = ['text' => $chunk] + $formData;
+            $item = $this->cache->getItem('languagetool_'.hash('sha256', json_encode($chunkData, JSON_THROW_ON_ERROR)));
+            if ($item->isHit()) {
+                $results[$index] = $item->get();
+                continue;
+            }
+            $pending[$index] = [$item, $this->requestCheck($chunkData)];
+        }
+
+        try {
+            foreach ($pending as $index => [$item, $chunkResponse]) {
+                $results[$index] = $chunkResponse->toArray();
+                $this->cache->save($item->set($results[$index])->expiresAfter(self::CHUNK_CACHE_TTL));
+                unset($pending[$index]);
+            }
+        } catch (TransportExceptionInterface $e) {
+            $this->openCircuitBreaker();
+            foreach ($pending as [, $chunkResponse]) {
+                $chunkResponse->cancel();
+            }
+
+            throw $e;
         }
 
         $offset = 0;
         $response = null;
         $matches = [];
-        foreach ($this->splitIntoChunks($formData['text']) as $chunk) {
-            $chunkResponse = $this->checkChunk($formData, $chunk);
-            $response ??= $chunkResponse;
+        foreach ($chunks as $index => $chunk) {
+            $response ??= $results[$index];
 
-            foreach ($chunkResponse['matches'] ?? [] as $match) {
+            foreach ($results[$index]['matches'] ?? [] as $match) {
                 $match['offset'] += $offset;
                 $matches[] = $match;
             }
 
             $offset += $this->utf16Length($chunk);
         }
-
-        $response ??= $this->checkChunk($formData, '');
         $response['matches'] = $matches;
 
         return $response;
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function checkChunk(array $formData, string $chunk): array
+    private function openCircuitBreaker(): void
     {
-        $formData['text'] = $chunk;
-        $cacheKey = 'languagetool_'.hash('sha256', json_encode($formData, JSON_THROW_ON_ERROR));
-
-        return $this->cache->get($cacheKey, function (ItemInterface $item) use ($formData): array {
-            $item->expiresAfter(self::CHUNK_CACHE_TTL);
-
-            return $this->requestCheck($formData);
-        });
+        $item = $this->cache->getItem(self::CIRCUIT_BREAKER_KEY);
+        $this->cache->save($item->set(true)->expiresAfter(self::CIRCUIT_BREAKER_TTL));
     }
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function requestCheck(array $formData): array
+    private function requestCheck(array $formData): ResponseInterface
     {
-        $response = $this->httpClient->request('POST', $this->getUrl('/v2/check'), [
+        return $this->httpClient->request('POST', $this->getUrl('/v2/check'), [
             'body'    => $formData,
             'timeout' => $this->timeout,
         ]);
-
-        return $response->toArray();
     }
 
     /**

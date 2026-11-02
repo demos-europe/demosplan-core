@@ -18,6 +18,7 @@ use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class LanguageToolServiceTest extends TestCase
 {
@@ -119,5 +120,57 @@ class LanguageToolServiceTest extends TestCase
         foreach ($this->sentTexts as $sent) {
             self::assertLessThanOrEqual(10000, mb_strlen($sent));
         }
+    }
+
+    public function testTimeoutOpensCircuitBreakerAndSkipsFurtherRequests(): void
+    {
+        $requests = 0;
+        $client = new MockHttpClient(function () use (&$requests): MockResponse {
+            ++$requests;
+
+            return new MockResponse('', ['error' => 'timeout']);
+        });
+        $service = new LanguageToolService(
+            new ArrayAdapter(),
+            $client,
+            new ParameterBag(['languagetool_url' => 'http://lt:8010', 'languagetool_timeout' => 30]),
+        );
+
+        try {
+            $service->checkText(['text' => 'Ein Fehler hier', 'language' => 'de-DE']);
+            self::fail('Expected a transport exception');
+        } catch (TransportExceptionInterface) {
+        }
+
+        $result = $service->checkText(['text' => 'Noch ein Fehler', 'language' => 'de-DE']);
+
+        self::assertSame(['matches' => []], $result);
+        self::assertSame(1, $requests);
+    }
+
+    public function testAllMissingChunksAreRequestedBeforeAnyResponseIsRead(): void
+    {
+        $started = 0;
+        $startedWhenFirstResponseRead = null;
+        $client = new MockHttpClient(function () use (&$started, &$startedWhenFirstResponseRead): MockResponse {
+            ++$started;
+
+            return new MockResponse(
+                (function () use (&$started, &$startedWhenFirstResponseRead) {
+                    $startedWhenFirstResponseRead ??= $started;
+                    yield json_encode(['matches' => []]);
+                })()
+            );
+        });
+        $service = new LanguageToolService(
+            new ArrayAdapter(),
+            $client,
+            new ParameterBag(['languagetool_url' => 'http://lt:8010', 'languagetool_timeout' => 30]),
+        );
+
+        $service->checkText(['text' => str_repeat('a', 9000)."\n".str_repeat('b', 9000)."\n".str_repeat('c', 9000)."\n", 'language' => 'de-DE']);
+
+        self::assertSame(3, $started);
+        self::assertSame(3, $startedWhenFirstResponseRead);
     }
 }
