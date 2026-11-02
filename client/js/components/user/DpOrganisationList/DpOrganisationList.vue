@@ -94,7 +94,7 @@
         data-cy="organisationList:withoutTwoFactorFilter"
         @update:model-value="handleTwoFactorFilter"
       />
-      <span>{{ Translator.trans('2fa.required.filter.without') }}</span>
+      <span aria-hidden="true">{{ Translator.trans('2fa.required.filter.without') }}</span>
     </div>
 
     <template v-if="canBulkEdit">
