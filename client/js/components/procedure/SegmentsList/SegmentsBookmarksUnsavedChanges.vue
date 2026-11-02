@@ -135,6 +135,13 @@ import type {
   GroupedFilterChange,
   IndividualFilterChange,
 } from '@DpJs/types/bookmarks'
+import {
+  computed,
+  type ComputedRef,
+  ref,
+  type Ref,
+  watch
+} from 'vue'
 import type {
   FilterGroup,
   FilterOption,
@@ -145,7 +152,6 @@ import {
   DpIcon,
   DpInlineNotification,
 } from '@demos-europe/demosplan-ui'
-import { computed, type ComputedRef, ref, type Ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 /* Props */
