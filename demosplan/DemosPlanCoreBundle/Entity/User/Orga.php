@@ -73,6 +73,12 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     #[ORM\Column(name: '_o_name', type: 'string', length: 255, nullable: true)]
     protected $name;
     /**
+     * Official name as delivered by the identity provider (Keycloak). Read-only for users.
+     * NULL = not synced yet. {@link $name} is the user-editable display name.
+     */
+    #[ORM\Column(name: '_o_name_technical', type: 'string', length: 255, nullable: true)]
+    private ?string $technicalName = null;
+    /**
      * @var string|null
      */
     #[ORM\Column(name: '_o_gateway_name', type: 'string', length: 255, nullable: true)]
@@ -364,6 +370,18 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     public function getName(): ?string
     {
         return $this->name;
+    }
+
+    public function getTechnicalName(): ?string
+    {
+        return $this->technicalName;
+    }
+
+    public function setTechnicalName(?string $technicalName): self
+    {
+        $this->technicalName = $technicalName;
+
+        return $this;
     }
 
     public function getNameLegal(): ?string

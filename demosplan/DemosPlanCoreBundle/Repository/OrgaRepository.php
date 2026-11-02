@@ -150,6 +150,11 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
         try {
             $orga = new Orga();
             $orga = $this->generateObjectValues($orga, $data);
+            // Deliberately not part of generateObjectValues(): the technical name must never be
+            // writable through the generic update path, only when an orga is created.
+            if (array_key_exists('technicalName', $data)) {
+                $orga->setTechnicalName($data['technicalName']);
+            }
 
             return $this->addOrgaObject($orga);
         } catch (Exception $e) {
