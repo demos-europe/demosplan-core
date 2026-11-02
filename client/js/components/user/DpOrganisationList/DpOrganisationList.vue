@@ -69,14 +69,14 @@
     </template>
 
     <!-- list header -->
-    <div class="flow-root">
-      <dp-search-field
-        class="inline-block u-pv-0_5"
-        @search="handleSearch"
-        @reset="resetSearch"
-      />
+    <div class="flex flex-wrap items-center justify-between gap-2 py-2">
+      <div class="w-full md:w-3/12">
+        <dp-search-field
+          @search="handleSearch"
+          @reset="resetSearch"
+        />
+      </div>
       <dp-checkbox-group
-        class="inline-block u-pv-0_5 float-right"
         data-cy="organisationList:filterItems"
         :label="filterLabel"
         :options="filterItems"
