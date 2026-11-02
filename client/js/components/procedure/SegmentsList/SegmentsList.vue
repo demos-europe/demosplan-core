@@ -1620,6 +1620,7 @@ export default {
     initializeBookmarkViewState () {
       // Read columns from localStorage before syncing to store (DpColumnSelector uses localStorage internally)
       const storedColumns = localStorage.getItem('segmentList')
+
       this.currentSelection = storedColumns ? JSON.parse(storedColumns) : [...this.defaultColumnSelection]
 
       this.setStoreDefaultSelectedColumns(this.defaultColumnSelection)
