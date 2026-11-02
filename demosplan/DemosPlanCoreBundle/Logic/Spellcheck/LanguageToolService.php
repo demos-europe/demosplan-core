@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Spellcheck;
 
 use demosplan\DemosPlanCoreBundle\Exception\LanguageToolServiceException;
+use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
@@ -85,9 +86,37 @@ class LanguageToolService
             }
             $missing[$index] = [$item, $chunkData];
         }
+        $results += $this->requestMissingChunks($missing);
 
-        // Missing chunks run in parallel up to MAX_PARALLEL_REQUESTS, so a stalled LanguageTool
-        // costs one timeout per check, not one per chunk.
+        $offset = 0;
+        $response = null;
+        $matches = [];
+        foreach ($chunks as $index => $chunk) {
+            $response ??= $results[$index];
+
+            foreach ($results[$index]['matches'] ?? [] as $match) {
+                $match['offset'] += $offset;
+                $matches[] = $match;
+            }
+
+            $offset += $this->utf16Length($chunk);
+        }
+        $response['matches'] = $matches;
+
+        return $response;
+    }
+
+    /**
+     * Missing chunks run in parallel up to MAX_PARALLEL_REQUESTS, so a stalled LanguageTool
+     * costs one timeout per check, not one per chunk.
+     *
+     * @param array<int, array{CacheItemInterface, array}> $missing cache item and form data per chunk index
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function requestMissingChunks(array $missing): array
+    {
+        $results = [];
         $queue = array_keys($missing);
         $inFlight = [];
         try {
@@ -114,22 +143,7 @@ class LanguageToolService
             throw $e;
         }
 
-        $offset = 0;
-        $response = null;
-        $matches = [];
-        foreach ($chunks as $index => $chunk) {
-            $response ??= $results[$index];
-
-            foreach ($results[$index]['matches'] ?? [] as $match) {
-                $match['offset'] += $offset;
-                $matches[] = $match;
-            }
-
-            $offset += $this->utf16Length($chunk);
-        }
-        $response['matches'] = $matches;
-
-        return $response;
+        return $results;
     }
 
     private function openCircuitBreaker(): void
