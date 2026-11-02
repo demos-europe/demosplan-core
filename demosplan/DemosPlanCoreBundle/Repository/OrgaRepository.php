@@ -150,11 +150,6 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
         try {
             $orga = new Orga();
             $orga = $this->generateObjectValues($orga, $data);
-            // Deliberately not part of generateObjectValues(): the technical name must never be
-            // writable through the generic update path, only when an orga is created.
-            if (array_key_exists('technicalName', $data)) {
-                $orga->setTechnicalName($data['technicalName']);
-            }
 
             return $this->addOrgaObject($orga);
         } catch (Exception $e) {
@@ -409,6 +404,11 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
         if (array_key_exists('name', $data)) {
             $entity->setName($data['name']);
         }
+        // Written by the identity provider sync and the gateways only. User input is stripped
+        // in UserHandler::updateOrga().
+        if (array_key_exists('technicalName', $data)) {
+            $entity->setTechnicalName($data['technicalName']);
+        }
         if (array_key_exists('slug', $data)) {
             $this->handleSlugUpdate($entity, $data['slug']);
         }
@@ -651,6 +651,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
             $organisation = $this->find($organisationId);
 
             $organisation->setName(null);
+            $organisation->setTechnicalName(null);
             $organisation->setGatewayName(null);
             $organisation->setCode(null);
             $organisation->setEmail2(null);

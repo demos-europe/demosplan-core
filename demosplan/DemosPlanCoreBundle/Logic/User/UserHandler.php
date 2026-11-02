@@ -1158,6 +1158,8 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             // chaotic. However, it does make sense to keep logical units together. When using, just make sure to
             // consider ALL of the following methods.
             $currentOrga = $this->getOrgaHandler()->getOrga($orgaId);
+            // The technical name is owned by the identity provider sync and the gateways, never by user input.
+            unset($data['technicalName']);
             $data = $this->adaptDataAttributesInfo($data);
             $data = $this->checkUpdatePermissions($data);
             $this->validateCssVars($data);

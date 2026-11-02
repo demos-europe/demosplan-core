@@ -580,6 +580,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
         $orgaData = [
             'customer'             => $this->customerHandler->getCurrentCustomer(),
             'name'                 => $this->data['user']['COMPANYNAME'],
+            'technicalName'        => $this->data['user']['COMPANYNAME'],
             'registrationStatuses' => $this->buildRegistrationStatuses(),
             'gwId'                 => $this->data['user']['COMPANYID'],
             'address'              => $address,
@@ -595,6 +596,28 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
         );
 
         return $orga;
+    }
+
+    /**
+     * The gateway delivers the official name of an organisation. It is always stored as technical name.
+     * The (user-editable) display name only follows it as long as it was not customised, which is the
+     * case when it equals the official name (an organisation without technical name has never been customised).
+     *
+     * @return array{technicalName?: string, name?: string}
+     */
+    protected function getOrgaNameUpdate(Orga $orga, string $gatewayName): array
+    {
+        $update = [];
+        $officialName = $orga->getTechnicalName() ?? $orga->getName();
+
+        if ($orga->getTechnicalName() != $gatewayName) {
+            $update['technicalName'] = $gatewayName;
+        }
+        if ($orga->getName() == $officialName && $orga->getName() != $gatewayName) {
+            $update['name'] = $gatewayName;
+        }
+
+        return $update;
     }
 
     /**
@@ -636,9 +659,7 @@ abstract class UserMapperDataportGateway implements UserMapperInterface
             if ($orga->getGwId() != $this->data['user']['COMPANYID']) {
                 $update['gwId'] = $this->data['user']['COMPANYID'];
             }
-            if ($orga->getName() != $this->data['user']['COMPANYNAME']) {
-                $update['name'] = $this->data['user']['COMPANYNAME'];
-            }
+            $update = array_merge($update, $this->getOrgaNameUpdate($orga, $this->data['user']['COMPANYNAME']));
         }
 
         if ([] !== $update) {
