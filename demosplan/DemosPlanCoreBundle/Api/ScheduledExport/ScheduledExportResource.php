@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\ScheduledExport;
 
+use ApiPlatform\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
@@ -29,7 +30,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ApiResource(
     shortName: 'ScheduledExport',
     operations: [
-        new GetCollection(uriTemplate: '/ScheduledExport', paginationEnabled: false),
+        new GetCollection(uriTemplate: '/ScheduledExport', paginationEnabled: false, order: ['nextRunAt' => 'ASC']),
         new Get(uriTemplate: self::ITEM_URI_TEMPLATE),
         new Post(
             uriTemplate: '/ScheduledExport',
@@ -55,6 +56,7 @@ use Symfony\Component\Validator\Constraints as Assert;
     provider: ScheduledExportProvider::class,
 )]
 #[ApiFilter(PropertyFilter::class)]
+#[ApiFilter(OrderFilter::class, properties: ['nextRunAt'])]
 class ScheduledExportResource
 {
     private const ITEM_URI_TEMPLATE = '/ScheduledExport/{id}';

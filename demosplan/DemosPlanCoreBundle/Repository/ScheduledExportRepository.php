@@ -13,6 +13,8 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\ExportSchedule;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\QueryBuilder;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use Exception;
 
 /**
@@ -72,6 +74,18 @@ class ScheduledExportRepository extends FluentRepository
         }
 
         return true;
+    }
+
+    /**
+     * Builds a QueryBuilder matching the given EDT conditions without executing it, so
+     * callers can embed it as a subquery (e.g. `id IN (...)`) instead of running it as
+     * its own round-trip. See {@see \demosplan\DemosPlanCoreBundle\Api\ScheduledExport\Extension\ScheduledExportDoctrineAccessExtension::applyToCollection()}.
+     *
+     * @param list<ClauseFunctionInterface<bool>> $conditions
+     */
+    public function generateAccessConditionQueryBuilder(array $conditions): QueryBuilder
+    {
+        return $this->objectProvider->generateQueryBuilder($conditions, []);
     }
 
     /**

@@ -12,13 +12,14 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\ScheduledExport;
 
+use ApiPlatform\Doctrine\Orm\State\CollectionProvider as DoctrineCollectionProvider;
+use ApiPlatform\Doctrine\Orm\State\Options as DoctrineOptions;
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\ProviderInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\ExportSchedule;
 use demosplan\DemosPlanCoreBundle\Repository\ScheduledExportRepository;
-use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use Exception;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -30,7 +31,7 @@ class ScheduledExportProvider implements ProviderInterface
         private readonly ScheduledExportAccessChecker $accessChecker,
         private readonly ScheduledExportRepository $scheduledExportRepository,
         private readonly MessageBagInterface $messageBag,
-        private readonly SortMethodFactory $sortMethodFactory,
+        private readonly DoctrineCollectionProvider $doctrineCollectionProvider,
     ) {
     }
 
@@ -46,7 +47,7 @@ class ScheduledExportProvider implements ProviderInterface
         }
 
         if ($operation instanceof CollectionOperationInterface) {
-            return $this->provideCollection();
+            return $this->provideCollection($operation, $uriVariables, $context);
         }
 
         if (isset($uriVariables['id'])) {
@@ -79,20 +80,27 @@ class ScheduledExportProvider implements ProviderInterface
     }
 
     /**
-     * @return list<ScheduledExportResource>
+     * Fetches the schedules via API Platform's Doctrine provider, which also applies access
+     * control (see {@see ScheduledExportDoctrineAccessExtension}) and sorting for us. The
+     * default order and the client-sortable properties are declared on the resource.
      *
-     * @throws Exception
+     * @return list<ScheduledExportResource>
      */
-    private function provideCollection(): array
+    private function provideCollection(Operation $operation, array $uriVariables, array $context): array
     {
-        $scheduledExports = $this->scheduledExportRepository->getEntities(
-            $this->accessChecker->getAccessConditions(),
-            [$this->sortMethodFactory->propertyAscending(['nextRunAt'])]
-        );
+        $operation = $operation->withStateOptions(new DoctrineOptions(
+            entityClass: ExportSchedule::class,
+            handleLinks: static function (): void {
+                // handleLinks has to be set or API Platform throws an error, but we don't need it to do anything here.
+            }
+        ));
+
+        $result = $this->doctrineCollectionProvider->provide($operation, $uriVariables, $context);
+        Assert::isArray($result);
 
         return array_map(
             static fn (ExportSchedule $scheduledExport): ScheduledExportResource => ScheduledExportResource::fromEntity($scheduledExport),
-            $scheduledExports
+            $result
         );
     }
 }
