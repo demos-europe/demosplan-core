@@ -32,6 +32,8 @@ class ScheduledExportResourceApiTest extends AbstractApiTest
     private function loginUserForApiPlatform(User $user): void
     {
         $this->client->loginUser($user, 'main');
+        // Write operations only accept JSON:API request bodies.
+        $this->client->setServerParameter('CONTENT_TYPE', 'application/vnd.api+json');
     }
 
     protected function getAdditionalHeaders(string $jwtToken, ?Procedure $procedure): array
@@ -110,6 +112,76 @@ class ScheduledExportResourceApiTest extends AbstractApiTest
         $response = $this->sendRequest('/api/3.0/ScheduledExport', 'GET', $user, $procedure);
 
         self::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
+    }
+
+    /**
+     * The nightly dispatcher runs at 01:05, so today's slot is already gone when a schedule is saved.
+     * Choosing today's weekday must therefore schedule the next week, not today (which the dispatcher
+     * would only pick up the following night, on a day the user did not choose).
+     */
+    public function testPostOnTheSelectedWeekdayIsScheduledForNextWeek(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $this->enablePermissions([self::PERMISSION]);
+        $this->loginUserForApiPlatform($user);
+
+        $response = $this->sendRequest(
+            '/api/3.0/ScheduledExport',
+            'POST',
+            $user,
+            $procedure,
+            ['data' => ['type' => 'ScheduledExport', 'attributes' => [
+                'frequency'  => 'weekly',
+                'weekday'    => (int) (new DateTime())->format('N'),
+                'parameters' => '{"filters":[]}',
+            ]]]
+        );
+
+        self::assertSame(Response::HTTP_CREATED, $response->getStatusCode(), $response->getContent());
+        self::assertSame(
+            (new DateTime('today +7 days'))->format('Y-m-d'),
+            $this->extractNextRunDate($response)
+        );
+    }
+
+    public function testPatchToTheSelectedWeekdayIsScheduledForNextWeek(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $scheduleId = ExportScheduleFactory::createOne([
+            'userId'      => $user->getId(),
+            'procedureId' => $procedure->getId(),
+            'frequency'   => 'weekly',
+            'weekday'     => (int) (new DateTime('tomorrow'))->format('N'),
+            'nextRunAt'   => new DateTime('tomorrow'),
+        ])->getId();
+        $this->enablePermissions([self::PERMISSION]);
+        $this->loginUserForApiPlatform($user);
+
+        $response = $this->sendRequest(
+            '/api/3.0/ScheduledExport/'.$scheduleId,
+            'PATCH',
+            $user,
+            $procedure,
+            ['data' => ['type' => 'ScheduledExport', 'id' => $scheduleId, 'attributes' => [
+                'weekday' => (int) (new DateTime())->format('N'),
+            ]]]
+        );
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode(), $response->getContent());
+        self::assertSame(
+            (new DateTime('today +7 days'))->format('Y-m-d'),
+            $this->extractNextRunDate($response)
+        );
+    }
+
+    private function extractNextRunDate(Response $response): string
+    {
+        $content = $response->getContent();
+        self::assertIsString($content);
+
+        return (new DateTime(Json::decodeToArray($content)['data']['attributes']['nextRunAt']))->format('Y-m-d');
     }
 
     private function createSchedule(User $user, Procedure $procedure, string $nextRunAt): string
