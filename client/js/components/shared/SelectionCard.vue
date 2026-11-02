@@ -68,10 +68,10 @@
     </dp-transition-expand>
     <div class="text-right mt-4 space-x-2">
       <dp-button
+        :data-cy="`${dataCy}:reset`"
         :text="Translator.trans('unselect')"
         class="p-1"
         color="secondary"
-        data-cy="resetSelectedItems"
         variant="outline"
         @click="emit('reset')"
       />
