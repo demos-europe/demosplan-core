@@ -96,11 +96,6 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  Bookmark,
-  CreateBookmarkPayload,
-  UpdateBookmarkPayload,
-} from '@DpJs/types/bookmarks'
 import {
   computed,
   type ComputedRef,
@@ -109,6 +104,11 @@ import {
   ref,
   watch,
 } from 'vue'
+import type {
+  Bookmark,
+  CreateBookmarkPayload,
+  UpdateBookmarkPayload,
+} from '@DpJs/types/bookmarks'
 import {
   DpButton,
   DpButtonRow,
