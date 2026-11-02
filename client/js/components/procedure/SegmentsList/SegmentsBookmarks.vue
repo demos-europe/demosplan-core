@@ -96,22 +96,29 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type ComputedRef, onMounted, type Ref, ref, watch } from 'vue'
 import type {
   Bookmark,
   CreateBookmarkPayload,
   UpdateBookmarkPayload,
 } from '@DpJs/types/bookmarks'
 import {
+  computed,
+  type ComputedRef,
+  onMounted,
+  type Ref,
+  ref,
+  watch,
+} from 'vue'
+import {
   DpButton,
   DpButtonRow,
   DpInput,
 } from '@demos-europe/demosplan-ui'
+import lscache from 'lscache'
 import type {
   RootState,
   Slidebar,
 } from '@DpJs/types/store'
-import lscache from 'lscache'
 import SegmentsBookmarksList from './SegmentsBookmarksList'
 import SegmentsBookmarksUnsavedChanges from './SegmentsBookmarksUnsavedChanges'
 import { useStore } from 'vuex'

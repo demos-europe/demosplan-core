@@ -140,18 +140,18 @@ import {
   type ComputedRef,
   ref,
   type Ref,
-  watch
+  watch,
 } from 'vue'
-import type {
-  FilterGroup,
-  FilterOption,
-  RootState,
-} from '@DpJs/types/store'
 import {
   DpAccordion,
   DpIcon,
   DpInlineNotification,
 } from '@demos-europe/demosplan-ui'
+import type {
+  FilterGroup,
+  FilterOption,
+  RootState,
+} from '@DpJs/types/store'
 import { useStore } from 'vuex'
 
 /* Props */

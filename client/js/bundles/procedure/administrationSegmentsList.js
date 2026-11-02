@@ -10,6 +10,7 @@
 /**
  * This is the entrypoint for administration_segments_list.html.twig
  */
+import BookmarkStore from '@DpJs/store/procedure/SegmentsBookmarks'
 import { DpButton } from '@demos-europe/demosplan-ui'
 import DpSegmentRecommendationEmail from '@DpJs/components/statement/statement/DpSegmentRecommendationEmail'
 import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
@@ -17,7 +18,6 @@ import FilterFlyoutStore from '@DpJs/store/procedure/FilterFlyout'
 import { initialize } from '@DpJs/InitVue'
 import SegmentsBookmarks from '@DpJs/components/procedure/SegmentsList/SegmentsBookmarks'
 import SegmentsBookmarksButton from '@DpJs/components/procedure/SegmentsList/SegmentsBookmarksButton'
-import BookmarkStore from '@DpJs/store/procedure/SegmentsBookmarks'
 import SegmentsList from '@DpJs/components/procedure/SegmentsList/SegmentsList'
 import SegmentsListFilter from '@DpJs/components/procedure/SegmentsList/SegmentsListFilter'
 import SegmentSlidebar from '@DpJs/components/procedure/SegmentsList/SegmentSlidebar'
