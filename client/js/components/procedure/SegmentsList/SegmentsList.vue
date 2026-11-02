@@ -1617,6 +1617,17 @@ export default {
       return parts.filter(Boolean).join(', ')
     },
 
+    initializeBookmarkViewState () {
+      // Read columns from localStorage before syncing to store (DpColumnSelector uses localStorage internally)
+      const storedColumns = localStorage.getItem('segmentList')
+      this.currentSelection = storedColumns ? JSON.parse(storedColumns) : [...this.defaultColumnSelection]
+
+      this.setStoreDefaultSelectedColumns(this.defaultColumnSelection)
+      this.setStoreSearchPhrase(this.searchTerm)
+      this.setStoreSelectedColumns(this.currentSelection)
+      this.setViewStateInitialized(true)
+    },
+
     initializeFilters () {
       const filters = this.initialFilter
 
@@ -2181,6 +2192,8 @@ export default {
     },
 
     setDefaultView () {
+      lscache.remove(`${this.procedureId}:segments:currentBookmarkId`)
+
       this.currentSelection = [...this.defaultColumnSelection]
       this.setStoreSelectedColumns(this.currentSelection)
       localStorage.setItem('segmentList', JSON.stringify(this.defaultColumnSelection))
@@ -2238,7 +2251,7 @@ export default {
         const columns = orderedFields.map(headerField => headerField.field)
 
         data.viewSettings = {
-          columnOrder: columns.join(','),
+          columnOrder: columns,
           selectedColumns: this.currentSelection,
           sorting: this.selectedSort,
         }
@@ -2290,10 +2303,18 @@ export default {
   },
 
   async mounted () {
-    this.setCurrentQueryHashFromUrl()
+    if (this.hasBookmarks) {
+      this.initializeBookmarkViewState()
+    }
 
-    // Snapshot the initial filters as applied so the first applyQuery fetches with them
-    // this.commitFilterQuery()
+    const savedBookmarkId = lscache.get(`${this.procedureId}:segments:currentBookmarkId`)
+    const hasSavedBookmark = !!savedBookmarkId
+
+    if (!this.hasBookmarks && !hasSavedBookmark) {
+      this.initializeFilters()
+    }
+
+    this.setCurrentQueryHashFromUrl()
 
     const addons = await loadAddonComponents('tag.style.segments.list')
 
@@ -2310,20 +2331,6 @@ export default {
     lscache.remove(navigationSourceKey)
 
     this.restoreSorting()
-
-    if (this.hasBookmarks) {
-      this.setStoreDefaultSelectedColumns(this.defaultColumnSelection)
-      this.setStoreSearchPhrase(this.searchTerm)
-      this.setStoreSelectedColumns(this.currentSelection)
-      this.setViewStateInitialized(true)
-    }
-
-    const savedBookmarkId = lscache.get(`${this.procedureId}:segments:currentBookmarkId`)
-    const hasSavedBookmark = !!savedBookmarkId
-
-    if (!hasSavedBookmark && !this.hasBookmarks) {
-      this.initializeFilters()
-    }
 
     this.initPagination()
 
