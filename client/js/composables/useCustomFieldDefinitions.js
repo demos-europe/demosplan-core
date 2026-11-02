@@ -100,7 +100,7 @@ export function useCustomFieldDefinitions () {
 
     const params = {
       fields: {
-        CustomField: ['name', 'description', 'options', 'fieldType', 'isRequired'].join(),
+        CustomField: ['name', 'description', 'options', 'fieldType', 'isRequired', 'isSeparateColumn'].join(),
       },
       filter: {
         /*
