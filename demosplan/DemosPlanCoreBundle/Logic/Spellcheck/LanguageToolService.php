@@ -15,6 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Spellcheck;
 use demosplan\DemosPlanCoreBundle\Exception\LanguageToolServiceException;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -34,8 +36,14 @@ class LanguageToolService
     private const CHUNK_CACHE_TTL = 3600;
 
     /**
-     * While LanguageTool does not answer, further checks return no matches instead of each
-     * waiting for the full request timeout.
+     * LanguageTool queues requests beyond its check threads, and queued chunks run into the
+     * request timeout. Shared with other users, so kept well below the server's thread count.
+     */
+    private const MAX_PARALLEL_REQUESTS = 3;
+
+    /**
+     * While LanguageTool does not answer, further checks fail fast instead of each waiting for
+     * the full request timeout.
      */
     private const CIRCUIT_BREAKER_KEY = 'languagetool_circuit_open';
     private const CIRCUIT_BREAKER_TTL = 60;
@@ -58,18 +66,16 @@ class LanguageToolService
     public function checkText(array $formData): array
     {
         if ($this->cache->getItem(self::CIRCUIT_BREAKER_KEY)->isHit()) {
-            return ['matches' => []];
+            throw new LanguageToolServiceException('LanguageTool is unavailable, check skipped');
         }
 
         if (!is_string($formData['text'] ?? null)) {
             return $this->requestCheck($formData)->toArray();
         }
 
-        // Cache hits are resolved first and all missing chunks are requested before any response
-        // is read, so a stalled LanguageTool costs one timeout per check, not one per chunk.
-        $chunks = $this->splitIntoChunks($formData['text']) ?: [''];
+        $chunks = $this->splitIntoChunks($formData['text']);
         $results = [];
-        $pending = [];
+        $missing = [];
         foreach ($chunks as $index => $chunk) {
             $chunkData = ['text' => $chunk] + $formData;
             $item = $this->cache->getItem('languagetool_'.hash('sha256', json_encode($chunkData, JSON_THROW_ON_ERROR)));
@@ -77,19 +83,32 @@ class LanguageToolService
                 $results[$index] = $item->get();
                 continue;
             }
-            $pending[$index] = [$item, $this->requestCheck($chunkData)];
+            $missing[$index] = [$item, $chunkData];
         }
 
+        // Missing chunks run in parallel up to MAX_PARALLEL_REQUESTS, so a stalled LanguageTool
+        // costs one timeout per check, not one per chunk.
+        $queue = array_keys($missing);
+        $inFlight = [];
         try {
-            foreach ($pending as $index => [$item, $chunkResponse]) {
-                $results[$index] = $chunkResponse->toArray();
-                $this->cache->save($item->set($results[$index])->expiresAfter(self::CHUNK_CACHE_TTL));
-                unset($pending[$index]);
+            while ([] !== $queue || [] !== $inFlight) {
+                while ([] !== $queue && count($inFlight) < self::MAX_PARALLEL_REQUESTS) {
+                    $index = array_shift($queue);
+                    $inFlight[$index] = $this->requestCheck($missing[$index][1]);
+                }
+
+                $index = array_key_first($inFlight);
+                $results[$index] = $inFlight[$index]->toArray();
+                unset($inFlight[$index]);
+                $this->cache->save($missing[$index][0]->set($results[$index])->expiresAfter(self::CHUNK_CACHE_TTL));
             }
-        } catch (TransportExceptionInterface $e) {
-            $this->openCircuitBreaker();
-            foreach ($pending as [, $chunkResponse]) {
+        } catch (ExceptionInterface $e) {
+            foreach ($inFlight as $chunkResponse) {
                 $chunkResponse->cancel();
+            }
+            // Client errors stem from the request itself and say nothing about LanguageTool's health.
+            if ($e instanceof TransportExceptionInterface || $e instanceof ServerExceptionInterface) {
+                $this->openCircuitBreaker();
             }
 
             throw $e;
