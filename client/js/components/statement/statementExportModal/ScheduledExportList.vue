@@ -89,7 +89,7 @@
 
 <script setup lang="ts">
 import { DpButton, DpIcon, DpLoading } from '@demos-europe/demosplan-ui'
-import { ref, watch, withDefaults } from 'vue'
+import { ref, watch } from 'vue'
 import type { ScheduledExport } from '@DpJs/types/scheduledExport'
 import { useScheduledExportOptions } from '@DpJs/composables/useScheduledExportOptions'
 
@@ -145,7 +145,12 @@ const handleScheduledExportAction = async (actionType: 'edit' | 'delete', schedu
   }
 
   pendingActionExportId.value = scheduledExportId
-  emit(actionType, scheduledExportId)
+
+  if (actionType === 'delete') {
+    emit('delete', scheduledExportId)
+  } else {
+    emit('edit', scheduledExportId)
+  }
 }
 
 const hasPendingExportAction = (exportId: string): boolean =>

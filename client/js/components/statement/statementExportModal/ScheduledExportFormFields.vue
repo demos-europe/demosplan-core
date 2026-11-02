@@ -119,7 +119,7 @@ const { getNextExportDate, formatExportDate } = useScheduledExportDate()
 
 const frequencyLabel = computed(() => {
   if (selectedFrequency.value === 'monthly') {
-    return Translator.trans('export.xlsx.scheduled.frequency.monthly.selectedDay', { selectedDay: selectedDayOfMonth.value })
+    return Translator.trans('export.xlsx.scheduled.frequency.monthly.selectedDay', { selectedDay: String(selectedDayOfMonth.value) })
   }
 
   return frequencyOptions.find(({ value }) => value === selectedFrequency.value)?.label ?? ''
