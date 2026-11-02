@@ -614,6 +614,12 @@ feature_admin_assessmenttable_export_statement_generic_xlsx:
     expose: true
     loginRequired: true
     parent: feature_admin
+feature_admin_scheduled_xlsx_export:
+    label: 'Enable Scheduled Excel Export'
+    description: 'Permission to configure, view, edit and delete a regularly recurring excel export for statement(s) with all data from assessmenttable.'
+    expose: true
+    loginRequired: true
+    parent: feature_admin
 feature_admin_customer_master_procedure_template:
     description: |-
         Per Customer one default blueprint can be existing.
