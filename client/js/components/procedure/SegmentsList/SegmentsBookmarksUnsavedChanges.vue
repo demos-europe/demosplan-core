@@ -346,8 +346,8 @@ const getDetailedFilterChanges = (bookmarkFilters: Record<string, any>, currentF
   }
 }
 
-const getDetailedSearchChanges = (bookmarkSearch: string = '', currentSearch: string = ''): DetailedChange | null => {
-  const oldValue = bookmarkSearch.trim()
+const getDetailedSearchChanges = (bookmarkSearch: string | null = '', currentSearch: string = ''): DetailedChange | null => {
+  const oldValue = (bookmarkSearch ?? '').trim()
   const newValue = currentSearch.trim()
 
   if (oldValue === newValue) {
