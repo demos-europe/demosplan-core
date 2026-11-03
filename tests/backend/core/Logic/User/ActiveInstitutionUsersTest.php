@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Logic\User;
 
+use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
@@ -177,6 +178,45 @@ class ActiveInstitutionUsersTest extends FunctionalTestCase
 
         // Assert
         self::assertSame([], $result);
+    }
+
+    /**
+     * The computed column (lists) and findIds() (single institution) are two ways to ask the same question.
+     * They have to agree for every organisation, so the rule stays defined once.
+     */
+    public function testAddSelectFlagsTheSameOrgasAsFindIds(): void
+    {
+        // Arrange
+        $withInstitutionUser = $this->createOrga();
+        $this->addUser($withInstitutionUser, RoleInterface::PUBLIC_AGENCY_WORKER);
+        $withPlanningAgencyAdminOnly = $this->createOrga();
+        $this->addUser($withPlanningAgencyAdminOnly, RoleInterface::PLANNING_AGENCY_ADMIN);
+        $withDeletedInstitutionUser = $this->createOrga();
+        $this->addUser($withDeletedInstitutionUser, RoleInterface::PUBLIC_AGENCY_WORKER, deleted: true);
+        $withRoleInAnotherCustomer = $this->createOrga();
+        $this->addUser($withRoleInAnotherCustomer, RoleInterface::PUBLIC_AGENCY_COORDINATION, customer: $this->createCustomer());
+        $queryBuilder = $this->getEntityManager()->createQueryBuilder()
+            ->select('orga.id')
+            ->from(Orga::class, 'orga');
+
+        // Act
+        $this->sut->addSelect($queryBuilder, new QueryNameGenerator());
+        $rows = $queryBuilder->getQuery()->getResult();
+
+        // Assert
+        $allIds = array_column($rows, 'id');
+        $flaggedIds = array_column(
+            array_filter($rows, static fn (array $row): bool => (bool) $row[ActiveInstitutionUsers::DEFAULT_ALIAS]),
+            'id'
+        );
+        $idsFromFindIds = $this->sut->findIds($allIds);
+        sort($flaggedIds);
+        sort($idsFromFindIds);
+        self::assertSame($idsFromFindIds, $flaggedIds);
+        self::assertContains($withInstitutionUser->getId(), $flaggedIds);
+        self::assertNotContains($withPlanningAgencyAdminOnly->getId(), $flaggedIds);
+        self::assertNotContains($withDeletedInstitutionUser->getId(), $flaggedIds);
+        self::assertNotContains($withRoleInAnotherCustomer->getId(), $flaggedIds);
     }
 
     private function createCustomer(): Customer

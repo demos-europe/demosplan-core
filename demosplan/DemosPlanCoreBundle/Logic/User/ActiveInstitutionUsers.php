@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
+use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,6 +28,11 @@ use Doctrine\ORM\QueryBuilder;
  */
 class ActiveInstitutionUsers
 {
+    /**
+     * Name of the computed column added by {@see self::addSelect()}.
+     */
+    public const DEFAULT_ALIAS = 'hasActiveUsers';
+
     private const CUSTOMER_PARAMETER = 'activeUsersCustomerId';
     private const ROLE_CODES_PARAMETER = 'activeUsersRoleCodes';
     private const ORGA_IDS_PARAMETER = 'activeUsersOrgaIds';
@@ -73,6 +79,31 @@ class ActiveInstitutionUsers
     {
         $queryBuilder->setParameter($customerParameter, $this->customerService->getCurrentCustomer()->getId());
         $queryBuilder->setParameter($roleCodesParameter, User::PUBLIC_AGENCY_ROLES);
+    }
+
+    /**
+     * Adds the rule as a computed column to the collection query of an API Platform provider. This is the
+     * approach of API Platform's computed-field guide (`docs/guides/computed-field.php` in api-platform/core):
+     * the state option `handleLinks` changes the query before it runs. The rows of the result then look like
+     * `[0 => Orga, '<alias>' => 1|0]`.
+     *
+     * The condition is a subselect, so it adds no join and no grouping to the query.
+     */
+    public function addSelect(
+        QueryBuilder $queryBuilder,
+        QueryNameGeneratorInterface $queryNameGenerator,
+        string $alias = self::DEFAULT_ALIAS,
+    ): void {
+        $customerParameter = $queryNameGenerator->generateParameterName(self::CUSTOMER_PARAMETER);
+        $roleCodesParameter = $queryNameGenerator->generateParameterName(self::ROLE_CODES_PARAMETER);
+        $rootAlias = $queryBuilder->getRootAliases()[0];
+
+        $queryBuilder->addSelect(sprintf(
+            '(CASE WHEN %s THEN 1 ELSE 0 END) AS %s',
+            $this->existsDql($rootAlias, $customerParameter, $roleCodesParameter),
+            $alias
+        ));
+        $this->bindParameters($queryBuilder, $customerParameter, $roleCodesParameter);
     }
 
     /**

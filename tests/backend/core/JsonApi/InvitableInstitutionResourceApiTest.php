@@ -235,6 +235,89 @@ class InvitableInstitutionResourceApiTest extends AbstractApiTest
         self::assertNotContains($institution->getId(), $ids);
     }
 
+    public function testGetReturnsHasActiveUsersForInstitutionWithInstitutionUser(): void
+    {
+        // Arrange
+        $institution = $this->getInstitution();
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.'/'.$institution->getId(), 'GET', $this->user, null);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        self::assertTrue(Json::decodeToArray($response->getContent())['data']['attributes']['hasActiveUsers']);
+    }
+
+    /**
+     * The access conditions of the list only look for an institution role record, not for deleted users,
+     * so an institution whose users are all deleted is still returned, with the flag off. Single and list
+     * use different code paths for the flag, so both are checked.
+     */
+    public function testGetAndListReturnHasActiveUsersFalseWhenAllUsersAreDeleted(): void
+    {
+        // Arrange
+        $institution = $this->getInstitution();
+        $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
+        foreach ($entityManager->find(Orga::class, $institution->getId())->getAllUsers() as $user) {
+            $user->setDeleted(true);
+        }
+        $entityManager->flush();
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $single = $this->sendRequest(self::ROUTE.'/'.$institution->getId(), 'GET', $this->user, null);
+        $list = $this->sendRequest(self::ROUTE.'?pagination=false', 'GET', $this->user, null);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $single->getStatusCode());
+        self::assertFalse(Json::decodeToArray($single->getContent())['data']['attributes']['hasActiveUsers']);
+        $row = $this->getRow($list, $institution);
+        self::assertFalse($row['attributes']['hasActiveUsers']);
+    }
+
+    public function testListReturnsHasActiveUsersForEveryRow(): void
+    {
+        // Arrange
+        $institution = $this->getInstitution();
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.'?pagination=false', 'GET', $this->user, null);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $rows = Json::decodeToArray($response->getContent())['data'];
+        self::assertNotEmpty($rows);
+        foreach ($rows as $row) {
+            self::assertIsBool($row['attributes']['hasActiveUsers']);
+        }
+        self::assertTrue($this->getRow($response, $institution)['attributes']['hasActiveUsers']);
+    }
+
+    public function testListRestrictsAttributesToRequestedFieldsIncludingHasActiveUsers(): void
+    {
+        // Arrange
+        $institution = $this->getInstitution();
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $response = $this->sendRequest(
+            self::ROUTE.'?pagination=false&fields[InvitableInstitution]=name,hasActiveUsers',
+            'GET',
+            $this->user,
+            null
+        );
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        self::assertSame(['name', 'hasActiveUsers'], array_keys($this->getRow($response, $institution)['attributes']));
+    }
+
     public function testGetIsDeniedWithoutTagPermission(): void
     {
         $this->loginForApiPlatform();
@@ -262,6 +345,21 @@ class InvitableInstitutionResourceApiTest extends AbstractApiTest
         self::assertSame(Response::HTTP_OK, $response->getStatusCode());
 
         return array_column(Json::decodeToArray($response->getContent())['data'], 'id');
+    }
+
+    /**
+     * @return array<string, mixed> the entry of the given institution in the response of a list request
+     */
+    private function getRow(Response $response, Orga $institution): array
+    {
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $rows = array_filter(
+            Json::decodeToArray($response->getContent())['data'],
+            static fn (array $row): bool => $row['id'] === $institution->getId()
+        );
+        self::assertCount(1, $rows);
+
+        return array_shift($rows);
     }
 
     private function getInstitution(): Orga
