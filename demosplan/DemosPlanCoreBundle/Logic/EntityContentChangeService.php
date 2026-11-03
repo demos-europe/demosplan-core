@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\Exception\EntityIdNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidDataException;
 use demosplan\DemosPlanCoreBundle\Exception\NotYetImplementedException;
+use demosplan\DemosPlanCoreBundle\Logic\Customer\CustomerUrlGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentLockEnforcementService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
@@ -41,7 +42,6 @@ use Psr\Log\LoggerInterface;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionProperty;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
@@ -71,7 +71,7 @@ class EntityContentChangeService
         private readonly GlobalConfigInterface $globalConfig,
         private readonly MailService $mailService,
         private readonly RepositoryHelper $repositoryHelper,
-        private readonly RouterInterface $router,
+        private readonly CustomerUrlGenerator $customerUrlGenerator,
         TokenStorageInterface $tokenStorage,
         private readonly TranslatorInterface $translator,
         private readonly CustomFieldValueCreator $customFieldValueCreator,
@@ -1150,23 +1150,14 @@ class EntityContentChangeService
             $timeString
         );
 
-        $currentMailData = [
-            'totalTasks' => 0,
-            'entries'    => [],
-        ];
-        /** @var ?User $currentAssignee */
-        $currentAssignee = null;
-        $generatedMails = 0;
-        foreach ($segmentsWithUpdatedAssignee as $key => $changedSegment) {
+        // One mail per assignee and customer, as all links of a mail have to lead to the same customer.
+        /** @var array<string, array{assignee: User, mailData: array}> $mailsByRecipient */
+        $mailsByRecipient = [];
+        foreach ($segmentsWithUpdatedAssignee as $changedSegment) {
             $assignee = $changedSegment->getAssignee();
 
             if (null === $assignee) {
                 throw new \demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException('Expected all segments to have an assignee set');
-            }
-
-            // Initial setup of customer and user
-            if (0 === $key) {
-                $currentAssignee = $assignee;
             }
 
             // Does the assignee even want to get this mail?
@@ -1174,30 +1165,27 @@ class EntityContentChangeService
                 continue;
             }
 
-            // Send mail and reset data grouping on assignee and/or customer change
-            if ($assignee->getId() !== $currentAssignee->getId()) {
-                // Send mail
-                $generatedMails = $this->sendUserAssignedTasksNotificationMail(
-                    $currentMailData,
-                    $currentAssignee,
-                    $generatedMails
-                );
-                // update for next assignee in processing
-                $currentAssignee = $assignee;
-                $currentMailData = [
-                    'totalTasks' => 0,
-                    'entries'    => [],
+            $customer = $changedSegment->getProcedure()->getCustomer();
+            $recipientKey = $assignee->getId().'|'.($customer?->getId() ?? '');
+            if (!array_key_exists($recipientKey, $mailsByRecipient)) {
+                $mailsByRecipient[$recipientKey] = [
+                    'assignee' => $assignee,
+                    'mailData' => [
+                        'totalTasks' => 0,
+                        'entries'    => [],
+                        'portalLink' => $this->customerUrlGenerator->generate($customer, 'DemosPlan_user_portal'),
+                    ],
                 ];
             }
 
             // Add generated link
-            $link = $this->router->generate(
+            $link = $this->customerUrlGenerator->generate(
+                $customer,
                 'dplan_statement_segments_list',
                 [
                     'procedureId' => $changedSegment->getProcedure()->getId(),
                     'statementId' => $changedSegment->getParentStatementOfSegment()->getId(),
-                ],
-                Router::ABSOLUTE_URL
+                ]
             );
             $link .= '?segment='.$changedSegment->getId();
 
@@ -1205,17 +1193,18 @@ class EntityContentChangeService
             $procedureName = $changedSegment->getProcedure()->getName();
             $workflowPlace = $changedSegment->getPlace()->getName();
             $externId = $changedSegment->getExternId();
-            $currentMailData['entries'][$procedureName][$workflowPlace][$externId] = [
+            $mailsByRecipient[$recipientKey]['mailData']['entries'][$procedureName][$workflowPlace][$externId] = [
                 'link'     => $link,
                 'deadline' => $changedSegment->getDeadline(),
             ];
-            ++$currentMailData['totalTasks'];
+            ++$mailsByRecipient[$recipientKey]['mailData']['totalTasks'];
         }
-        // send mail for last user
-        if (null !== $currentAssignee) {
+
+        $generatedMails = 0;
+        foreach ($mailsByRecipient as $recipientMail) {
             $generatedMails = $this->sendUserAssignedTasksNotificationMail(
-                $currentMailData,
-                $currentAssignee,
+                $recipientMail['mailData'],
+                $recipientMail['assignee'],
                 $generatedMails
             );
         }
