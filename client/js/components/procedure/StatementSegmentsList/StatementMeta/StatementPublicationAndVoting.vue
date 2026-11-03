@@ -398,7 +398,7 @@ export default {
        * The Vuex-json-Api has a bug, where the store is not updated correctly,
        * so we have to remove the item from the store and the local data
        */
-      this.$delete(this.votes, id)
+      delete this.votes[id]
       this.removeStatementVote(id)
     },
 
