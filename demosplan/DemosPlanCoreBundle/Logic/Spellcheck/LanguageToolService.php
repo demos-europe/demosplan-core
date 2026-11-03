@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Spellcheck;
 
 use demosplan\DemosPlanCoreBundle\Exception\LanguageToolServiceException;
+use demosplan\DemosPlanCoreBundle\Exception\LanguageToolUnavailableException;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -67,7 +68,7 @@ class LanguageToolService
     public function checkText(array $formData): array
     {
         if ($this->cache->getItem(self::CIRCUIT_BREAKER_KEY)->isHit()) {
-            throw new LanguageToolServiceException('LanguageTool is unavailable, check skipped');
+            throw new LanguageToolUnavailableException('LanguageTool is unavailable, check skipped');
         }
 
         if (!is_string($formData['text'] ?? null)) {

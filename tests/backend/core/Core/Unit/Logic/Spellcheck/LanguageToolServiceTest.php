@@ -12,7 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Core\Unit\Logic\Spellcheck;
 
-use demosplan\DemosPlanCoreBundle\Exception\LanguageToolServiceException;
+use demosplan\DemosPlanCoreBundle\Exception\LanguageToolUnavailableException;
 use demosplan\DemosPlanCoreBundle\Logic\Spellcheck\LanguageToolService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -159,7 +159,7 @@ class LanguageToolServiceTest extends TestCase
         } catch (TransportExceptionInterface|ServerExceptionInterface) {
         }
 
-        $this->expectException(LanguageToolServiceException::class);
+        $this->expectException(LanguageToolUnavailableException::class);
         try {
             $this->sut->checkText(['text' => 'Noch ein Fehler', 'language' => 'de-DE']);
         } finally {

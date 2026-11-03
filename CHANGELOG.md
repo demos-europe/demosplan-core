@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+### Fixed
+- While the spell check is unavailable, a single info hint is shown instead of an error message for every failed check
+
 ## v4.61.4 (2026-10-21)
 
 ### Changed
