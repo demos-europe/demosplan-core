@@ -29,6 +29,9 @@ use Symfony\Component\Security\Http\EntryPoint\AuthenticationEntryPointInterface
 
 class AzureAuthenticator extends OAuth2Authenticator implements AuthenticationEntryPointInterface
 {
+    private const CLIENT_SOURCE_CUSTOMER_CONFIG = 'customer-config';
+    private const CLIENT_SOURCE_ENV = 'env';
+
     public function __construct(
         private readonly ClientRegistry $clientRegistry,
         private readonly LoggerInterface $logger,
@@ -52,7 +55,7 @@ class AzureAuthenticator extends OAuth2Authenticator implements AuthenticationEn
             : $this->clientRegistry->getClient('azure');
         $accessToken = $this->fetchAccessToken($client);
         $this->logger->info('Azure OAuth login attempt', [
-            'clientSource' => $useCustomerConfig ? 'customer-config' : 'env',
+            'clientSource' => $useCustomerConfig ? self::CLIENT_SOURCE_CUSTOMER_CONFIG : self::CLIENT_SOURCE_ENV,
         ]);
 
         $userIdentifier = $accessToken->getToken();
