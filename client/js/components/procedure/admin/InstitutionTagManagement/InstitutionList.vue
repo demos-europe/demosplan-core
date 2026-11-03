@@ -76,6 +76,15 @@
               <li class="o-list__item o-hellip--nowrap">
                 {{ date(institution.createdDate) }}
               </li>
+              <li v-if="institution.hasActiveUsers === false">
+                <dp-badge
+                  class="mt-1"
+                  color="default"
+                  data-cy="institutionList:noActiveUsersBadge"
+                  size="small"
+                  :text="Translator.trans('invitable_institution.users.active.none')"
+                />
+              </li>
             </ul>
           </template>
           <template v-slot:email="institution">
@@ -193,6 +202,7 @@
 
 <script>
 import {
+  DpBadge,
   DpColumnSelector,
   DpDataTable,
   DpIcon,
@@ -215,6 +225,7 @@ export default {
   components: {
     ClientSideTagFilter,
     CustomField,
+    DpBadge,
     DpColumnSelector,
     DpDataTable,
     DpIcon,
@@ -345,6 +356,7 @@ export default {
           customFields: this.customFieldValuesByInstitutionId[id] || {},
           edit: this.editingInstitutionId === id,
           email: this.cleanEmail(attributes.participationFeedbackEmailAddress),
+          hasActiveUsers: attributes.hasActiveUsers,
           id,
           name: attributes.name,
           tags: relationships.assignedTags.data
@@ -523,6 +535,7 @@ export default {
           InvitableInstitution: [
             'name',
             'createdDate',
+            'hasActiveUsers',
             'participationFeedbackEmailAddress',
             'assignedTags',
             ...customFields,
