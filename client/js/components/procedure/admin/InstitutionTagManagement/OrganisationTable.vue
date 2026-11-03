@@ -70,21 +70,21 @@ All rights reserved
         <div>{{ legalName }}</div>
         <dp-badge
           v-if="hasActiveUsers === false"
+          :text="Translator.trans('invitable_institution.users.active.none')"
           class="mt-1"
           color="default"
           data-cy="organisationTable:noActiveUsersBadge"
           size="small"
-          :text="Translator.trans('invitable_institution.users.active.none')"
         />
       </template>
 
-      <!-- Resource-specific content based on resourceType -->
+      <!-- Expanded row: institution details -->
       <template v-slot:expandedContent="{ id, participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags, hasActiveUsers }">
         <dp-inline-notification
           v-if="hasActiveUsers === false"
+          :message="Translator.trans(noActiveUsersHintKey)"
           class="mb-2 ml-4 mt-4"
           data-cy="organisationTable:noActiveUsersHint"
-          :message="Translator.trans(noActiveUsersHintKey)"
           type="info"
         />
         <div class="border-l-4 border-neutral mb-2 ml-4 mt-4 pl-4">
@@ -359,18 +359,18 @@ export default {
       return this.searchTerm !== ''
     },
 
-    noActiveUsersHintKey () {
-      return this.resourceType === 'InvitedToeb' ?
-        'invitable_institution.users.active.none.hint.invited' :
-        'invitable_institution.users.active.none.hint.invitable'
-    },
-
     itemsPerPage () {
       return this.pagination.perPage || this.defaultPagination.perPage
     },
 
     itemsPerPageOptions () {
       return this.pagination.limits || this.defaultPagination.limits
+    },
+
+    noActiveUsersHintKey () {
+      return this.resourceType === 'InvitedToeb' ?
+        'invitable_institution.users.active.none.hint.invited' :
+        'invitable_institution.users.active.none.hint.invitable'
     },
 
     rowItems () {

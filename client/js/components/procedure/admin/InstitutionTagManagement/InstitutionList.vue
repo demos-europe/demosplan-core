@@ -78,11 +78,11 @@
               </li>
               <li v-if="institution.hasActiveUsers === false">
                 <dp-badge
+                  :text="Translator.trans('invitable_institution.users.active.none')"
                   class="mt-1"
                   color="default"
                   data-cy="institutionList:noActiveUsersBadge"
                   size="small"
-                  :text="Translator.trans('invitable_institution.users.active.none')"
                 />
               </li>
             </ul>
