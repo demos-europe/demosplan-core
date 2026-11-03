@@ -119,8 +119,8 @@ import type {
   RootState,
   Slidebar,
 } from '@DpJs/types/store'
-import SegmentsBookmarksList from '@DpJs/components/procedure/SegmentsList/SegmentsBookmarksList'
-import SegmentsBookmarksUnsavedChanges from '@DpJs/components/procedure/SegmentsList/SegmentsBookmarksUnsavedChanges'
+import SegmentsBookmarksList from '@DpJs/components/procedure/SegmentsList/SegmentsBookmarksList.vue'
+import SegmentsBookmarksUnsavedChanges from '@DpJs/components/procedure/SegmentsList/SegmentsBookmarksUnsavedChanges.vue'
 import { useStore } from 'vuex'
 
 /* Props */
