@@ -119,11 +119,9 @@ import type {
   RootState,
   Slidebar,
 } from '@DpJs/types/store'
-import SegmentsBookmarksList from './SegmentsBookmarksList'
-import SegmentsBookmarksUnsavedChanges from './SegmentsBookmarksUnsavedChanges'
+import SegmentsBookmarksList from '@DpJs/components/procedure/SegmentsList/SegmentsBookmarksList'
+import SegmentsBookmarksUnsavedChanges from '@DpJs/components/procedure/SegmentsList/SegmentsBookmarksUnsavedChanges'
 import { useStore } from 'vuex'
-
-const { Translator, dplan } = window as typeof globalThis
 
 /* Props */
 const props = withDefaults(defineProps<{
