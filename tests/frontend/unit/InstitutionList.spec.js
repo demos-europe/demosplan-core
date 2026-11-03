@@ -6,9 +6,10 @@
  *
  * All rights reserved
  */
-import { flushPromises, mount } from '@vue/test-utils'
 import { createStore } from 'vuex'
+import { flushPromises } from '@vue/test-utils'
 import InstitutionList from '@DpJs/components/procedure/admin/InstitutionTagManagement/InstitutionList'
+import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 vi.mock('@DpJs/composables/useCustomFields', () => ({
   useCustomFields: () => ({
@@ -17,23 +18,69 @@ vi.mock('@DpJs/composables/useCustomFields', () => ({
   }),
 }))
 
-/*
- * Renders only what this spec looks at: the cell of the institution name.
- */
-const DpDataTableStub = {
-  props: ['items'],
-  template: '<div><div v-for="item in items" :key="item.id" class="row"><slot name="name" v-bind="item" /></div></div>',
-}
-
-const createItem = (id, name, hasActiveUsers) => ({
+const createItem = ({ id = 'orga-1', ...attributes } = {}) => ({
   id,
-  attributes: { createdDate: '2022-12-09T00:00:00+00:00', hasActiveUsers, name, participationFeedbackEmailAddress: null },
+  attributes: {
+    createdDate: '2022-12-09T00:00:00+00:00',
+    hasActiveUsers: true,
+    name: 'Hummel ewf',
+    participationFeedbackEmailAddress: null,
+    ...attributes,
+  },
   relationships: { assignedTags: { data: [] } },
 })
 
+// Renders the name cell per item so it can be asserted without the real table
+const DpDataTableStub = {
+  props: ['items'],
+  template: `
+    <div>
+      <div
+        v-for="item in items"
+        :key="item.id"
+        class="row"
+      >
+        <slot name="name" v-bind="item" />
+      </div>
+    </div>
+  `,
+}
+
 describe('InstitutionList', () => {
+  let list
+  let wrapper
+
+  const mountList = (items) => {
+    list = vi.fn(() => ({ meta: { totalItems: items.length, itemsPerPage: 50, currentPage: 1 } }))
+    const emptyModule = { namespaced: true, state: () => ({ items: {} }), actions: { list: vi.fn(() => ({})) } }
+    const store = createStore({
+      modules: {
+        InstitutionTag: emptyModule,
+        InstitutionTagCategory: emptyModule,
+        InvitableInstitution: {
+          namespaced: true,
+          state: () => ({ items: Object.fromEntries(items.map(item => [item.id, item])) }),
+          actions: { list },
+        },
+      },
+    })
+
+    wrapper = shallowMountWithGlobalMocks(InstitutionList, {
+      props: { isActive: true },
+      global: {
+        plugins: [store],
+        renderStubDefaultSlot: true,
+        stubs: {
+          'dp-data-table': DpDataTableStub,
+        },
+      },
+    })
+  }
+
+  const findRow = name => wrapper.findAll('.row').find(row => row.text().includes(name))
+
   beforeAll(() => {
-    // Jsdom has no ResizeObserver, which the scrollbar mixin of the table uses
+    // Jsdom has no ResizeObserver, which the table scrollbar mixin of the component uses
     vi.stubGlobal('ResizeObserver', class {
       disconnect () {}
 
@@ -43,59 +90,30 @@ describe('InstitutionList', () => {
     })
   })
 
-  const mountList = () => {
-    const list = vi.fn(() => ({ meta: { totalItems: 2, itemsPerPage: 50, currentPage: 1 } }))
-    const emptyModule = { namespaced: true, state: () => ({ items: {} }), actions: { list: vi.fn(() => ({})) } }
-    const store = createStore({
-      modules: {
-        InstitutionTag: emptyModule,
-        InstitutionTagCategory: emptyModule,
-        InvitableInstitution: {
-          namespaced: true,
-          state: () => ({
-            items: {
-              withUsers: createItem('withUsers', 'Firma mit Nutzer*innen', true),
-              withoutUsers: createItem('withoutUsers', 'Hummel ewf', false),
-            },
-          }),
-          actions: { list },
-        },
-      },
-    })
-
-    const wrapper = mount(InstitutionList, {
-      global: {
-        plugins: [store],
-        stubs: {
-          ClientSideTagFilter: true,
-          DpColumnSelector: true,
-          DpDataTable: DpDataTableStub,
-          DpSearchField: true,
-          DpSlidingPagination: true,
-        },
-      },
-      props: { isActive: true },
-    })
-
-    return { list, wrapper }
-  }
+  afterAll(() => {
+    vi.unstubAllGlobals()
+  })
 
   it('marks only institutions without active users', async () => {
-    const { wrapper } = mountList()
-
+    mountList([
+      createItem({ id: 'orga-1', hasActiveUsers: true, name: 'Firma mit Nutzer*innen' }),
+      createItem({ id: 'orga-2', hasActiveUsers: false, name: 'Hummel ewf' }),
+    ])
     await flushPromises()
 
-    const rows = wrapper.findAll('.row')
-    const noUsersRow = rows.find(row => row.text().includes('Hummel ewf'))
-    const withUsersRow = rows.find(row => row.text().includes('Firma mit Nutzer*innen'))
+    expect(findRow('Firma mit Nutzer*innen').find('[data-cy="institutionList:noActiveUsersBadge"]').exists()).toBe(false)
+    expect(findRow('Hummel ewf').find('[data-cy="institutionList:noActiveUsersBadge"]').exists()).toBe(true)
+  })
 
-    expect(noUsersRow.text()).toContain('invitable_institution.users.active.none')
-    expect(withUsersRow.text()).not.toContain('invitable_institution.users.active.none')
+  it('does not mark institutions whose flag is not loaded', async () => {
+    mountList([createItem({ hasActiveUsers: undefined })])
+    await flushPromises()
+
+    expect(wrapper.findAll('[data-cy="institutionList:noActiveUsersBadge"]')).toHaveLength(0)
   })
 
   it('requests the flag from the api', async () => {
-    const { list } = mountList()
-
+    mountList([createItem()])
     await flushPromises()
 
     const requestedFields = list.mock.calls[0][1].fields.InvitableInstitution.split(',')

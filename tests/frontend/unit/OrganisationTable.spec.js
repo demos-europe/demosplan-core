@@ -6,17 +6,27 @@
  *
  * All rights reserved
  */
-import { flushPromises, mount } from '@vue/test-utils'
 import { createStore } from 'vuex'
+import { flushPromises } from '@vue/test-utils'
 import OrganisationTable from '@DpJs/components/procedure/admin/InstitutionTagManagement/OrganisationTable'
+import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 vi.mock('@DpJs/composables/useCustomFields', () => ({
   useCustomFields: () => ({ fetchCustomFields: vi.fn(() => Promise.resolve([])) }),
 }))
 
-/*
- * Renders only what this spec looks at: the cell of the institution name and the expanded content of each row.
- */
+const createItem = ({ id = 'orga-1', ...attributes } = {}) => ({
+  id,
+  attributes: {
+    hasActiveUsers: true,
+    legalName: 'Amt Nordwest',
+    participationFeedbackEmailAddress: 'beteiligung@example.org',
+    ...attributes,
+  },
+  relationships: {},
+})
+
+// Renders the name cell and the expanded content per item so they can be asserted without the real table
 const DpDataTableStub = {
   props: ['items'],
   template: `
@@ -26,22 +36,25 @@ const DpDataTableStub = {
         :key="item.id"
         class="row"
       >
-        <div class="name"><slot name="legalName" v-bind="item" /></div>
-        <div class="expanded"><slot name="expandedContent" v-bind="item" /></div>
+        <slot name="legalName" v-bind="item" />
+        <slot name="expandedContent" v-bind="item" />
       </div>
     </div>
   `,
 }
 
-const createItem = (id, legalName, hasActiveUsers) => ({
-  id,
-  attributes: { hasActiveUsers, legalName, participationFeedbackEmailAddress: 'beteiligung@example.org' },
-  relationships: {},
-})
+// DpInlineNotification takes data-cy as a prop, which the auto-stub does not render as attribute
+const DpInlineNotificationStub = {
+  props: ['dataCy', 'message'],
+  template: '<div :data-cy="dataCy">{{ message }}</div>',
+}
 
 describe('OrganisationTable', () => {
-  const mountTable = (resourceType) => {
-    const list = vi.fn(() => ({ meta: { pagination: { currentPage: 1, perPage: 50, total: 2, totalPages: 1 } } }))
+  let list
+  let wrapper
+
+  const mountTable = (items, resourceType = 'InvitedToeb') => {
+    list = vi.fn(() => ({ meta: { pagination: { currentPage: 1, perPage: 50, total: items.length, totalPages: 1 } } }))
     const emptyModule = { namespaced: true, state: () => ({ items: {} }), actions: { list: vi.fn(() => ({})) } }
     const store = createStore({
       modules: {
@@ -51,60 +64,71 @@ describe('OrganisationTable', () => {
         InstitutionTagCategory: emptyModule,
         [resourceType]: {
           namespaced: true,
-          state: () => ({
-            items: {
-              withUsers: createItem('withUsers', 'Amt mit Nutzer*innen', true),
-              withoutUsers: createItem('withoutUsers', 'Amt Nordwest', false),
-            },
-          }),
+          state: () => ({ items: Object.fromEntries(items.map(item => [item.id, item])) }),
           actions: { list },
         },
       },
     })
 
-    const wrapper = mount(OrganisationTable, {
-      global: {
-        plugins: [store],
-        stubs: { ClientSideTagFilter: true, DpDataTable: DpDataTableStub, DpPager: true, DpSearchField: true },
-      },
+    wrapper = shallowMountWithGlobalMocks(OrganisationTable, {
       props: {
         headerFields: [{ field: 'legalName', label: 'Institution' }],
-        procedureId: 'procedureId',
+        procedureId: 'procedure-1',
         resourceType,
       },
+      global: {
+        plugins: [store],
+        renderStubDefaultSlot: true,
+        stubs: {
+          'dp-data-table': DpDataTableStub,
+          'dp-inline-notification': DpInlineNotificationStub,
+        },
+      },
     })
-
-    return { list, wrapper }
   }
 
-  it('marks only institutions without active users', async () => {
-    const { wrapper } = mountTable('InvitedToeb')
+  const findRow = name => wrapper.findAll('.row').find(row => row.text().includes(name))
 
+  it('marks only institutions without active users', async () => {
+    mountTable([
+      createItem({ id: 'orga-1', hasActiveUsers: true, legalName: 'Amt mit Nutzer*innen' }),
+      createItem({ id: 'orga-2', hasActiveUsers: false, legalName: 'Amt Nordwest' }),
+    ])
     await flushPromises()
 
-    const rows = wrapper.findAll('.row')
-    const noUsersRow = rows.find(row => row.text().includes('Amt Nordwest'))
-    const withUsersRow = rows.find(row => row.text().includes('Amt mit Nutzer*innen'))
+    const withUsersRow = findRow('Amt mit Nutzer*innen')
+    const noUsersRow = findRow('Amt Nordwest')
 
-    expect(noUsersRow.find('.name').text()).toContain('invitable_institution.users.active.none')
-    expect(withUsersRow.find('.name').text()).not.toContain('invitable_institution.users.active.none')
-    expect(noUsersRow.find('.expanded').text()).toContain('invitable_institution.users.active.none.hint.invited')
-    expect(withUsersRow.find('.expanded').text()).not.toContain('invitable_institution.users.active.none.hint')
+    expect(withUsersRow.find('[data-cy="organisationTable:noActiveUsersBadge"]').exists()).toBe(false)
+    expect(withUsersRow.find('[data-cy="organisationTable:noActiveUsersHint"]').exists()).toBe(false)
+    expect(noUsersRow.find('[data-cy="organisationTable:noActiveUsersBadge"]').exists()).toBe(true)
+    expect(noUsersRow.find('[data-cy="organisationTable:noActiveUsersHint"]').exists()).toBe(true)
+  })
+
+  it('does not mark institutions whose flag is not loaded', async () => {
+    mountTable([createItem({ hasActiveUsers: undefined })])
+    await flushPromises()
+
+    expect(wrapper.findAll('[data-cy="organisationTable:noActiveUsersBadge"]')).toHaveLength(0)
+    expect(wrapper.findAll('[data-cy="organisationTable:noActiveUsersHint"]')).toHaveLength(0)
+  })
+
+  it('explains in the invited list that the institution will still be invited', async () => {
+    mountTable([createItem({ hasActiveUsers: false })], 'InvitedToeb')
+    await flushPromises()
+
+    expect(wrapper.find('[data-cy="organisationTable:noActiveUsersHint"]').text()).toBe('invitable_institution.users.active.none.hint.invited')
   })
 
   it('explains in the add list that the institution can still be invited', async () => {
-    const { wrapper } = mountTable('InvitableToeb')
-
+    mountTable([createItem({ hasActiveUsers: false })], 'InvitableToeb')
     await flushPromises()
 
-    const noUsersRow = wrapper.findAll('.row').find(row => row.text().includes('Amt Nordwest'))
-
-    expect(noUsersRow.find('.expanded').text()).toContain('invitable_institution.users.active.none.hint.invitable')
+    expect(wrapper.find('[data-cy="organisationTable:noActiveUsersHint"]').text()).toBe('invitable_institution.users.active.none.hint.invitable')
   })
 
   it('requests the flag from the api', async () => {
-    const { list } = mountTable('InvitedToeb')
-
+    mountTable([createItem()])
     await flushPromises()
 
     const requestedFields = list.mock.calls[0][1].fields.InvitedToeb.split(',')
