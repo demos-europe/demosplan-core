@@ -71,7 +71,7 @@ All rights reserved
         <dp-badge
           v-if="hasActiveUsers === false"
           :text="Translator.trans('invitable_institution.users.active.none')"
-          class="mt-1"
+          class="inline-block mt-1"
           color="default"
           data-cy="organisationTable:noActiveUsersBadge"
           size="small"
@@ -83,7 +83,7 @@ All rights reserved
         <dp-inline-notification
           v-if="hasActiveUsers === false"
           :message="Translator.trans(noActiveUsersHintKey)"
-          class="mb-2 ml-4 mt-4"
+          class="ml-4 mt-1"
           data-cy="organisationTable:noActiveUsersHint"
           type="info"
         />
