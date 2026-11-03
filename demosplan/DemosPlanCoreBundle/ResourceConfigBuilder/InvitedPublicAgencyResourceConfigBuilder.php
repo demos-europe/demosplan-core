@@ -24,6 +24,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToManyRelationshipConfigBuilderInterface;
  *
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,OrgaInterface> $hasReceivedInvitationMailInCurrentProcedurePhase
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,OrgaInterface> $originalStatementsCountInProcedure
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,OrgaInterface> $hasActiveUsers
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,OrgaInterface> $legalName
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,OrgaInterface> $competenceDescription
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>,OrgaInterface> $participationFeedbackEmailAddress

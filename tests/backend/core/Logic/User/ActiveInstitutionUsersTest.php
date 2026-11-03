@@ -15,14 +15,15 @@ namespace Tests\Core\Logic\User;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGenerator;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\User\ActiveInstitutionUsers;
-use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
+use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
 use Tests\Base\FunctionalTestCase;
 
 /**
@@ -39,11 +40,7 @@ class ActiveInstitutionUsersTest extends FunctionalTestCase
     {
         parent::setUp();
 
-        // built directly with its real dependencies, as nothing else uses the service yet
-        $this->sut = new ActiveInstitutionUsers(
-            $this->getEntityManager(),
-            $this->getContainer()->get(CustomerService::class)
-        );
+        $this->sut = $this->getContainer()->get(ActiveInstitutionUsers::class);
         $this->currentCustomer = $this->createCustomer();
         $this->getContainer()->get(GlobalConfigInterface::class)->setSubdomain($this->currentCustomer->getSubdomain());
     }
@@ -180,6 +177,71 @@ class ActiveInstitutionUsersTest extends FunctionalTestCase
         self::assertSame([], $result);
     }
 
+    public function testReadCallbackTellsForEachOrgaWhetherTheRuleApplies(): void
+    {
+        // Arrange
+        $withInstitutionUser = $this->createOrga();
+        $this->addUser($withInstitutionUser, RoleInterface::PUBLIC_AGENCY_WORKER);
+        $withPlanningAgencyAdminOnly = $this->createOrga();
+        $this->addUser($withPlanningAgencyAdminOnly, RoleInterface::PLANNING_AGENCY_ADMIN);
+        $withDeletedInstitutionUser = $this->createOrga();
+        $this->addUser($withDeletedInstitutionUser, RoleInterface::PUBLIC_AGENCY_WORKER, deleted: true);
+        $callback = $this->sut->createReadCallback(
+            $this->accessConditionsFor($withInstitutionUser, $withPlanningAgencyAdminOnly, $withDeletedInstitutionUser)
+        );
+
+        // Act
+        $results = [
+            'with institution user'           => $callback($withInstitutionUser),
+            'with planning agency admin only' => $callback($withPlanningAgencyAdminOnly),
+            'with deleted institution user'   => $callback($withDeletedInstitutionUser),
+        ];
+
+        // Assert
+        self::assertSame([
+            'with institution user'           => true,
+            'with planning agency admin only' => false,
+            'with deleted institution user'   => false,
+        ], $results);
+    }
+
+    /**
+     * EDT calls the callback once per row. The first call has to load the answer for all rows, and the
+     * conditions must not even be built before the attribute is read.
+     */
+    public function testReadCallbackLoadsTheAnswerLazilyAndOnlyOnce(): void
+    {
+        // Arrange
+        $orga = $this->createOrga();
+        $this->addUser($orga, RoleInterface::PUBLIC_AGENCY_WORKER);
+        $conditionProviderCalls = 0;
+        $accessConditions = $this->accessConditionsFor($orga);
+        $callback = $this->sut->createReadCallback(
+            function () use (&$conditionProviderCalls, $accessConditions): array {
+                ++$conditionProviderCalls;
+
+                return $accessConditions();
+            }
+        );
+        $callsBeforeFirstRead = $conditionProviderCalls;
+
+        // Act
+        $first = $callback($orga);
+        foreach ($orga->getAllUsers() as $user) {
+            $user->setDeleted(true);
+        }
+        $this->getEntityManager()->flush();
+        $second = $callback($orga);
+        $afterReset = $this->sut->createReadCallback($accessConditions)($orga);
+
+        // Assert
+        self::assertSame(0, $callsBeforeFirstRead);
+        self::assertSame(1, $conditionProviderCalls);
+        self::assertTrue($first);
+        self::assertTrue($second, 'the answer of the first call is remembered');
+        self::assertFalse($afterReset, 'a new callback asks the database again');
+    }
+
     /**
      * The computed column (lists) and findIds() (single institution) are two ways to ask the same question.
      * They have to agree for every organisation, so the rule stays defined once.
@@ -217,6 +279,17 @@ class ActiveInstitutionUsersTest extends FunctionalTestCase
         self::assertNotContains($withPlanningAgencyAdminOnly->getId(), $flaggedIds);
         self::assertNotContains($withDeletedInstitutionUser->getId(), $flaggedIds);
         self::assertNotContains($withRoleInAnotherCustomer->getId(), $flaggedIds);
+    }
+
+    /**
+     * @return callable(): array the access conditions of a resource type that may return exactly the given orgas
+     */
+    private function accessConditionsFor(Orga ...$orgas): callable
+    {
+        $orgaIds = array_map(static fn (Orga $orga): string => $orga->getId(), $orgas);
+        $conditionFactory = $this->getContainer()->get(DqlConditionFactory::class);
+
+        return static fn (): array => [$conditionFactory->propertyHasAnyOfValues($orgaIds, Paths::orga()->id)];
     }
 
     private function createCustomer(): Customer

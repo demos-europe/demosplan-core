@@ -13,10 +13,13 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\User;
 
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\QueryBuilder;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 
 /**
  * The single definition of "an organisation has active institution users": at least one of its users
@@ -39,6 +42,7 @@ class ActiveInstitutionUsers
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
+        private readonly OrgaRepository $orgaRepository,
         private readonly CustomerService $customerService,
     ) {
     }
@@ -123,6 +127,56 @@ class ActiveInstitutionUsers
             ->where(sprintf('candidate.id IN (:%s)', self::ORGA_IDS_PARAMETER))
             ->andWhere($this->existsDql('candidate', self::CUSTOMER_PARAMETER, self::ROLE_CODES_PARAMETER))
             ->setParameter(self::ORGA_IDS_PARAMETER, $orgaIds);
+        $this->bindParameters($queryBuilder, self::CUSTOMER_PARAMETER, self::ROLE_CODES_PARAMETER);
+
+        return array_map(
+            static fn (mixed $id): string => (string) $id,
+            $queryBuilder->getQuery()->getSingleColumnResult()
+        );
+    }
+
+    /**
+     * Creates the callback for a computed attribute of an EDT resource type, to be used with
+     * `setReadableByCallable()`. EDT calls such a callback once per row, so the callback must not
+     * ask the database per row.
+     *
+     * The first call runs one query. It finds all organisations that the resource type may return, as
+     * described by its access conditions, to which the rule applies. Every further call only looks the id up.
+     * The cost is one query per request, independent of the number of rows, and none at all if the
+     * attribute is never read.
+     *
+     * The result is remembered by the returned callback. EDT keeps the property configuration of a resource
+     * type, and with it the callback, for the lifetime of the resource type instance.
+     *
+     * @param callable(): list<ClauseFunctionInterface<bool>> $accessConditionsProvider provides the conditions of
+     *                                                                                  the resource type, called
+     *                                                                                  at most once
+     *
+     * @return callable(OrgaInterface): bool
+     */
+    public function createReadCallback(callable $accessConditionsProvider): callable
+    {
+        $activeOrgaIds = null;
+
+        return function (OrgaInterface $orga) use (&$activeOrgaIds, $accessConditionsProvider): bool {
+            $activeOrgaIds ??= array_flip($this->findIdsAmongAccessible($accessConditionsProvider()));
+
+            return isset($activeOrgaIds[$orga->getId()]);
+        };
+    }
+
+    /**
+     * @param list<ClauseFunctionInterface<bool>> $accessConditions
+     *
+     * @return list<string> the ids of the organisations that fulfill the conditions and to which the rule applies
+     */
+    private function findIdsAmongAccessible(array $accessConditions): array
+    {
+        $queryBuilder = $this->orgaRepository->generateAccessConditionQueryBuilder($accessConditions);
+        $rootAlias = $queryBuilder->getRootAliases()[0];
+        $queryBuilder
+            ->select(sprintf('DISTINCT %s.id', $rootAlias))
+            ->andWhere($this->existsDql($rootAlias, self::CUSTOMER_PARAMETER, self::ROLE_CODES_PARAMETER));
         $this->bindParameters($queryBuilder, self::CUSTOMER_PARAMETER, self::ROLE_CODES_PARAMETER);
 
         return array_map(
