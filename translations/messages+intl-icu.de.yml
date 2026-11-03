@@ -8,7 +8,7 @@
 2fa.email.enable: 'Zwei-Faktor-Authentifizierung per Email aktivieren'
 2fa.totp.code: "TOTP Code"
 2fa.totp.code.qr: "TOTP QR Code"
-2fa.totp.activate.explanation: "Bitte scannen Sie den folgenden Code in einer entsprechenden App wie den Google Authenticator, FreeOTP oder anderen. Alternativ können Sie den unten stehenden sog. TOTP Code in einen Passwortmanager wie KeepassXC eingeben, um die Einmalcodes generieren zu lassen."
+2fa.totp.activate.explanation: "Bitte scannen Sie den folgenden Code in einer entsprechenden App wie dem Google Authenticator, FreeOTP oder anderen. Alternativ können Sie den unten stehenden sog. TOTP Code in einen Passwortmanager wie KeepassXC eingeben, um die Einmalcodes generieren zu lassen."
 2fa.totp.activate: "Um die Zwei-Faktor-Authentifizierung zu aktivieren, geben Sie bitte einen aktuellen Code ein und speichern Sie das Formular"
 2fa.totp.activated: "Die Zwei-Faktor-Authentifizierung ist <strong>aktiviert</strong>. Um sie zu deaktivieren, geben Sie bitte einen aktuellen Code ein und speichern Sie das Formular"
 2fa.totp.enable.explanation: "Um die Zwei-Faktor-Authentifizierung zu nutzen, müssen Sie diese zunächst aktivieren."
