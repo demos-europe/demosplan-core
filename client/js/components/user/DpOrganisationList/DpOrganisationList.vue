@@ -129,7 +129,7 @@
     </div>
     <div
       v-if="noResults"
-      v-cleanhtml="Translator.trans('search.no.results', {searchterm: searchTerm})"
+      v-cleanhtml="isFiltered ? Translator.trans('search.results.none') : Translator.trans('search.no.results', {searchterm: searchTerm})"
       class="u-mt-0_75"
     />
 
@@ -437,6 +437,7 @@ export default {
 
     fetchFilteredOrganisations (selected, page) {
       this.isLoading = true
+      this.noResults = false
       const filterObject = {}
 
       Object.keys(selected).forEach(filter => {
@@ -487,12 +488,14 @@ export default {
         include: includeFields.join(),
       })
         .then(() => {
+          this.noResults = Object.keys(this.items || {}).length === 0
           this.isLoading = false
         })
     },
 
     fetchAllOrganisations (page) {
       this.isLoading = true
+      this.noResults = false
 
       this.list({
         page: {
@@ -545,7 +548,6 @@ export default {
       })
         .then(() => {
           this.pendingOrgs = this.pendingOrganisations || {}
-          this.noResults = Object.keys(this.items || {}).length === 0
         })
         .finally(() => {
           this.pendingOrganisationsLoading = false
@@ -567,7 +569,6 @@ export default {
         })
         .then(() => {
           this.pendingOrgs = this.pendingOrganisations || {}
-          this.noResults = Object.keys(this.items || {}).length === 0
         })
         .finally(() => {
           this.pendingOrganisationsLoading = false

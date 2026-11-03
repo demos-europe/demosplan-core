@@ -10,6 +10,13 @@
 - composer.json declares every PHP extension the application needs (adds apcu, exif, pcntl, pdo_mysql; drops soap, posix), so a missing extension fails the image build
 - production image: PHP extensions bcmath, bz2, calendar, ffi, gettext, mysqli, shmop, soap, sysvmsg, sysvsem, sysvshm and xsl removed; compiler toolchain removed from the fpm image (~220 MB smaller)
 
+### Added
+- addons can add entries to the menus with a `menus.yml` in their `config` directory
+- menu entries can name the `addon` they belong to, so their permissions are looked up in the permissions of that addon
+- `path_params` of a menu entry can contain fixed values, e.g. `hookName: 'some.hook'`
+- new generic page `/addon/page/{hookName}` (`DemosPlan_addon_page`) that shows the components an addon provides for a hook, for users who may see that hook
+- addons can cancel saving an organisation, e.g. to ask for a confirmation first
+
 ## v4.65.0 (2026-10-22)
 
 ### Added
