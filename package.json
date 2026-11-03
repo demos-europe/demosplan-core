@@ -104,7 +104,7 @@
     "plyr": "^3.8.4",
     "proj4": "^2.20.2",
     "prosemirror-schema-basic": "^1.2.4",
-    "qs": "^6.16.0",
+    "qs": "^6.16.1",
     "source-sans-pro": "^3.6.0",
     "string_decoder": "^1.3.0",
     "striptags": "^3.2.0",
@@ -199,7 +199,7 @@
     "glob@^10.3.10": "10.5.0",
     "glob@^10.4.2": "10.5.0",
     "minimatch@npm:9.0.1": "^9.0.7",
-    "qs@npm:~6.12.3": "6.16.0"
+    "qs@npm:~6.12.3": "6.16.1"
   },
   "packageManager": "yarn@4.2.2"
 }
