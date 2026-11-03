@@ -6,16 +6,23 @@
  *
  * All rights reserved
  */
+import { flushPromises, VueWrapper } from '@vue/test-utils'
+import { Mock, vi } from 'vitest'
 import { createStore } from 'vuex'
-import { flushPromises } from '@vue/test-utils'
-import OrganisationTable from '@DpJs/components/procedure/admin/InstitutionTagManagement/OrganisationTable'
+import OrganisationTable from '@DpJs/components/procedure/admin/InstitutionTagManagement/OrganisationTable.vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 vi.mock('@DpJs/composables/useCustomFields', () => ({
   useCustomFields: () => ({ fetchCustomFields: vi.fn(() => Promise.resolve([])) }),
 }))
 
-const createItem = ({ id = 'orga-1', ...attributes } = {}) => ({
+interface InstitutionAttributes {
+  hasActiveUsers?: boolean
+  legalName: string
+  participationFeedbackEmailAddress: string
+}
+
+const createItem = ({ id = 'orga-1', ...attributes }: { id?: string } & Partial<InstitutionAttributes> = {}) => ({
   id,
   attributes: {
     hasActiveUsers: true,
@@ -50,10 +57,10 @@ const DpInlineNotificationStub = {
 }
 
 describe('OrganisationTable', () => {
-  let list
-  let wrapper
+  let list: Mock
+  let wrapper: VueWrapper<any>
 
-  const mountTable = (items, resourceType = 'InvitedToeb') => {
+  const mountTable = (items: ReturnType<typeof createItem>[], resourceType: 'InvitableToeb' | 'InvitedToeb' = 'InvitedToeb') => {
     list = vi.fn(() => ({ meta: { pagination: { currentPage: 1, perPage: 50, total: items.length, totalPages: 1 } } }))
     const emptyModule = { namespaced: true, state: () => ({ items: {} }), actions: { list: vi.fn(() => ({})) } }
     const store = createStore({
@@ -87,7 +94,7 @@ describe('OrganisationTable', () => {
     })
   }
 
-  const findRow = name => wrapper.findAll('.row').find(row => row.text().includes(name))
+  const findRow = (name: string) => wrapper.findAll('.row').find(row => row.text().includes(name))
 
   it('marks only institutions without active users', async () => {
     mountTable([

@@ -6,9 +6,10 @@
  *
  * All rights reserved
  */
+import { flushPromises, VueWrapper } from '@vue/test-utils'
+import { Mock, vi } from 'vitest'
 import { createStore } from 'vuex'
-import { flushPromises } from '@vue/test-utils'
-import InstitutionList from '@DpJs/components/procedure/admin/InstitutionTagManagement/InstitutionList'
+import InstitutionList from '@DpJs/components/procedure/admin/InstitutionTagManagement/InstitutionList.vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 vi.mock('@DpJs/composables/useCustomFields', () => ({
@@ -18,7 +19,14 @@ vi.mock('@DpJs/composables/useCustomFields', () => ({
   }),
 }))
 
-const createItem = ({ id = 'orga-1', ...attributes } = {}) => ({
+interface InstitutionAttributes {
+  createdDate: string
+  hasActiveUsers?: boolean
+  name: string
+  participationFeedbackEmailAddress: string | null
+}
+
+const createItem = ({ id = 'orga-1', ...attributes }: { id?: string } & Partial<InstitutionAttributes> = {}) => ({
   id,
   attributes: {
     createdDate: '2022-12-09T00:00:00+00:00',
@@ -47,10 +55,10 @@ const DpDataTableStub = {
 }
 
 describe('InstitutionList', () => {
-  let list
-  let wrapper
+  let list: Mock
+  let wrapper: VueWrapper<any>
 
-  const mountList = (items) => {
+  const mountList = (items: ReturnType<typeof createItem>[]) => {
     list = vi.fn(() => ({ meta: { totalItems: items.length, itemsPerPage: 50, currentPage: 1 } }))
     const emptyModule = { namespaced: true, state: () => ({ items: {} }), actions: { list: vi.fn(() => ({})) } }
     const store = createStore({
@@ -77,7 +85,7 @@ describe('InstitutionList', () => {
     })
   }
 
-  const findRow = name => wrapper.findAll('.row').find(row => row.text().includes(name))
+  const findRow = (name: string) => wrapper.findAll('.row').find(row => row.text().includes(name))
 
   beforeAll(() => {
     // Jsdom has no ResizeObserver, which the table scrollbar mixin of the component uses
