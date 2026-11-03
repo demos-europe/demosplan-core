@@ -114,11 +114,11 @@ import {
   DpButtonRow,
   DpInput,
 } from '@demos-europe/demosplan-ui'
-import lscache from 'lscache'
 import type {
   RootState,
   Slidebar,
 } from '@DpJs/types/store'
+import lscache from 'lscache'
 import SegmentsBookmarksList from '@DpJs/components/procedure/SegmentsList/SegmentsBookmarksList.vue'
 import SegmentsBookmarksUnsavedChanges from '@DpJs/components/procedure/SegmentsList/SegmentsBookmarksUnsavedChanges.vue'
 import { useStore } from 'vuex'
