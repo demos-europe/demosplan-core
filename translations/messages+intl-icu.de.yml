@@ -37,7 +37,7 @@
 2fa.required.updated: "Die Zwei-Faktor-Authentifizierung wurde für {count, plural, one {eine Organisation} other {# Organisationen}} geändert."
 2fa.setup.required.hint: >-
     Ihre Organisation {orgaName} verlangt eine Zwei-Faktor-Authentifizierung. Bitte richten Sie unten einen zweiten
-    Faktor ein (Authenticator-App oder Code per E-Mail). Bis dahin können Sie die Anwendung nicht nutzen. Bei Rückfragen
+    Faktor ein (Authenticator-App oder Code per E-Mail). Erst dann können Sie die Anwendung nutzen. Bei Rückfragen
     wenden Sie sich an die Administration Ihrer Organisation.
 2fa.email.login.explanation: '<p class="weight--normal">Sollten Sie nach kurzer Zeit keine Email bekommen haben, brechen Sie den Vorgang bitte ab und melden sich erneut an. Bei der Anmeldung wird automatisch eine Email an die im System hinterlegte Adresse verschickt.</p>'
 abort: "Abbrechen"
