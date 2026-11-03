@@ -112,6 +112,13 @@ const api3_0Modules = {
     'list',
     'get',
   ],
+  Bookmark: [
+    'list',
+    'get',
+    'create',
+    'update',
+    'delete',
+  ],
   ScheduledExport: [
     'list',
     'get',
