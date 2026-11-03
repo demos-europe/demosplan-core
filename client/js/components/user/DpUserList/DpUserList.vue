@@ -34,7 +34,7 @@
     />
     <!-- List of all users -->
     <div v-if="!isLoading">
-      <dp-selection-card
+      <selection-card
         v-if="isUserSelected"
         :count-text="Translator.trans('users.selected', { count: selectedUsersCount })"
         :is-loading-items="isLoadingSelectionList"
@@ -76,7 +76,7 @@
             @click="inviteUsers"
           />
         </template>
-      </dp-selection-card>
+      </selection-card>
       <dp-checkbox
         id="select_all"
         class="my-4 ml-2"
@@ -128,7 +128,7 @@ import {
 import { mapActions, mapState } from 'vuex'
 import { addFormHiddenField } from '@DpJs/lib/core/libs/FormActions'
 import { defineAsyncComponent } from 'vue'
-import DpSelectionCard from '@DpJs/components/shared/DpSelectionCard'
+import SelectionCard from '@DpJs/components/shared/SelectionCard'
 
 export default {
   name: 'DpUserList',
@@ -139,13 +139,13 @@ export default {
     DpContextualHelp,
     DpLoading,
     DpSearchField,
-    DpSelectionCard,
     DpSlidingPagination: defineAsyncComponent(async () => {
       const { DpSlidingPagination } = await import('@demos-europe/demosplan-ui')
 
       return DpSlidingPagination
     }),
     DpUserListItem: defineAsyncComponent(() => import('./DpUserListItem')),
+    SelectionCard,
   },
 
   provide () {

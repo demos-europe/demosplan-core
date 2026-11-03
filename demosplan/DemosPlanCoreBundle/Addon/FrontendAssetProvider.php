@@ -44,28 +44,30 @@ final readonly class FrontendAssetProvider
     }
 
     /**
+     * Whether an enabled addon provides components for the hook that the current user is allowed to see.
+     */
+    public function isHookAvailable(string $hookName): bool
+    {
+        foreach ($this->registry->getAddonInfos() as $addonName => $addonInfo) {
+            if (null !== $this->getHookDataForCurrentUser($addonName, $addonInfo, $hookName)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function getFrontendClassForHook(string $addonName, AddonInfo $addonInfo, string $hookName): array
     {
-        if (!$addonInfo->isEnabled() || !$addonInfo->hasUIHooks()) {
+        $hookData = $this->getHookDataForCurrentUser($addonName, $addonInfo, $hookName);
+        if (null === $hookData) {
             return [];
         }
 
-        $uiData = $addonInfo->getUIHooks();
-
-        if (!array_key_exists($hookName, $uiData['hooks'])) {
-            return [];
-        }
-
-        $hookData = $uiData['hooks'][$hookName];
-
-        // Return if no access granted for that addon at that entrypoint
-        if (!$this->isHookEnabled($addonName, $hookData['options'])) {
-            return [];
-        }
-
-        $manifestPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/'.$uiData['manifest'];
+        $manifestPath = DemosPlanPath::getRootPath($addonInfo->getInstallPath()).'/'.$addonInfo->getUIHooks()['manifest'];
         $assetContents = $this->readAssetContents($addonInfo, $manifestPath, $hookData['entry']);
 
         if ([] === $assetContents) {
@@ -73,6 +75,28 @@ final readonly class FrontendAssetProvider
         }
 
         return $this->createAddonFrontendAssetsEntry($hookData, $assetContents);
+    }
+
+    /**
+     * @return array<string, mixed>|null the data of the hook, null if the addon does not provide the hook
+     *                                   or the current user may not see it
+     */
+    private function getHookDataForCurrentUser(string $addonName, AddonInfo $addonInfo, string $hookName): ?array
+    {
+        if (!$addonInfo->isEnabled() || !$addonInfo->hasUIHooks()) {
+            return null;
+        }
+
+        $uiData = $addonInfo->getUIHooks();
+
+        if (!array_key_exists($hookName, $uiData['hooks'])) {
+            return null;
+        }
+
+        $hookData = $uiData['hooks'][$hookName];
+
+        // Return nothing if no access granted for that addon at that entrypoint
+        return $this->isHookEnabled($addonName, $hookData['options']) ? $hookData : null;
     }
 
     /**

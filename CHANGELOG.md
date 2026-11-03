@@ -5,9 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
-- Organisations can be marked as requiring two-factor authentication. Support and customer administrators set this in
-  the organisation administration, also for several organisations at once; every change is recorded in the report
-  (DPLAN-17501)
+- Organisations can be marked as requiring two-factor authentication for their users (DPLAN-17501)
 - When an organisation requires two-factor authentication (feature permission `feature_orga_two_factor_required`),
   its users without a second factor are sent to their profile page after login and cannot use any other part of the
   application until a factor is set up; imprint and data protection stay reachable. Sessions that started before the
@@ -15,9 +13,17 @@
 - Setting up a second factor is recorded in the report (DPLAN-17433)
 - While an organisation requires two-factor authentication, the last second factor of a user cannot be disabled on the
   profile page (DPLAN-17433)
+- Node.js 24.22.1 for the image build, CI and `engines` (October 2026 security release)
 - `MailService` implements the new `MailServiceInterface` of the contract layer, so addons can queue mails
 - composer.json declares every PHP extension the application needs (adds apcu, exif, pcntl, pdo_mysql; drops soap, posix), so a missing extension fails the image build
 - production image: PHP extensions bcmath, bz2, calendar, ffi, gettext, mysqli, shmop, soap, sysvmsg, sysvsem, sysvshm and xsl removed; compiler toolchain removed from the fpm image (~220 MB smaller)
+
+### Added
+- addons can add entries to the menus with a `menus.yml` in their `config` directory
+- menu entries can name the `addon` they belong to, so their permissions are looked up in the permissions of that addon
+- `path_params` of a menu entry can contain fixed values, e.g. `hookName: 'some.hook'`
+- new generic page `/addon/page/{hookName}` (`DemosPlan_addon_page`) that shows the components an addon provides for a hook, for users who may see that hook
+- addons can cancel saving an organisation, e.g. to ask for a confirmation first
 
 ## v4.65.0 (2026-10-22)
 

@@ -894,7 +894,7 @@
 
     <!-- Two-factor authentication -->
     <fieldset v-if="hasPermission('field_organisation_two_factor_required')">
-      <legend class="layout__item u-p-0 u-pb-0_5">
+      <legend class="layout__item p-0 pb-2">
         {{ Translator.trans('2fa.required.label') }}
       </legend>
       <template v-if="canEdit('twoFactorRequired')">
@@ -1254,11 +1254,6 @@ export default {
      * this one is still being edited, which would otherwise make an in-progress enable/disable
      * detection based on that prop flicker back to "unchanged".
      */
-    setTwoFactorRequired (required) {
-      this.localOrganisation.attributes.twoFactorRequired = required
-      this.emitOrganisationUpdate()
-    },
-
     onCanCreateProceduresChange (checked) {
       this.emitOrganisationUpdate()
       // Under @vue/compat this listener runs before the legacy v-model write, so localOrganisation is still stale here
@@ -1335,6 +1330,11 @@ export default {
 
     setAdditionalFieldOptions (options) {
       this.$emit('addonOptions:loaded', options)
+    },
+
+    setTwoFactorRequired (required) {
+      this.localOrganisation.attributes.twoFactorRequired = required
+      this.emitOrganisationUpdate()
     },
 
     updateAddonPayload (payload) {
