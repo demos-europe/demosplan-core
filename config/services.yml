@@ -90,6 +90,12 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Services\MailServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\MailService'
 
+    demosplan\DemosPlanCoreBundle\Logic\Ai\AiModeResolver:
+        arguments:
+            $providers: !tagged_iterator 'dplan.ai.mode.provider'
+
+    DemosEurope\DemosplanAddon\Contracts\Ai\AiModeResolverInterface: '@demosplan\DemosPlanCoreBundle\Logic\Ai\AiModeResolver'
+
     DemosEurope\DemosplanAddon\Contracts\Factory\PercentageDistributionFactoryInterface:
         class: 'demosplan\DemosPlanCoreBundle\Logic\Factory\PercentageDistributionFactory'
 

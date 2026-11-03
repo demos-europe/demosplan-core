@@ -37,6 +37,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use EDT\DqlQuerying\SortMethodFactories\SortMethodFactory;
 use EDT\Querying\Utilities\Reindexer;
 use Exception;
@@ -861,5 +862,17 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
             ->setParameter('customFieldSearch', $searchPattern)
             ->getQuery()
             ->getResult();
+    }
+
+    /**
+     * Builds a QueryBuilder matching the given EDT conditions without executing it, so
+     * callers can embed it as a subquery (e.g. `id IN (...)`) instead of running it as
+     * its own round-trip.
+     *
+     * @param list<ClauseFunctionInterface<bool>> $conditions
+     */
+    public function generateAccessConditionQueryBuilder(array $conditions): QueryBuilder
+    {
+        return $this->objectProvider->generateQueryBuilder($conditions, []);
     }
 }
