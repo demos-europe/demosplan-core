@@ -8,6 +8,7 @@
 
 ### Fixed
 - Links in the daily mail about newly assigned sections now point to the customer of the procedure instead of the host the mail job runs with, and a user with assigned sections in several customers receives one mail per customer
+- While the spell check is unavailable, an info hint is shown instead of an error message for every failed check
 
 ## v4.61.4 (2026-10-21)
 
