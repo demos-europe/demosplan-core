@@ -197,7 +197,7 @@
     </dp-modal>
     <div
       v-if="noResults"
-      v-cleanhtml="Translator.trans('search.no.results', {searchterm: searchTerm})"
+      v-cleanhtml="isFiltered ? Translator.trans('search.results.none') : Translator.trans('search.no.results', {searchterm: searchTerm})"
       class="u-mt-0_75"
     />
 
@@ -760,6 +760,7 @@ export default {
 
     fetchFilteredOrganisations (page) {
       this.isLoading = true
+      this.noResults = false
 
       this.list({
         page: {
@@ -776,6 +777,7 @@ export default {
         include: includeFields.join(),
       })
         .then(response => {
+          this.noResults = Object.keys(this.items || {}).length === 0
           this.allMatchingCount = response?.meta?.pagination?.total ?? 0
           this.isLoading = false
         })
@@ -783,6 +785,7 @@ export default {
 
     fetchAllOrganisations (page) {
       this.isLoading = true
+      this.noResults = false
 
       this.list({
         page: {
@@ -828,7 +831,6 @@ export default {
       })
         .then(() => {
           this.pendingOrgs = this.pendingOrganisations || {}
-          this.noResults = Object.keys(this.items || {}).length === 0
         })
         .finally(() => {
           this.pendingOrganisationsLoading = false
@@ -850,7 +852,6 @@ export default {
         })
         .then(() => {
           this.pendingOrgs = this.pendingOrganisations || {}
-          this.noResults = Object.keys(this.items || {}).length === 0
         })
         .finally(() => {
           this.pendingOrganisationsLoading = false

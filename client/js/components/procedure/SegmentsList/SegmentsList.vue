@@ -654,11 +654,6 @@ export default {
       appliedFilterQuery: this.initialFilter,
       currentQueryHash: '',
       columnSelectorKey: 0,
-      defaultColumnSelection: [
-        'deadline',
-        'place',
-        'text',
-      ],
       currentSelection: [],
       customFieldDefinitions: [],
       customFieldsReady: !hasPermission('field_segments_custom_fields'),
@@ -802,12 +797,26 @@ export default {
         []
     },
 
+    defaultColumnSelection () {
+      const columns = ['place', 'text']
+
+      if (this.hasDeadlineColumn) {
+        columns.unshift('deadline')
+      }
+
+      return columns
+    },
+
     hasDeadlineColumn () {
       return hasPermission('field_statement_deadline')
     },
 
     canExportSegments () {
       return hasPermission('feature_segments_list_export_xlsx') || hasPermission('feature_segments_list_export_csv')
+    },
+
+    hasBookmarks () {
+      return hasPermission('feature_procedure_user_filter_sets')
     },
 
     // Passed as headerFields to DpDataTable
@@ -1149,11 +1158,75 @@ export default {
 
     ...mapMutations('SegmentSlidebar', {
       setSlidebarState: 'setContent',
+      setCurrentQueryHash: 'setCurrentQueryHash',
     }),
+
+    ...mapMutations('Bookmark', {
+      setStoreSearchPhrase: 'setCurrentSearchPhrase',
+      setStoreSorting: 'setCurrentSorting',
+      setStoreSelectedColumns: 'setCurrentSelectedColumns',
+      setStoreDefaultSelectedColumns: 'setDefaultSelectedColumns',
+      setViewStateInitialized: 'setViewStateInitialized',
+    }),
+
+    ...mapActions('Bookmark', {
+      resetToDefaultView: 'resetToDefaultView',
+    }),
+
+    async applyBookmarkSettings (bookmark) {
+      if (!bookmark) {
+        await this.resetQuery()
+        this.setDefaultView()
+
+        return
+      }
+
+      const { searchPhrase, viewSettings, filter, queryHash } = bookmark.attributes
+      const { selectedColumns, sorting } = viewSettings ?? {}
+
+      // Apply search
+      this.searchTerm = searchPhrase ?? ''
+      this.setStoreSearchPhrase(this.searchTerm)
+
+      // Apply columns
+      this.currentSelection = Array.isArray(selectedColumns) ? selectedColumns : []
+      this.setStoreSelectedColumns(this.currentSelection)
+      localStorage.setItem('segmentList', JSON.stringify(this.currentSelection))
+      this.columnSelectorKey++
+
+      // Apply sorting
+      this.selectedSort = sorting || ''
+      this.setStoreSorting(this.selectedSort)
+
+      if (this.selectedSort) {
+        lscache.set(this.lsKey.selectedSort, this.selectedSort)
+      } else {
+        lscache.remove(this.lsKey.selectedSort)
+      }
+
+      // Apply filters
+      this.appliedFilterQuery = filter
+
+      // Update query hash
+      if (queryHash && this.currentQueryHash && queryHash !== this.currentQueryHash) {
+        this.updateQueryHashInURL(this.currentQueryHash, queryHash)
+        this.currentQueryHash = queryHash
+        this.setCurrentQueryHash(queryHash)
+      }
+
+      this.resetSelection()
+      this.applyQuery(1)
+    },
 
     applySort (sortValue) {
       this.selectedSort = sortValue
       lscache.set(this.lsKey.selectedSort, sortValue)
+
+      if (this.hasBookmarks) {
+        this.setStoreSorting(sortValue)
+        this.updateQueryHash()
+      }
+
       this.applyQuery(1)
     },
 
@@ -1544,6 +1617,36 @@ export default {
       return parts.filter(Boolean).join(', ')
     },
 
+    initializeBookmarkViewState () {
+      // Read columns from localStorage before syncing to store (DpColumnSelector uses localStorage internally)
+      const storedColumns = localStorage.getItem('segmentList')
+
+      this.currentSelection = storedColumns ? JSON.parse(storedColumns) : [...this.defaultColumnSelection]
+
+      this.setStoreDefaultSelectedColumns(this.defaultColumnSelection)
+      this.setStoreSearchPhrase(this.searchTerm)
+      this.setStoreSelectedColumns(this.currentSelection)
+      this.setViewStateInitialized(true)
+    },
+
+    initializeFilters () {
+      const filters = this.initialFilter
+
+      if (!Array.isArray(filters) && filters && Object.keys(filters).length) {
+        Object.values(filters).forEach(filter => {
+          if (!filter.condition) {
+            return
+          }
+
+          this.updateFilterQuery({
+            [filter.condition.value]: filter,
+          })
+        })
+      }
+
+      this.commitFilterQuery()
+    },
+
     // Effective order of the list and its export: the user-selected sort, or the default order
     getSortParams () {
       const defaultOrder = {
@@ -1734,6 +1837,7 @@ export default {
 
     handleResetSearch () {
       this.resetSearchQuery()
+      this.updateQueryHash()
       this.applyQuery(1)
     },
 
@@ -1778,11 +1882,21 @@ export default {
     // Filters live in SegmentsListFilter (in the slidebar); delegate the reset there via the twig template.
     resetQuery () {
       this.resetSearchQuery()
+
+      if (this.hasBookmarks) {
+        this.setDefaultView()
+      }
+
       this.$emit('resetFilters')
     },
 
     resetSearchQuery () {
       this.searchTerm = ''
+
+      if (this.hasBookmarks) {
+        this.setStoreSearchPhrase('')
+      }
+
       this.$refs.customSearch.reset()
     },
 
@@ -1802,6 +1916,18 @@ export default {
       }
 
       return this.toggledItems.map(item => item.id)
+    },
+
+    restoreSorting () {
+      const storedSort = lscache.get(this.lsKey.selectedSort)
+
+      if (storedSort) {
+        this.selectedSort = storedSort
+
+        if (this.hasBookmarks) {
+          this.setStoreSorting(storedSort)
+        }
+      }
     },
 
     /**
@@ -2006,6 +2132,11 @@ export default {
 
     setCurrentSelection (selection) {
       this.currentSelection = selection
+
+      if (this.hasBookmarks) {
+        this.setStoreSelectedColumns(selection)
+        this.updateQueryHash()
+      }
     },
 
     // Saves the Ids of all segments represented by the current filterQuery for later use in bulk edit view.
@@ -2054,6 +2185,31 @@ export default {
       this.applyQuery(1)
     },
 
+    setCurrentQueryHashFromUrl () {
+      const hrefParts = globalThis.location.href.split('/')
+
+      this.currentQueryHash = hrefParts[hrefParts.length - 1]
+      this.setCurrentQueryHash(this.currentQueryHash)
+    },
+
+    setDefaultView () {
+      lscache.remove(`${this.procedureId}:segments:currentBookmarkId`)
+
+      this.currentSelection = [...this.defaultColumnSelection]
+      this.setStoreSelectedColumns(this.currentSelection)
+      localStorage.setItem('segmentList', JSON.stringify(this.defaultColumnSelection))
+      this.columnSelectorKey++
+
+      this.selectedSort = ''
+      this.setStoreSorting('')
+      lscache.remove(this.lsKey.selectedSort)
+
+      this.searchTerm = ''
+      this.setStoreSearchPhrase('')
+
+      this.resetToDefaultView()
+    },
+
     showVersionHistory (segmentId, externId) {
       this.setSlidebarContent({ externId, isOpen: true, segmentId, showTab: 'history' })
       this.$root.$emit('version:history', segmentId, 'segment', externId)
@@ -2076,6 +2232,12 @@ export default {
       this.setSlidebarContent({ externId: '', isOpen: !closing, segmentId: '', showTab: 'filter' })
     },
 
+    openBookmarks () {
+      const closing = this.slidebar.isOpen && this.slidebar.showTab === 'bookmarks'
+
+      this.setSlidebarContent({ externId: '', isOpen: !closing, segmentId: '', showTab: 'bookmarks' })
+    },
+
     updateQueryHash () {
       const hrefParts = globalThis.location.href.split('/')
       const oldQueryHash = hrefParts[hrefParts.length - 1]
@@ -2085,9 +2247,19 @@ export default {
 
       const data = { filter: this.getFilterQuery }
 
-      if (this.searchTerm !== '') {
-        data.searchPhrase = this.searchTerm
+      if (this.hasBookmarks) {
+        const orderedFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
+        const columns = orderedFields.map(headerField => headerField.field)
+
+        data.viewSettings = {
+          columnOrder: columns,
+          selectedColumns: this.currentSelection,
+          sorting: this.selectedSort,
+        }
       }
+
+      // Always include searchPhrase so clearing it updates the query hash
+      data.searchPhrase = this.searchTerm
 
       return dpApi
         .patch(url, {}, data)
@@ -2095,6 +2267,7 @@ export default {
           if (data) {
             this.updateQueryHashInURL(oldQueryHash, data)
             this.currentQueryHash = data
+            this.setCurrentQueryHash(data)
           }
         })
         .catch((err) => console.log(err))
@@ -2119,62 +2292,56 @@ export default {
 
     updateSearchQuery (term) {
       this.searchTerm = term
+
+      if (this.hasBookmarks) {
+        this.setStoreSearchPhrase(term)
+        this.updateQueryHash()
+      }
+
       this.resetSelection()
       this.applyQuery(1)
     },
   },
 
   async mounted () {
-    // Seed the store before awaiting anything, so a quick reset can't be overwritten by the URL filter
-    if (
-      Array.isArray(this.initialFilter) === false &&
-      Object.keys(this.initialFilter).length
-    ) {
-      Object.values(this.initialFilter).forEach((filter) => {
-        if (!filter.condition) {
-          return
-        }
-
-        const query = {}
-
-        query[filter.condition.value] = filter
-        this.updateFilterQuery(query)
-      })
+    if (this.hasBookmarks) {
+      this.initializeBookmarkViewState()
     }
 
-    // Snapshot the initial filters as applied so the first applyQuery fetches with them
-    this.commitFilterQuery()
+    const savedBookmarkId = lscache.get(`${this.procedureId}:segments:currentBookmarkId`)
+    const hasSavedBookmark = !!savedBookmarkId
+
+    if (!this.hasBookmarks && !hasSavedBookmark) {
+      this.initializeFilters()
+    }
+
+    this.setCurrentQueryHashFromUrl()
 
     const addons = await loadAddonComponents('tag.style.segments.list')
 
     this.hasStyledTopicalTags = addons.length > 0
 
-    // Get queryHash from URL
-    const hrefParts = globalThis.location.href.split('/')
-
-    this.currentQueryHash = hrefParts[hrefParts.length - 1]
-
-    // When returning from bulk edit flow, the currentQueryHash which was used there to build a return link must be deleted.
+    /*
+     * Clear temporary navigation state. When returning from bulk edit flow,
+     * the currentQueryHash which was used there to build a return link must be deleted.
+     */
     lscache.remove(this.lsKey.currentQueryHash)
 
-    const storedSort = lscache.get(this.lsKey.selectedSort)
+    const navigationSourceKey = `${this.procedureId}:navigation:source`
 
-    if (storedSort) {
-      this.selectedSort = storedSort
-    }
+    lscache.remove(navigationSourceKey)
 
-    if (lscache.get(`${this.procedureId}:navigation:source`)) {
-      lscache.remove(`${this.procedureId}:navigation:source`)
-    }
+    this.restoreSorting()
 
     this.initPagination()
+
     if (hasPermission('field_segments_custom_fields')) {
-      this.loadSegmentCustomFields()
+      await this.loadSegmentCustomFields()
     }
 
     this.applyQuery(this.pagination.currentPage)
 
-    this.fetchPlaces({
+    await this.fetchPlaces({
       fields: {
         Place: [
           'name',
@@ -2184,7 +2351,7 @@ export default {
         ].join(),
       },
     })
-    this.fetchAssignableUsers({ sort: 'lastname' })
+    await this.fetchAssignableUsers({ sort: 'lastname' })
   },
 }
 </script>
