@@ -66,8 +66,27 @@ All rights reserved
       :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
       @items-selected="setSelectedItems"
     >
+      <template v-slot:legalName="{ hasActiveUsers, legalName }">
+        <div>{{ legalName }}</div>
+        <dp-badge
+          v-if="hasActiveUsers === false"
+          class="mt-1"
+          color="default"
+          data-cy="organisationTable:noActiveUsersBadge"
+          size="small"
+          :text="Translator.trans('invitable_institution.users.active.none')"
+        />
+      </template>
+
       <!-- Resource-specific content based on resourceType -->
-      <template v-slot:expandedContent="{ id, participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags }">
+      <template v-slot:expandedContent="{ id, participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags, hasActiveUsers }">
+        <dp-inline-notification
+          v-if="hasActiveUsers === false"
+          class="mb-2 ml-4 mt-4"
+          data-cy="organisationTable:noActiveUsersHint"
+          :message="Translator.trans(noActiveUsersHintKey)"
+          type="info"
+        />
         <div class="border-l-4 border-neutral mb-2 ml-4 mt-4 pl-4">
           <p class="weight--bold pb-2">
             {{ Translator.trans('institution.general.information') }}
@@ -200,8 +219,10 @@ All rights reserved
 
 <script>
 import {
+  DpBadge,
   DpContextualHelp,
   DpDataTable,
+  DpInlineNotification,
   DpLoading,
   DpPager,
   DpSearchField,
@@ -216,8 +237,10 @@ export default {
 
   components: {
     ClientSideTagFilter,
+    DpBadge,
     DpContextualHelp,
     DpDataTable,
+    DpInlineNotification,
     DpLoading,
     DpPager,
     DpSearchField,
@@ -307,7 +330,7 @@ export default {
 
     apiRequestFields () {
       const headerFieldNames = this.headerFields.map(field => field.field)
-      const baseFields = ['participationFeedbackEmailAddress', 'locationContacts']
+      const baseFields = ['hasActiveUsers', 'participationFeedbackEmailAddress', 'locationContacts']
       const customFields = hasPermission('field_organisations_custom_fields') ? ['customFields'] : []
       const tagFields = hasPermission('feature_institution_tag_read') ? ['assignedTags'] : []
 
@@ -334,6 +357,12 @@ export default {
 
     isSearchApplied () {
       return this.searchTerm !== ''
+    },
+
+    noActiveUsersHintKey () {
+      return this.resourceType === 'InvitedToeb' ?
+        'invitable_institution.users.active.none.hint.invited' :
+        'invitable_institution.users.active.none.hint.invitable'
     },
 
     itemsPerPage () {
