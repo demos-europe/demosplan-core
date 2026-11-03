@@ -14,7 +14,6 @@ namespace demosplan\DemosPlanCoreBundle\Api\InvitableInstitution;
 
 use ApiPlatform\Doctrine\Orm\State\CollectionProvider as DoctrineCollectionProvider;
 use ApiPlatform\Doctrine\Orm\State\Options as DoctrineOptions;
-use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\PaginatorInterface;
@@ -24,9 +23,7 @@ use demosplan\DemosPlanCoreBundle\Api\InstitutionTag\AccessChecker as Institutio
 use demosplan\DemosPlanCoreBundle\Api\InvitableInstitution\Resource as InvitableInstitutionResource;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
-use demosplan\DemosPlanCoreBundle\Logic\User\ActiveInstitutionUsers;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
-use Doctrine\ORM\QueryBuilder;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -39,7 +36,6 @@ class Provider implements ProviderInterface
         private readonly InstitutionTagAccessChecker $tagAccessChecker,
         private readonly OrgaRepository $orgaRepository,
         private readonly DoctrineCollectionProvider $doctrineCollectionProvider,
-        private readonly ActiveInstitutionUsers $activeInstitutionUsers,
     ) {
     }
 
@@ -74,15 +70,12 @@ class Provider implements ProviderInterface
             return null;
         }
 
-        return $this->toResource($orga, [] !== $this->activeInstitutionUsers->findIds([$orga->getId()]));
+        return $this->toResource($orga);
     }
 
     /**
      * Access control, sorting and pagination are applied by API Platform's Doctrine provider
      * ({@see Extension\InvitableInstitutionAccessExtension} for the access part).
-     *
-     * `handleLinks` adds the computed column `hasActiveUsers` to the query, so every row of the result is
-     * `[0 => Orga, 'hasActiveUsers' => 1|0]` and the flag costs no extra query.
      *
      * @return PaginatorInterface<InvitableInstitutionResource>|list<InvitableInstitutionResource>
      */
@@ -90,20 +83,13 @@ class Provider implements ProviderInterface
     {
         $operation = $operation->withStateOptions(new DoctrineOptions(
             entityClass: Orga::class,
-            handleLinks: function (QueryBuilder $queryBuilder, array $uriVariables, QueryNameGeneratorInterface $queryNameGenerator): void {
-                $this->activeInstitutionUsers->addSelect($queryBuilder, $queryNameGenerator);
+            handleLinks: static function (): void {
+                // handleLinks has to be set or API Platform throws an error, but we don't need it to do anything here.
             }
         ));
 
         $result = $this->doctrineCollectionProvider->provide($operation, $uriVariables, $this->addPaginationFilters($context));
-        // API Platform types its items as objects, but the computed column makes every item a row
-        $map = function (mixed $row): InvitableInstitutionResource {
-            Assert::isArray($row);
-            Assert::isInstanceOf($row[0] ?? null, Orga::class);
-            Assert::keyExists($row, ActiveInstitutionUsers::DEFAULT_ALIAS);
-
-            return $this->toResource($row[0], (bool) $row[ActiveInstitutionUsers::DEFAULT_ALIAS]);
-        };
+        $map = fn (Orga $orga): InvitableInstitutionResource => $this->toResource($orga);
 
         if ($result instanceof PaginatorInterface) {
             return new MappingPaginator($result, $map);
@@ -114,18 +100,13 @@ class Provider implements ProviderInterface
         return array_map($map, $result);
     }
 
-    private function toResource(Orga $orga, bool $hasActiveUsers): InvitableInstitutionResource
+    private function toResource(Orga $orga): InvitableInstitutionResource
     {
         $visibleTags = $orga->getAssignedTags()
             ->filter(fn (InstitutionTag $tag): bool => $this->tagAccessChecker->canRead($tag))
             ->getValues();
 
-        return InvitableInstitutionResource::fromEntity(
-            $orga,
-            $visibleTags,
-            $this->accessChecker->canReadCustomFields(),
-            $hasActiveUsers
-        );
+        return InvitableInstitutionResource::fromEntity($orga, $visibleTags, $this->accessChecker->canReadCustomFields());
     }
 
     /**

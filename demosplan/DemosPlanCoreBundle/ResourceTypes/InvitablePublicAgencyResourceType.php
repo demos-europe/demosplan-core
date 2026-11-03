@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
@@ -20,7 +21,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Logic\User\ActiveInstitutionUsers;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\InvitablePublicAgencyResourceConfigBuilder;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\DefaultInclude;
@@ -32,11 +32,6 @@ use EDT\Querying\Contracts\PathException;
  */
 class InvitablePublicAgencyResourceType extends DplanResourceType
 {
-    public function __construct(
-        private readonly ActiveInstitutionUsers $activeInstitutionUsers,
-    ) {
-    }
-
     public static function getName(): string
     {
         return 'InvitableToeb';
@@ -124,9 +119,8 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
             ->setReadableByPath()
             ->setAliasedPath(Paths::orga()->addresses);
 
-        // one query per request, not per institution, see ActiveInstitutionUsers::createReadCallback()
         $configBuilder->hasActiveUsers->setReadableByCallable(
-            $this->activeInstitutionUsers->createReadCallback(fn (): array => $this->getAccessConditions()),
+            static fn (OrgaInterface $orga): bool => $orga instanceof Orga && $orga->hasActiveInstitutionUsers(),
             DefaultField::YES
         );
 

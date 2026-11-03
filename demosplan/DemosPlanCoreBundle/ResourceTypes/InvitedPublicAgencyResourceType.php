@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
-use demosplan\DemosPlanCoreBundle\Logic\User\ActiveInstitutionUsers;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\InvitedPublicAgencyResourceConfigBuilder;
 use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
@@ -37,7 +36,6 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
     public function __construct(
         private readonly StatementRepository $statementRepository,
         private readonly ProcedureService $procedureService,
-        private readonly ActiveInstitutionUsers $activeInstitutionUsers,
     ) {
     }
 
@@ -123,10 +121,9 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
                 fn (OrgaInterface $orga) => $this->getOriginalStatementsCountForOrga($orga->getId()),
                 DefaultField::YES
             );
-        // one query per request, not per institution, see ActiveInstitutionUsers::createReadCallback()
         $configBuilder->hasActiveUsers
             ->setReadableByCallable(
-                $this->activeInstitutionUsers->createReadCallback(fn (): array => $this->getAccessConditions()),
+                static fn (OrgaInterface $orga): bool => $orga instanceof Orga && $orga->hasActiveInstitutionUsers(),
                 DefaultField::YES
             );
 

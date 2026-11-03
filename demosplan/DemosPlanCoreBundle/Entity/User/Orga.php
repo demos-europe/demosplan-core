@@ -973,6 +973,15 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     }
 
     /**
+     * True if at least one of the users of this organisation is not deleted and holds an institution role
+     * ({@see User::PUBLIC_AGENCY_ROLES}) in the current customer.
+     */
+    public function hasActiveInstitutionUsers(): bool
+    {
+        return $this->getUsers()->contains(static fn (User $user): bool => $user->isPublicAgency());
+    }
+
+    /**
      * @param array<int,UserInterface> $users
      */
     public function setUsers($users): self

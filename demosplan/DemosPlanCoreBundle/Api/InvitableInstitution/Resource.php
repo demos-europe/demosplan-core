@@ -76,7 +76,7 @@ class Resource
 
     /**
      * True if at least one user of the institution is not deleted and holds an institution role in the
-     * current customer, see {@see \demosplan\DemosPlanCoreBundle\Logic\User\ActiveInstitutionUsers}.
+     * current customer, see {@see Orga::hasActiveInstitutionUsers()}.
      */
     #[ApiProperty(readable: true, writable: false)]
     public bool $hasActiveUsers = false;
@@ -84,7 +84,7 @@ class Resource
     /**
      * @param list<InstitutionTag> $visibleTags only the tags the current user may read
      */
-    public static function fromEntity(Orga $orga, array $visibleTags, bool $withCustomFields, bool $hasActiveUsers): self
+    public static function fromEntity(Orga $orga, array $visibleTags, bool $withCustomFields): self
     {
         $resource = new self();
         $resource->id = $orga->getId();
@@ -96,7 +96,7 @@ class Resource
             static fn (InstitutionTag $tag): InstitutionTagResource => InstitutionTagResource::fromEntity($tag),
             $visibleTags
         );
-        $resource->hasActiveUsers = $hasActiveUsers;
+        $resource->hasActiveUsers = $orga->hasActiveInstitutionUsers();
 
         return $resource;
     }
