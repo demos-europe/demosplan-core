@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\Api\InvitableInstitution;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use EDT\DqlQuerying\ConditionFactories\DqlConditionFactory;
@@ -50,6 +49,9 @@ class AccessChecker
     /**
      * Shared with the legacy {@see \demosplan\DemosPlanCoreBundle\ResourceTypes\InvitableInstitutionResourceType}.
      *
+     * There is no condition on the users of the organisation: an institution stays listed even if none of its users
+     * holds an institution role. The attribute `hasActiveUsers` tells whether it has such a user.
+     *
      * @return list<ClauseFunctionInterface<bool>>
      */
     public function getAccessConditions(): array
@@ -59,10 +61,6 @@ class AccessChecker
             $this->conditionFactory->propertyHasValue(
                 OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
                 Paths::orga()->statusInCustomers->status
-            ),
-            $this->conditionFactory->propertyHasValue(
-                RoleInterface::GPSORG,
-                Paths::orga()->users->roleInCustomers->role->groupCode
             ),
             $this->conditionFactory->propertyHasValue(
                 OrgaTypeInterface::PUBLIC_AGENCY,
