@@ -5,6 +5,9 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Editing the organisation types and showing the customer (Bundesland) of an organisation
+  are gated by the new permissions `feature_orga_registration_status_edit` and `field_organisation_customer`;
+  projects must grant them explicitly, `CUSTOMER_MASTER_USER` no longer holds them by default (DPLAN-18505)
 - Organisations can be marked as requiring two-factor authentication for their users (DPLAN-17501)
 - When an organisation requires two-factor authentication (feature permission `feature_orga_two_factor_required`),
   its users without a second factor are sent to their profile page after login and cannot use any other part of the
