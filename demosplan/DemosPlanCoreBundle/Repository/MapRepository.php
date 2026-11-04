@@ -27,10 +27,12 @@ use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\Query;
 use Exception;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
 /**
  * @template-extends FluentRepository<GisLayer>
  */
+#[AsAlias(MapRepositoryInterface::class)]
 class MapRepository extends FluentRepository implements ArrayInterface, ObjectInterface, MapRepositoryInterface
 {
     /**

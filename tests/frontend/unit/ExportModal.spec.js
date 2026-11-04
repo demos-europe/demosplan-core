@@ -351,6 +351,33 @@ describe('ExportModal', () => {
       expect(checkboxStub.exists()).toBe(false)
     })
 
+    it('keeps the "numbered" and "anonymized" checkboxes and their values when the docx template "portraitWithPrioritization" is selected', async () => {
+      await wrapper.setProps({
+        options: {
+          ...props.options,
+          docx: {
+            ...props.options.docx,
+            templates: {
+              ...props.options.docx.templates,
+              portraitWithPrioritization: {
+                name: 'export.landscape.prioritization_structure',
+              },
+            },
+          },
+        },
+      })
+      wrapper.vm.exportChoice.docx.numberStatements = true
+      wrapper.vm.exportChoice.docx.anonymous = true
+
+      wrapper.vm.handleDocxTemplateChange('portraitWithPrioritization')
+      await wrapper.vm.$nextTick()
+
+      expect(wrapper.find('[datacy="exportModal:docxNumberStatements"]').exists()).toBe(true)
+      expect(wrapper.find('[datacy="exportModal:docxObscure"]').exists()).toBe(true)
+      expect(wrapper.vm.exportChoice.docx.numberStatements).toBe(true)
+      expect(wrapper.vm.exportChoice.docx.anonymous).toBe(true)
+    })
+
     it('displays radio buttons for selecting a format in the docx tab if docx.templates option is true', () => {
       const radioButtons = wrapper.findAll('[datacy^="exportModal:docxTemplate"]')
 

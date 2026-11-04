@@ -552,6 +552,9 @@ const SEGMENT_EXPORT_ROUTES = {
   csv_normal: 'dplan_segment_csv_export',
 }
 
+// Shown for a filter value without a known label, so no raw UUID is shown
+const UNRESOLVED_LABEL_PLACEHOLDER = '…'
+
 export default {
   name: 'SegmentsList',
 
@@ -640,11 +643,6 @@ export default {
       appliedFilterQuery: this.initialFilter,
       currentQueryHash: '',
       columnSelectorKey: 0,
-      defaultColumnSelection: [
-        'deadline',
-        'place',
-        'text',
-      ],
       currentSelection: [],
       customFieldDefinitions: [],
       customFieldsReady: !hasPermission('field_segments_custom_fields'),
@@ -788,12 +786,26 @@ export default {
         []
     },
 
+    defaultColumnSelection () {
+      const columns = ['place', 'text']
+
+      if (this.hasDeadlineColumn) {
+        columns.unshift('deadline')
+      }
+
+      return columns
+    },
+
     hasDeadlineColumn () {
       return hasPermission('field_statement_deadline')
     },
 
     canExportSegments () {
       return hasPermission('feature_segments_list_export_xlsx') || hasPermission('feature_segments_list_export_csv')
+    },
+
+    hasBookmarks () {
+      return hasPermission('feature_procedure_user_filter_sets')
     },
 
     // Passed as headerFields to DpDataTable
@@ -846,30 +858,7 @@ export default {
 
     // Filter categories for the export modal, shaped [{ label, values: [String] }]
     appliedFiltersSummary () {
-      const LABEL_PENDING = '…'
-      const valuesByPath = {}
-
-      Object.values(this.getLastAppliedFilterQuery).forEach((filter) => {
-        if (!filter.condition || filter.condition.memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX) === true) {
-          return
-        }
-
-        const { path, value } = filter.condition
-
-        valuesByPath[path] = [...(valuesByPath[path] ?? []), value ?? 'unassigned']
-      })
-
-      return Object.entries(valuesByPath).map(([path, values]) => {
-        const labelKey = Object.values(this.filterNames).find(
-          (filterName) => filterName.rootPath === path,
-        )?.labelTranslationKey
-
-        return {
-          label: Translator.trans(labelKey ?? path),
-          // Never surface a raw UUID; show a placeholder until the label resolves
-          values: values.map((id) => this.filterSummaryLabels[id] ?? LABEL_PENDING),
-        }
-      })
+      return [...this.filterSummaryStatic, ...this.filterSummaryCustomFields]
     },
 
     // Overrides tableSelectAllItems mixin to exclude locked segments from selection for users without unlock permission
@@ -909,6 +898,30 @@ export default {
         Translator.trans('filter')
     },
 
+    // Custom field categories of the applied filter, ordered like the filter panel
+    filterSummaryCustomFields () {
+      const valuesByFieldId = {}
+
+      Object.values(this.getLastAppliedFilterQuery).forEach((filter) => {
+        const { memberOf, value } = filter.condition ?? {}
+
+        if (memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX) !== true) {
+          return
+        }
+
+        const fieldId = memberOf.slice(CUSTOM_FIELD_GROUP_PREFIX.length)
+
+        valuesByFieldId[fieldId] = [...(valuesByFieldId[fieldId] ?? []), value]
+      })
+
+      return this.customFieldDefinitions
+        .filter((definition) => valuesByFieldId[definition.id])
+        .map((definition) => ({
+          label: definition.attributes.name,
+          values: valuesByFieldId[definition.id].map((optionId) => this.filterSummaryLabels[optionId] ?? UNRESOLVED_LABEL_PLACEHOLDER),
+        }))
+    },
+
     // Option label by filter value id, sourced from the filter flyout's fetched options
     filterSummaryLabels () {
       // Seed the unassigned label so it resolves regardless of which category was fetched
@@ -926,6 +939,33 @@ export default {
         }))
 
       return labels
+    },
+
+    // Static filter categories of the applied filter, ordered as applied
+    filterSummaryStatic () {
+      const valuesByPath = {}
+
+      Object.values(this.getLastAppliedFilterQuery).forEach((filter) => {
+        // Custom fields are summarized in filterSummaryCustomFields
+        if (!filter.condition || filter.condition.memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX) === true) {
+          return
+        }
+
+        const { path, value } = filter.condition
+
+        valuesByPath[path] = [...(valuesByPath[path] ?? []), value ?? 'unassigned']
+      })
+
+      return Object.entries(valuesByPath).map(([path, values]) => {
+        const labelKey = Object.values(this.filterNames).find(
+          (filterName) => filterName.rootPath === path,
+        )?.labelTranslationKey
+
+        return {
+          label: Translator.trans(labelKey ?? path),
+          values: values.map((id) => this.filterSummaryLabels[id] ?? UNRESOLVED_LABEL_PLACEHOLDER),
+        }
+      })
     },
 
     hasLockedInSelection () {
@@ -1107,11 +1147,75 @@ export default {
 
     ...mapMutations('SegmentSlidebar', {
       setSlidebarState: 'setContent',
+      setCurrentQueryHash: 'setCurrentQueryHash',
     }),
+
+    ...mapMutations('Bookmark', {
+      setStoreSearchPhrase: 'setCurrentSearchPhrase',
+      setStoreSorting: 'setCurrentSorting',
+      setStoreSelectedColumns: 'setCurrentSelectedColumns',
+      setStoreDefaultSelectedColumns: 'setDefaultSelectedColumns',
+      setViewStateInitialized: 'setViewStateInitialized',
+    }),
+
+    ...mapActions('Bookmark', {
+      resetToDefaultView: 'resetToDefaultView',
+    }),
+
+    async applyBookmarkSettings (bookmark) {
+      if (!bookmark) {
+        await this.resetQuery()
+        this.setDefaultView()
+
+        return
+      }
+
+      const { searchPhrase, viewSettings, filter, queryHash } = bookmark.attributes
+      const { selectedColumns, sorting } = viewSettings ?? {}
+
+      // Apply search
+      this.searchTerm = searchPhrase ?? ''
+      this.setStoreSearchPhrase(this.searchTerm)
+
+      // Apply columns
+      this.currentSelection = Array.isArray(selectedColumns) ? selectedColumns : []
+      this.setStoreSelectedColumns(this.currentSelection)
+      localStorage.setItem('segmentList', JSON.stringify(this.currentSelection))
+      this.columnSelectorKey++
+
+      // Apply sorting
+      this.selectedSort = sorting || ''
+      this.setStoreSorting(this.selectedSort)
+
+      if (this.selectedSort) {
+        lscache.set(this.lsKey.selectedSort, this.selectedSort)
+      } else {
+        lscache.remove(this.lsKey.selectedSort)
+      }
+
+      // Apply filters
+      this.appliedFilterQuery = filter
+
+      // Update query hash
+      if (queryHash && this.currentQueryHash && queryHash !== this.currentQueryHash) {
+        this.updateQueryHashInURL(this.currentQueryHash, queryHash)
+        this.currentQueryHash = queryHash
+        this.setCurrentQueryHash(queryHash)
+      }
+
+      this.resetSelection()
+      this.applyQuery(1)
+    },
 
     applySort (sortValue) {
       this.selectedSort = sortValue
       lscache.set(this.lsKey.selectedSort, sortValue)
+
+      if (this.hasBookmarks) {
+        this.setStoreSorting(sortValue)
+        this.updateQueryHash()
+      }
+
       this.applyQuery(1)
     },
 
@@ -1131,18 +1235,11 @@ export default {
         ...defaultFilter,
       }
 
-      const defaultOrder = {
-        'parentStatementOfSegment.submit': 'asc',
-        'parentStatementOfSegment.externId': 'asc',
-        orderInProcedure: 'asc',
-      }
-      const order = this.getSelectedSortParams() ?? defaultOrder
-
       const payload = {
         include,
         fields,
         pagination: true,
-        order,
+        order: this.getSortParams(),
         page,
         itemsPerPage: this.pagination.perPage,
         ...filter,
@@ -1198,50 +1295,25 @@ export default {
     },
 
     /*
-     * Mirrors the filter/search/sort construction in applyQuery() so the export always contains
-     * exactly the segments currently shown in the list - no more (StatementSegmentResourceType's
-     * access conditions alone would also allow segments from procedures coupled via
-     * getAllowedSegmentAccessProcedures(), which sameProcedure excludes here just like it does
-     * for the list itself). columns mirrors orderedHeaderFields, same as buildClipboardText(): the
-     * user's current column selection in their current drag&drop order, externId always first.
+     * Sends the list's filter, search, and sort parameters to the export.
+     * The procedure comes from the route, so no sameProcedure filter is needed.
      */
     handleExportSegments ({ type }) {
       const selectedSegmentIds = this.resolveSelectedSegmentIds()
 
-      // CF filters are not supported by the export yet
-      const exportFilterQuery = Object.fromEntries(
-        Object.entries(this.getLastAppliedFilterQuery).filter(
-          ([, condition]) => condition.condition?.memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX) !== true,
-        ),
-      )
-
       const filter = {
-        ...exportFilterQuery,
-        sameProcedure: {
-          condition: {
-            path: 'parentStatement.procedure.id',
-            value: this.procedureId,
-          },
-        },
-        ...(selectedSegmentIds.length > 0 ? {
-          selectedSegments: {
-            condition: {
-              path: 'id',
-              operator: 'IN',
-              value: selectedSegmentIds,
-            },
-          },
-        } : {}),
+        ...this.transformFiltersToApiPlatform(this.getLastAppliedFilterQuery),
+        // The id filter also marks the export as a manual selection
+        ...(selectedSegmentIds.length > 0 ? { id: selectedSegmentIds } : {}),
       }
 
       const orderedFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
-      const columns = orderedFields.map(headerField => headerField.field)
 
       const params = {
         procedureId: this.procedureId,
-        filter,
-        sort: 'parentStatement.submitDate,parentStatement.externId,orderInProcedure',
-        columns: columns.join(','),
+        ...filter,
+        order: this.getSortParams(),
+        columns: orderedFields.map(headerField => headerField.field).join(','),
       }
 
       if (this.searchTerm !== '') {
@@ -1534,7 +1606,44 @@ export default {
       return parts.filter(Boolean).join(', ')
     },
 
-    getSelectedSortParams () {
+    initializeBookmarkViewState () {
+      // Read columns from localStorage before syncing to store (DpColumnSelector uses localStorage internally)
+      const storedColumns = localStorage.getItem('segmentList')
+
+      this.currentSelection = storedColumns ? JSON.parse(storedColumns) : [...this.defaultColumnSelection]
+
+      this.setStoreDefaultSelectedColumns(this.defaultColumnSelection)
+      this.setStoreSearchPhrase(this.searchTerm)
+      this.setStoreSelectedColumns(this.currentSelection)
+      this.setViewStateInitialized(true)
+    },
+
+    initializeFilters () {
+      const filters = this.initialFilter
+
+      if (!Array.isArray(filters) && filters && Object.keys(filters).length) {
+        Object.values(filters).forEach(filter => {
+          if (!filter.condition) {
+            return
+          }
+
+          this.updateFilterQuery({
+            [filter.condition.value]: filter,
+          })
+        })
+      }
+
+      this.commitFilterQuery()
+    },
+
+    // Effective order of the list and its export: the user-selected sort, or the default order
+    getSortParams () {
+      const defaultOrder = {
+        'parentStatementOfSegment.submit': 'asc',
+        'parentStatementOfSegment.externId': 'asc',
+        orderInProcedure: 'asc',
+      }
+
       const sortPaths = {
         deadline: 'deadline',
         externId: 'externId',
@@ -1548,7 +1657,7 @@ export default {
 
       return sortPath && direction ?
         { [sortPath]: direction } :
-        null
+        defaultOrder
     },
 
     /**
@@ -1717,6 +1826,7 @@ export default {
 
     handleResetSearch () {
       this.resetSearchQuery()
+      this.updateQueryHash()
       this.applyQuery(1)
     },
 
@@ -1761,11 +1871,21 @@ export default {
     // Filters live in SegmentsListFilter (in the slidebar); delegate the reset there via the twig template.
     resetQuery () {
       this.resetSearchQuery()
+
+      if (this.hasBookmarks) {
+        this.setDefaultView()
+      }
+
       this.$emit('resetFilters')
     },
 
     resetSearchQuery () {
       this.searchTerm = ''
+
+      if (this.hasBookmarks) {
+        this.setStoreSearchPhrase('')
+      }
+
       this.$refs.customSearch.reset()
     },
 
@@ -1785,6 +1905,18 @@ export default {
       }
 
       return this.toggledItems.map(item => item.id)
+    },
+
+    restoreSorting () {
+      const storedSort = lscache.get(this.lsKey.selectedSort)
+
+      if (storedSort) {
+        this.selectedSort = storedSort
+
+        if (this.hasBookmarks) {
+          this.setStoreSorting(storedSort)
+        }
+      }
     },
 
     /**
@@ -1989,6 +2121,11 @@ export default {
 
     setCurrentSelection (selection) {
       this.currentSelection = selection
+
+      if (this.hasBookmarks) {
+        this.setStoreSelectedColumns(selection)
+        this.updateQueryHash()
+      }
     },
 
     // Saves the Ids of all segments represented by the current filterQuery for later use in bulk edit view.
@@ -2037,6 +2174,31 @@ export default {
       this.applyQuery(1)
     },
 
+    setCurrentQueryHashFromUrl () {
+      const hrefParts = globalThis.location.href.split('/')
+
+      this.currentQueryHash = hrefParts[hrefParts.length - 1]
+      this.setCurrentQueryHash(this.currentQueryHash)
+    },
+
+    setDefaultView () {
+      lscache.remove(`${this.procedureId}:segments:currentBookmarkId`)
+
+      this.currentSelection = [...this.defaultColumnSelection]
+      this.setStoreSelectedColumns(this.currentSelection)
+      localStorage.setItem('segmentList', JSON.stringify(this.defaultColumnSelection))
+      this.columnSelectorKey++
+
+      this.selectedSort = ''
+      this.setStoreSorting('')
+      lscache.remove(this.lsKey.selectedSort)
+
+      this.searchTerm = ''
+      this.setStoreSearchPhrase('')
+
+      this.resetToDefaultView()
+    },
+
     showVersionHistory (segmentId, externId) {
       this.setSlidebarContent({ externId, isOpen: true, segmentId, showTab: 'history' })
       this.$root.$emit('version:history', segmentId, 'segment', externId)
@@ -2059,6 +2221,12 @@ export default {
       this.setSlidebarContent({ externId: '', isOpen: !closing, segmentId: '', showTab: 'filter' })
     },
 
+    openBookmarks () {
+      const closing = this.slidebar.isOpen && this.slidebar.showTab === 'bookmarks'
+
+      this.setSlidebarContent({ externId: '', isOpen: !closing, segmentId: '', showTab: 'bookmarks' })
+    },
+
     updateQueryHash () {
       const hrefParts = globalThis.location.href.split('/')
       const oldQueryHash = hrefParts[hrefParts.length - 1]
@@ -2068,9 +2236,19 @@ export default {
 
       const data = { filter: this.getFilterQuery }
 
-      if (this.searchTerm !== '') {
-        data.searchPhrase = this.searchTerm
+      if (this.hasBookmarks) {
+        const orderedFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
+        const columns = orderedFields.map(headerField => headerField.field)
+
+        data.viewSettings = {
+          columnOrder: columns,
+          selectedColumns: this.currentSelection,
+          sorting: this.selectedSort,
+        }
       }
+
+      // Always include searchPhrase so clearing it updates the query hash
+      data.searchPhrase = this.searchTerm
 
       return dpApi
         .patch(url, {}, data)
@@ -2078,6 +2256,7 @@ export default {
           if (data) {
             this.updateQueryHashInURL(oldQueryHash, data)
             this.currentQueryHash = data
+            this.setCurrentQueryHash(data)
           }
         })
         .catch((err) => console.log(err))
@@ -2102,61 +2281,56 @@ export default {
 
     updateSearchQuery (term) {
       this.searchTerm = term
+
+      if (this.hasBookmarks) {
+        this.setStoreSearchPhrase(term)
+        this.updateQueryHash()
+      }
+
       this.resetSelection()
       this.applyQuery(1)
     },
   },
 
   async mounted () {
+    if (this.hasBookmarks) {
+      this.initializeBookmarkViewState()
+    }
+
+    const savedBookmarkId = lscache.get(`${this.procedureId}:segments:currentBookmarkId`)
+    const hasSavedBookmark = !!savedBookmarkId
+
+    if (!this.hasBookmarks && !hasSavedBookmark) {
+      this.initializeFilters()
+    }
+
+    this.setCurrentQueryHashFromUrl()
+
     const addons = await loadAddonComponents('tag.style.segments.list')
 
     this.hasStyledTopicalTags = addons.length > 0
 
-    // Get queryHash from URL
-    const hrefParts = globalThis.location.href.split('/')
-
-    this.currentQueryHash = hrefParts[hrefParts.length - 1]
-
-    // When returning from bulk edit flow, the currentQueryHash which was used there to build a return link must be deleted.
+    /*
+     * Clear temporary navigation state. When returning from bulk edit flow,
+     * the currentQueryHash which was used there to build a return link must be deleted.
+     */
     lscache.remove(this.lsKey.currentQueryHash)
 
-    const storedSort = lscache.get(this.lsKey.selectedSort)
+    const navigationSourceKey = `${this.procedureId}:navigation:source`
 
-    if (storedSort) {
-      this.selectedSort = storedSort
-    }
+    lscache.remove(navigationSourceKey)
 
-    if (lscache.get(`${this.procedureId}:navigation:source`)) {
-      lscache.remove(`${this.procedureId}:navigation:source`)
-    }
-
-    if (
-      Array.isArray(this.initialFilter) === false &&
-      Object.keys(this.initialFilter).length
-    ) {
-      Object.values(this.initialFilter).forEach((filter) => {
-        if (!filter.condition) {
-          return
-        }
-
-        const query = {}
-
-        query[filter.condition.value] = filter
-        this.updateFilterQuery(query)
-      })
-    }
-
-    // Snapshot the initial filters as applied so the first applyQuery fetches with them
-    this.commitFilterQuery()
+    this.restoreSorting()
 
     this.initPagination()
+
     if (hasPermission('field_segments_custom_fields')) {
-      this.loadSegmentCustomFields()
+      await this.loadSegmentCustomFields()
     }
 
     this.applyQuery(this.pagination.currentPage)
 
-    this.fetchPlaces({
+    await this.fetchPlaces({
       fields: {
         Place: [
           'name',
@@ -2166,7 +2340,7 @@ export default {
         ].join(),
       },
     })
-    this.fetchAssignableUsers({ sort: 'lastname' })
+    await this.fetchAssignableUsers({ sort: 'lastname' })
   },
 }
 </script>

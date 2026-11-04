@@ -233,6 +233,10 @@ class AssessmentTableXlsExporter extends AssessmentTableFileExporterAbstract
             [$this->translator->trans('segment.tags'), $this->formatList($segmentExportInfo->getTagNames())],
             [$this->translator->trans('assignee'), $this->formatList($segmentExportInfo->getAssigneeNames())],
             [$this->translator->trans('workflow.place'), $this->formatList($segmentExportInfo->getPlaceNames())],
+            ...array_map(
+                fn (array $field): array => [$field[0], $this->formatList($field[1])],
+                $segmentExportInfo->getCustomFieldFilterLabels() ?? []
+            ),
             [$this->translator->trans('export.columns.selected'), implode(' / ', array_column($columnsDefinition, 'title'))],
             [$this->translator->trans('export.selection.manual'), $segmentExportInfo->getIsManualSelection() ? 'ja' : 'nein'],
             [$this->translator->trans('search.term'), $segmentExportInfo->getSearchPhrase() ?? ''],

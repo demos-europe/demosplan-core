@@ -42,6 +42,7 @@ use Exception;
 use Illuminate\Support\Collection;
 use LogicException;
 use RuntimeException;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -50,6 +51,7 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 /**
  * @template-extends CoreRepository<User>
  */
+#[AsAlias(UserRepositoryInterface::class)]
 class UserRepository extends CoreRepository implements ArrayInterface, ObjectInterface, PasswordUpgraderInterface, UserRepositoryInterface
 {
     /**

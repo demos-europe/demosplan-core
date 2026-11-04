@@ -19,7 +19,9 @@ use DemosEurope\DemosplanAddon\Permission\AccessControl\AccessControlRepositoryI
 use demosplan\DemosPlanCoreBundle\Entity\Permission\AccessControl;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
 use Exception;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
+#[AsAlias(AccessControlRepositoryInterface::class)]
 class AccessControlRepository extends CoreRepository implements AccessControlRepositoryInterface
 {
     /**

@@ -57,7 +57,7 @@
     "@carbon/icons-vue": "10.130.0",
     "@carbon/vue": "^3.0.27",
     "@cesium/engine": "^26.0.0",
-    "@demos-europe/demosplan-ui": "0.36.0",
+    "@demos-europe/demosplan-ui": "0.38.0",
     "@demos-europe/dp-consent": "^1.3",
     "@efrane/vuex-json-api": "^0.1.3",
     "@masterportal/masterportalapi": "2.63.0",
@@ -104,7 +104,7 @@
     "plyr": "^3.8.4",
     "proj4": "^2.20.2",
     "prosemirror-schema-basic": "^1.2.4",
-    "qs": "^6.16.0",
+    "qs": "^6.16.1",
     "source-sans-pro": "^3.6.0",
     "string_decoder": "^1.3.0",
     "striptags": "^3.2.0",
@@ -127,9 +127,9 @@
     "@eslint/js": "^10.0.1",
     "@fullhuman/postcss-purgecss": "^8.0.0",
     "@vitejs/plugin-vue": "^6.0.9",
-    "@vitest/coverage-v8": "^5.0.2",
+    "@vitest/coverage-v8": "^5.0.5",
     "@vitest/eslint-plugin": "^1.6.24",
-    "@vitest/ui": "^5.0.2",
+    "@vitest/ui": "^5.0.5",
     "@vue/test-utils": "^2.4.6",
     "assets-webpack-plugin": "^7.1.1",
     "babel-loader": "^10.1.1",
@@ -149,7 +149,7 @@
     "eslint-plugin-n": "^17.23.1",
     "eslint-plugin-vue": "^10.9.2",
     "eslint-plugin-vuejs-accessibility": "^2.6.0",
-    "glob": "^13.0.6",
+    "glob": "^14.0.2",
     "globals": "17.12.0",
     "jsdom": "^29.1.0",
     "mini-css-extract-plugin": "^2.10.2",
@@ -168,7 +168,7 @@
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.67.0",
     "vite": "^8.3.4",
-    "vitest": "^5.0.2",
+    "vitest": "^5.0.5",
     "vue-eslint-parser": "^10.4.1",
     "vue-loader": "^17.4.2",
     "vue-tsc": "3.3.11",
@@ -179,7 +179,7 @@
   },
   "engines": {
     "npm": ">= 10.5.0",
-    "node": ">= 24.15.0"
+    "node": ">= 24.22.1"
   },
   "browserslist": [
     "last 5 versions",
@@ -199,7 +199,7 @@
     "glob@^10.3.10": "10.5.0",
     "glob@^10.4.2": "10.5.0",
     "minimatch@npm:9.0.1": "^9.0.7",
-    "qs@npm:~6.12.3": "6.16.0"
+    "qs@npm:~6.12.3": "6.16.1"
   },
   "packageManager": "yarn@4.2.2"
 }
