@@ -171,6 +171,7 @@
             lock-message-by="lockedForSelectionMessage"
             track-by="id"
             expanded-rowspan
+            has-borders
             has-flyout
             has-sticky-header
             is-columns-draggable
