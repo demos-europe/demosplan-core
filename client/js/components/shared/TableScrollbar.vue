@@ -31,12 +31,33 @@
  * Custom scrollbar shown below a scrollable table. To be used together with tableScrollbarMixin,
  * which provides scrollPercent and thumbStyle and handles the thumb dragging.
  */
-defineProps<{
-  controls: string
-  isFullscreen: boolean
-  scrollPercent: number
-  thumbStyle: Record<string, string>
-}>()
+import type { PropType } from 'vue'
+
+defineProps({
+  /**
+   * Id of the scroll container the scrollbar controls (aria-controls)
+   */
+  controls: {
+    type: String,
+    required: true,
+  },
+
+  isFullscreen: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
+
+  scrollPercent: {
+    type: Number,
+    required: true,
+  },
+
+  thumbStyle: {
+    type: Object as PropType<Record<string, string>>,
+    required: true,
+  },
+})
 
 const emit = defineEmits<{
   thumbMousedown: [event: MouseEvent]
