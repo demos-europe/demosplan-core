@@ -19,7 +19,7 @@ vi.mock('@DpJs/composables/useCustomFields', () => ({
 interface InstitutionAttributes {
   hasActiveUsers?: boolean
   legalName: string
-  participationFeedbackEmailAddress: string
+  participationFeedbackEmailAddress: string | null
 }
 
 const createItem = ({ id = 'orga-1', ...attributes }: { id?: string } & Partial<InstitutionAttributes> = {}) => ({
@@ -132,6 +132,14 @@ describe('OrganisationTable', () => {
     await flushPromises()
 
     expect(wrapper.find('[data-cy="organisationTable:noActiveUsersHint"]').text()).toBe('invitable_institution.users.active.none.hint.invitable')
+  })
+
+  it('shows only the badge, not the hint, for institutions without email', async () => {
+    mountTable([createItem({ hasActiveUsers: false, participationFeedbackEmailAddress: null })])
+    await flushPromises()
+
+    expect(wrapper.find('[data-cy="organisationTable:noActiveUsersBadge"]').exists()).toBe(true)
+    expect(wrapper.findAll('[data-cy="organisationTable:noActiveUsersHint"]')).toHaveLength(0)
   })
 
   it('requests the flag from the api', async () => {
