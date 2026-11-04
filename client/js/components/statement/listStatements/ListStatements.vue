@@ -181,9 +181,9 @@
             lock-checkbox-by="lockedForSelection"
             lock-message-by="lockedForSelectionMessage"
             track-by="id"
-            expanded-rowspan
             has-borders
             has-flyout
+            has-sticky-columns-when-expanded
             has-sticky-header
             is-columns-draggable
             is-expandable
