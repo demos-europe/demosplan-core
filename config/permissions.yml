@@ -396,6 +396,9 @@ area_organisations:
     loginRequired: true
     parent: area_admin
 area_organisations_applications_manage:
+    description: |-
+        Shows the pending organisation applications and the edit button in the organisation list;
+        editing the organisation types needs feature_orga_registration_status_edit.
     expose: true
     label: 'This permission is limited to viewing organisations and managing their customer application.'
     loginRequired: true
