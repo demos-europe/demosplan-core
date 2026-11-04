@@ -79,9 +79,9 @@ All rights reserved
       </template>
 
       <!-- Expanded row: institution details -->
-      <template v-slot:expandedContent="{ id, participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags, hasActiveUsers }">
+      <template v-slot:expandedContent="{ id, participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags, hasActiveUsers, hasNoEmail }">
         <dp-inline-notification
-          v-if="hasActiveUsers === false"
+          v-if="hasActiveUsers === false && !hasNoEmail"
           :message="Translator.trans(noActiveUsersHintKey)"
           class="ml-4 mt-1"
           data-cy="organisationTable:noActiveUsersHint"
