@@ -13,6 +13,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\User;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
@@ -102,36 +103,16 @@ class PublicAffairsAgentHandler extends CoreHandler
      */
     public function isPublicAffairsAgent(Orga $orga): bool
     {
-        return $this->isAcceptedPublicAgencyInCurrentCustomer($orga) || $this->hasInstitutionUser($orga);
-    }
-
-    private function isAcceptedPublicAgencyInCurrentCustomer(Orga $orga): bool
-    {
-        if ($orga->isDeleted()) {
-            return false;
-        }
-
         $currentCustomerId = $this->customerService->getCurrentCustomer()->getId();
-        $acceptedCustomers = $orga->getCustomersByActivationStatus(
+        $isAcceptedInCurrentCustomer = !$orga->isDeleted() && collect($orga->getCustomersByActivationStatus(
             OrgaTypeInterface::PUBLIC_AGENCY,
             OrgaStatusInCustomerInterface::STATUS_ACCEPTED
-        );
+        ))->contains(static fn (Customer $customer): bool => $currentCustomerId === $customer->getId());
 
-        foreach ($acceptedCustomers as $customer) {
-            if ($currentCustomerId === $customer->getId()) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private function hasInstitutionUser(Orga $orga): bool
-    {
         // ArrayCollection::contains may return false due to lazy loading,
         // using collect we retrieve all elements before using
         // laravels Collection::contains.
-        return collect($orga->getAllUsers())->contains(
+        return $isAcceptedInCurrentCustomer || collect($orga->getAllUsers())->contains(
             static fn (User $user) => $user->isPublicAgency()
         );
     }
