@@ -29,9 +29,6 @@
     "beberlei/doctrineextensions": {
         "version": "v1.3.0"
     },
-    "behat/transliterator": {
-        "version": "v1.3.0"
-    },
     "brick/math": {
         "version": "0.9.3"
     },
@@ -459,9 +456,6 @@
     },
     "pagerfanta/pagerfanta": {
         "version": "v2.7.2"
-    },
-    "paragonie/random_compat": {
-        "version": "v9.99.100"
     },
     "phar-io/manifest": {
         "version": "1.0.3"
