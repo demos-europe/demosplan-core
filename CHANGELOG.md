@@ -11,6 +11,7 @@
 - production image: PHP extensions bcmath, bz2, calendar, ffi, gettext, mysqli, shmop, soap, sysvmsg, sysvsem, sysvshm and xsl removed; compiler toolchain removed from the fpm image (~220 MB smaller)
 
 ### Added
+- new Bookmarks feature for the segments list, allowing users to create, save, update, and switch between different views
 - addons can add entries to the menus with a `menus.yml` in their `config` directory
 - menu entries can name the `addon` they belong to, so their permissions are looked up in the permissions of that addon
 - `path_params` of a menu entry can contain fixed values, e.g. `hookName: 'some.hook'`
