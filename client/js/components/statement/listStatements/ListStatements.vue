@@ -404,7 +404,7 @@
                 </button>
               </dp-flyout>
             </template>
-            <template v-slot:expandedContent="{ text, fullText, id }">
+            <template v-slot:expandedContent="{ id }">
               <!-- Statement meta data -->
               <statement-meta-data
                 :statement="statementsObject[id]"
