@@ -102,7 +102,7 @@ describe('InstitutionList', () => {
     vi.unstubAllGlobals()
   })
 
-  it('marks only institutions without active users', async () => {
+  it('displays noActiveUsersBadge only for institutions without active users', async () => {
     mountList([
       createItem({ id: 'orga-1', hasActiveUsers: true, name: 'Firma mit Nutzer*innen' }),
       createItem({ id: 'orga-2', hasActiveUsers: false, name: 'Hummel ewf' }),
@@ -113,14 +113,14 @@ describe('InstitutionList', () => {
     expect(findRow('Hummel ewf').find('[data-cy="institutionList:noActiveUsersBadge"]').exists()).toBe(true)
   })
 
-  it('does not mark institutions whose flag is not loaded', async () => {
+  it('does not display noActiveUsersBadge for institutions whose flag is not loaded', async () => {
     mountList([createItem({ hasActiveUsers: undefined })])
     await flushPromises()
 
     expect(wrapper.findAll('[data-cy="institutionList:noActiveUsersBadge"]')).toHaveLength(0)
   })
 
-  it('requests the flag from the api', async () => {
+  it('requests the hasActiveUsers flag from the api', async () => {
     mountList([createItem()])
     await flushPromises()
 
