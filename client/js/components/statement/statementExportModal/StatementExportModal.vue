@@ -251,22 +251,20 @@
           <span class="inline-block text-sm pb-3">
             {{ Translator.trans('export.xlsx.scheduled.hint') }}
           </span>
-          <div class="text-right">
+          <div class="flex flex-col gap-4 items-end">
             <dp-button
               v-if="scheduledExports.length"
-              class="mb-2"
               data-cy="exportModal:scheduledExport:manage"
               :text="`${Translator.trans('export.xlsx.scheduled.manage')} (${scheduledExports.length})`"
-              variant="transparent"
+              variant="outline"
               @click="scheduledExportMode = 'manage'"
             />
             <dp-button
-              class="mr-2"
               data-cy="exportModal:scheduledExport:add"
-              icon="calendar-blank"
+              icon="plus"
               icon-size="medium"
               :text="Translator.trans('export.xlsx.scheduled.add')"
-              variant="outline"
+              variant="transparent"
               @click="scheduledExportMode = 'add'"
             />
           </div>
