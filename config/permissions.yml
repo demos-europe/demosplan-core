@@ -594,6 +594,12 @@ feature_2fa:
     expose: true
     label: 'Allow two-factor authentication'
     loginRequired: true
+feature_orga_two_factor_required:
+    description: |-
+        Feature permission for the per-organisation two-factor authentication requirement.
+        Users of organisations with the flag are forced to set up 2FA at login. Requires feature_2fa.
+    label: 'Zwei-Faktor-Pflicht pro Organisation erzwingen'
+    loginRequired: true
 feature_admin_assessmenttable_export_docx:
     label: 'Abwägungstabelle in Docx-Format exportieren'
     loginRequired: true
