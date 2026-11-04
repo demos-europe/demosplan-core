@@ -320,19 +320,19 @@
                   {{ Translator.trans('statement.details_and_recommendation') }}
                 </a>
                 <button
-              v-if="hasPermission('feature_statement_assignment')"
-              :class="{
-                'is-disabled': synchronized,
-                'hover:underline active:underline': !synchronized }"
-              :disabled="synchronized"
-              class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
-              data-cy="listStatements:statementAssign"
-              type="button"
-              @click="toggleAssignEntityModal(id, assignee.id)"
-            >
-              {{ Translator.trans('assignment.generic.assign.to.other') }}
-            </button>
-            <a
+                  v-if="hasPermission('feature_statement_assignment')"
+                  :class="{
+                    'is-disabled': synchronized,
+                    'hover:underline active:underline': !synchronized }"
+                  :disabled="synchronized"
+                  class="block btn--blank o-link--default leading-[2] whitespace-nowrap"
+                  data-cy="listStatements:statementAssign"
+                  type="button"
+                  @click="toggleAssignEntityModal(id, assignee.id)"
+                >
+                  {{ Translator.trans('assignment.generic.assign.to.other') }}
+                </button>
+                <a
                   v-if="hasPermission('feature_read_source_statement_via_api') && hasPermission('area_admin_import')"
                   :class="{'is-disabled': !originalPdf}"
                   :href="Routing.generate('core_file_procedure', { hash: originalPdf, procedureId: procedureId })"
