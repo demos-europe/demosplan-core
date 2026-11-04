@@ -37,8 +37,8 @@ use Tests\Base\JsonApiTest;
  * The institutions that can be invited to a procedure carry the flag `hasActiveUsers`: true if at least one
  * of their users is not deleted and holds an institution role in the current customer.
  *
- * An institution is only listed if one of its users has an institution role record, deleted or not,
- * in any customer. That is why the institutions without active users below are still listed.
+ * Every institution that is accepted as public agency in the current customer is listed, whatever its users are:
+ * none, planning roles only, deleted institution users or institution roles in another customer.
  */
 class InvitablePublicAgencyResourceTypeTest extends JsonApiTest
 {
@@ -92,6 +92,37 @@ class InvitablePublicAgencyResourceTypeTest extends JsonApiTest
         self::assertSame($expected, $this->getFlagsById($response));
     }
 
+    public function testListIncludesInstitutionsWithoutAnInstitutionUser(): void
+    {
+        // Arrange
+        $withoutUsers = $this->createInvitableOrga(null);
+        $withPlanningUserOnly = $this->createInvitableOrga(RoleInterface::PLANNING_AGENCY_ADMIN);
+
+        // Act
+        $response = $this->executeListRequest(InvitablePublicAgencyResourceType::getName(), $this->user, $this->procedure);
+
+        // Assert
+        $expected = [
+            $withoutUsers->getId()         => false,
+            $withPlanningUserOnly->getId() => false,
+        ];
+        ksort($expected);
+        self::assertSame($expected, $this->getFlagsById($response));
+    }
+
+    public function testListExcludesInstitutionsWithoutUsersThatAreAcceptedInAnotherCustomerOnly(): void
+    {
+        // Arrange
+        $listed = $this->createInvitableOrga(null);
+        $this->createInvitableOrga(null, acceptedInCustomer: CustomerFactory::createOne(['subdomain' => 'other-'.uniqid()])->_real());
+
+        // Act
+        $response = $this->executeListRequest(InvitablePublicAgencyResourceType::getName(), $this->user, $this->procedure);
+
+        // Assert
+        self::assertSame([$listed->getId() => false], $this->getFlagsById($response));
+    }
+
     public function testListIncludesTheFlagByDefault(): void
     {
         // Arrange
@@ -140,25 +171,32 @@ class InvitablePublicAgencyResourceTypeTest extends JsonApiTest
     }
 
     /**
-     * Creates an accepted public agency of the current customer, which is not invited to the procedure yet,
-     * with one user holding the given role. The role is held in the current customer unless another one is given.
+     * Creates an accepted public agency, which is not invited to the procedure yet. It is accepted in the current
+     * customer unless another one is given. It has one user holding the given role, or no user at all if the role is
+     * null. The role is held in the current customer unless another one is given.
      */
-    private function createInvitableOrga(string $roleCode, bool $deleted = false, ?Customer $roleCustomer = null): Orga
-    {
+    private function createInvitableOrga(
+        ?string $roleCode,
+        bool $deleted = false,
+        ?Customer $roleCustomer = null,
+        ?Customer $acceptedInCustomer = null,
+    ): Orga {
         $orga = OrgaFactory::createOne(['deleted' => false, 'showlist' => true])->_real();
         $statusInCustomer = OrgaStatusInCustomerFactory::createOne([
             'orga'     => $orga,
-            'customer' => $this->currentCustomer,
+            'customer' => $acceptedInCustomer ?? $this->currentCustomer,
             'orgaType' => $this->publicAgencyType,
             'status'   => OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
             'showlist' => true,
         ])->_real();
         $orga->addStatusInCustomer($statusInCustomer);
 
-        $role = $this->getContainer()->get(RoleHandler::class)->getUserRolesByCodes([$roleCode])[0];
-        $user = UserFactory::createOne(['deleted' => $deleted])->_real();
-        $orga->addUser($user);
-        $user->addDplanrole($role, $roleCustomer ?? $this->currentCustomer);
+        if (null !== $roleCode) {
+            $role = $this->getContainer()->get(RoleHandler::class)->getUserRolesByCodes([$roleCode])[0];
+            $user = UserFactory::createOne(['deleted' => $deleted])->_real();
+            $orga->addUser($user);
+            $user->addDplanrole($role, $roleCustomer ?? $this->currentCustomer);
+        }
         $this->getApiEntityManager()->flush();
 
         return $orga;

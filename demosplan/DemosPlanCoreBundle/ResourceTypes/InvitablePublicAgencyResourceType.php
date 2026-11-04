@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
-use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\EntityPath\Paths;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
@@ -68,10 +67,6 @@ class InvitablePublicAgencyResourceType extends DplanResourceType
         $conditions = [
             $this->conditionFactory->propertyHasValue(false, Paths::orga()->deleted),
             $this->conditionFactory->propertyHasValue(true, Paths::orga()->statusInCustomers->showlist),
-            $this->conditionFactory->propertyHasValue(
-                RoleInterface::GPSORG,
-                Paths::orga()->users->roleInCustomers->role->groupCode
-            ),
             $this->conditionFactory->propertyHasValue(
                 OrgaTypeInterface::PUBLIC_AGENCY,
                 Paths::orga()->statusInCustomers->orgaType->name

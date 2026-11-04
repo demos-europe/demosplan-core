@@ -14,15 +14,22 @@ namespace Tests\Core\JsonApi;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\InstitutionTagCategoryFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\InstitutionTagFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaStatusInCustomerFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\AbstractApiTest;
@@ -251,8 +258,44 @@ class InvitableInstitutionResourceApiTest extends AbstractApiTest
     }
 
     /**
-     * The access conditions of the list only look for an institution role record, not for deleted users,
-     * so an institution whose users are all deleted is still returned, with the flag off. Single and list
+     * An institution is returned whatever its users are, as long as it is accepted as public agency in the
+     * current customer. Single and list use different code paths for the flag, so both are checked.
+     */
+    public function testGetAndListReturnInstitutionsWithoutInstitutionUser(): void
+    {
+        // Arrange
+        $withoutUsers = $this->createInstitution();
+        $withPlanningUserOnly = $this->createInstitution(RoleInterface::PLANNING_AGENCY_ADMIN);
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $single = $this->sendRequest(self::ROUTE.'/'.$withoutUsers->getId(), 'GET', $this->user, null);
+        $list = $this->sendRequest(self::ROUTE.'?pagination=false', 'GET', $this->user, null);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $single->getStatusCode());
+        self::assertFalse(Json::decodeToArray($single->getContent())['data']['attributes']['hasActiveUsers']);
+        self::assertFalse($this->getRow($list, $withoutUsers)['attributes']['hasActiveUsers']);
+        self::assertFalse($this->getRow($list, $withPlanningUserOnly)['attributes']['hasActiveUsers']);
+    }
+
+    public function testListExcludesInstitutionsWithoutUsersThatAreAcceptedInAnotherCustomerOnly(): void
+    {
+        // Arrange
+        $foreign = $this->createInstitution(acceptedInCustomer: CustomerFactory::createOne(['subdomain' => 'other-'.uniqid()])->_real());
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.'?pagination=false', 'GET', $this->user, null);
+
+        // Assert
+        self::assertNotContains($foreign->getId(), $this->getIds($response));
+    }
+
+    /**
+     * An institution whose users are all deleted is still returned, with the flag off. Single and list
      * use different code paths for the flag, so both are checked.
      */
     public function testGetAndListReturnHasActiveUsersFalseWhenAllUsersAreDeleted(): void
@@ -365,6 +408,38 @@ class InvitableInstitutionResourceApiTest extends AbstractApiTest
     private function getInstitution(): Orga
     {
         return $this->getReference(LoadUserData::TEST_ORGA_PUBLIC_AGENCY);
+    }
+
+    /**
+     * Creates an institution like the fixture institution: accepted as public agency in the current customer unless
+     * another one is given. It has one user holding the given role, in the current customer, or no user at all.
+     */
+    private function createInstitution(?string $roleCode = null, ?Customer $acceptedInCustomer = null): Orga
+    {
+        // The kernel is rebooted after the fixtures are loaded, so the references are known to the old entity manager only.
+        $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
+        $fixtureStatus = $this->getInstitution()->getStatusInCustomers()->first();
+        $currentCustomer = $entityManager->find(Customer::class, $fixtureStatus->getCustomer()->getId());
+
+        $orga = OrgaFactory::createOne(['deleted' => false, 'showlist' => true])->_real();
+        $status = OrgaStatusInCustomerFactory::createOne([
+            'orga'     => $orga,
+            'customer' => $acceptedInCustomer ?? $currentCustomer,
+            'orgaType' => $entityManager->find(OrgaType::class, $fixtureStatus->getOrgaType()->getId()),
+            'status'   => OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
+            'showlist' => true,
+        ])->_real();
+        $orga->addStatusInCustomer($status);
+
+        if (null !== $roleCode) {
+            $role = $this->getContainer()->get(RoleHandler::class)->getUserRolesByCodes([$roleCode])[0];
+            $user = UserFactory::createOne(['deleted' => false])->_real();
+            $orga->addUser($user);
+            $user->addDplanrole($role, $currentCustomer);
+        }
+        $entityManager->flush();
+
+        return $orga;
     }
 
     private function getCurrentCustomerOf(Orga $institution): Customer
