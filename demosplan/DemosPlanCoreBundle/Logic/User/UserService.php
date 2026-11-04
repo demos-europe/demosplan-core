@@ -520,6 +520,7 @@ class UserService implements UserServiceInterface
             $orgaBefore = $this->orgaRepository->find($orgaId);
             $currentCustomer = $this->customerService->getCurrentCustomer();
             $showListBefore = $orgaBefore->getShowlistForCustomer($currentCustomer);
+            $twoFactorRequiredBefore = $orgaBefore->isTwoFactorRequired();
             $emailBefore = $orgaBefore->getEmail2();
             $emailCCBefore = $orgaBefore->getCcEmail2();
 
@@ -577,7 +578,7 @@ class UserService implements UserServiceInterface
             }
             try {
                 $data['name'] = $orga->getName();
-                $this->orgaService->addReport($orga->getId(), $data, $showListBefore);
+                $this->orgaService->addReport($orga->getId(), $data, $showListBefore, $twoFactorRequiredBefore);
             } catch (ViolationsException $e) {
                 $this->logger->warning('Add Report in updateOrga() failed due to Violation: ', [$e, $e->getViolationsAsStrings()]);
             } catch (Exception $e) {
