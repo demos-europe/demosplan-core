@@ -16,6 +16,10 @@ vi.mock('@DpJs/composables/useCustomFields', () => ({
   useCustomFields: () => ({ fetchCustomFields: vi.fn(() => Promise.resolve([])) }),
 }))
 
+/*
+ * Consider moving to client/js/types/ together with the InstitutionAttributes from InstitutionList.spec.ts
+ * once InvitableToeb/InvitedToeb is migrated to API 3.0 (the field names name/legalName differ for now)
+ */
 interface InstitutionAttributes {
   hasActiveUsers?: boolean
   legalName: string
