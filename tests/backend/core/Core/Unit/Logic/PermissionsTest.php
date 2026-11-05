@@ -2236,6 +2236,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_statement_user_position',
                     'field_statement_user_state',
                     'role_participant',
+                    'field_organisation_technical_name',
                 ],
             ],
             // ################### Bürger ###################
@@ -2326,6 +2327,7 @@ class PermissionsTest extends FunctionalTestCase
                     'field_required_procedure_end_date',
                     'field_statement_submitter_email_address',
                     'role_participant',
+                    'field_organisation_technical_name',
                 ],
             ],
             'citizen #2'                        => [

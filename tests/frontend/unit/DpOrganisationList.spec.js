@@ -31,6 +31,7 @@ const rpcResponse = (updatedIds, skippedIds = []) => Promise.resolve({
 vi.hoisted(() => {
   globalThis.dplan.permissions = {
     feature_orga_delete: true,
+    field_organisation_technical_name: true,
     field_organisation_two_factor_required: true,
   }
 })

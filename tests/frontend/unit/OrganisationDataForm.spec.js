@@ -45,7 +45,15 @@ const mountForm = ({ props = {}, organisationOverrides = {} } = {}) => mount(Org
   },
 })
 
+const denyPermission = permission => {
+  globalThis.hasPermission.mockImplementation(requested => requested !== permission)
+}
+
 describe('OrganisationDataForm', () => {
+  afterEach(() => {
+    globalThis.hasPermission.mockImplementation(() => true)
+  })
+
   describe('display name', () => {
     it('renders the editable name field as display name and submits it as name', () => {
       const wrapper = mountForm()
@@ -81,8 +89,16 @@ describe('OrganisationDataForm', () => {
       ['empty', ''],
       ['null', null],
       ['missing', undefined],
-    ])('is hidden when the technical name is %s', (label, technicalName) => {
+    ])('shows a dash while the technical name is %s', (label, technicalName) => {
       const wrapper = mountForm({ organisationOverrides: { technicalName } })
+
+      expect(wrapper.find('[data-cy="organisationData:technicalName"]').element.value).toBe('–')
+    })
+
+    it('is hidden without the permission to see the official name', () => {
+      denyPermission('field_organisation_technical_name')
+
+      const wrapper = mountForm()
 
       expect(wrapper.find('[data-cy="organisationData:technicalName"]').exists()).toBe(false)
     })

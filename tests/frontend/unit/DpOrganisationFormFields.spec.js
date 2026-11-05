@@ -39,11 +39,11 @@ const organisation = (attributes = {}) => ({
   },
 })
 
-const mountFields = ({ writableFields = ['name'], attributes = {} } = {}) => mount(DpOrganisationFormFields, {
+const mountFields = ({ id = 'orga-1', writableFields = ['name'], attributes = {} } = {}) => mount(DpOrganisationFormFields, {
   props: {
     availableOrgaTypes: [],
-    organisation: organisation(attributes),
-    organisationId: 'orga-1',
+    organisation: { ...organisation(attributes), id },
+    organisationId: id,
   },
   global: {
     provide: {
@@ -63,7 +63,15 @@ const mountFields = ({ writableFields = ['name'], attributes = {} } = {}) => mou
   },
 })
 
+const denyPermission = permission => {
+  globalThis.hasPermission.mockImplementation(requested => requested !== permission)
+}
+
 describe('DpOrganisationFormFields', () => {
+  afterEach(() => {
+    globalThis.hasPermission.mockImplementation(() => true)
+  })
+
   it('labels the editable name field as display name', () => {
     const wrapper = mountFields({ writableFields: ['name'] })
 
@@ -86,8 +94,22 @@ describe('DpOrganisationFormFields', () => {
     ['empty', ''],
     ['null', null],
     ['missing', undefined],
-  ])('hides the technical name when it is %s', (label, technicalName) => {
+  ])('shows a dash while the technical name is %s', (label, technicalName) => {
     const wrapper = mountFields({ attributes: { technicalName } })
+
+    expect(wrapper.find('[data-cy="orgaFormField:technicalName"]').text()).toBe('–')
+  })
+
+  it('hides the technical name without the permission to see the official name', () => {
+    denyPermission('field_organisation_technical_name')
+
+    const wrapper = mountFields()
+
+    expect(wrapper.find('[data-cy="orgaFormField:technicalName"]').exists()).toBe(false)
+  })
+
+  it('hides the technical name in the form that creates an organisation', () => {
+    const wrapper = mountFields({ id: '' })
 
     expect(wrapper.find('[data-cy="orgaFormField:technicalName"]').exists()).toBe(false)
   })

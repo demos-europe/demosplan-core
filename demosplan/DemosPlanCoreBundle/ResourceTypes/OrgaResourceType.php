@@ -164,7 +164,6 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
         $properties = [
             $this->createIdentifier()->sortable()->filterable()->readable(),
             $this->createAttribute($this->name)->sortable()->filterable()->readable(true),
-            $this->createAttribute($this->technicalName)->readable(true),
             $this->createAttribute($this->ccEmail2)->readable(true),
             $this->createAttribute($this->city)->readable(true, static fn (Orga $orga): string => $orga->getCity()),
             $this->createAttribute($this->imprint)->readable(true),
@@ -213,6 +212,10 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
 
         if ($this->currentUser->hasPermission('feature_mastertoeblist')) {
             $properties[] = $this->createToOneRelationship($this->masterToeb)->sortable()->filterable()->readable();
+        }
+
+        if ($this->currentUser->hasPermission('field_organisation_technical_name')) {
+            $properties[] = $this->createAttribute($this->technicalName)->readable(true);
         }
 
         if ($this->currentUser->hasPermission('field_organisation_two_factor_required')) {

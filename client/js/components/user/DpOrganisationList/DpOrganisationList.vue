@@ -317,7 +317,6 @@ const orgaFieldsArrays = {
     'statusInCustomers',
     'street',
     'submissionType',
-    'technicalName',
     'types',
   ],
   OrgaStatusInCustomer: [
@@ -337,6 +336,10 @@ if (hasPermission('feature_manage_procedure_creation_permission')) {
 
 if (hasPermission('field_organisation_two_factor_required')) {
   orgaFieldsArrays.Orga.push('twoFactorRequired')
+}
+
+if (hasPermission('field_organisation_technical_name')) {
+  orgaFieldsArrays.Orga.push('technicalName')
 }
 
 const orgaFields = {

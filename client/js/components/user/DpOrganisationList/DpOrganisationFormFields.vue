@@ -45,9 +45,9 @@
         </p>
       </div>
 
-      <!-- Official name from the identity provider, always read-only -->
+      <!-- Official name from the identity provider, always read-only, a dash while it is not known yet -->
       <div
-        v-if="organisation.attributes?.technicalName"
+        v-if="organisation.id && hasPermission('field_organisation_technical_name')"
         class="u-1-of-1 layout__item"
       >
         <span class="block u-mb-0_25">
@@ -57,7 +57,7 @@
           class="color--grey u-mb-0_5"
           data-cy="orgaFormField:technicalName"
         >
-          {{ organisation.attributes.technicalName }}
+          {{ organisation.attributes?.technicalName || '–' }}
         </p>
       </div>
 

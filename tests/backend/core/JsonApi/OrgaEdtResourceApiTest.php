@@ -24,13 +24,14 @@ class OrgaEdtResourceApiTest extends AbstractApiTest
 {
     private const ORGA_ROUTE = '/api/2.0/Orga/';
 
-    public function testReturnsTechnicalNameNextToDisplayName(): void
+    public function testReturnsTechnicalNameNextToDisplayNameWithPermission(): void
     {
         $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
         $orga = $user->getOrga();
         $orga->setName('Display name of the orga');
         $orga->setTechnicalName('Official name of the orga');
         $this->getEntityManager()->flush();
+        $this->enablePermissions(['field_organisation_technical_name']);
 
         $response = $this->sendRequest(
             self::ORGA_ROUTE.$orga->getId().'?fields[Orga]=name,technicalName',
