@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Utils\CustomField;
+namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Creation\TypeValidator;
 
 /**
  * Each field type validator implements this contract. Clean separation of concerns - each validator only knows about its own field type.
