@@ -18,10 +18,10 @@ import FilterFlyoutStore from '@DpJs/store/procedure/FilterFlyout'
 import { initialize } from '@DpJs/InitVue'
 import SegmentsBookmarks from '@DpJs/components/procedure/SegmentsList/SegmentsBookmarks.vue'
 import SegmentsBookmarksButton from '@DpJs/components/procedure/SegmentsList/SegmentsBookmarksButton.vue'
-import SegmentsList from '@DpJs/components/procedure/SegmentsList/SegmentsList.vue'
-import SegmentsListFilter from '@DpJs/components/procedure/SegmentsList/SegmentsListFilter.vue'
 import SegmentSlidebar from '@DpJs/components/procedure/SegmentsList/SegmentSlidebar.vue'
 import SegmentSlidebarStore from '@DpJs/store/procedure/SegmentSlidebar'
+import SegmentsList from '@DpJs/components/procedure/SegmentsList/SegmentsList.vue'
+import SegmentsListFilter from '@DpJs/components/procedure/SegmentsList/SegmentsListFilter.vue'
 
 const components = {
   DpButton,
