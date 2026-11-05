@@ -76,7 +76,27 @@
               <li class="o-list__item o-hellip--nowrap">
                 {{ date(institution.createdDate) }}
               </li>
+              <li v-if="institution.hasActiveUsers === false">
+                <dp-badge
+                  :text="Translator.trans('invitable_institution.users.active.none')"
+                  class="inline-block mt-1"
+                  color="default"
+                  data-cy="institutionList:noActiveUsersBadge"
+                  size="small"
+                />
+              </li>
             </ul>
+          </template>
+          <template v-slot:email="institution">
+            <span v-if="institution.email">
+              {{ institution.email }}
+            </span>
+            <span
+              v-else
+              class="color--grey"
+            >
+              {{ Translator.trans('no.participation.email') }}
+            </span>
           </template>
           <template
             v-for="(category, idx) in institutionTagCategoriesCopy"
@@ -170,10 +190,10 @@
     </template>
 
     <dp-sliding-pagination
-      v-if="totalPages > 1"
+      v-if="pagination.totalPages > 1"
       class="mr-1 ml-2 mt-2"
-      :current="currentPage"
-      :total="totalPages"
+      :current="pagination.currentPage"
+      :total="pagination.totalPages"
       :non-sliding-size="50"
       @page-change="getInstitutionsByPage"
     />
@@ -182,6 +202,7 @@
 
 <script>
 import {
+  DpBadge,
   DpColumnSelector,
   DpDataTable,
   DpIcon,
@@ -204,6 +225,7 @@ export default {
   components: {
     ClientSideTagFilter,
     CustomField,
+    DpBadge,
     DpColumnSelector,
     DpDataTable,
     DpIcon,
@@ -234,9 +256,10 @@ export default {
       editingInstitutionCustomFields: {},
       editingInstitutionTags: {},
       filteredItems: null,
-      initiallySelectedColumns: [],
+      initiallySelectedColumns: ['email'],
       institutionTagCategoriesCopy: {},
       isLoading: true,
+      pagination: { currentPage: 1, totalPages: 1 },
       searchTerm: '',
     }
   },
@@ -252,8 +275,6 @@ export default {
 
     ...mapState('InvitableInstitution', {
       invitableInstitutionList: 'items',
-      currentPage: 'currentPage',
-      totalPages: 'totalPages',
     }),
 
     allFilterCategories () {
@@ -292,6 +313,15 @@ export default {
       }))
     },
 
+    emailFieldAvailable () {
+      return {
+        field: 'email',
+        label: Translator.trans('email.participation'),
+        colWidth: '220px',
+        initialMinWidth: 200,
+      }
+    },
+
     headerFields () {
       const institutionField = {
         colWidth: '200px',
@@ -299,6 +329,10 @@ export default {
         initialMinWidth: 200,
         label: Translator.trans('institution'),
       }
+
+      const emailFields = this.currentlySelectedColumns.includes(this.emailFieldAvailable.field) ?
+        [this.emailFieldAvailable] :
+        []
 
       const categoryFields = this.categoryFieldsAvailable
         .filter(headerField => this.currentlySelectedColumns.includes(headerField.field))
@@ -310,7 +344,7 @@ export default {
 
       const selectedCustomFieldColumns = this.customFieldsAvailable.filter(headerField => this.currentlySelectedColumns.includes(headerField.field))
 
-      return [institutionField, ...categoryFields, ...selectedCustomFieldColumns]
+      return [institutionField, ...emailFields, ...categoryFields, ...selectedCustomFieldColumns]
     },
 
     institutionList () {
@@ -318,9 +352,11 @@ export default {
         const { id, attributes, relationships } = tag
 
         return {
-          createdDate: attributes.createdDate.date,
+          createdDate: attributes.createdDate,
           customFields: this.customFieldValuesByInstitutionId[id] || {},
           edit: this.editingInstitutionId === id,
+          email: this.cleanEmail(attributes.participationFeedbackEmailAddress),
+          hasActiveUsers: attributes.hasActiveUsers,
           id,
           name: attributes.name,
           tags: relationships.assignedTags.data
@@ -351,7 +387,7 @@ export default {
     },
 
     selectableColumns () {
-      return [...this.categoryFieldsAvailable, ...this.customFieldsAvailable]
+      return [this.emailFieldAvailable, ...this.categoryFieldsAvailable, ...this.customFieldsAvailable]
         .map(headerField => ([headerField.field, headerField.label]))
     },
 
@@ -399,6 +435,17 @@ export default {
       this.editingInstitutionId = null
       this.editingInstitutionTags = {}
       this.editingInstitutionCustomFields = {}
+    },
+
+    /**
+     * The participation email may be empty, a single hyphen or untrimmed.
+     * @param {string|null} email
+     * @returns {string}
+     */
+    cleanEmail (email) {
+      const trimmed = (email ?? '').trim()
+
+      return trimmed === '-' ? '' : trimmed
     },
 
     /**
@@ -476,34 +523,30 @@ export default {
     getInstitutionsByPage (page) {
       const customFields = hasPermission('feature_organisations_custom_fields') ? ['customFields'] : []
       const args = {
-        page: {
-          number: page,
-          size: 50,
-        },
-        sort: '-createdDate',
+        page,
+        itemsPerPage: 50,
+        pagination: true,
+        order: { createdDate: 'desc' },
+        /*
+         * API Platform (3.0): the main resource is keyed by type name, included resources by their
+         * relationship path as given in `include`. Without a matching key an include is dropped.
+         */
         fields: {
           InvitableInstitution: [
             'name',
             'createdDate',
+            'hasActiveUsers',
+            'participationFeedbackEmailAddress',
             'assignedTags',
             ...customFields,
           ].join(),
-          InstitutionTag: [
+          assignedTags: [
             'category',
             'name',
           ].join(),
-          InstitutionTagCategory: [
+          'assignedTags.category': [
             'name',
           ].join(),
-        },
-        filter: {
-          namefilter: {
-            condition: {
-              path: 'name',
-              operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-              value: this.searchTerm,
-            },
-          },
         },
         include: [
           'assignedTags',
@@ -511,11 +554,27 @@ export default {
         ].join(),
       }
 
+      if (this.searchTerm !== '') {
+        args.name = this.searchTerm
+      }
+
       return this.fetchInvitableInstitution(args)
-        .then(() => this.extractCustomFieldValues())
+        .then(response => {
+          this.updatePagination(response?.meta)
+          this.extractCustomFieldValues()
+        })
         .catch(err => {
           console.error(err)
         })
+    },
+
+    updatePagination (meta) {
+      const itemsPerPage = meta?.itemsPerPage || 50
+
+      this.pagination = {
+        currentPage: meta?.currentPage ?? 1,
+        totalPages: Math.max(1, Math.ceil((meta?.totalItems ?? 0) / itemsPerPage)),
+      }
     },
 
     getInstitutionTagCategories (isInitial = false) {
@@ -672,9 +731,12 @@ export default {
     },
 
     setInitiallySelectedColumns () {
-      this.initiallySelectedColumns = this.institutionTagCategoriesValues
-        .slice(0, 5)
-        .map(category => category.attributes.name)
+      this.initiallySelectedColumns = [
+        this.emailFieldAvailable.field,
+        ...this.institutionTagCategoriesValues
+          .slice(0, 5)
+          .map(category => category.attributes.name),
+      ]
     },
 
     updateEditingCustomField (definitionId, value) {

@@ -12,6 +12,7 @@ namespace Tests\Core\User\Functional;
 
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\Entity\Report\ReportEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\Address;
 use demosplan\DemosPlanCoreBundle\Entity\User\AddressBookEntry;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
@@ -472,6 +473,22 @@ class UserServiceTest extends FunctionalTestCase
         static::assertEquals($data['address_phone'], $orga->getPhone());
         static::assertEquals($data['ccEmail2'], $orga->getCcEmail2());
         static::assertEquals($data['emailReviewerAdmin'], $orga->getEmailReviewerAdmin());
+    }
+
+    public function testUpdateOrgaTwoFactorRequired(): void
+    {
+        $orgaId = $this->testOrgaFp->getId();
+        static::assertFalse($this->testOrgaFp->isTwoFactorRequired());
+
+        $orga = $this->sut->updateOrga($orgaId, [Orga::TWO_FACTOR_REQUIRED => true]);
+
+        static::assertTrue($orga->isTwoFactorRequired());
+        $entries = $this->getEntries(ReportEntry::class, [
+            'category'   => ReportEntry::CATEGORY_ORGA_TWO_FACTOR_REQUIRED_CHANGE,
+            'identifier' => $orgaId,
+        ]);
+        static::assertCount(1, $entries);
+        static::assertSame(ReportEntry::GROUP_ORGA, $entries[0]->getGroup());
     }
 
     public function testUpdateOrgaNotifications()
