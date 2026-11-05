@@ -176,6 +176,15 @@ const moduleRules =
       },
     },
     {
+      // Vue 3 libraries break in @vue/compat's Vue 2 mode (v-model renamed, click listeners dropped)
+      test: /\.m?js$/,
+      // Add every Vue library the map uses (e.g. @formkit/vue if @diplanung/style/formkit gets used)
+      include: /node_modules[\\/](@diplanung[\\/](karten|style)|@oruga-ui[\\/]oruga-next)[\\/]/,
+      resolve: {
+        alias: { vue: resolveDir('./client/js/lib/vue/vueWithVue3Mode.js') },
+      },
+    },
+    {
       test: /\.(js|ts)$/,
       include: transpiledModules,
       exclude: [
