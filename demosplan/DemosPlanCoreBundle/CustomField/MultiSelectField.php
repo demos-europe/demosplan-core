@@ -39,6 +39,7 @@ class MultiSelectField extends AbstractCustomField
         $this->fieldType = $json['fieldType'];
         $this->name = $json['name'];
         $this->description = $json['description'];
+        $this->isSeparateColumn = $json['isSeparateColumn'] ?? false;
         $this->isRequired = $json['isRequired'];
         $this->options = array_map(static function ($optionData) {
             $customFieldOption = new CustomFieldOption();
@@ -55,11 +56,12 @@ class MultiSelectField extends AbstractCustomField
         }, $this->options);
 
         return [
-            'fieldType'     => $this->fieldType,
-            'name'          => $this->name,
-            'description'   => $this->description,
-            'isRequired'    => $this->isRequired,
-            'options'       => $options,
+            'fieldType'        => $this->fieldType,
+            'name'             => $this->name,
+            'description'      => $this->description,
+            'isSeparateColumn' => $this->isSeparateColumn,
+            'isRequired'       => $this->isRequired,
+            'options'          => $options,
         ];
     }
 
