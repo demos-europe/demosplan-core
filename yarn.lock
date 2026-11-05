@@ -5875,13 +5875,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"core-js@npm:^3.45.1":
-  version: 3.45.1
-  resolution: "core-js@npm:3.45.1"
-  checksum: 10c0/c38e5fae5a05ee3a129c45e10056aafe61dbb15fd35d27e0c289f5490387541c89741185e0aeb61acb558559c6697e016c245cca738fa169a73f2b06cd30e6b6
-  languageName: node
-  linkType: hard
-
 "core-js@npm:^3.49.0, core-js@npm:^3.50.0":
   version: 3.50.0
   resolution: "core-js@npm:3.50.0"
@@ -6575,7 +6568,7 @@ __metadata:
     mini-css-extract-plugin: "npm:^2.10.2"
     ol: "npm:^10.7.0"
     olcs: "npm:2.22.1"
-    plyr: "npm:^3.8.4"
+    plyr: "npm:^3.8.5"
     postcss: "npm:^8.5.26"
     postcss-flexbugs-fixes: "npm:^5.0.2"
     postcss-loader: "npm:^8.2.1"
@@ -9585,16 +9578,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"plyr@npm:^3.8.4":
-  version: 3.8.4
-  resolution: "plyr@npm:3.8.4"
+"plyr@npm:^3.8.5":
+  version: 3.8.5
+  resolution: "plyr@npm:3.8.5"
   dependencies:
-    core-js: "npm:^3.45.1"
     custom-event-polyfill: "npm:^1.0.7"
     loadjs: "npm:^4.3.0"
     rangetouch: "npm:^2.0.1"
-    url-polyfill: "npm:^1.1.13"
-  checksum: 10c0/3df02e413af9b0baa8c3c65ba5069081dd29752cda50e96976706f7a2258536e7f0984e5678ac35c59cf8f58fcd672f8cdbacdb23b6079929a33e2fdf2fb437f
+    url-polyfill: "npm:^1.1.14"
+  checksum: 10c0/b6148bf7c72361f6e1191f14bc43ebee0848a77a8b106ec952d3ca1b2037ce3567f7e88b661fedd88f4327dfe186ad68e55b2982e4bca4bcdb8badd8f583e07a
   languageName: node
   linkType: hard
 
@@ -12489,10 +12481,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"url-polyfill@npm:^1.1.12, url-polyfill@npm:^1.1.13":
+"url-polyfill@npm:^1.1.12":
   version: 1.1.13
   resolution: "url-polyfill@npm:1.1.13"
   checksum: 10c0/c44dcbf9c910ef554b839b65a0abfc76f7de5e91bf13f3e08014014602a2c3f5bb4247be7c2f31b98a404cbbecbec5c040b92e13b288475d2eb0fde57163e33b
+  languageName: node
+  linkType: hard
+
+"url-polyfill@npm:^1.1.14":
+  version: 1.1.14
+  resolution: "url-polyfill@npm:1.1.14"
+  checksum: 10c0/945aa8d618da4f30c98a021ea5dd68c5aec711dd45cf6a494ddd30f3525b1d93c5f2f3e205ad3758193f289a66e03c8fa6da2ea4bce2dd0e7de4542c22499a06
   languageName: node
   linkType: hard
 
