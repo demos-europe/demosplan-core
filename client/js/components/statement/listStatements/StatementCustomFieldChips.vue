@@ -20,19 +20,17 @@
     >
       <dp-badge
         :text="chip.label"
+        class="inline-flex items-center border border-transparent"
         color="default"
         size="small"
       />
     </dp-tooltip>
-    <dp-tooltip
+    <button
       v-if="hiddenCount > 0"
-      :text="tooltipHtml"
-      node-type="span"
+      class="inline-flex cursor-pointer items-center rounded-md border border-interactive mt-0.5 px-1.5 py-0.5 text-xs text-interactive"
     >
-      <span class="text-sm text-interactive">
-        {{ Translator.trans('custom.fields.chips.more', { count: String(hiddenCount) }) }}
-      </span>
-    </dp-tooltip>
+      +{{ hiddenCount }}
+    </button>
   </div>
 </template>
 
@@ -109,10 +107,6 @@ const HTML_ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '
 
 // DpTooltip inserts its text as HTML, field names and labels are user input and must be escaped.
 const escapeHtml = (text: string): string => text.replace(/[&<>"']/g, character => HTML_ESCAPES[character])
-
-const tooltipHtml = computed<string>(() => entries.value
-  .map(entry => `${escapeHtml(entry.name)}: ${escapeHtml(entry.labels.join(', '))}`)
-  .join('<br>'))
 
 onMounted(async () => {
   try {
