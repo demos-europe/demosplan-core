@@ -369,7 +369,7 @@ class OzgKeycloakUserDataMapper
     /**
      * The official name delivered by Keycloak is stored as technical name on every login.
      * The (display) name is user-editable and therefore never overwritten, it is only set on
-     * creation
+     * creation.
      */
     private function updateOrganisationNames(Orga $existingOrga, string $keycloakOrgaName): void
     {
