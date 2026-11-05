@@ -979,13 +979,14 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         $userName = [];
 
         $nameIsUsed = !array_key_exists('r_useName', $data) || 0 != $data['r_useName'];
-        foreach (['r_firstname', 'r_lastname'] as $nameField) {
+        // anonymous submissions discard the name, so its fields are not validated
+        foreach ($nameIsUsed ? ['r_firstname', 'r_lastname'] : [] as $nameField) {
             $namePart = $this->cleanPublicInput($data, $nameField, 255, $mandatoryErrors);
             if (null === $namePart) {
                 continue;
             }
             // a value consisting only of whitespace passes the browser's "required" check
-            if ('' === $namePart && '' !== (string) $data[$nameField] && $nameIsUsed) {
+            if ('' === $namePart && '' !== (string) $data[$nameField]) {
                 $mandatoryErrors[] = $this->createMandatoryErrorMessage(substr($nameField, 2));
             }
             if (1 === preg_match('~https?:|www\.|@~i', $namePart)) {

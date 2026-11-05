@@ -65,6 +65,13 @@ class StatementHandlerPublicDataTest extends FunctionalTestCase
         self::assertSame('', $statement['uName']);
     }
 
+    public function testInvalidNameIsIgnoredWhenAnonymous(): void
+    {
+        $statement = $this->getPublicData(['r_useName' => '0', 'r_firstname' => 'https://spam.example', 'r_lastname' => str_repeat('a', 300)]);
+
+        self::assertSame('', $statement['uName']);
+    }
+
     /**
      * @dataProvider urlLikeNameProvider
      */
