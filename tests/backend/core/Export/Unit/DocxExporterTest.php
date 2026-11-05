@@ -24,7 +24,7 @@ class DocxExporterTest extends UnitTestCase
     {
         parent::setUp();
 
-        $this->sut = self::$container->get(DocxExporter::class);
+        $this->sut = self::getContainer()->get(DocxExporter::class);
     }
 
     public function testStripXmlIllegalCharsRemovesPdfSoftHyphenArtifact(): void
