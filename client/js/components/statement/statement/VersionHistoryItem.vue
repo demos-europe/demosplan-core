@@ -36,7 +36,10 @@
         <tbody>
           <tr
             class="o-sortablelist__item cursor-pointer"
+            tabindex="0"
             @click="getContent"
+            @keydown.enter="getContent"
+            @keydown.space.prevent="getContent"
           >
             <!-- time -->
             <td

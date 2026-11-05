@@ -176,17 +176,12 @@ export default {
   methods: {
     loadItems (id, type) {
       this.isLoading = true
-      const route = type === 'statement' ?
-        'dplan_api_statement_history_get' :
-        type === 'segment' ?
-          'dplan_api_segment_history_get' :
-          'dplan_api_statement_fragment_history'
-
-      const params = type === 'statement' ?
-        { statementId: id } :
-        type === 'segment' ?
-          { segmentId: id } :
-          { statementFragmentId: id, procedureId: this.procedureId }
+      const requests = {
+        fragment: ['dplan_api_statement_fragment_history', { statementFragmentId: id, procedureId: this.procedureId }],
+        segment: ['dplan_api_segment_history_get', { segmentId: id }],
+        statement: ['dplan_api_statement_history_get', { statementId: id }],
+      }
+      const [route, params] = requests[type]
 
       return dpApi({
         method: 'GET',
