@@ -53,6 +53,7 @@ class EmailAssignedTasksTemplateTest extends FunctionalTestCase
             [
                 'templateVars' => [
                     'totalTasks' => 1,
+                    'portalLink' => 'https://example.test/portal/user',
                     'entries'    => [
                         'Test procedure' => [
                             'Test step' => [

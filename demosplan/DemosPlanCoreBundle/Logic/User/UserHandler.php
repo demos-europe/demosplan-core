@@ -2288,6 +2288,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
                 'city', 'competence', 'copy', 'copySpec', 'cssvars', 'email2', 'emailNotificationEndingPhase',
                 'emailNotificationNewStatement', 'houseNumber', 'name', 'phone', 'postalcode', 'registrationStatuses',
                 'showlist', 'showlistChangeReason', 'showname', 'street', 'url', 'imprint', 'dataProtection',
+                Orga::TWO_FACTOR_REQUIRED,
             ];
             foreach ($keyArray as $key) {
                 if (isset($data['attributes'][$key])) {
@@ -2346,7 +2347,7 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $dataPermissionChecked['imprint'] = $data['imprint'];
         }
 
-        if ($this->permissions->hasPermission('area_organisations_applications_manage')
+        if ($this->permissions->hasPermission('feature_orga_registration_status_edit')
             && isset($data['registrationStatuses'])
         ) {
             $dataPermissionChecked['registrationStatuses'] = $data['registrationStatuses'];
@@ -2358,12 +2359,24 @@ class UserHandler extends CoreHandler implements UserHandlerInterface
             $dataPermissionChecked['styling'] = $data['styling'];
         }
 
+        if ($this->permissions->hasPermission('field_organisation_two_factor_required')
+            && isset($data[Orga::TWO_FACTOR_REQUIRED])
+        ) {
+            $dataPermissionChecked[Orga::TWO_FACTOR_REQUIRED] = $data[Orga::TWO_FACTOR_REQUIRED];
+        }
+
         // if the user may edit all fields, then assume that all non-explicitly checked changes are allowed
         if (in_array(true, [
             $this->permissions->hasPermission('feature_orga_edit_all_fields'),
             $this->permissions->hasPermission('area_manage_orgadata'),
         ], true)) {
+            $mayEditRegistrationStatuses = isset($dataPermissionChecked['registrationStatuses']);
             $dataPermissionChecked = $data;
+
+            // the organisation types require their own permission, "all fields" does not cover them
+            if (!$mayEditRegistrationStatuses) {
+                unset($dataPermissionChecked['registrationStatuses']);
+            }
         }
 
         return $dataPermissionChecked;
