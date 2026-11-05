@@ -37,6 +37,8 @@ class RadioButtonField extends AbstractCustomField
         $this->fieldType = $json['fieldType'];
         $this->name = $json['name'];
         $this->description = $json['description'];
+        // Definitions stored before the display mode existed have no such key
+        $this->isSeparateColumn = $json['isSeparateColumn'] ?? false;
         $this->options = array_map(static function ($optionData) {
             $customFieldOption = new CustomFieldOption();
             $customFieldOption->fromJson($optionData);
@@ -50,10 +52,11 @@ class RadioButtonField extends AbstractCustomField
         $options = array_map(static fn ($customField) => $customField->toJson(), $this->options);
 
         return [
-            'fieldType'     => $this->fieldType,
-            'name'          => $this->name,
-            'description'   => $this->description,
-            'options'       => $options,
+            'fieldType'        => $this->fieldType,
+            'name'             => $this->name,
+            'description'      => $this->description,
+            'isSeparateColumn' => $this->isSeparateColumn,
+            'options'          => $options,
         ];
     }
 

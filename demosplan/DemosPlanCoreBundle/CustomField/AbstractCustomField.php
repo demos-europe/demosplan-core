@@ -30,6 +30,11 @@ abstract class AbstractCustomField implements CustomFieldInterface
 
     protected string $description = '';
 
+    /**
+     * Display mode in lists: true = own column, false = shared column. Only changes the display, never stored values.
+     */
+    protected bool $isSeparateColumn = false;
+
     abstract protected function validateFieldSpecific(array $options): void;
 
     public function validate(?array $newOptions = null): void
@@ -137,6 +142,16 @@ abstract class AbstractCustomField implements CustomFieldInterface
     public function getRequired(): bool
     {
         return false;
+    }
+
+    public function isSeparateColumn(): bool
+    {
+        return $this->isSeparateColumn;
+    }
+
+    public function setSeparateColumn(bool $isSeparateColumn): void
+    {
+        $this->isSeparateColumn = $isSeparateColumn;
     }
 
     public function setFieldType(string $type): void

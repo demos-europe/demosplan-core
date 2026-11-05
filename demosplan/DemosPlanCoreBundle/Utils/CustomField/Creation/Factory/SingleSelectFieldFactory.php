@@ -30,6 +30,7 @@ class SingleSelectFieldFactory implements CustomFieldFactoryInterface
         $field->setFieldType($attributes['fieldType']);
         $field->setName($attributes['name']);
         $field->setDescription($attributes['description']);
+        $field->setSeparateColumn($attributes['isSeparateColumn'] ?? false);
         $field->setOptions($this->normalizeOptions($attributes['options']));
 
         return $field;
