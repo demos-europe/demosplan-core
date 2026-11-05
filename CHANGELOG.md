@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+## v4.66.0 (2026-11-05)
 - Node.js 24.22.1 for the image build, CI and `engines` (October 2026 security release)
 - `MailService` implements the new `MailServiceInterface` of the contract layer, so addons can queue mails
 - composer.json declares every PHP extension the application needs (adds apcu, exif, pcntl, pdo_mysql; drops soap, posix), so a missing extension fails the image build
