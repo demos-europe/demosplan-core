@@ -8,7 +8,7 @@
  */
 
 import { initialize } from '@DpJs/InitVue'
-import ScheduledExportDownload from '@DpJs/components/statement/statementExportModal/ScheduledExportDownload'
+import ScheduledExportDownload from '@DpJs/components/statement/statementExportModal/ScheduledExportDownload.vue'
 
 const components = {
   ScheduledExportDownload,

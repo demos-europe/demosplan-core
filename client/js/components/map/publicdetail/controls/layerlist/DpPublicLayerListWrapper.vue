@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import DpPublicLayerList from './DpPublicLayerList'
+import DpPublicLayerList from './DpPublicLayerList.vue'
 import { prefixClass } from '@demos-europe/demosplan-ui'
 
 export default {

@@ -166,7 +166,7 @@ import {
   DpResettableInput,
 } from '@demos-europe/demosplan-ui'
 import { CUSTOM_FIELD_GROUP_PREFIX } from '@DpJs/composables/useApiPlatformFilters'
-import FilterFlyoutCheckbox from './FilterFlyoutCheckbox'
+import FilterFlyoutCheckbox from './FilterFlyoutCheckbox.vue'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useStore } from 'vuex'
 

@@ -13,9 +13,9 @@
 
 import AssessmentTable from '@DpJs/lib/statement/AssessmentTable'
 import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
-import AssessmentTableToc from '@DpJs/components/statement/assessmentTable/TocView/AssessmentTableToc'
+import AssessmentTableToc from '@DpJs/components/statement/assessmentTable/TocView/AssessmentTableToc.vue'
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
-import DpTable from '@DpJs/components/statement/assessmentTable/DpTable'
+import DpTable from '@DpJs/components/statement/assessmentTable/DpTable.vue'
 import FilterStore from '@DpJs/store/statement/Filter'
 import FragmentStore from '@DpJs/store/statement/Fragment'
 import { hasPermission } from '@demos-europe/demosplan-ui'

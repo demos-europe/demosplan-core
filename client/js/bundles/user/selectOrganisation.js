@@ -12,6 +12,6 @@
  */
 
 import { initialize } from '@DpJs/InitVue'
-import OrganisationSwitcher from '@DpJs/components/user/OrganisationSwitcher'
+import OrganisationSwitcher from '@DpJs/components/user/OrganisationSwitcher.vue'
 
 initialize({ OrganisationSwitcher })

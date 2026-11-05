@@ -176,7 +176,7 @@ All rights reserved
 
 <script>
 import { DpContextualHelp, DpDetails, DpLoading, prefixClassMixin } from '@demos-europe/demosplan-ui'
-import CustomField from './CustomField'
+import CustomField from './CustomField.vue'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {

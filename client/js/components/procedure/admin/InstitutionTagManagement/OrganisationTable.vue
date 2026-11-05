@@ -228,7 +228,7 @@ import {
   DpSearchField,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
-import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter'
+import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter.vue'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
