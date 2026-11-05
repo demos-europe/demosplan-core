@@ -209,7 +209,7 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
                     $departmentNameIs = $user->getDepartment() instanceof Department ? $user->getDepartment()->getName() : '';
                     $departmentNameExpected = $this->data['user']['DEPARTMENT'].' - '.$this->data['user']['SUBDEPARTMENT'];
 
-                    $orgaNameChanged = (new UnicodeString($this->data['user']['AUTHORITY']))->normalize()->toString() !== (new UnicodeString($userOrga->getTechnicalName() ?? $userOrga->getName()))->normalize()->toString();
+                    $orgaNameChanged = (new UnicodeString($this->data['user']['AUTHORITY']))->normalize()->toString() !== (new UnicodeString($userOrga->getName()))->normalize()->toString();
                     $departmentNameChanged = (new UnicodeString($departmentNameExpected))->normalize()->toString() !== (new UnicodeString($departmentNameIs))->normalize()->toString();
 
                     // organame and Department has NOT changed, check other data to be updated
@@ -526,12 +526,11 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
 
         // Anlegen einer Organisation
         $orgaData = [
-            'customer'      => $this->customerHandler->getCurrentCustomer(),
-            'name'          => $this->data['user']['AUTHORITY'],
-            'technicalName' => $this->data['user']['AUTHORITY'],
-            'type'          => $type,
-            'gwId'          => $gwId,
-            'address'       => $address,
+            'customer'  => $this->customerHandler->getCurrentCustomer(),
+            'name'      => $this->data['user']['AUTHORITY'],
+            'type'      => $type,
+            'gwId'      => $gwId,
+            'address'   => $address,
         ];
         $orga = $this->orgaService->addOrga($orgaData);
 
@@ -612,7 +611,9 @@ class UserMapperDataportGatewayHH extends UserMapperDataportGateway
             if ($orga->getGwId() != $fpMd5OrgaHash) {
                 $update['gwId'] = $fpMd5OrgaHash;
             }
-            $update = array_merge($update, $this->getOrgaNameUpdate($orga, $this->data['user']['AUTHORITY']));
+            if ($orga->getName() != $this->data['user']['AUTHORITY']) {
+                $update['name'] = $this->data['user']['AUTHORITY'];
+            }
         }
 
         if ([] !== $update) {

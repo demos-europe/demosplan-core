@@ -17,14 +17,14 @@
           :for="organisation.id + ':orgaName'"
           class="u-mb-0_25"
         >
-          {{ Translator.trans('name.displayed') }}*
+          {{ nameLabel }}*
         </label>
         <label
           v-else
           :for="organisation.id + ':orgaName'"
           class="u-mb-0_25"
         >
-          {{ Translator.trans('name.displayed') }}
+          {{ nameLabel }}
         </label>
         <input
           v-if="canEdit('name')"
@@ -1197,6 +1197,14 @@ export default {
      * By default, this is the organisation id
      * @return {string}
      */
+    /**
+     * The name is the editable display name where the official name is shown next to it,
+     * everywhere else it keeps its former label.
+     */
+    nameLabel () {
+      return Translator.trans(hasPermission('field_organisation_technical_name') ? 'name.displayed' : 'name.legal')
+    },
+
     organisationSlug () {
       let organisationSlug
 

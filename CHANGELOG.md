@@ -5,14 +5,14 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
-- The name of an organisation is now its editable display name (`Orga::$name`, shown everywhere as before); the official
-  name from the identity provider is stored separately as `Orga::$technicalName` (JSON:API 2.0 attribute
-  `Orga.technicalName`, read-only). A Keycloak login sets the display name only when it creates the organisation and
-  updates the technical name on every login; the gateway logins keep both in sync as long as the display name was not
-  edited. The technical name of existing organisations stays empty until a user of the organisation logs in again.
-  The organisation forms show the display name as editable and the technical name as read-only, with a dash while it is
-  unknown. Showing it, in the forms and as API attribute, needs the new permission `field_organisation_technical_name`;
-  no role holds it by default, projects must grant it explicitly (DPLAN-18443)
+- Organisations get a read-only official name from the identity provider, stored as `Orga::$technicalName` (JSON:API 2.0
+  attribute `Orga.technicalName`) next to the editable name (`Orga::$name`). Only the Keycloak OZG login
+  (`/connect/keycloak_ozg`) writes it: it sets both names when it creates the organisation, updates only the technical
+  name on every later login and leaves an edited name untouched. The technical name of existing organisations stays empty
+  until a user of the organisation logs in again. All other logins (gateways, generic Keycloak) are unchanged.
+  Showing the official name needs the new permission `field_organisation_technical_name`; no role holds it by default,
+  projects must grant it explicitly. With it the organisation forms label the name field "Anzeigename" and show the
+  official name read-only, with a dash while it is unknown; without it the forms look as before (DPLAN-18443)
 - Editing the organisation types and showing the customer (Bundesland) of an organisation
   are gated by the new permissions `feature_orga_registration_status_edit` and `field_organisation_customer`;
   projects must grant them explicitly, `CUSTOMER_MASTER_USER` no longer holds them by default (DPLAN-18505)

@@ -435,7 +435,6 @@ class OzgKeycloakUserDataMapper
         $orgaData = [
             'customer'             => $customer,
             'name'                 => $orgaName,
-            'technicalName'        => $orgaName,
             'registrationStatuses' => $registrationStatuses,
         ];
 
@@ -444,6 +443,8 @@ class OzgKeycloakUserDataMapper
         }
 
         $orga = $this->orgaService->addOrga($orgaData);
+        // The official name is only ever written by this sync, never through the generic orga data
+        $orga->setTechnicalName($orgaName);
         $orga->setDepartments([$department]);
         $this->entityManager->persist($orga);
 

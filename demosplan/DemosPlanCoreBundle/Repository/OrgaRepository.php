@@ -404,11 +404,6 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
         if (array_key_exists('name', $data)) {
             $entity->setName($data['name']);
         }
-        // Written by the identity provider sync and the gateways only. User input is stripped
-        // in UserHandler::updateOrga().
-        if (array_key_exists('technicalName', $data)) {
-            $entity->setTechnicalName($data['technicalName']);
-        }
         if (array_key_exists('slug', $data)) {
             $this->handleSlugUpdate($entity, $data['slug']);
         }

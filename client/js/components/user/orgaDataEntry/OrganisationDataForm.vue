@@ -35,7 +35,7 @@
         data-cy="organisationData:name"
         :name="`${localOrganisation.id}:name`"
         :label="{
-          text: Translator.trans('name.displayed')
+          text: Translator.trans(isTechnicalNameVisible ? 'name.displayed' : 'name.legal')
         }"
         :disabled="!isOrgaNameEditable"
         required
