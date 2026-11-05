@@ -24,6 +24,7 @@ use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, CustomFieldInterface> $fieldType
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, CustomFieldInterface> $name
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, CustomFieldInterface> $isRequired
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, CustomFieldInterface> $isSeparateColumn
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, CustomFieldInterface> $description
  * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>,OrderBySortMethodInterface,CustomFieldInterface,Procedure> $templateEntity
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, CustomFieldInterface> $targetEntity

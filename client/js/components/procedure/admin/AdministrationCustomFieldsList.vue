@@ -205,6 +205,31 @@
               </span>
             </template>
 
+            <template v-slot:isSeparateColumn="rowData">
+              <fieldset v-if="rowData.edit">
+                <dp-radio
+                  :id="`separateColumnCollection-${rowData.id}`"
+                  :checked="!newRowData.isSeparateColumn"
+                  :label="{ text: Translator.trans('custom.fields.display.collection') }"
+                  :name="`separateColumn-${rowData.id}`"
+                  class="mb-1"
+                  value="collection"
+                  @change="newRowData.isSeparateColumn = false"
+                />
+                <dp-radio
+                  :id="`separateColumnSeparate-${rowData.id}`"
+                  :checked="newRowData.isSeparateColumn"
+                  :label="{ text: Translator.trans('custom.fields.display.separate') }"
+                  :name="`separateColumn-${rowData.id}`"
+                  value="separate"
+                  @change="newRowData.isSeparateColumn = true"
+                />
+              </fieldset>
+              <span v-else>
+                {{ rowData.isSeparateColumn ? Translator.trans('custom.fields.display.separate') : Translator.trans('custom.fields.display.collection') }}
+              </span>
+            </template>
+
             <template v-slot:flyout="rowData">
               <div class="flex float-right">
                 <button
@@ -325,6 +350,7 @@ import {
   DpInput,
   DpLabel,
   DpLoading,
+  DpRadio,
   DpTab,
   DpTabs,
   dpValidateMixin,
@@ -357,6 +383,7 @@ export default {
     DpInput,
     DpLabel,
     DpLoading,
+    DpRadio,
     DpTab,
     DpTabs,
   },
@@ -541,6 +568,12 @@ export default {
           label: Translator.trans('field.required'),
           colClass: 'u-7-of-12',
         })
+
+        fields.push({
+          field: 'isSeparateColumn',
+          label: Translator.trans('custom.fields.display'),
+          colClass: 'u-7-of-12',
+        })
       }
 
       return fields
@@ -600,6 +633,7 @@ export default {
     abortFieldEdit (rowData) {
       rowData.description = this.initialRowData.description
       rowData.isRequired = this.initialRowData.isRequired
+      rowData.isSeparateColumn = this.initialRowData.isSeparateColumn
       rowData.name = this.initialRowData.name
       rowData.options = this.initialRowData.options
 
@@ -657,8 +691,9 @@ export default {
       const areOptionsUnchanged = JSON.stringify(this.initialRowData.options) === JSON.stringify(newRowData.options)
       const isDescriptionUnchanged = this.initialRowData.description === newRowData.description
       const isRequiredUnchanged = this.initialRowData.isRequired === newRowData.isRequired
+      const isSeparateColumnUnchanged = this.initialRowData.isSeparateColumn === newRowData.isSeparateColumn
 
-      this.isSaveDisabled[newRowData.id] = isNameUnchanged && areOptionsUnchanged && isDescriptionUnchanged && isRequiredUnchanged
+      this.isSaveDisabled[newRowData.id] = isNameUnchanged && areOptionsUnchanged && isDescriptionUnchanged && isRequiredUnchanged && isSeparateColumnUnchanged
     },
 
     editCustomField (rowData) {
@@ -786,14 +821,14 @@ export default {
       const fieldsReduced = this.currentTabDefinitions
         .map(definition => {
           const { id, attributes } = definition
-          const { description, fieldType, isRequired, name, options } = attributes
+          const { description, fieldType, isRequired, isSeparateColumn = false, name, options } = attributes
 
           return {
             id,
             name,
             description,
             fieldType,
-            ...(this.isActiveTabStatementContext && { isRequired }),
+            ...(this.isActiveTabStatementContext && { isRequired, isSeparateColumn }),
             options: JSON.parse(JSON.stringify(options)),
             open: false,
             edit: false,
@@ -817,11 +852,12 @@ export default {
     },
 
     resetEditedUnsavedField (customField) {
-      const { description = '', isRequired = false, name = '', options = [] } = this.initialRowData
+      const { description = '', isRequired = false, isSeparateColumn = false, name = '', options = [] } = this.initialRowData
 
       customField.description = description
       customField.edit = false
       customField.isRequired = isRequired
+      customField.isSeparateColumn = isSeparateColumn
       customField.name = name
       customField.open = false
       customField.options = options
@@ -854,7 +890,7 @@ export default {
           }
 
           const sourceDefinition = this.currentTabDefinitions.find(definition => definition.id === this.newRowData.id)
-          const { description = '', isRequired, name, options } = this.newRowData
+          const { description = '', isRequired, isSeparateColumn, name, options } = this.newRowData
           const isOptionsSupported = fieldTypeSupportsOptions(sourceDefinition.attributes.fieldType)
 
           const updatedPayload = {
@@ -864,6 +900,7 @@ export default {
                 ...sourceDefinition.attributes,
                 description,
                 isRequired,
+                ...(this.isActiveTabStatementContext && { isSeparateColumn }),
                 name,
                 options,
               }).filter(([key]) => key !== 'fieldType' && (key !== 'options' || isOptionsSupported)),
@@ -891,11 +928,12 @@ export default {
      * @param customFieldData.description {String}
      * @param customFieldData.fieldType {String}
      * @param customFieldData.isRequired {Boolean}
+     * @param customFieldData.isSeparateColumn {Boolean}
      * @param customFieldData.name {String}
      * @param customFieldData.targetEntity {String}
      */
     saveNewField (customFieldData) {
-      const { description, fieldType, isRequired, name, targetEntity } = customFieldData
+      const { description, fieldType, isRequired, isSeparateColumn, name, targetEntity } = customFieldData
       const options = this.newFieldOptions.filter(option => option.label !== '')
       const isDataValid = this.validateNamesAreUnique(name, options)
 
@@ -912,7 +950,7 @@ export default {
         fieldType,
         name,
         options,
-        ...(targetEntity === 'STATEMENT' && { isRequired }),
+        ...(targetEntity === 'STATEMENT' && { isRequired, isSeparateColumn }),
         sourceEntity: this.resolvedSourceEntity,
         /*
          * For CUSTOMER source the BE derives sourceEntityId from the current
@@ -967,23 +1005,23 @@ export default {
     },
 
     setInitialRowData (rowData) {
-      const { description = '', isRequired, name, options } = rowData
+      const { description = '', isRequired, isSeparateColumn, name, options } = rowData
 
       this.initialRowData = {
         description,
-        ...(this.isActiveTabStatementContext && { isRequired }),
+        ...(this.isActiveTabStatementContext && { isRequired, isSeparateColumn }),
         name,
         options: JSON.parse(JSON.stringify(options)),
       }
     },
 
     setNewRowData (rowData) {
-      const { description = '', id, isRequired, name, options } = rowData
+      const { description = '', id, isRequired, isSeparateColumn, name, options } = rowData
 
       this.newRowData = {
         id,
         description,
-        ...(this.isActiveTabStatementContext && { isRequired }),
+        ...(this.isActiveTabStatementContext && { isRequired, isSeparateColumn }),
         name,
         options,
       }
