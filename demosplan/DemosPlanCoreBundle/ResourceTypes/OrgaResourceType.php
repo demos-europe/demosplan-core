@@ -35,6 +35,7 @@ use Illuminate\Support\Collection as IlluminateCollection;
  * @property-read End                              $deleted
  * @property-read OrgaStatusInCustomerResourceType $statusInCustomers
  * @property-read End                              $name
+ * @property-read End                              $technicalName Official name from the identity provider, read-only
  * @property-read MasterToebResourceType           $masterToeb
  * @property-read CustomerResourceType             $customers @deprecated Use {@link OrgaResourceType::$statusInCustomers} instead
  * @property-read End                              $ccEmail2 @deprecated Create attribute with better name instead of using this one
@@ -163,6 +164,7 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
         $properties = [
             $this->createIdentifier()->sortable()->filterable()->readable(),
             $this->createAttribute($this->name)->sortable()->filterable()->readable(true),
+            $this->createAttribute($this->technicalName)->readable(true),
             $this->createAttribute($this->ccEmail2)->readable(true),
             $this->createAttribute($this->city)->readable(true, static fn (Orga $orga): string => $orga->getCity()),
             $this->createAttribute($this->imprint)->readable(true),
