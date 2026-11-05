@@ -8,7 +8,7 @@
 </license>
 
 <documentation>
-  <!-- This component is a child of DpVersionHistory.vue and a wrapper around DpVersionHistoryItem.vue, which contains
+  <!-- This component is a child of VersionHistory.vue and a wrapper around VersionHistoryItem.vue, which contains
     the changes for a specific time -->
 </documentation>
 
@@ -47,7 +47,7 @@
       />
     </tr>
 
-    <dp-version-history-item
+    <version-history-item
       v-for="(time, idx) in filteredItems"
       :key="idx"
       :procedure-id="procedureId"
@@ -59,14 +59,14 @@
 </template>
 
 <script>
-import DpVersionHistoryItem from './DpVersionHistoryItem'
 import { formatDate } from '@demos-europe/demosplan-ui'
+import VersionHistoryItem from './VersionHistoryItem'
 
 export default {
-  name: 'DpVersionHistoryDay',
+  name: 'VersionHistoryDay',
 
   components: {
-    DpVersionHistoryItem,
+    VersionHistoryItem,
   },
 
   props: {

@@ -13,7 +13,7 @@
       :open="slidebar.isOpen"
       @close="resetSlidebar"
     >
-      <dp-version-history
+      <version-history
         v-if="slidebar.showTab === 'history'"
         class="u-pr"
         :entity-id="slidebar.segmentId"
@@ -248,7 +248,6 @@ import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { buildDetailedStatementQuery } from '../Shared/utils/statementQueryBuilder'
 import DpClaim from '@DpJs/components/statement/DpClaim'
 import DpSegmentRecommendationEmail from '@DpJs/components/statement/statement/DpSegmentRecommendationEmail'
-import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
 import lscache from 'lscache'
 import { redirectToStatementListWithGroupResolvedToast } from '../Shared/utils/redirectToStatementListWithGroupResolvedToast'
 import { sanitizeUrl } from '@braintree/sanitize-url'
@@ -261,6 +260,7 @@ import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmen
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
 import StatementSegmentsEdit from './StatementSegmentsEdit'
 import StatusBadge from '../Shared/StatusBadge'
+import VersionHistory from '@DpJs/components/statement/statement/VersionHistory'
 
 export default {
   name: 'StatementSegmentsList',
@@ -273,7 +273,6 @@ export default {
     DpSegmentRecommendationEmail,
     DpSlidebar,
     DpStickyElement,
-    DpVersionHistory,
     SegmentCommentsList,
     SegmentLocationMap,
     SegmentsRecommendations,
@@ -283,6 +282,7 @@ export default {
     StatementMetaTooltip,
     StatementSegmentsEdit,
     StatusBadge,
+    VersionHistory,
   },
 
   provide () {

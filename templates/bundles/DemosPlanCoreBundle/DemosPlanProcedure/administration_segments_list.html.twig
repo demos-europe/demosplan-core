@@ -18,13 +18,13 @@
 
     {# Version history, send-via-mail and filter panels, driven by the SegmentSlidebar store. Each panel toggles its own visibility. #}
     <segment-slidebar v-slot="{ slidebar }">
-        <dp-version-history
+        <version-history
             v-if="slidebar.showTab === 'history'"
             :entity-id="slidebar.segmentId"
             :extern-id="slidebar.externId"
             entity-type="segment"
             procedure-id="{{ procedure }}"
-        ></dp-version-history>
+        ></version-history>
         <dp-segment-recommendation-email
             current-user-email="{{ currentUser.email }}"
             procedure-name="{{ procedureObject.name }}"

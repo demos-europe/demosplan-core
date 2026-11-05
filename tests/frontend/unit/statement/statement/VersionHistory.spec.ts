@@ -9,7 +9,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, shallowMount } from '@vue/test-utils'
-import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory.vue'
+import VersionHistory from '@DpJs/components/statement/statement/VersionHistory.vue'
 
 const { mockDpApi } = vi.hoisted(() => ({ mockDpApi: vi.fn() }))
 
@@ -18,8 +18,8 @@ vi.mock('@demos-europe/demosplan-ui', async importOriginal => ({
   dpApi: (...args: unknown[]) => mockDpApi(...args),
 }))
 
-describe('DpVersionHistory', () => {
-  const mountHistory = (props = {}) => shallowMount(DpVersionHistory, {
+describe('VersionHistory', () => {
+  const mountHistory = (props = {}) => shallowMount(VersionHistory, {
     props: {
       procedureId: 'procedure-1',
       ...props,

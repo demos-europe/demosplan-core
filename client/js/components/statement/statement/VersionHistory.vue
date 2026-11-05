@@ -8,8 +8,8 @@
 </license>
 
 <documentation>
-  <!-- This component is used as a wrapper for DpVersionHistoryDay.vue, which contains the table header for one day and is
-   a wrapper for DpVersionHistoryItem.vue, which contains the changes for a certain time on that day
+  <!-- This component is used as a wrapper for VersionHistoryDay.vue, which contains the table header for one day and is
+   a wrapper for VersionHistoryItem.vue, which contains the changes for a certain time on that day
    -->
 </documentation>
 
@@ -58,7 +58,7 @@
           <!-- if there are history items -->
           <!-- for each day -->
           <template v-if="days.length">
-            <dp-version-history-day
+            <version-history-day
               v-for="(day, idx) in days"
               :key="idx"
               :procedure-id="procedureId"
@@ -77,10 +77,10 @@
 <script>
 import { dpApi, DpLoading } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
-import DpVersionHistoryDay from './DpVersionHistoryDay'
+import VersionHistoryDay from './VersionHistoryDay'
 
 export default {
-  name: 'DpVersionHistory',
+  name: 'VersionHistory',
 
   components: {
     DpInlineNotification: defineAsyncComponent(async () => {
@@ -89,7 +89,7 @@ export default {
       return DpInlineNotification
     }),
     DpLoading,
-    DpVersionHistoryDay,
+    VersionHistoryDay,
   },
 
   props: {

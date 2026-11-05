@@ -20,7 +20,7 @@
 
     <!-- Version History Slidebar -->
     <dp-slidebar v-model:open="isSlidebarOpen">
-      <dp-version-history
+      <version-history
         :entity-id="versionHistory.id"
         :extern-id="versionHistory.externId"
         :procedure-id="procedureId"
@@ -65,7 +65,7 @@ import { mapActions, mapGetters } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 
-const DpVersionHistory = defineAsyncComponent(() => import('@DpJs/components/statement/statement/DpVersionHistory'))
+const VersionHistory = defineAsyncComponent(() => import('@DpJs/components/statement/statement/VersionHistory'))
 
 export default {
   name: 'DpDetailView',
@@ -73,7 +73,7 @@ export default {
   components: {
     DpMapModal,
     DpSlidebar,
-    DpVersionHistory,
+    VersionHistory,
   },
 
   props: {

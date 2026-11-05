@@ -152,7 +152,7 @@
       :open="isSlidebarOpen"
       @close="setIsSlidebarOpen(false)"
     >
-      <dp-version-history
+      <version-history
         :entity-id="versionHistoryEntity?.id"
         :entity-type="versionHistoryEntity?.type"
         :extern-id="versionHistoryEntity?.externId"
@@ -318,7 +318,7 @@ export default {
       return DpSlidebar
     }),
     DpAssessmentTableCard,
-    DpVersionHistory: defineAsyncComponent(() => import(/* webpackChunkName: "dp-version-history" */ '@DpJs/components/statement/statement/DpVersionHistory')),
+    VersionHistory: defineAsyncComponent(() => import(/* webpackChunkName: "version-history" */ '@DpJs/components/statement/statement/VersionHistory')),
   },
 
   directives: {
