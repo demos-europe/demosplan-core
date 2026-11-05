@@ -246,7 +246,6 @@
 <script>
 import { DpDraggable, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations, mapState } from 'vuex'
-import AdminLayerListItem from './AdminLayerListItem.vue'
 import { v4 as uuid } from 'uuid'
 
 export default {
@@ -1049,10 +1048,6 @@ export default {
         })
       }
     },
-  },
-
-  beforeCreate () {
-    this.$options.components.AdminLayerListItem = AdminLayerListItem
   },
 }
 </script>
