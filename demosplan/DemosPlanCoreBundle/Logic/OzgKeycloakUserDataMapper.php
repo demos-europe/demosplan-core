@@ -343,17 +343,7 @@ class OzgKeycloakUserDataMapper
             $existingOrga->setGwId($gwId);
         }
 
-        // The official name from Keycloak is kept in the technical name. The (display) name is
-        // user-editable and therefore never overwritten here, it is only set on creation.
-        $keycloakOrgaName = $orgaName ?? $this->ozgKeycloakUserData->getOrganisationName();
-        if ('' !== $keycloakOrgaName
-            && UserInterface::ANONYMOUS_USER_ORGA_NAME !== $keycloakOrgaName) {
-            $existingOrga->setTechnicalName($keycloakOrgaName);
-
-            if (null === $existingOrga->getName() || '' === $existingOrga->getName()) {
-                $existingOrga->setName($keycloakOrgaName);
-            }
-        }
+        $this->updateOrganisationNames($existingOrga, $orgaName ?? $this->ozgKeycloakUserData->getOrganisationName());
 
         // Address fields are still synced from the token.
         if (UserInterface::ANONYMOUS_USER_ORGA_NAME !== $orgaName) {
@@ -374,6 +364,20 @@ class OzgKeycloakUserDataMapper
         ]);
 
         return $existingOrga;
+    }
+
+    /**
+     * The official name delivered by Keycloak is stored as technical name on every login.
+     * The (display) name is user-editable and therefore never overwritten, it is only set on
+     * creation
+     */
+    private function updateOrganisationNames(Orga $existingOrga, string $keycloakOrgaName): void
+    {
+        if ('' === $keycloakOrgaName || UserInterface::ANONYMOUS_USER_ORGA_NAME === $keycloakOrgaName) {
+            return;
+        }
+
+        $existingOrga->setTechnicalName($keycloakOrgaName);
     }
 
     /**
