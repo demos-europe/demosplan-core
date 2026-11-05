@@ -149,6 +149,11 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             )
             ->addPathCreationBehavior(OptionalField::YES)
             ->addPathUpdateBehavior();
+        $configBuilder->isSeparateColumn
+            ->setReadableByCallable(
+                static fn (CustomFieldInterface $customField): bool => $customField->isSeparateColumn()
+            )
+            ->addPathCreationBehavior(OptionalField::YES);
         $configBuilder->fieldType->setReadableByPath()->addPathCreationBehavior();
         $configBuilder->options
             ->setReadableByCallable(

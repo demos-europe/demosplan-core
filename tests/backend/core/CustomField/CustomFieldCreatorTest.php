@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\CustomField\TextField;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Creation\CustomFieldCreator;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -298,6 +299,95 @@ class CustomFieldCreatorTest extends UnitTestCase
 
         // Act
         $this->sut->createCustomField($this->attributes);
+    }
+
+    public function testCreateStatementFieldAsCollectionColumn(): void
+    {
+        // Arrange
+        $this->attributes['fieldType'] = 'singleSelect';
+        $this->attributes['targetEntity'] = 'STATEMENT';
+        $this->attributes['isSeparateColumn'] = false;
+
+        // Act
+        $result = $this->sut->createCustomField($this->attributes);
+
+        // Assert
+        static::assertFalse($result->isSeparateColumn());
+    }
+
+    public function testCreateStatementFieldDefaultsToSeparateColumn(): void
+    {
+        // Arrange
+        $this->attributes['fieldType'] = 'multiSelect';
+        $this->attributes['targetEntity'] = 'STATEMENT';
+        unset($this->attributes['isSeparateColumn']);
+
+        // Act
+        $result = $this->sut->createCustomField($this->attributes);
+
+        // Assert
+        static::assertTrue($result->isSeparateColumn());
+    }
+
+    public function testCreateSegmentFieldIgnoresIsSeparateColumn(): void
+    {
+        // Arrange
+        $this->attributes['fieldType'] = 'singleSelect';
+        $this->attributes['targetEntity'] = 'SEGMENT';
+        $this->attributes['isSeparateColumn'] = false;
+
+        // Act
+        $result = $this->sut->createCustomField($this->attributes);
+
+        // Assert
+        static::assertTrue($result->isSeparateColumn());
+    }
+
+    public function testIsSeparateColumnIsPersisted(): void
+    {
+        // Arrange
+        $this->attributes['fieldType'] = 'multiSelect';
+        $this->attributes['targetEntity'] = 'STATEMENT';
+        $this->attributes['isSeparateColumn'] = false;
+        $created = $this->sut->createCustomField($this->attributes);
+
+        // Act
+        $configuration = $this->getContainer()
+            ->get(CustomFieldConfigurationRepository::class)
+            ->find($created->getId());
+
+        // Assert
+        static::assertFalse($configuration->getConfiguration()->isSeparateColumn());
+    }
+
+    #[DataProvider('fromJsonProvider')]
+    public function testFromJsonWithoutIsSeparateColumnDefaultsToTrue(string $fieldClass, array $json): void
+    {
+        // Arrange
+        unset($json['isSeparateColumn']);
+        $field = new $fieldClass();
+
+        // Act
+        $field->fromJson($json);
+
+        // Assert
+        static::assertTrue($field->isSeparateColumn());
+    }
+
+    #[DataProvider('fromJsonProvider')]
+    public function testIsSeparateColumnSurvivesJsonRoundTrip(string $fieldClass, array $json): void
+    {
+        // Arrange
+        $json['isSeparateColumn'] = false;
+        $field = new $fieldClass();
+        $field->fromJson($json);
+
+        // Act
+        $restored = new $fieldClass();
+        $restored->fromJson($field->toJson());
+
+        // Assert
+        static::assertFalse($restored->isSeparateColumn());
     }
 
     public static function fromJsonProvider(): array
