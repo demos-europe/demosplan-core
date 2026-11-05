@@ -11,6 +11,7 @@
 namespace Tests\Core\Statement\Functional;
 
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use ReflectionMethod;
 use Symfony\Component\Validator\Exception\ValidatorException;
 use Tests\Base\FunctionalTestCase;
 
@@ -38,7 +39,7 @@ class StatementHandlerPublicDataTest extends FunctionalTestCase
             'r_email'     => 'erika@example.com',
         ], $overrides);
 
-        $method = new \ReflectionMethod(StatementHandler::class, 'getStatementPublicData');
+        $method = new ReflectionMethod(StatementHandler::class, 'getStatementPublicData');
 
         return $method->invoke($this->sut, $data, []);
     }
@@ -124,8 +125,8 @@ class StatementHandlerPublicDataTest extends FunctionalTestCase
     public static function invalidPhoneProvider(): array
     {
         return [
-            'letters' => ['call me maybe'],
-            'url'     => ['http://spam.example'],
+            'letters'  => ['call me maybe'],
+            'url'      => ['http://spam.example'],
             'too long' => [str_repeat('1', 51)],
         ];
     }
