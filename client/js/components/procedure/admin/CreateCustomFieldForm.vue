@@ -79,6 +79,17 @@
             {{ Translator.trans('custom.fields.display') }}
           </legend>
           <dp-radio
+            id="columnSelectionSeparate"
+            :checked="customField.isSeparateColumn"
+            :label="{
+              text: Translator.trans('custom.fields.display.separate'),
+              hint: Translator.trans('custom.fields.display.separate.explanation')
+            }"
+            name="columnSelection"
+            value="separate"
+            @change="customField.isSeparateColumn = true"
+          />
+          <dp-radio
             id="columnSelectionCollection"
             :checked="!customField.isSeparateColumn"
             :label="{
@@ -89,17 +100,6 @@
             name="columnSelection"
             value="collection"
             @change="customField.isSeparateColumn = false"
-          />
-          <dp-radio
-            id="columnSelectionSeparate"
-            :checked="customField.isSeparateColumn"
-            :label="{
-              text: Translator.trans('custom.fields.display.separate'),
-              hint: Translator.trans('custom.fields.display.separate.explanation')
-            }"
-            name="columnSelection"
-            value="separate"
-            @change="customField.isSeparateColumn = true"
           />
         </fieldset>
 
@@ -198,7 +198,7 @@ export default {
         description: '',
         fieldType: '',
         isRequired: false,
-        isSeparateColumn: false,
+        isSeparateColumn: true,
         name: '',
         targetEntity: '',
       },
@@ -255,7 +255,7 @@ export default {
       this.customField.description = ''
       this.customField.fieldType = ''
       this.customField.isRequired = false
-      this.customField.isSeparateColumn = false
+      this.customField.isSeparateColumn = true
       this.customField.name = ''
       this.customField.targetEntity = ''
     },
