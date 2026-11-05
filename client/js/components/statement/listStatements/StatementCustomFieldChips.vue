@@ -39,6 +39,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { DpBadge, DpTooltip } from '@demos-europe/demosplan-ui'
+import { resolveCustomFieldLabels } from '@DpJs/lib/shared/resolveCustomFieldLabels'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 interface CustomFieldDefinition {
@@ -46,6 +47,7 @@ interface CustomFieldDefinition {
   attributes: {
     name: string
     fieldType: string
+    isSeparateColumn?: boolean
     options: { id: string, label: string }[]
   }
 }
@@ -86,30 +88,12 @@ const { fetchCustomFields, fetchCustomFieldValues } = useCustomFields()
 const definitions = ref<CustomFieldDefinition[]>([])
 const values = ref<CustomFieldValue[]>([])
 
-/*
- * Select fields store option IDs (a string or a list of strings), text fields store the text itself.
- * Option IDs that no longer exist in the definition are dropped.
- */
-const resolveLabels = (definition: CustomFieldDefinition, value: CustomFieldValue['value']): string[] => {
-  if (value === null || value === '') {
-    return []
-  }
-
-  if (definition.attributes.fieldType === 'text') {
-    return [String(value)]
-  }
-
-  const optionIds = Array.isArray(value) ? value : [value]
-
-  return optionIds
-    .map(optionId => definition.attributes.options.find(option => option.id === optionId)?.label)
-    .filter((label): label is string => Boolean(label))
-}
-
+// Fields shown in their own column are not part of the collective column
 const entries = computed<FieldEntry[]>(() => definitions.value
+  .filter(definition => !definition.attributes.isSeparateColumn)
   .map(definition => ({
     name: definition.attributes.name,
-    labels: resolveLabels(definition, values.value.find(value => value.id === definition.id)?.value ?? null),
+    labels: resolveCustomFieldLabels(definition, values.value.find(value => value.id === definition.id)?.value ?? null),
   }))
   .filter(entry => entry.labels.length > 0))
 
