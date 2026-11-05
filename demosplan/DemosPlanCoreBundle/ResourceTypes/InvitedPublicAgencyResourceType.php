@@ -121,6 +121,11 @@ class InvitedPublicAgencyResourceType extends DplanResourceType
                 fn (OrgaInterface $orga) => $this->getOriginalStatementsCountForOrga($orga->getId()),
                 DefaultField::YES
             );
+        $configBuilder->hasActiveUsers
+            ->setReadableByCallable(
+                static fn (OrgaInterface $orga): bool => $orga instanceof Orga && $orga->hasActiveInstitutionUsers(),
+                DefaultField::YES
+            );
 
         // Conditional properties based on permissions
         if ($this->currentUser->hasPermission('field_organisation_competence')) {

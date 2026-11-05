@@ -20,6 +20,8 @@
 - `MailService` implements the new `MailServiceInterface` of the contract layer, so addons can queue mails
 - composer.json declares every PHP extension the application needs (adds apcu, exif, pcntl, pdo_mysql; drops soap, posix), so a missing extension fails the image build
 - production image: PHP extensions bcmath, bz2, calendar, ffi, gettext, mysqli, shmop, soap, sysvmsg, sysvsem, sysvshm and xsl removed; compiler toolchain removed from the fpm image (~220 MB smaller)
+- The institution resources `InvitedToeb`, `InvitableToeb` (JSON:API 2.0) and `InvitableInstitution` (API Platform 3.0) expose the attribute `hasActiveUsers`: true if the organisation has a non-deleted user with an institution role in the current customer
+- The lists of invitable institutions (institution tags page, "add institution" list of a procedure) include every organisation that is accepted as public agency in the current customer, also if none of its users holds an institution role. Such an organisation can be added to a procedure
 
 ### Added
 - addons can add entries to the menus with a `menus.yml` in their `config` directory
