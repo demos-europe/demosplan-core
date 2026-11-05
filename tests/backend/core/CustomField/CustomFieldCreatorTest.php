@@ -301,21 +301,21 @@ class CustomFieldCreatorTest extends UnitTestCase
         $this->sut->createCustomField($this->attributes);
     }
 
-    public function testCreateStatementFieldAsSeparateColumn(): void
+    public function testCreateStatementFieldAsCollectionColumn(): void
     {
         // Arrange
         $this->attributes['fieldType'] = 'singleSelect';
         $this->attributes['targetEntity'] = 'STATEMENT';
-        $this->attributes['isSeparateColumn'] = true;
+        $this->attributes['isSeparateColumn'] = false;
 
         // Act
         $result = $this->sut->createCustomField($this->attributes);
 
         // Assert
-        static::assertTrue($result->isSeparateColumn());
+        static::assertFalse($result->isSeparateColumn());
     }
 
-    public function testCreateStatementFieldDefaultsToCollectionColumn(): void
+    public function testCreateStatementFieldDefaultsToSeparateColumn(): void
     {
         // Arrange
         $this->attributes['fieldType'] = 'multiSelect';
@@ -326,7 +326,7 @@ class CustomFieldCreatorTest extends UnitTestCase
         $result = $this->sut->createCustomField($this->attributes);
 
         // Assert
-        static::assertFalse($result->isSeparateColumn());
+        static::assertTrue($result->isSeparateColumn());
     }
 
     public function testCreateSegmentFieldIgnoresIsSeparateColumn(): void
@@ -334,13 +334,13 @@ class CustomFieldCreatorTest extends UnitTestCase
         // Arrange
         $this->attributes['fieldType'] = 'singleSelect';
         $this->attributes['targetEntity'] = 'SEGMENT';
-        $this->attributes['isSeparateColumn'] = true;
+        $this->attributes['isSeparateColumn'] = false;
 
         // Act
         $result = $this->sut->createCustomField($this->attributes);
 
         // Assert
-        static::assertFalse($result->isSeparateColumn());
+        static::assertTrue($result->isSeparateColumn());
     }
 
     public function testIsSeparateColumnIsPersisted(): void
@@ -348,7 +348,7 @@ class CustomFieldCreatorTest extends UnitTestCase
         // Arrange
         $this->attributes['fieldType'] = 'multiSelect';
         $this->attributes['targetEntity'] = 'STATEMENT';
-        $this->attributes['isSeparateColumn'] = true;
+        $this->attributes['isSeparateColumn'] = false;
         $created = $this->sut->createCustomField($this->attributes);
 
         // Act
@@ -357,11 +357,11 @@ class CustomFieldCreatorTest extends UnitTestCase
             ->find($created->getId());
 
         // Assert
-        static::assertTrue($configuration->getConfiguration()->isSeparateColumn());
+        static::assertFalse($configuration->getConfiguration()->isSeparateColumn());
     }
 
     #[DataProvider('fromJsonProvider')]
-    public function testFromJsonWithoutIsSeparateColumnDefaultsToFalse(string $fieldClass, array $json): void
+    public function testFromJsonWithoutIsSeparateColumnDefaultsToTrue(string $fieldClass, array $json): void
     {
         // Arrange
         unset($json['isSeparateColumn']);
@@ -371,14 +371,14 @@ class CustomFieldCreatorTest extends UnitTestCase
         $field->fromJson($json);
 
         // Assert
-        static::assertFalse($field->isSeparateColumn());
+        static::assertTrue($field->isSeparateColumn());
     }
 
     #[DataProvider('fromJsonProvider')]
     public function testIsSeparateColumnSurvivesJsonRoundTrip(string $fieldClass, array $json): void
     {
         // Arrange
-        $json['isSeparateColumn'] = true;
+        $json['isSeparateColumn'] = false;
         $field = new $fieldClass();
         $field->fromJson($json);
 
@@ -387,7 +387,7 @@ class CustomFieldCreatorTest extends UnitTestCase
         $restored->fromJson($field->toJson());
 
         // Assert
-        static::assertTrue($restored->isSeparateColumn());
+        static::assertFalse($restored->isSeparateColumn());
     }
 
     public static function fromJsonProvider(): array

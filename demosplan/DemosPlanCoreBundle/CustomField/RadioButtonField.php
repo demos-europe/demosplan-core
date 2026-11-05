@@ -37,7 +37,7 @@ class RadioButtonField extends AbstractCustomField
         $this->fieldType = $json['fieldType'];
         $this->name = $json['name'];
         $this->description = $json['description'];
-        $this->isSeparateColumn = $json['isSeparateColumn'] ?? false;
+        $this->isSeparateColumn = $json['isSeparateColumn'] ?? true;
         $this->options = array_map(static function ($optionData) {
             $customFieldOption = new CustomFieldOption();
             $customFieldOption->fromJson($optionData);

@@ -70,15 +70,15 @@ class CustomFieldUpdaterTest extends UnitTestCase
         $repository = $this->getContainer()->get(CustomFieldConfigurationRepository::class);
         $configuration = $repository->find($customField->getId());
         $separateColumnField = clone $configuration->getConfiguration();
-        $separateColumnField->setSeparateColumn(true);
+        $separateColumnField->setSeparateColumn(false);
         $configuration->setConfiguration($separateColumnField);
         $repository->updateObject($configuration);
 
         // Act
-        $result = $this->sut->updateCustomField($customField->getId(), ['isSeparateColumn' => false]);
+        $result = $this->sut->updateCustomField($customField->getId(), ['isSeparateColumn' => true]);
 
         // Assert
-        static::assertTrue($result->isSeparateColumn());
+        static::assertFalse($result->isSeparateColumn());
     }
 
     public function testUpdateCustomFieldWithValidOptionsUpdate(): void

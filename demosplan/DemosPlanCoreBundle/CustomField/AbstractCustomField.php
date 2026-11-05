@@ -30,7 +30,7 @@ abstract class AbstractCustomField implements CustomFieldInterface
 
     protected string $description = '';
 
-    protected bool $isSeparateColumn = false;
+    protected bool $isSeparateColumn = true;
 
     abstract protected function validateFieldSpecific(array $options): void;
 

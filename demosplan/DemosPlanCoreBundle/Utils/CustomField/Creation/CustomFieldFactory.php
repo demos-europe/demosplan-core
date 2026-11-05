@@ -34,10 +34,9 @@ class CustomFieldFactory
         $factory = $this->factoryRegistry->getFactory($type);
 
         $customField = $factory->create($attributes);
-        $customField->setSeparateColumn(
-            CustomFieldSupportedEntity::statement->value === $attributes['targetEntity']
-            && true === ($attributes['isSeparateColumn'] ?? false)
-        );
+        if (CustomFieldSupportedEntity::statement->value === $attributes['targetEntity']) {
+            $customField->setSeparateColumn(true === ($attributes['isSeparateColumn'] ?? true));
+        }
 
         return $customField;
     }
