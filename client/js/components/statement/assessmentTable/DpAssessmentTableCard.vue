@@ -765,6 +765,7 @@ import { dpApi, DpContextualHelp, DpTooltip, formatDate, hasOwnProp } from '@dem
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList.vue'
+import { defineAsyncComponent } from 'vue'
 import DpClaim from '../DpClaim.vue'
 import DpEditFieldMultiSelect from './DpEditFieldMultiSelect.vue'
 import DpEditFieldSingleSelect from './DpEditFieldSingleSelect.vue'
@@ -781,8 +782,8 @@ export default {
     DpContextualHelp,
     DpEditFieldMultiSelect,
     DpEditFieldSingleSelect,
-    DpFragmentList: () => import(/* webpackChunkName: "dp-fragment-list" */ './DpFragmentList.vue'),
-    DpFragmentsSwitcher: () => import(/* webpackChunkName: "dp-fragments-switcher" */ './DpFragmentsSwitcher.vue'),
+    DpFragmentList: defineAsyncComponent(() => import(/* webpackChunkName: "dp-fragment-list" */ './DpFragmentList.vue')),
+    DpFragmentsSwitcher: defineAsyncComponent(() => import(/* webpackChunkName: "dp-fragments-switcher" */ './DpFragmentsSwitcher.vue')),
     DpItemRow,
     DpTooltip,
     EditableText,
