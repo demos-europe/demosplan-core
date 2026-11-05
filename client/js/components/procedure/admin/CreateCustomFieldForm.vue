@@ -72,7 +72,7 @@
         />
 
         <fieldset
-          v-if="customField.targetEntity === 'STATEMENT'"
+          v-if="customField.targetEntity === 'STATEMENT' && hasPermission('feature_statements_custom_fields_column_display')"
         >
           <legend
           class="text-base font-semibold mb-2">
