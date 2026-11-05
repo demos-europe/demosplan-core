@@ -31,7 +31,6 @@ class MultiSelectFieldFactory implements CustomFieldFactoryInterface
         $field->setName($attributes['name']);
         $field->setDescription($attributes['description']);
         $field->setRequired($attributes['isRequired'] ?? false);
-        $field->setSeparateColumn($attributes['isSeparateColumn'] ?? false);
         $field->setOptions($this->normalizeOptions($attributes['options']));
 
         return $field;

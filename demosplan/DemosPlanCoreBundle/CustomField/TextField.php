@@ -27,9 +27,8 @@ class TextField extends AbstractCustomField
         $this->fieldType = $json['fieldType'];
         $this->name = $json['name'];
         $this->description = $json['description'];
+        $this->isSeparateColumn = $json['isSeparateColumn'] ?? true;
         $this->isRequired = $json['isRequired'];
-        // Definitions stored before the display mode existed have no such key
-        $this->isSeparateColumn = $json['isSeparateColumn'] ?? false;
     }
 
     public function toJson(): array
@@ -38,8 +37,8 @@ class TextField extends AbstractCustomField
             'fieldType'        => $this->fieldType,
             'name'             => $this->name,
             'description'      => $this->description,
-            'isRequired'       => $this->isRequired,
             'isSeparateColumn' => $this->isSeparateColumn,
+            'isRequired'       => $this->isRequired,
         ];
     }
 

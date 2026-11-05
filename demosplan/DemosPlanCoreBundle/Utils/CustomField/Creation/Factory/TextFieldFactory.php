@@ -29,7 +29,6 @@ class TextFieldFactory implements CustomFieldFactoryInterface
         $field->setName($attributes['name']);
         $field->setDescription($attributes['description']);
         $field->setRequired($attributes['isRequired'] ?? false);
-        $field->setSeparateColumn($attributes['isSeparateColumn'] ?? false);
 
         return $field;
     }

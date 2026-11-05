@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Creation;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Creation\Factory\CustomFieldFactoryRegistry;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Creation\TypeValidator\CustomFieldTypeValidatorRegistry;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 
 class CustomFieldFactory
 {
@@ -32,6 +33,11 @@ class CustomFieldFactory
 
         $factory = $this->factoryRegistry->getFactory($type);
 
-        return $factory->create($attributes);
+        $customField = $factory->create($attributes);
+        if (CustomFieldSupportedEntity::statement->value === $attributes['targetEntity']) {
+            $customField->setSeparateColumn(true === ($attributes['isSeparateColumn'] ?? true));
+        }
+
+        return $customField;
     }
 }

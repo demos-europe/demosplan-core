@@ -30,10 +30,7 @@ abstract class AbstractCustomField implements CustomFieldInterface
 
     protected string $description = '';
 
-    /**
-     * Display mode in lists: true = own column, false = shared column. Only changes the display, never stored values.
-     */
-    protected bool $isSeparateColumn = false;
+    protected bool $isSeparateColumn = true;
 
     abstract protected function validateFieldSpecific(array $options): void;
 

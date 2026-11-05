@@ -77,10 +77,6 @@ class CustomFieldUpdater
         if (isset($attributes['isRequired'])) {
             $customField->setRequired($attributes['isRequired']);
         }
-
-        if (isset($attributes['isSeparateColumn'])) {
-            $customField->setSeparateColumn($attributes['isSeparateColumn']);
-        }
     }
 
     private function updateOptionsIfPresent(CustomFieldInterface $customField, array $attributes, string $targetEntityClass): void

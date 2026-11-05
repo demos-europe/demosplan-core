@@ -15,9 +15,6 @@ namespace Tests\Core\CustomField;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
-use demosplan\DemosPlanCoreBundle\CustomField\MultiSelectField;
-use demosplan\DemosPlanCoreBundle\CustomField\RadioButtonField;
-use demosplan\DemosPlanCoreBundle\CustomField\TextField;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomFieldConfigurationFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
@@ -63,68 +60,25 @@ class CustomFieldUpdaterTest extends UnitTestCase
         static::assertEquals('Updated Field Name', $result->getName());
     }
 
-    public function testNewCustomFieldIsNotDisplayedInSeparateColumnByDefault(): void
-    {
-        // Arrange & Act
-        $procedure = ProcedureFactory::createOne();
-        $customField = CustomFieldConfigurationFactory::new()
-            ->withRelatedProcedure($procedure->_real())
-            ->asMultiSelect('Color1')->create();
-
-        // Assert
-        static::assertFalse($customField->getConfiguration()->isSeparateColumn());
-    }
-
-    public function testUpdateCustomFieldSeparateColumnIsPersistedAndKeepsOtherData(): void
+    public function testUpdateCustomFieldDoesNotChangeIsSeparateColumn(): void
     {
         // Arrange
         $procedure = ProcedureFactory::createOne();
         $customField = CustomFieldConfigurationFactory::new()
             ->withRelatedProcedure($procedure->_real())
-            ->asMultiSelect('Color1', options: ['green', 'yellow'])->create();
-        $entityId = $customField->getId();
+            ->asRadioButton('Color1')->create();
+        $repository = $this->getContainer()->get(CustomFieldConfigurationRepository::class);
+        $configuration = $repository->find($customField->getId());
+        $separateColumnField = clone $configuration->getConfiguration();
+        $separateColumnField->setSeparateColumn(false);
+        $configuration->setConfiguration($separateColumnField);
+        $repository->updateObject($configuration);
 
         // Act
-        $this->sut->updateCustomField($entityId, ['isSeparateColumn' => true]);
-
-        // Assert: read back from the database, not from the returned object
-        $stored = $this->getContainer()->get(CustomFieldConfigurationRepository::class)
-            ->find($entityId)->getConfiguration();
-        static::assertTrue($stored->isSeparateColumn());
-        static::assertSame('Color1', $stored->getName());
-        static::assertCount(2, $stored->getOptions());
-
-        // Act: switch back
-        $this->sut->updateCustomField($entityId, ['isSeparateColumn' => false]);
+        $result = $this->sut->updateCustomField($customField->getId(), ['isSeparateColumn' => true]);
 
         // Assert
-        $stored = $this->getContainer()->get(CustomFieldConfigurationRepository::class)
-            ->find($entityId)->getConfiguration();
-        static::assertFalse($stored->isSeparateColumn());
-    }
-
-    #[DataProvider('storedDefinitionWithoutDisplayModeProvider')]
-    public function testStoredDefinitionWithoutDisplayModeIsNotSeparateColumn(string $class, array $json): void
-    {
-        // Arrange
-        $customField = new $class();
-
-        // Act
-        $customField->fromJson($json);
-
-        // Assert
-        static::assertFalse($customField->isSeparateColumn());
-    }
-
-    public static function storedDefinitionWithoutDisplayModeProvider(): array
-    {
-        $option = ['id' => 'a1b2c3d4-0000-4000-8000-000000000001', 'label' => 'green'];
-
-        return [
-            'text'         => [TextField::class, ['fieldType' => 'text', 'name' => 'n', 'description' => 'd', 'isRequired' => false]],
-            'singleSelect' => [RadioButtonField::class, ['fieldType' => 'singleSelect', 'name' => 'n', 'description' => 'd', 'options' => [$option]]],
-            'multiSelect'  => [MultiSelectField::class, ['fieldType' => 'multiSelect', 'name' => 'n', 'description' => 'd', 'isRequired' => false, 'options' => [$option]]],
-        ];
+        static::assertFalse($result->isSeparateColumn());
     }
 
     public function testUpdateCustomFieldWithValidOptionsUpdate(): void
