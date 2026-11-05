@@ -2531,6 +2531,13 @@ feature_statements_custom_fields:
     expose: true
     label: 'Allow statement fields in public view'
     loginRequired: false
+feature_statements_custom_fields_column_display:
+    description: |-
+        Allows to choose whether a custom field of statements is shown in the collective column
+        or as a separate column of the statement list.
+    expose: true
+    label: 'Column display of custom fields in the statement list'
+    loginRequired: true
 feature_statements_draft_delete:
     expose: true
     label: 'Stell. Entwuerfe Loeschen'
