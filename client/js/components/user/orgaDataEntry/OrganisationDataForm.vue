@@ -27,7 +27,7 @@
         {{ Translator.trans('organisation.data') }}
       </legend>
 
-      <!-- Name -->
+      <!-- Display name (editable) -->
       <dp-input
         id="orga_name"
         v-model="localOrganisation.name"
@@ -35,10 +35,23 @@
         data-cy="organisationData:name"
         :name="`${localOrganisation.id}:name`"
         :label="{
-          text: Translator.trans('name.legal')
+          text: Translator.trans('name.displayed')
         }"
         :disabled="!isOrgaNameEditable"
         required
+      />
+
+      <!-- Official name from the identity provider (read-only, not submitted) -->
+      <dp-input
+        v-if="localOrganisation.technicalName"
+        id="orga_technical_name"
+        :class="prefixClass('mb-2')"
+        :label="{
+          text: Translator.trans('name.legal')
+        }"
+        :model-value="localOrganisation.technicalName"
+        data-cy="organisationData:technicalName"
+        disabled
       />
 
       <!-- Street -->

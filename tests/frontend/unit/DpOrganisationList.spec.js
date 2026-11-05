@@ -110,6 +110,14 @@ describe('DpOrganisationList', () => {
     vi.clearAllMocks()
   })
 
+  it('requests the technical name so the form can show the official name', async () => {
+    mountList()
+
+    await flushPromises()
+
+    expect(orgaModule.actions.list.mock.lastCall[1].fields.Orga).toContain('technicalName')
+  })
+
   it('tracks single selections with the organisation name', async () => {
     const wrapper = mountList()
 

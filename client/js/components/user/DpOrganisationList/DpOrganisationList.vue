@@ -317,6 +317,7 @@ const orgaFieldsArrays = {
     'statusInCustomers',
     'street',
     'submissionType',
+    'technicalName',
     'types',
   ],
   OrgaStatusInCustomer: [

@@ -17,14 +17,14 @@
           :for="organisation.id + ':orgaName'"
           class="u-mb-0_25"
         >
-          {{ Translator.trans('name.legal') }}*
+          {{ Translator.trans('name.displayed') }}*
         </label>
         <label
           v-else
           :for="organisation.id + ':orgaName'"
           class="u-mb-0_25"
         >
-          {{ Translator.trans('name.legal') }}
+          {{ Translator.trans('name.displayed') }}
         </label>
         <input
           v-if="canEdit('name')"
@@ -42,6 +42,22 @@
           class="color--grey u-mb-0_5"
         >
           {{ organisation.attributes.name }}
+        </p>
+      </div>
+
+      <!-- Official name from the identity provider, always read-only -->
+      <div
+        v-if="organisation.attributes?.technicalName"
+        class="u-1-of-1 layout__item"
+      >
+        <span class="block u-mb-0_25">
+          {{ Translator.trans('name.legal') }}
+        </span>
+        <p
+          class="color--grey u-mb-0_5"
+          data-cy="orgaFormField:technicalName"
+        >
+          {{ organisation.attributes.technicalName }}
         </p>
       </div>
 
