@@ -416,7 +416,15 @@
               :key="customField.field"
               v-slot:[customField.field]="{ customFields }"
             >
-              {{ getCustomFieldDisplayValue(customFields, customField.definition) }}
+              <div class="flex flex-wrap gap-1">
+                <dp-badge
+                  v-for="label in getCustomFieldLabels(customFields, customField.definition)"
+                  :key="label"
+                  :text="label"
+                  color="default"
+                  size="small"
+                />
+              </div>
             </template>
             <template v-slot:expandedContent="{ id }">
               <!-- Statement meta data -->
@@ -535,6 +543,7 @@
 import {
   CleanHtml,
   dpApi,
+  DpBadge,
   DpBulkEditHeader,
   DpButton,
   DpColumnSelector,
@@ -586,6 +595,7 @@ export default {
     AssignEntityModal,
     CopyStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal')),
     CustomSearchStatements,
+    DpBadge,
     DpBulkEditHeader,
     DpButton,
     DpClaim,
@@ -1096,10 +1106,10 @@ export default {
       this.currentSelection = selection
     },
 
-    getCustomFieldDisplayValue (customFields, definition) {
+    getCustomFieldLabels (customFields, definition) {
       const storedValue = customFields?.find(customField => customField.id === definition.id)?.value
 
-      return resolveCustomFieldLabels(definition, storedValue).join(', ')
+      return resolveCustomFieldLabels(definition, storedValue)
     },
 
     loadStatementCustomFields () {
