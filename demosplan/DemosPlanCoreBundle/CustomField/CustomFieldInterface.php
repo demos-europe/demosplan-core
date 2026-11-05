@@ -53,6 +53,10 @@ interface CustomFieldInterface
 
     public function getRequired(): bool;
 
+    public function isSeparateColumn(): bool;
+
+    public function setSeparateColumn(bool $isSeparateColumn): void;
+
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption;
 
     public function getApiAttributes(): array;

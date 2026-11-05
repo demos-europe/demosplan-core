@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory;
+namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Creation\Factory;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
@@ -30,7 +30,7 @@ class MultiSelectFieldFactory implements CustomFieldFactoryInterface
         $field->setFieldType($attributes['fieldType']);
         $field->setName($attributes['name']);
         $field->setDescription($attributes['description']);
-        $field->setRequired($attributes['isRequired']);
+        $field->setRequired($attributes['isRequired'] ?? false);
         $field->setOptions($this->normalizeOptions($attributes['options']));
 
         return $field;
