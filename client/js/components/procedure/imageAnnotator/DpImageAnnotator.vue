@@ -518,7 +518,6 @@ export default {
         sort: 'pageSortIndex',
         fields: {
           AnnotatedStatementPdfPage: [
-            'id',
             'url',
             'width',
             'height',
