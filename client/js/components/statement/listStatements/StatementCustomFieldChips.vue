@@ -30,7 +30,7 @@
       node-type="span"
     >
       <span class="text-sm text-interactive">
-        {{ Translator.trans('custom.fields.chips.more', { count: hiddenCount }) }}
+        {{ Translator.trans('custom.fields.chips.more', { count: String(hiddenCount) }) }}
       </span>
     </dp-tooltip>
   </div>
