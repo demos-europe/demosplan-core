@@ -14,7 +14,7 @@
 </documentation>
 
 <template>
-  <div v-if="isVisible">
+  <div v-if="entityId">
     <h2 class="u-mb-0_75">
       {{ versionHistoryHeading }}
     </h2>
@@ -65,7 +65,7 @@
               :date="day.attributes.day"
               :day="day"
               :all-times="times"
-              :entity="entity"
+              :entity="entityType"
             />
           </template>
         </tbody>
@@ -93,43 +93,55 @@ export default {
   },
 
   props: {
+    entityId: {
+      type: String,
+      default: '',
+    },
+
+    entityType: {
+      type: String,
+      default: '',
+      validator: (value) => ['', 'fragment', 'segment', 'statement'].includes(value),
+    },
+
+    externId: {
+      type: String,
+      default: '',
+    },
+
     procedureId: {
       type: String,
       required: true,
+    },
+
+    // Bumped by the parent to reload the history of the same entity, e.g. after it was edited
+    reloadKey: {
+      type: Number,
+      default: 0,
     },
   },
 
   data () {
     return {
       days: [],
-      entity: '',
-      entityId: null,
-      externId: '',
-      isVisible: false,
       isLoading: true,
       times: [],
     }
   },
 
   computed: {
-    /*
-     * Only the segment pages register the SegmentSlidebar store; on the assessment table this
-     * component is mounted without it, so the panel state is read defensively.
-     */
-    slidebarTab () {
-      return this.$store.hasModule('SegmentSlidebar') ?
-        this.$store.state.SegmentSlidebar.slidebar.showTab :
-        null
+    loadKey () {
+      return `${this.entityType}:${this.entityId}:${this.reloadKey}`
     },
 
     versionHistoryHeading () {
-      if (this.entity === '' || this.externId === '') {
+      if (this.entityType === '' || this.externId === '') {
         return Translator.trans('history')
       }
 
       let entityKey
 
-      switch (this.entity) {
+      switch (this.entityType) {
         case 'statement':
           if (this.externId.includes('GM')) {
             entityKey = Translator.trans('statement.cluster')
@@ -151,26 +163,17 @@ export default {
   },
 
   watch: {
-    // Another panel of the segment slidebar took over, so this one steps back.
-    slidebarTab (newTab) {
-      if (newTab !== null && newTab !== 'history') {
-        this.isVisible = false
-      }
+    loadKey: {
+      handler () {
+        if (this.entityId) {
+          this.loadItems(this.entityId, this.entityType)
+        }
+      },
+      immediate: true,
     },
   },
 
   methods: {
-    handleEntityUpdated (entityId, entityType) {
-      this.updateVersionHistory(entityId, entityType)
-    },
-
-    handleVersionHistory (entityId, entityType, externId) {
-      this.isVisible = true
-      this.externId = externId
-      this.loadItems(entityId, entityType)
-      this.entity = entityType
-    },
-
     loadItems (id, type) {
       this.isLoading = true
       const route = type === 'statement' ?
@@ -185,8 +188,6 @@ export default {
           { segmentId: id } :
           { statementFragmentId: id, procedureId: this.procedureId }
 
-      this.entityId = id
-
       return dpApi({
         method: 'GET',
         url: Routing.generate(route, params),
@@ -197,22 +198,6 @@ export default {
           this.isLoading = false
         })
     },
-
-    updateVersionHistory (entityId, entityType) {
-      if (entityId === this.entityId) {
-        this.loadItems(entityId, entityType)
-      }
-    },
-  },
-
-  mounted () {
-    this.$root.$on('entity:updated', this.handleEntityUpdated)
-    this.$root.$on('version:history', this.handleVersionHistory)
-  },
-
-  beforeUnmount () {
-    this.$root.$off('entity:updated', this.handleEntityUpdated)
-    this.$root.$off('version:history', this.handleVersionHistory)
   },
 }
 </script>

@@ -20,7 +20,13 @@
 
     <!-- Version History Slidebar -->
     <dp-slidebar v-model:open="isSlidebarOpen">
-      <dp-version-history :procedure-id="procedureId" />
+      <dp-version-history
+        :entity-id="versionHistory.id"
+        :extern-id="versionHistory.externId"
+        :procedure-id="procedureId"
+        :reload-key="versionHistory.reloadKey"
+        entity-type="statement"
+      />
     </dp-slidebar>
 
     <slot
@@ -136,10 +142,6 @@ export default {
     },
   },
 
-  emits: [
-    'version:history',
-  ],
-
   data () {
     return {
       busyCopyFromFragments: false,
@@ -149,6 +151,11 @@ export default {
       selectedMunicipalities: [],
       selectedPriorityAreas: [],
       selectedTags: [],
+      versionHistory: {
+        externId: '',
+        id: '',
+        reloadKey: 0,
+      },
     }
   },
 
@@ -245,6 +252,16 @@ export default {
       }
     },
 
+    // Bumps the reload key so reopening reloads the history
+    showVersionHistory (externId) {
+      this.versionHistory = {
+        externId,
+        id: this.statementId,
+        reloadKey: this.versionHistory.reloadKey + 1,
+      }
+      this.isSlidebarOpen = true
+    },
+
     updateCurrentRecommendation (value) {
       this.currentRecommendation = value
     },
@@ -283,16 +300,14 @@ export default {
         event.preventDefault()
         const externalId = this.isCopy ? Translator.trans('copyof') + ' ' + this.externId : this.externId
 
-        this.$root.$emit('version:history', this.statementId, 'statement', externalId)
-        this.isSlidebarOpen = true
+        this.showVersionHistory(externalId)
       })
     }
 
     if (this.entity === 'cluster' && hasPermission('feature_statement_content_changes_save') && clusterHistoryButton) {
       clusterHistoryButton.addEventListener('click', (event) => {
         event.preventDefault()
-        this.$root.$emit('version:history', this.statementId, 'statement', this.externId)
-        this.isSlidebarOpen = true
+        this.showVersionHistory(this.externId)
       })
     }
 

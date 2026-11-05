@@ -14,9 +14,12 @@
       @close="resetSlidebar"
     >
       <dp-version-history
-        v-show="slidebar.showTab === 'history'"
+        v-if="slidebar.showTab === 'history'"
         class="u-pr"
+        :entity-id="slidebar.segmentId"
+        :extern-id="slidebar.externId"
         :procedure-id="procedure.id"
+        entity-type="segment"
       />
       <segment-comments-list
         v-if="hasPermission('feature_segment_comment_list_on_segment')"

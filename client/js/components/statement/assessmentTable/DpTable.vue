@@ -152,7 +152,13 @@
       :open="isSlidebarOpen"
       @close="setIsSlidebarOpen(false)"
     >
-      <dp-version-history :procedure-id="procedureId" />
+      <dp-version-history
+        :entity-id="versionHistoryEntity?.id"
+        :entity-type="versionHistoryEntity?.type"
+        :extern-id="versionHistoryEntity?.externId"
+        :procedure-id="procedureId"
+        :reload-key="versionHistoryReloadKey"
+      />
     </dp-slidebar>
 
     <!-- If there are statements, display statement list -->
@@ -482,6 +488,8 @@ export default {
 
     ...mapState('VersionHistorySlidebar', {
       isSlidebarOpen: 'isOpen',
+      versionHistoryEntity: 'entity',
+      versionHistoryReloadKey: 'reloadKey',
     }),
 
     ...mapGetters('Fragment', [
