@@ -135,10 +135,10 @@ All rights reserved
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { dpApi, DpInput, DpLabel, DpLoading, DpMultiselect, DpRadio, hasPermission, validateForm } from '@demos-europe/demosplan-ui'
-import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
-import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
+import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper.vue'
+import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse.vue'
 import lscache from 'lscache'
-import SelectedStatementsList from '@DpJs/components/statement/SelectedStatementsList'
+import SelectedStatementsList from '@DpJs/components/statement/SelectedStatementsList.vue'
 
 const props = defineProps({
   currentUserId: {

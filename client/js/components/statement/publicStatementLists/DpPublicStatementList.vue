@@ -103,8 +103,8 @@ import {
   formatDate,
   getFileInfo,
 } from '@demos-europe/demosplan-ui'
-import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
-import DpPublicStatement from './DpPublicStatement'
+import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal.vue'
+import DpPublicStatement from './DpPublicStatement.vue'
 import { generateMenuItems } from './menuItems'
 
 const editPermissions = {

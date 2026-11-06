@@ -175,7 +175,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { buildDetailedStatementQuery } from '../../Shared/utils/statementQueryBuilder'
 import { mapActions } from 'vuex'
-import StatementMetaAttachmentsLink from './StatementMetaAttachmentsLink'
+import StatementMetaAttachmentsLink from './StatementMetaAttachmentsLink.vue'
 
 export default {
   name: 'StatementMetaAttachments',

@@ -108,7 +108,7 @@ import {
   DpIcon,
   DpInput,
 } from '@demos-europe/demosplan-ui'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper.vue'
 
 export default {
   name: 'TagListEditForm',

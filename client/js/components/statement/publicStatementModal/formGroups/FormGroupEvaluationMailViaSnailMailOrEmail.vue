@@ -121,8 +121,8 @@
 <script>
 import { DpCheckbox, DpRadio, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import formGroupMixin from '../mixins/formGroupMixin'
-import FormGroupPostalAndCity from './FormGroupPostalAndCity'
-import FormGroupStreetAndNumber from './FormGroupStreetAndHouseNumber'
+import FormGroupPostalAndCity from './FormGroupPostalAndCity.vue'
+import FormGroupStreetAndNumber from './FormGroupStreetAndHouseNumber.vue'
 
 export default {
   name: 'FormGroupEvaluationMailViaSnailMailOrEmail',

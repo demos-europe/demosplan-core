@@ -153,14 +153,14 @@ import {
   hasAnyPermissions,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import StatementEntry from './StatementEntry'
-import StatementMetaAttachments from './StatementMetaAttachments'
-import StatementMetaFinalEmail from './StatementMetaFinalEmail'
-import StatementMetaGroup from './StatementMetaGroup'
-import StatementMetaLocationAndDocumentReference from './StatementMetaLocationAndDocumentReference'
-import StatementMetaMultiselect from './StatementMetaMultiselect'
-import StatementPublicationAndVoting from './StatementPublicationAndVoting'
-import StatementSubmitter from './StatementSubmitter'
+import StatementEntry from './StatementEntry.vue'
+import StatementMetaAttachments from './StatementMetaAttachments.vue'
+import StatementMetaFinalEmail from './StatementMetaFinalEmail.vue'
+import StatementMetaGroup from './StatementMetaGroup.vue'
+import StatementMetaLocationAndDocumentReference from './StatementMetaLocationAndDocumentReference.vue'
+import StatementMetaMultiselect from './StatementMetaMultiselect.vue'
+import StatementPublicationAndVoting from './StatementPublicationAndVoting.vue'
+import StatementSubmitter from './StatementSubmitter.vue'
 import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
 
 export default {
