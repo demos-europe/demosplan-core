@@ -1254,19 +1254,32 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         self::assertSame('Amt Nordwest', $orga2->getTechnicalName());
     }
 
-    public function testLoginSetsMissingDisplayNameFromKeycloak(): void
+    public function testLoginWithEmptyKeycloakOrganisationNameLeavesBothNamesUntouched(): void
     {
-        $attributes = $this->getBaseOrgaAttributes();
-        $orga = $this->sut->mapUserData($this->createUserData($attributes))->getOrga();
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+        $token = fn (string $keycloakName): ResourceOwnerInterface => $this->createResourceAccessResourceOwner([
+            'email'              => 'techname.empty@example.com',
+            'sub'                => 'test-techname-empty-001',
+            'preferred_username' => 'techname.empty',
+            'organisationId'     => '',
+            'organisationName'   => '',
+            'organisation'       => [
+                ['id' => 'TECHNAME-EMPTY', 'name' => $keycloakName],
+            ],
+            'fachbezug'          => [],
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'],
+                ],
+            ],
+        ]);
 
-        $orga->setName(null);
-        $this->getEntityManager()->persist($orga);
-        $this->getEntityManager()->flush();
+        $orga = $this->mapResourceOwnerToUser($token('Official name'))->getOrganisations()->first();
+        $orga2 = $this->mapResourceOwnerToUser($token(''))->getOrganisations()->first();
 
-        $orga2 = $this->sut->mapUserData($this->createUserData($attributes))->getOrga();
-
-        self::assertSame('Amt Nordwest', $orga2->getName());
-        self::assertSame('Amt Nordwest', $orga2->getTechnicalName());
+        self::assertSame($orga->getId(), $orga2->getId());
+        self::assertSame('Official name', $orga2->getName());
+        self::assertSame('Official name', $orga2->getTechnicalName());
     }
 
     public function testAffiliationLoginUpdatesOnlyTechnicalNameOfExistingOrga(): void
