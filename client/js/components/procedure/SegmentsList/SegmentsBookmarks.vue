@@ -160,6 +160,12 @@ const deleteBookmarkAction = (id: string): Promise<boolean> => store.dispatch('B
 const fetchBookmarksAction = (): Promise<Bookmark[]> => store.dispatch('Bookmark/fetchBookmarks')
 const updateBookmarkAction = (payload: UpdateBookmarkPayload): Promise<boolean> => store.dispatch('Bookmark/updateBookmark', payload)
 
+/* Store mutations */
+const setStoreSearchPhrase = (searchPhrase: string): void => store.commit('Bookmark/setCurrentSearchPhrase', searchPhrase)
+const setStoreSelectedColumns = (columns: string[]): void => store.commit('Bookmark/setCurrentSelectedColumns', columns)
+const setStoreSorting = (sorting: string): void => store.commit('Bookmark/setCurrentSorting', sorting)
+const setViewStateInitialized = (value: boolean): void => store.commit('Bookmark/setViewStateInitialized', value)
+
 /* Emits */
 interface SegmentsBookmarksEmits {
   (e: 'applyBookmark', bookmark: Bookmark): void
@@ -282,6 +288,23 @@ const openNewBookmarkForm = (): void => {
   showUnsavedChanges.value = false
 }
 
+/**
+ * Initialize the view state from a bookmark's settings.
+ * When no bookmark is provided, defaults are handled by SegmentsList via the resetView event.
+ */
+const initializeViewState = (bookmark: Bookmark | null): void => {
+  if (bookmark) {
+    const { searchPhrase, viewSettings } = bookmark.attributes
+    const { selectedColumns, sorting } = viewSettings ?? {}
+
+    setStoreSearchPhrase(searchPhrase ?? '')
+    setStoreSelectedColumns(Array.isArray(selectedColumns) ? selectedColumns : [])
+    setStoreSorting(sorting ?? '')
+  }
+
+  setViewStateInitialized(true)
+}
+
 const restoreSavedBookmark = async (): Promise<void> => {
   const savedBookmarkId: string | null = lscache.get(lsKey)
 
@@ -299,6 +322,8 @@ const restoreSavedBookmark = async (): Promise<void> => {
 
     return
   }
+
+  initializeViewState(savedBookmark)
 
   const success: boolean = await applyBookmarkAction({
     bookmarkId: savedBookmarkId,

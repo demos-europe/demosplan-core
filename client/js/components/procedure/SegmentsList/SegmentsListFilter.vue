@@ -632,7 +632,10 @@ export default {
      */
     const syncFromBookmark = (bookmarkFilters) => {
       if (!bookmarkFilters || Array.isArray(bookmarkFilters) || Object.keys(bookmarkFilters).length === 0) {
-        resetAllFilters()
+        categories.forEach((category) => {
+          category.currentQuery = []
+          category.appliedQuery = []
+        })
 
         return
       }
