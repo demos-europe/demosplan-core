@@ -11,17 +11,24 @@
 namespace Tests\Core\Core\Functional;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\EntityContentChangeFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\BoilerplateFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\Entity\EntityContentChange;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\BoilerplateDeletionService;
 use demosplan\DemosPlanCoreBundle\Repository\EntityContentChangeRepository;
+use demosplan\DemosPlanCoreBundle\Transformers\EntityContentChangeComparisonTransformer;
+use demosplan\DemosPlanCoreBundle\ValueObject\HistoryTime;
 use Doctrine\ORM\EntityManagerInterface;
+use ReflectionException;
+use ReflectionProperty;
 use Tests\Base\FunctionalTestCase;
 
 class EntityContentChangeDisplayServiceTest extends FunctionalTestCase
@@ -134,5 +141,106 @@ class EntityContentChangeDisplayServiceTest extends FunctionalTestCase
         // several <ins> tags rather than appearing as one contiguous substring — strip tags
         // before asserting, same as EntityContentChangeServiceTest's helpers do.
         static::assertStringContainsString('Text A', strip_tags($rendered));
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    public function testHistoryOmitsFieldsFlaggedWithNoHistoryDisplay(): void
+    {
+        $this->overrideStatementFieldMapping();
+        $statement = StatementFactory::createOne()->_real();
+        assert($statement instanceof Statement);
+        $textOnlyTime = new DateTime('-2 days');
+        $mixedTime = new DateTime('-1 day');
+
+        $this->createChange($statement, 'text', $textOnlyTime);
+        $this->createChange($statement, 'text', $mixedTime);
+        $this->createChange($statement, 'Topics', $mixedTime, true);
+
+        $days = $this->sut->getHistoryByEntityId($statement->getId(), Statement::class);
+
+        $fieldNamesPerTime = [];
+        foreach ($days as $day) {
+            foreach ($day->getTimes() as $time) {
+                assert($time instanceof HistoryTime);
+                $fieldNamesPerTime[] = $time->getFieldNames();
+            }
+        }
+        self::assertSame([['Topics']], $fieldNamesPerTime);
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    public function testComparisonOmitsFieldsFlaggedWithNoHistoryDisplay(): void
+    {
+        $this->overrideStatementFieldMapping();
+        $statement = StatementFactory::createOne()->_real();
+        assert($statement instanceof Statement);
+        $time = new DateTime('-1 day');
+        $textChange = $this->createChange($statement, 'text', $time);
+        $customFieldChange = $this->createChange($statement, 'Topics', $time, true);
+        $sut = new EntityContentChangeComparisonTransformer(
+            $this->sut,
+            self::getContainer()->get(EntityContentChangeService::class)
+        );
+
+        self::assertFalse($sut->isFieldNameWhitelistedForEntityContentChangeComponent($textChange));
+        self::assertTrue($sut->isFieldNameWhitelistedForEntityContentChangeComponent($customFieldChange));
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    public function testFieldsWithoutNoHistoryDisplayFlagStayVisible(): void
+    {
+        $this->overrideStatementFieldMapping(false);
+        $statement = StatementFactory::createOne()->_real();
+        assert($statement instanceof Statement);
+        $this->createChange($statement, 'text', new DateTime('-1 day'));
+
+        $days = $this->sut->getHistoryByEntityId($statement->getId(), Statement::class);
+
+        self::assertCount(1, $days);
+        $time = $days[0]->getTimes()[0];
+        assert($time instanceof HistoryTime);
+        self::assertSame(['text'], $time->getFieldNames());
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    private function overrideStatementFieldMapping(bool $hideText = true): void
+    {
+        $textMapping = ['fieldType' => 'tipTapHtmlString', 'translationKey' => 'statement.text.short'];
+        if ($hideText) {
+            $textMapping['noHistoryDisplay'] = true;
+        }
+
+        $globalConfig = self::getContainer()->get(GlobalConfigInterface::class);
+        (new ReflectionProperty($globalConfig, 'entityContentChangeFieldMapping'))->setValue($globalConfig, [
+            Statement::class => [
+                'customFields' => ['fieldType' => 'json', 'noHighlighting' => true],
+                'text'         => $textMapping,
+            ],
+        ]);
+    }
+
+    private function createChange(
+        Statement $statement,
+        string $field,
+        DateTime $creationDate,
+        bool $isCustomFieldChange = false,
+    ): EntityContentChange {
+        $change = EntityContentChangeFactory::new()->forEntity($statement)->create([
+            'created'           => $creationDate,
+            'customFieldChange' => $isCustomFieldChange,
+            'entityField'       => $field,
+            'modified'          => $creationDate,
+        ])->_real();
+        assert($change instanceof EntityContentChange);
+
+        return $change;
     }
 }

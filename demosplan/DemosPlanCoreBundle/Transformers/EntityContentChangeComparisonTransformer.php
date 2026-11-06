@@ -17,8 +17,6 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\Transformer\BaseTransformer;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeDisplayService;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
 
-use function array_key_exists;
-
 class EntityContentChangeComparisonTransformer extends BaseTransformer
 {
     protected $type = 'EntityContentChangeComparison';
@@ -55,18 +53,13 @@ class EntityContentChangeComparisonTransformer extends BaseTransformer
     }
 
     /**
-     * This method is not used for it's efficiency but for its explanatory name, so that others easily understand
+     * This method is not used for its efficiency but for its explanatory name, so that others easily understand
      * what it's doing. Hence, please don't refactor for efficiency.
      */
     public function isFieldNameWhitelistedForEntityContentChangeComponent(EntityContentChange $object): bool
     {
-        if ($object->isCustomFieldChange()) {
-            return array_key_exists(
-                'customFields',
-                $this->entityContentChangeService->getFieldMapping($object->getEntityType())
-            );
-        }
+        $fieldName = $object->isCustomFieldChange() ? 'customFields' : $object->getEntityField();
 
-        return array_key_exists($object->getEntityField(), $this->entityContentChangeService->getFieldMapping($object->getEntityType()));
+        return $this->entityContentChangeService->isFieldDisplayedInHistory($fieldName, $object->getEntityType());
     }
 }

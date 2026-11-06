@@ -78,7 +78,7 @@ class EntityContentChangeDisplayService
      */
     public function getHistoryByEntityId(string $entityId, string $class): array
     {
-        $whitelistedFields = array_keys($this->entityContentChangeService->getFieldMapping($class));
+        $whitelistedFields = $this->entityContentChangeService->getFieldNamesDisplayedInHistory($class);
         $changesOfEntity = $this->entityContentChangeService->getChangesByEntityId($entityId, $whitelistedFields);
 
         $groupedChanges = $this->groupByDayAndTime($changesOfEntity);

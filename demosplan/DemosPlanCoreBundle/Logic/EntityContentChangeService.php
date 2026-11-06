@@ -172,6 +172,27 @@ class EntityContentChangeService
         return $this->getFieldMapping($class)[$fieldName][$key];
     }
 
+    public function isFieldDisplayedInHistory(string $fieldName, string $class): bool
+    {
+        return array_key_exists($fieldName, $this->getFieldMapping($class))
+            && true !== $this->getMappingValue($fieldName, $class, 'noHistoryDisplay');
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function getFieldNamesDisplayedInHistory(string $class): array
+    {
+        $fieldNames = [];
+        foreach ($this->getFieldMapping($class) as $fieldName => $fieldMapping) {
+            if (false === ($fieldMapping['noHistoryDisplay'] ?? false)) {
+                $fieldNames[] = $fieldName;
+            }
+        }
+
+        return $fieldNames;
+    }
+
     /**
      * Compares the original data with incoming updated object and returns the differences as array.
      * Caution: This method makes various assumptions about the given data and the updated object. Please verify
