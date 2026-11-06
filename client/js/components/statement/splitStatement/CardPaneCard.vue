@@ -100,7 +100,7 @@
 </template>
 
 <script>
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper.vue'
 import { DpButton } from '@demos-europe/demosplan-ui'
 import { mapGetters } from 'vuex'
 

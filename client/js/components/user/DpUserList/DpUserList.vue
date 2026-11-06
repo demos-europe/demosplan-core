@@ -128,7 +128,7 @@ import {
 import { mapActions, mapState } from 'vuex'
 import { addFormHiddenField } from '@DpJs/lib/core/libs/FormActions'
 import { defineAsyncComponent } from 'vue'
-import SelectionCard from '@DpJs/components/shared/SelectionCard'
+import SelectionCard from '@DpJs/components/shared/SelectionCard.vue'
 
 export default {
   name: 'DpUserList',
@@ -144,7 +144,7 @@ export default {
 
       return DpSlidingPagination
     }),
-    DpUserListItem: defineAsyncComponent(() => import('./DpUserListItem')),
+    DpUserListItem: defineAsyncComponent(() => import('./DpUserListItem.vue')),
     SelectionCard,
   },
 

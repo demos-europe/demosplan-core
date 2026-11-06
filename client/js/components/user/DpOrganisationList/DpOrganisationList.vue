@@ -272,8 +272,8 @@ import {
   hasPermission,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import DpOrganisationListItem from './DpOrganisationListItem'
-import SelectionCard from '@DpJs/components/shared/SelectionCard'
+import DpOrganisationListItem from './DpOrganisationListItem.vue'
+import SelectionCard from '@DpJs/components/shared/SelectionCard.vue'
 
 // Upper limit the API accepts for page[size]
 const ALL_MATCHING_PAGE_SIZE = 1000

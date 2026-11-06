@@ -20,22 +20,22 @@ import {
   ToggleSideMenu,
   touchFriendlyUserbox,
 } from '@DpJs/lib/core/libs'
-import BackToTopButton from '@DpJs/components/button/BackToTopButton'
+import BackToTopButton from '@DpJs/components/button/BackToTopButton.vue'
 import { bootstrap } from '@DpJs/bootstrap'
 import { configureCompat } from '@vue/compat'
 import { createApp } from 'vue'
 import DPVueCorePlugin from '@DpJs/plugins/DPVueCore'
-import HamburgerMenuButton from '@DpJs/components/button/HamburgerMenuButton'
+import HamburgerMenuButton from '@DpJs/components/button/HamburgerMenuButton.vue'
 import { initStore } from '@DpJs/store/core/initStore'
 import { loadLibs } from '@DpJs/lib/core/loadLibs'
 import loadSentry from './loadSentry'
 import NotificationStoreAdapter from '@DpJs/store/core/NotificationStoreAdapter'
-import NotifyContainer from '@DpJs/components/shared/NotifyContainer'
-import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
+import NotifyContainer from '@DpJs/components/shared/NotifyContainer.vue'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout.vue'
 import { resumePendingExports } from '@DpJs/lib/shared/persistentExportPoll'
-import ServerBanner from '@DpJs/components/shared/ServerBanner'
-import SessionTimer from '@DpJs/components/shared/SessionTimer'
-import UnsavedChangesDialog from '@DpJs/components/shared/UnsavedChangesDialog'
+import ServerBanner from '@DpJs/components/shared/ServerBanner.vue'
+import SessionTimer from '@DpJs/components/shared/SessionTimer.vue'
+import UnsavedChangesDialog from '@DpJs/components/shared/UnsavedChangesDialog.vue'
 
 /**
  * Initialize Vue application

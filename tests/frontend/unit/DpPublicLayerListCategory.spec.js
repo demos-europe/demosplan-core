@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import DpPublicLayerListCategory from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerListCategory'
+import DpPublicLayerListCategory from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerListCategory.vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import { vi } from 'vitest'
 

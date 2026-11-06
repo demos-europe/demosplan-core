@@ -425,11 +425,11 @@ useful info about the component:
 import { dpApi, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
-import DpClaim from '../DpClaim'
-import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
-import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
-import EditableText from './EditableText'
-import TableCardFlyoutMenu from './TableCardFlyoutMenu'
+import DpClaim from '../DpClaim.vue'
+import DpEditFieldMultiSelect from './DpEditFieldMultiSelect.vue'
+import DpEditFieldSingleSelect from './DpEditFieldSingleSelect.vue'
+import EditableText from './EditableText.vue'
+import TableCardFlyoutMenu from './TableCardFlyoutMenu.vue'
 
 export default {
   name: 'DpAssessmentFragment',

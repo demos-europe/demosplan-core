@@ -11,9 +11,9 @@
  * This is the entrypoint for list_released.html.twig
  */
 
-import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
+import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal.vue'
 import { DpModal } from '@demos-europe/demosplan-ui'
-import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
+import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList.vue'
 import { initialize } from '@DpJs/InitVue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
 

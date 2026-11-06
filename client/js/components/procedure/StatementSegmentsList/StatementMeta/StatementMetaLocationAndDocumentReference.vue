@@ -134,7 +134,7 @@ export default {
   components: {
     DpButton,
     DpButtonRow,
-    DpMapModal: () => import('@DpJs/components/statement/assessmentTable/DpMapModal'),
+    DpMapModal: () => import('@DpJs/components/statement/assessmentTable/DpMapModal.vue'),
     DpSelect,
   },
 

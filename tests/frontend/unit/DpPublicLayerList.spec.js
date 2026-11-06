@@ -9,7 +9,7 @@
 
 import { createApp } from 'vue'
 import { createStore } from 'vuex'
-import DpPublicLayerList from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerList'
+import DpPublicLayerList from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerList.vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import { vi } from 'vitest'
 

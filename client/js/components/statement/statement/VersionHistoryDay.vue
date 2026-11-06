@@ -60,7 +60,7 @@
 
 <script>
 import { formatDate } from '@demos-europe/demosplan-ui'
-import VersionHistoryItem from './VersionHistoryItem'
+import VersionHistoryItem from './VersionHistoryItem.vue'
 
 export default {
   name: 'VersionHistoryDay',

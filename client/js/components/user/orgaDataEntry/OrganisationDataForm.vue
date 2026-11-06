@@ -302,10 +302,10 @@
 
 <script>
 import { DpButton, DpInput, DpRadio, DpSelect, prefixClassMixin } from '@demos-europe/demosplan-ui'
-import EmailNotificationSettings from '@DpJs/components/user/orgaDataEntry/EmailNotificationSettings'
-import OrganisationBrandingSettings from '@DpJs/components/user/orgaDataEntry/OrganisationBrandingSettings'
-import OrganisationCompetence from '@DpJs/components/user/orgaDataEntry/OrganisationCompetence'
-import PaperCopyPreferences from '@DpJs/components/user/orgaDataEntry/PaperCopyPreferences'
+import EmailNotificationSettings from '@DpJs/components/user/orgaDataEntry/EmailNotificationSettings.vue'
+import OrganisationBrandingSettings from '@DpJs/components/user/orgaDataEntry/OrganisationBrandingSettings.vue'
+import OrganisationCompetence from '@DpJs/components/user/orgaDataEntry/OrganisationCompetence.vue'
+import PaperCopyPreferences from '@DpJs/components/user/orgaDataEntry/PaperCopyPreferences.vue'
 
 export default {
   name: 'OrganisationDataForm',

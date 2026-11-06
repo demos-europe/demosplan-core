@@ -8,7 +8,7 @@
  */
 
 import { DpAccordion } from '@demos-europe/demosplan-ui'
-import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
+import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {
