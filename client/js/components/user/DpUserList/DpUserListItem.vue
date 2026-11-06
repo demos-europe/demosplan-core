@@ -148,8 +148,8 @@
 <script>
 import { dpApi, DpButton, DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
-import DpUserFormFields from './DpUserFormFields'
+import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard.vue'
+import DpUserFormFields from './DpUserFormFields.vue'
 
 export default {
   name: 'DpUserListItem',
@@ -287,6 +287,9 @@ export default {
     save () {
       this.isOpen = !this.isOpen
       this.saveUserAction(this.user.id)
+        .then(() => {
+          dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
+        })
     },
 
     async resetTwoFactor () {

@@ -22,7 +22,7 @@
     "client/js/**/*.ts",
     "client/js/**/*.vue",
     "tests/frontend/**/*.ts",
-    "vitest.config.ts"
+    "vitest.config.mts"
   ],
   "exclude": [
     "node_modules",

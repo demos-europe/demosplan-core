@@ -88,6 +88,7 @@ use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\ProfilerService;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
+use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementFragmentRepository;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
@@ -254,6 +255,7 @@ class StatementService implements StatementServiceInterface
         ProcedureService $procedureService,
         private readonly ReportService $reportService,
         private readonly RouterInterface $router,
+        private readonly SegmentRepository $segmentRepository,
         private readonly SimilarStatementSubmitterResourceType $similarStatementSubmitterResourceType,
         SingleDocumentService $singleDocumentService,
         private readonly StatementAttachmentService $statementAttachmentService,
@@ -3414,6 +3416,34 @@ class StatementService implements StatementServiceInterface
         }
 
         return self::STATEMENT_STATUS_PROCESSING;
+    }
+
+    /**
+     * Batched form of {@see self::getProcessingStatus()} -- resolves status for many
+     * statements in one query instead of lazy-loading each statement's segments (and
+     * each segment's place) individually. Use this whenever the status is needed for
+     * more than one statement at a time, e.g. once per row of a collection response.
+     *
+     * @param list<Statement> $statements
+     *
+     * @return array<string, string> statementId => processing status
+     */
+    public function getProcessingStatuses(array $statements): array
+    {
+        $statementIds = array_map(static fn (Statement $statement): string => $statement->getId(), $statements);
+        $counts = $this->segmentRepository->getSegmentSolvedCountsForStatementIds($statementIds);
+
+        $statuses = [];
+        foreach ($statements as $statement) {
+            $count = $counts[$statement->getId()] ?? ['total' => 0, 'solved' => 0];
+            $statuses[$statement->getId()] = match (true) {
+                0 === $count['total']                 => self::STATEMENT_STATUS_NEW,
+                $count['total'] === $count['solved']  => self::STATEMENT_STATUS_COMPLETED,
+                default                               => self::STATEMENT_STATUS_PROCESSING,
+            };
+        }
+
+        return $statuses;
     }
 
     public function getStatisticsOfProcedure(ProcedureInterface $procedure)

@@ -29,6 +29,7 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Permissions\CachingYamlPermissionCollection;
 use demosplan\DemosPlanCoreBundle\Permissions\PermissionResolver;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
+use demosplan\DemosPlanCoreBundle\Permissions\ResolvablePermission;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -275,8 +276,10 @@ class PermissionsTest extends FunctionalTestCase
                     'feature_institution_tag_delete',
                     'feature_institution_tag_read',
                     'feature_institution_tag_update',
+                    'feature_orga_registration_status_edit',
                     'feature_show_free_disk_space',
                     'field_customer_accessibility_explanation_edit',
+                    'field_organisation_customer',
                 ],
             ],
             // ############### Fachplaner Admin ######################
@@ -774,7 +777,9 @@ class PermissionsTest extends FunctionalTestCase
                     'area_mydata',
                     'area_portal_user',
                     'area_preferences',
+                    'feature_orga_registration_status_edit',
                     'feature_organisation_user_list',
+                    'field_organisation_customer',
                     'feature_procedure_single_document_upload_zip',
                     'feature_procedure_get_base_data',
                     'feature_statement_data_input_orga',
@@ -2560,11 +2565,13 @@ class PermissionsTest extends FunctionalTestCase
                     'area_portal_user',
                     'feature_orga_get',
                     'feature_organisation_user_list',
+                    'field_organisation_customer',
                     'feature_procedure_report_public_phase',
                     'feature_procedure_single_document_upload_zip',
                     'field_statement_recommendation',
                 ],
                 'featuresDenied'                    => [
+                    'feature_orga_registration_status_edit',
                     'area_admin',
                     'area_admin_analysis',
                     'area_admin_faq',
@@ -3493,5 +3500,201 @@ class PermissionsTest extends FunctionalTestCase
             ->willReturn($invitedOrgas);
 
         return $procedureRepositoryMock;
+    }
+
+    /**
+     * A read-only procedure grants the read set instead of the owner's normal procedure
+     * permissions, so writes are never enabled in the first place.
+     */
+    public function testReadOnlyProcedureGrantsOnlyReadPermissions(): void
+    {
+        $permissions = $this->initPermissionsForProcedure(
+            [Role::PLANNING_AGENCY_ADMIN],
+            ownsProcedure: true,
+            readOnly: true
+        );
+
+        // the core read set, available in every project
+        foreach (Permissions::READ_ONLY_PROCEDURE_PERMISSIONS as $permission) {
+            self::assertTrue(
+                $permissions->hasPermission($permission),
+                sprintf('"%s" belongs to the read-only set', $permission)
+            );
+        }
+        // never granted, because setFullProcedurePermissions() does not run
+        self::assertFalse($permissions->hasPermission('feature_json_api_create'));
+        self::assertFalse($permissions->hasPermission('feature_procedure_change_phase'));
+        self::assertFalse($permissions->hasPermission('area_admin_dashboard'));
+        // permissions granted outside any procedure are unaffected
+        self::assertTrue($permissions->hasPermission('area_admin_procedures'));
+    }
+
+    public function testNormalProcedureGrantsFullPermissions(): void
+    {
+        $permissions = $this->initPermissionsForProcedure(
+            [Role::PLANNING_AGENCY_ADMIN],
+            ownsProcedure: true,
+            readOnly: false
+        );
+
+        self::assertTrue($permissions->hasPermission('feature_json_api_create'));
+        self::assertTrue($permissions->hasPermission('area_admin_dashboard'));
+        self::assertTrue($permissions->hasPermission('area_admin_protocol'));
+    }
+
+    /**
+     * The read set is for procedure owners. A member entering through the phase permissionset
+     * must not be handed the planner reference views.
+     */
+    public function testReadOnlyProcedureDoesNotGrantPlannerViewsToMembers(): void
+    {
+        $permissions = $this->initPermissionsForProcedure(
+            [Role::PUBLIC_AGENCY_COORDINATION],
+            ownsProcedure: false,
+            readOnly: true,
+            phase: Permissions::PROCEDURE_PERMISSIONSET_READ
+        );
+
+        self::assertFalse($permissions->hasPermission('area_admin_statement_list'));
+        self::assertFalse($permissions->hasPermission('area_admin_submitters'));
+        self::assertFalse($permissions->hasPermission('area_statement_segmentation'));
+        self::assertFalse($permissions->hasPermission('feature_json_api_statement'));
+        self::assertFalse($permissions->hasPermission('feature_segments_of_statement_list'));
+    }
+
+    /**
+     * A member whose phase would grant write must only get the read permissionset, so the
+     * write half is never applied inside a read-only procedure.
+     */
+    public function testReadOnlyProcedureDeniesWritePermissionsetToMembers(): void
+    {
+        $permissions = $this->initPermissionsForProcedure(
+            [Role::PUBLIC_AGENCY_COORDINATION],
+            ownsProcedure: false,
+            readOnly: true,
+            phase: Permissions::PROCEDURE_PERMISSIONSET_WRITE
+        );
+
+        self::assertTrue($permissions->hasPermission('area_statements_draft'));
+        self::assertFalse($permissions->hasPermission('feature_new_statement'));
+        self::assertFalse($permissions->hasPermission('feature_statements_draft_edit'));
+    }
+
+    public function testNormalProcedureGrantsWritePermissionsetToMembers(): void
+    {
+        if (__CLASS__ !== static::class) {
+            // projects may override the member branch of setFullProcedurePermissions() entirely
+            self::markTestSkipped('control case for the core member branch');
+        }
+
+        $permissions = $this->initPermissionsForProcedure(
+            [Role::PUBLIC_AGENCY_COORDINATION],
+            ownsProcedure: false,
+            readOnly: false,
+            phase: Permissions::PROCEDURE_PERMISSIONSET_WRITE
+        );
+
+        self::assertTrue($permissions->hasPermission('feature_new_statement'));
+        self::assertTrue($permissions->hasPermission('feature_statements_draft_edit'));
+    }
+
+    /**
+     * Projects may only add to the read set.
+     */
+    public function testProjectReadOnlyProcedurePermissionsAreAdditive(): void
+    {
+        $permissions = $this->getPermissionsInstance(true, false);
+
+        $method = (new ReflectionClass(Permissions::class))->getMethod('readOnlyProcedurePermissions');
+        $method->setAccessible(true);
+        $readSet = $method->invoke($permissions);
+
+        foreach (Permissions::READ_ONLY_PROCEDURE_PERMISSIONS as $permission) {
+            self::assertContains($permission, $readSet);
+        }
+
+        $projectMethod = (new ReflectionClass($permissions))->getMethod('projectReadOnlyProcedurePermissions');
+        $projectMethod->setAccessible(true);
+        foreach ($projectMethod->invoke($permissions) as $permission) {
+            self::assertContains($permission, $readSet);
+        }
+    }
+
+    public function testAddonPermissionIsNotGrantedInReadOnlyProcedure(): void
+    {
+        self::assertFalse($this->resolveAddonPermission(readOnlyProcedure: true));
+    }
+
+    public function testAddonPermissionIsResolvedNormallyOutsideReadOnlyProcedure(): void
+    {
+        self::assertTrue($this->resolveAddonPermission(readOnlyProcedure: false));
+    }
+
+    protected function initPermissionsForProcedure(
+        array $roles,
+        bool $ownsProcedure,
+        bool $readOnly,
+        string $phase = 'participation',
+    ): Permissions {
+        $user = $this->getTestUser(compact('roles', 'ownsProcedure'));
+
+        $procedureMock = $this->getProcedureMock($phase, ['isMember' => true], $user);
+        $procedureMock->method('isReadOnly')->willReturn($readOnly);
+
+        $permissions = $this->getPermissionsInstance($ownsProcedure, false);
+        $permissions->setProcedure($procedureMock);
+        $permissions->setProcedureRepository(
+            $this->getProcedureRepositoryMock($procedureMock->getOrganisationIds())
+        );
+        $permissions->initPermissions($user);
+        $permissions->checkProcedurePermission();
+
+        return $permissions;
+    }
+
+    /**
+     * Resolve an addon permission that the stubbed resolver always grants, so only the
+     * read-only gate can change the outcome.
+     */
+    private function resolveAddonPermission(bool $readOnlyProcedure): bool
+    {
+        $resolver = $this->createMock(PermissionResolver::class);
+        $resolver->method('isPermissionEnabled')->willReturn(true);
+
+        $procedureMock = $this->getMockBuilder(Procedure::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $procedureMock->method('isReadOnly')->willReturn($readOnlyProcedure);
+
+        $permissions = $this->getPermissionsInstanceWithResolver($resolver);
+        $permissions->setProcedure($procedureMock);
+
+        $method = (new ReflectionClass($permissions))->getMethod('isResolvablePermissionEnabled');
+        $method->setAccessible(true);
+
+        return $method->invoke(
+            $permissions,
+            new ResolvablePermission('feature_addon_test', 'label', 'description', true)
+        );
+    }
+
+    private function getPermissionsInstanceWithResolver(PermissionResolver $resolver): Permissions
+    {
+        $logger = new Logger('UnitTest');
+        $logger->pushHandler(new StreamHandler('php://stderr', Logger::WARNING));
+
+        return (new ReflectionClass($this->getPermissionsClass()))->newInstance(
+            self::getContainer()->get(AddonRegistry::class),
+            self::getContainer()->get(CustomerService::class),
+            $logger,
+            self::getContainer()->get(GlobalConfigInterface::class),
+            self::getContainer()->get(CachingYamlPermissionCollection::class),
+            $resolver,
+            $this->getMock(ProcedureAccessEvaluator::class, []),
+            $this->getProcedureRepositoryMock(),
+            self::getContainer()->get(ValidatorInterface::class),
+            self::getContainer()->get(AccessControlService::class),
+            self::getContainer()->get(UserAccessControlService::class)
+        );
     }
 }

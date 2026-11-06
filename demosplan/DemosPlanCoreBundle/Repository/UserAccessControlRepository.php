@@ -71,6 +71,49 @@ class UserAccessControlRepository extends CoreRepository
     }
 
     /**
+     * Find all individual permission grants for a given organisation, customer and permission, restricted to
+     * the given role codes.
+     *
+     * @param list<non-empty-string> $roleCodes
+     *
+     * @return UserAccessControl[]
+     */
+    public function findByOrgaCustomerPermissionAndRoles(
+        OrgaInterface $orga,
+        CustomerInterface $customer,
+        string $permission,
+        array $roleCodes,
+    ): array {
+        if ([] === $roleCodes) {
+            return [];
+        }
+
+        $roles = $this->getEntityManager()
+            ->getRepository(Role::class)
+            ->createQueryBuilder('r')
+            ->where('r.code IN (:roleCodes)')
+            ->setParameter('roleCodes', $roleCodes)
+            ->getQuery()
+            ->getResult();
+
+        if ([] === $roles) {
+            return [];
+        }
+
+        return $this->createQueryBuilder('uac')
+            ->where('uac.organisation = :orga')
+            ->andWhere('uac.customer = :customer')
+            ->andWhere('uac.permission = :permission')
+            ->andWhere('uac.role IN (:roles)')
+            ->setParameter('orga', $orga)
+            ->setParameter('customer', $customer)
+            ->setParameter('permission', $permission)
+            ->setParameter('roles', $roles)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Check if a specific permission exists for a user.
      */
     public function permissionExists(

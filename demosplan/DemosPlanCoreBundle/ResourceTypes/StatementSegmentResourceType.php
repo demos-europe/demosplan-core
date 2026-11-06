@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\ResourceTypes;
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Entities\SegmentInterface;
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\StatementSegmentResourceTypeInterface;
+use demosplan\DemosPlanCoreBundle\Api\StatementSegment\AccessChecker;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
@@ -43,6 +44,7 @@ use InvalidArgumentException;
  * @template-extends DplanResourceType<SegmentInterface>
  *
  * @property-read End $recommendation
+ * @property-read End $recommendationEmbedded
  * @property-read End $polygon
  * @property-read End $text
  * @property-read End $externId
@@ -74,6 +76,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
         private readonly TagTopicResourceType $tagTopicResourceType,
         private readonly ProcedureAccessEvaluator $procedureAccessEvaluator,
         private readonly CustomFieldValueCreator $customFieldValueCreator,
+        private readonly AccessChecker $accessChecker,
     ) {
         $this->esType = $jsonApiEsService->getElasticaTypeForTypeName(self::getName());
     }
@@ -90,11 +93,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasAnyPermissions(
-            'feature_json_api_statement_segment',
-            // can be included via statements in a view reachable with the following permissions
-            'area_admin_statement_list', 'feature_statements_import_excel'
-        );
+        return $this->accessChecker->isAvailable();
     }
 
     public function isUpdateAllowed(): bool
@@ -107,24 +106,7 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
      */
     protected function getAccessConditions(): array
     {
-        $procedure = $this->currentProcedureService->getProcedure();
-        if (!$procedure instanceof Procedure) {
-            return [$this->conditionFactory->false()];
-        }
-
-        $procedureId = $procedure->getId();
-        $currentUser = $this->currentUser->getUser();
-        $allowedProcedures = $procedure
-            ->getSettings()
-            ->getAllowedSegmentAccessProcedures()
-            ->getValues();
-        $procedureIds = $this->procedureAccessEvaluator
-            ->filterNonOwnedProcedureIds($currentUser, ...$allowedProcedures);
-        $procedureIds[] = $procedureId;
-
-        return [] === $procedureIds
-            ? [$this->conditionFactory->false()]
-            : [$this->conditionFactory->propertyHasAnyOfValues($procedureIds, $this->procedure->id)];
+        return $this->accessChecker->getAccessConditions();
     }
 
     public function getFacetDefinitions(): array
@@ -174,28 +156,47 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
 
     protected function getProperties(): array
     {
-        $recommendation = $this->createAttribute($this->recommendation)->readable(true);
+        // Callback-based, not the default path-based reader (which uses reflection):
+        // DPLAN-18271 stores a <dp-boilerplate boilerplate-id="…"> reference tag in the
+        // raw property; getRecommendation() substitutes it with the boilerplate's current
+        // text. A reflection-based read would return the tag unsubstituted — this is the
+        // exact class of bug the write side was already fixed for below (see the comment
+        // there), just never fixed for the read side because it never mattered until now.
+        $recommendation = $this->createAttribute($this->recommendation)
+            ->readable(true, static fn (SegmentInterface $segment): string => $segment->getRecommendation());
         $polygon = $this->createAttribute($this->polygon);
+
+        $text = $this->createAttribute($this->text)->readable(true);
+        $parentStatement = $this->createToOneRelationship($this->parentStatement)
+            ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
+            ->readable()->aliasedPath($this->parentStatementOfSegment);
+        $assignee = $this->createToOneRelationship($this->assignee)->readable();
+        $tags = $this->createToManyRelationship($this->tags)->readable();
+        // for now all segments have a place, this may change however
+        $place = $this->createToOneRelationship($this->place)->readable();
 
         $properties = [
             $this->createIdentifier()->readable(),
             $recommendation,
             $polygon,
-            $this->createAttribute($this->text)->readable(true)->updatable(),
+            $text,
             $this->createAttribute($this->externId)->readable(true),
             $this->createAttribute($this->internId)->readable(true),
             $this->createAttribute($this->orderInProcedure)->readable(true),
-            $this->createToOneRelationship($this->parentStatement)
-                ->setRelationshipType($this->resourceTypeStore->getStatementResourceType())
-                ->readable()->updatable()->aliasedPath($this->parentStatementOfSegment),
-            $this->createToOneRelationship($this->assignee)->readable()->updatable(),
-            $this->createToManyRelationship($this->tags)->readable()->updatable(),
-            // for now all segments have a place, this may change however
-            $this->createToOneRelationship($this->place)->readable()
-                // for now everyone that is allowed to access
-                // segments is allowed to change its place
-                ->updatable(),
+            $parentStatement,
+            $assignee,
+            $tags,
+            $place,
         ];
+
+        if ($this->currentUser->hasPermission('feature_segment_edit')) {
+            $text->updatable();
+            $parentStatement->updatable();
+            $assignee->updatable();
+            $tags->updatable();
+            // for now everyone allowed to edit segments is allowed to change its place
+            $place->updatable();
+        }
 
         if ($this->currentUser->hasPermission('feature_segment_comment_list_on_segment')) {
             $properties[] = $this->createToManyRelationship($this->comments)->readable();
@@ -215,6 +216,14 @@ final class StatementSegmentResourceType extends DplanResourceType implements Re
 
                 return [];
             });
+
+            // Raw tag form (DPLAN-18271): only the editor needs this, to resolve
+            // <dp-boilerplate boilerplate-id="…"> tags into linked nodes on load and to
+            // re-send them on save. Gated by the same permission as editing, and — unlike
+            // `recommendation` — not a default field, so it never leaks into a response
+            // that didn't explicitly ask for it.
+            $properties[] = $this->createAttribute($this->recommendationEmbedded)
+                ->readable(false, static fn (Segment $segment): string => $segment->getRecommendationEmbedded());
         }
 
         if ($this->currentUser->hasPermission('field_segments_custom_fields')) {

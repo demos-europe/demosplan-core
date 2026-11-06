@@ -85,7 +85,7 @@ export default {
   components: {
     DpLoading,
     DpTreeList,
-    FileInfo: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/FileInfo')),
+    FileInfo: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/FileInfo.vue')),
   },
 
   directives: {
@@ -206,7 +206,7 @@ export default {
         const isTopLevel = node.attributes.parentId === null
 
         // Attach visible documents directly as children of the current node (if any exist)
-        if (node.hasRelationship('visibleDocuments')) {
+        if (node.hasRelationship('visibleDocuments') && node.relationships.visibleDocuments.data.length > 0) {
           node.children = [...node.children, ...Object.values(node.relationships.visibleDocuments.list())]
         }
 

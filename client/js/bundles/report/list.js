@@ -11,7 +11,7 @@
  * This is the entrypoint for list.html.twig
  */
 
-import DpReportListing from '@DpJs/components/report/DpReportListing'
+import DpReportListing from '@DpJs/components/report/DpReportListing.vue'
 import { hasPermission } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 

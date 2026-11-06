@@ -13,9 +13,11 @@ declare(strict_types=1);
 namespace Tests\Core\Procedure\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Boilerplate;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\BoilerplateUsage;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
+use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateUsageRepository;
 use Tests\Base\FunctionalTestCase;
 
@@ -42,7 +44,7 @@ class BoilerplateUsageRepositoryTest extends FunctionalTestCase
         // assert
         static::assertNotNull($usage->getId());
         static::assertSame($boilerplate, $usage->getBoilerplate());
-        static::assertSame($segment, $usage->getSegment());
+        static::assertSame($segment, $usage->getStatementOrSegment());
         static::assertNotNull($usage->getCreateDate());
         static::assertSame(1, $this->countEntries(BoilerplateUsage::class, ['boilerplate' => $boilerplate]));
     }
@@ -120,16 +122,16 @@ class BoilerplateUsageRepositoryTest extends FunctionalTestCase
             'procedure'                => $segmentB->getProcedure(),
         ])->_real();
         $boilerplate = $this->createBoilerplate($segmentB);
-        $this->sut->addUsage($boilerplate, $segmentB);
-        $this->sut->addUsage($boilerplate, $segmentA);
+        $this->linkByTag($boilerplate, $segmentB);
+        $this->linkByTag($boilerplate, $segmentA);
 
         // act
         $usages = $this->sut->getUsagesForBoilerplate($boilerplate->getId());
 
         // assert
         static::assertCount(2, $usages);
-        static::assertSame('M100-1', $usages[0]->getSegment()->getExternId());
-        static::assertSame('M100-2', $usages[1]->getSegment()->getExternId());
+        static::assertSame('M100-1', $usages[0]->getStatementOrSegment()->getExternId());
+        static::assertSame('M100-2', $usages[1]->getStatementOrSegment()->getExternId());
     }
 
     public function testGetUsagesForBoilerplateExcludesDeletedSegments(): void
@@ -141,8 +143,8 @@ class BoilerplateUsageRepositoryTest extends FunctionalTestCase
             'procedure'                => $segment->getProcedure(),
         ])->_real();
         $boilerplate = $this->createBoilerplate($segment);
-        $this->sut->addUsage($boilerplate, $segment);
-        $this->sut->addUsage($boilerplate, $deletedSegment);
+        $this->linkByTag($boilerplate, $segment);
+        $this->linkByTag($boilerplate, $deletedSegment);
 
         $deletedSegment->setDeleted(true);
         $this->getEntityManager()->persist($deletedSegment);
@@ -153,7 +155,67 @@ class BoilerplateUsageRepositoryTest extends FunctionalTestCase
 
         // assert
         static::assertCount(1, $usages);
-        static::assertSame($segment->getId(), $usages[0]->getSegment()->getId());
+        static::assertSame($segment->getId(), $usages[0]->getStatementOrSegment()->getId());
+    }
+
+    public function testCountUsagesForBoilerplateExcludesDeletedSegments(): void
+    {
+        // arrange
+        $segment = SegmentFactory::createOne()->_real();
+        $deletedSegment = SegmentFactory::createOne([
+            'parentStatementOfSegment' => $segment->getParentStatementOfSegment(),
+            'procedure'                => $segment->getProcedure(),
+        ])->_real();
+        $boilerplate = $this->createBoilerplate($segment);
+        $this->linkByTag($boilerplate, $segment);
+        $this->linkByTag($boilerplate, $deletedSegment);
+
+        $deletedSegment->setDeleted(true);
+        $this->getEntityManager()->persist($deletedSegment);
+        $this->getEntityManager()->flush();
+
+        // act & assert
+        static::assertSame(1, $this->sut->countUsagesForBoilerplate($boilerplate->getId()));
+    }
+
+    public function testCountUsagesForBoilerplateWithoutUsagesIsZero(): void
+    {
+        $boilerplate = $this->createBoilerplate(SegmentFactory::createOne()->_real());
+
+        static::assertSame(0, $this->sut->countUsagesForBoilerplate($boilerplate->getId()));
+    }
+
+    public function testGetUsagesForBoilerplateInitializesPlaces(): void
+    {
+        // arrange
+        $firstSegment = SegmentFactory::createOne()->_real();
+        $procedure = $firstSegment->getProcedure();
+        $segments = [$firstSegment];
+        foreach (['Prüfung', 'Abgeschlossen'] as $placeName) {
+            $segments[] = SegmentFactory::createOne([
+                'parentStatementOfSegment' => $firstSegment->getParentStatementOfSegment(),
+                'procedure'                => $procedure,
+                'place'                    => PlaceFactory::createOne(['name' => $placeName, 'procedure' => $procedure])->_real(),
+            ])->_real();
+        }
+        $boilerplate = $this->createBoilerplate($firstSegment);
+        foreach ($segments as $segment) {
+            $this->linkByTag($boilerplate, $segment);
+        }
+        $this->getEntityManager()->flush();
+        // Drop the identity map so the places have to be loaded again
+        $this->getEntityManager()->clear();
+
+        // act
+        $usages = $this->sut->getUsagesForBoilerplate($boilerplate->getId());
+
+        // assert
+        static::assertCount(3, $usages);
+        foreach ($usages as $usage) {
+            $segment = $usage->getStatementOrSegment();
+            static::assertInstanceOf(Segment::class, $segment);
+            static::assertFalse($this->getEntityManager()->isUninitializedObject($segment->getPlace()));
+        }
     }
 
     public function testGetUsagesForBoilerplateReturnsEmptyArrayWithoutUsages(): void
@@ -169,6 +231,51 @@ class BoilerplateUsageRepositoryTest extends FunctionalTestCase
         static::assertSame([], $usages);
     }
 
+    public function testGetUsagesForBoilerplateExcludesUsagesWithoutTag(): void
+    {
+        // arrange
+        $linkedSegment = SegmentFactory::createOne()->_real();
+        $legacySegment = SegmentFactory::createOne([
+            'parentStatementOfSegment' => $linkedSegment->getParentStatementOfSegment(),
+            'procedure'                => $linkedSegment->getProcedure(),
+            'recommendation'           => '<p>Kopierter Text ohne Verknüpfung</p>',
+        ])->_real();
+        $boilerplate = $this->createBoilerplate($linkedSegment);
+        $this->linkByTag($boilerplate, $linkedSegment);
+        $this->sut->addUsage($boilerplate, $legacySegment);
+
+        // act
+        $usages = $this->sut->getUsagesForBoilerplate($boilerplate->getId());
+
+        // assert
+        static::assertCount(1, $usages);
+        static::assertSame($linkedSegment->getId(), $usages[0]->getStatementOrSegment()->getId());
+    }
+
+    public function testCountUsagesForBoilerplateExcludesUsagesWithoutTagAndTagsOfOtherBoilerplates(): void
+    {
+        // arrange
+        $linkedSegment = SegmentFactory::createOne()->_real();
+        $otherBoilerplate = $this->createBoilerplate($linkedSegment);
+        $legacySegment = SegmentFactory::createOne([
+            'parentStatementOfSegment' => $linkedSegment->getParentStatementOfSegment(),
+            'procedure'                => $linkedSegment->getProcedure(),
+            'recommendation'           => '<p>Kopierter Text ohne Verknüpfung</p>',
+        ])->_real();
+        $segmentWithOtherTag = SegmentFactory::createOne([
+            'parentStatementOfSegment' => $linkedSegment->getParentStatementOfSegment(),
+            'procedure'                => $linkedSegment->getProcedure(),
+        ])->_real();
+        $boilerplate = $this->createBoilerplate($linkedSegment);
+        $this->linkByTag($boilerplate, $linkedSegment);
+        $this->linkByTag($otherBoilerplate, $segmentWithOtherTag);
+        $this->sut->addUsage($boilerplate, $legacySegment);
+        $this->sut->addUsage($boilerplate, $segmentWithOtherTag);
+
+        // act & assert
+        static::assertSame(1, $this->sut->countUsagesForBoilerplate($boilerplate->getId()));
+    }
+
     private function createBoilerplate(Segment $segment): Boilerplate
     {
         $boilerplate = new Boilerplate();
@@ -180,5 +287,19 @@ class BoilerplateUsageRepositoryTest extends FunctionalTestCase
         $this->getEntityManager()->flush();
 
         return $boilerplate;
+    }
+
+    /**
+     * Links the boilerplate the way the editor does: the recommendation holds the reference
+     * tag and a usage row exists. A usage row alone (a pasted copy from before DPLAN-18271)
+     * is deliberately not enough to count as linked.
+     */
+    private function linkByTag(Boilerplate $boilerplate, Statement $statementOrSegment): void
+    {
+        $statementOrSegment->setRecommendation(
+            "<dp-boilerplate boilerplate-id=\"{$boilerplate->getId()}\"></dp-boilerplate>"
+        );
+        $this->getEntityManager()->flush();
+        $this->sut->addUsage($boilerplate, $statementOrSegment);
     }
 }

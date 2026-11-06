@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementFragmentService;
 use demosplan\DemosPlanCoreBundle\Transformers\EntityContentChangeComparisonTransformer;
 use demosplan\DemosPlanCoreBundle\Transformers\HistoryDayTransformer;
 use Doctrine\ORM\EntityNotFoundException;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -49,9 +48,6 @@ class DemosPlanEntityContentChangeAPIController extends APIController
     }
 
     // @improve T12984
-    /**
-     * @return APIResponse|JsonResponse
-     */
     #[DplanPermissions('feature_statement_fragment_content_changes_view')]
     #[Route(path: '/api/1.0/statements/{procedureId}/statementfragment/{statementFragmentId}/history', name: 'dplan_api_statement_fragment_history', options: ['expose' => true], methods: ['GET'])]
     public function getStatementFragmentHistory(

@@ -98,8 +98,6 @@ class StatementFactory extends FactoryBase
     }
 
     /**
-     * @return mixed
-     *
      * @throws DataProviderException
      */
     protected function makeStatement(): Statement

@@ -134,7 +134,7 @@ export default {
   components: {
     DpButton,
     DpButtonRow,
-    DpMapModal: () => import('@DpJs/components/statement/assessmentTable/DpMapModal'),
+    DpMapModal: () => import('@DpJs/components/statement/assessmentTable/DpMapModal.vue'),
     DpSelect,
   },
 
@@ -294,7 +294,7 @@ export default {
 
       if (this.selectedElementId) {
         changes.relationships.elements = {
-          data: [{ type: 'ElementsDetails', id: this.selectedElementId }],
+          data: { type: 'ElementsDetails', id: this.selectedElementId },
         }
       }
 

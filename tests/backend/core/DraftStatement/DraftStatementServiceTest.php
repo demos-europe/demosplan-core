@@ -95,6 +95,35 @@ class DraftStatementServiceTest extends FunctionalTestCase
         static::assertEquals($this->testDraftStatement->getId(), $draftStatement['ident']);
     }
 
+    public function testConvertToLegacyContainsCustomFieldsKey(): void
+    {
+        // Arrange
+        $draftStatement = $this->testDraftStatement;
+
+        // Act
+        $legacy = $this->sut->convertToLegacy($draftStatement);
+
+        // Assert
+        static::assertArrayHasKey('customFields', $legacy);
+        static::assertSame($draftStatement->getCustomFields(), $legacy['customFields']);
+    }
+
+    public function testAddContentForPdfProcessToleratesMissingCustomFieldsKey(): void
+    {
+        // Arrange
+        $legacy = $this->sut->convertToLegacy($this->testDraftStatement);
+        unset($legacy['customFields']);
+
+        // Act
+        $result = $this->sut->addContentToStatementsArrayForPdfProcess(
+            collect([$legacy]),
+            $this->testDraftStatement->getProcedureId()
+        )->all();
+
+        // Assert
+        static::assertArrayNotHasKey('resolvedCustomFields', $result[0]);
+    }
+
     public function testCopyDraftStatementVersion()
     {
         self::markSkippedForCIIntervention();

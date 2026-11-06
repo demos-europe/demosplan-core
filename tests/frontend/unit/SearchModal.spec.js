@@ -6,7 +6,7 @@
  *
  * All rights reserved
  */
-import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal'
+import SearchModal from '@DpJs/components/statement/assessmentTable/SearchModal/SearchModal.vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 import { vi } from 'vitest'

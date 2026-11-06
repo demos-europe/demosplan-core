@@ -13,9 +13,9 @@
  */
 import { initialize } from '@DpJs/InitVue'
 import locationStore from '@DpJs/store/procedure/Location'
-import Procedures from '@DpJs/components/procedure/publicindex/Procedures'
+import Procedures from '@DpJs/components/procedure/publicindex/Procedures.vue'
 import procedureStore from '@DpJs/store/procedure/Procedure'
-import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout.vue'
 
 const stores = {
   location: locationStore,

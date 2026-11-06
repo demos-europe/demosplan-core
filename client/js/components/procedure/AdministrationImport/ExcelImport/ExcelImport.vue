@@ -83,7 +83,7 @@
 
 <script>
 import { DpRadio, DpUploadFiles, getFileTypes, hasAnyPermissions } from '@demos-europe/demosplan-ui'
-import SegmentImportJobList from '../SegmentImportJobList'
+import SegmentImportJobList from '../SegmentImportJobList.vue'
 
 export default {
   name: 'ExcelImport',

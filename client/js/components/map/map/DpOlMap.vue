@@ -159,8 +159,8 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { addProjection } from 'ol/proj'
 import { containsXY } from 'ol/extent'
-import DpOlMapLayer from './DpOlMapLayer'
-import DpOlMapScaleSelect from './DpOlMapScaleSelect'
+import DpOlMapLayer from './DpOlMapLayer.vue'
+import DpOlMapScaleSelect from './DpOlMapScaleSelect.vue'
 import { easeOut } from 'ol/easing'
 import { getResolutionsFromScales } from './utils/utils'
 import { Map } from 'ol'
@@ -249,6 +249,8 @@ export default {
        *  See https://learn.adamwathan.com/advanced-vue/building-compound-components-with-provide-inject
        */
       olMapState: {
+        // Name of the draw/edit tool currently active in this map, see DpOlMapDrawFeature
+        activeTool: '',
         map: null,
         drawStyles: {},
       },

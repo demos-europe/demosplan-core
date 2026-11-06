@@ -764,13 +764,13 @@
 import { dpApi, DpContextualHelp, DpTooltip, formatDate, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
-import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
-import DpClaim from '../DpClaim'
-import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
-import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
-import DpItemRow from './ItemRow'
-import EditableText from './EditableText'
-import TableCardFlyoutMenu from '@DpJs/components/statement/assessmentTable/TableCardFlyoutMenu'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList.vue'
+import DpClaim from '../DpClaim.vue'
+import DpEditFieldMultiSelect from './DpEditFieldMultiSelect.vue'
+import DpEditFieldSingleSelect from './DpEditFieldSingleSelect.vue'
+import DpItemRow from './ItemRow.vue'
+import EditableText from './EditableText.vue'
+import TableCardFlyoutMenu from '@DpJs/components/statement/assessmentTable/TableCardFlyoutMenu.vue'
 
 export default {
   name: 'DpAssessmentTableCard',
@@ -781,8 +781,8 @@ export default {
     DpContextualHelp,
     DpEditFieldMultiSelect,
     DpEditFieldSingleSelect,
-    DpFragmentList: () => import(/* webpackChunkName: "dp-fragment-list" */ './DpFragmentList'),
-    DpFragmentsSwitcher: () => import(/* webpackChunkName: "dp-fragments-switcher" */ './DpFragmentsSwitcher'),
+    DpFragmentList: () => import(/* webpackChunkName: "dp-fragment-list" */ './DpFragmentList.vue'),
+    DpFragmentsSwitcher: () => import(/* webpackChunkName: "dp-fragments-switcher" */ './DpFragmentsSwitcher.vue'),
     DpItemRow,
     DpTooltip,
     EditableText,
@@ -1309,12 +1309,7 @@ export default {
             if (this.$refs[field]) {
               updatedField = field
               //  Handle components that use <dp-edit-field>
-              const editFieldComponent = this.$refs[field].$children.find(child => child.$options.name === 'DpEditField')
-
-              if (editFieldComponent) {
-                editFieldComponent.$data.loading = false
-                editFieldComponent.$data.editingEnabled = false
-              }
+              this.$refs[field].finishEditing?.()
 
               //  Handle components that have a loading state by themselves
               if (hasOwnProp(this.$refs[field].$data, 'loading')) {

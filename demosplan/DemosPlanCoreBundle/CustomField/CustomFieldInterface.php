@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+
 interface CustomFieldInterface
 {
     public const TYPE_CLASSES = [
@@ -51,9 +53,20 @@ interface CustomFieldInterface
 
     public function getRequired(): bool;
 
+    public function isSeparateColumn(): bool;
+
+    public function setSeparateColumn(bool $isSeparateColumn): void;
+
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption;
 
     public function getApiAttributes(): array;
+
+    /**
+     * @param list<string> $optionIds
+     *
+     * @throws InvalidArgumentException if one of the ids is not an option of this field
+     */
+    public function assertHasOptions(array $optionIds): void;
 
     /**
      * Returns the human-readable representation of a stored value for display purposes (e.g. PDF export).

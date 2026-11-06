@@ -105,13 +105,6 @@
                     method="post"
                     enctype="multipart/form-data">
 
-                    {# Version History Slidebar #}
-                    <dp-slidebar>
-                        <dp-version-history
-                            procedure-id="{{ procedure }}">
-                        </dp-version-history>
-                    </dp-slidebar>
-
                     <input type="hidden" name="r_ident" value="{{ templateVars.table.statement.ident }}">
                     <input type="hidden" name="r_action" value="update">
                     <input type="hidden" name="r_publicAllowed" value="{{ templateVars.table.statement.publicAllowed }}">

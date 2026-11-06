@@ -13,7 +13,10 @@
 
 
     <dp-edit-boilerplate
-        :selected-boilerplate-group="JSON.parse('{{ selectedGroup|json_encode|e('js', 'utf-8') }}')">
+        :selected-boilerplate-group="JSON.parse('{{ selectedGroup|json_encode|e('js', 'utf-8') }}')"
+        :usage-count="{{ boilerplateUsageCount|default(0) }}"
+        boilerplate-title="{{ form.vars.value.title|default('') }}"
+        original-text="{{ form.vars.value.text|default('') }}">
         <template v-slot:default="{ boilerplateGroup, setBoilerplateGroup }">
             <form
                 class="layout flow-root"
@@ -160,24 +163,14 @@
     </dp-edit-boilerplate>
 
     {% if not isNew and hasPermission('feature_boilerplate_usage_list') %}
-        <h2 class="u-mt">{{ 'boilerplate.usage.headline'|trans }}</h2>
-        {% if boilerplateUsages|default([]) is not empty %}
-            <ul data-cy="editBoilerplate:usageList">
-                {% for usage in boilerplateUsages %}
-                    <li>
-                        <a
-                            href="{{ path('dplan_statement_segments_list', { procedureId: procedure, statementId: usage.statementId, segment: usage.segmentId }) }}#recommendation"
-                            data-cy="editBoilerplate:usageLink"
-                            rel="noopener"
-                            target="_blank">
-                            {{ usage.externId }}
-                        </a>
-                    </li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p data-cy="editBoilerplate:usageEmpty">{{ 'boilerplate.usage.none'|trans }}</p>
-        {% endif %}
+        <div class="layout mt-6">
+            <div class="layout__item u-1-of-4"></div><!--
+         --><div class="layout__item u-3-of-4 pl-0 border-t border-neutral pt-6">
+                <boilerplate-usage-list
+                    procedure-id="{{ procedure }}"
+                    :usages="{{ boilerplateUsages|default([])|json_encode }}" />
+            </div>
+        </div>
     {% endif %}
 
 {% endblock %}

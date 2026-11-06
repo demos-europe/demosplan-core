@@ -47,7 +47,8 @@ final class SlugFactory extends PersistentProxyObjectFactory
     protected function defaults(): array
     {
         return [
-            'name' => self::faker()->unique()->streetName(),
+            // Slug::setName() slugifies, so distinct street names can still collapse into one slug
+            'name' => self::faker()->streetName().'-'.uniqid('', true),
         ];
     }
 

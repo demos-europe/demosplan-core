@@ -27,6 +27,8 @@ use EDT\PathBuilding\End;
  * @property-read End $title
  * @property-read End $text
  * @property-read End $verified
+ * @property-read End $pendingDeletion not exposed as a readable attribute, used only in
+ *                 {@see BoilerplateResourceType::getAccessConditions()}
  * @property-read End $categoriesTitle @deprecated use a relationship instead
  * @property-read End $procedureId @deprecated use a relationship instead
  * @property-read ProcedureResourceType $procedure
@@ -55,7 +57,11 @@ final class BoilerplateResourceType extends DplanResourceType
 
     public function isAvailable(): bool
     {
-        return $this->currentUser->hasPermission('area_admin_boilerplates');
+        // DPLAN-18271, Clarified Decision 12: the editor fetches boilerplate content for
+        // unlink materialization via this resource type — caseworkers with only
+        // feature_segment_recommendation_edit (not area_admin_boilerplates) must pass this
+        // gate too, or that content fetch fails for exactly the target audience.
+        return $this->currentUser->hasAnyPermissions('area_admin_boilerplates', 'feature_segment_recommendation_edit');
     }
 
     protected function getAccessConditions(): array
@@ -65,10 +71,12 @@ final class BoilerplateResourceType extends DplanResourceType
             return [$this->conditionFactory->false()];
         }
 
-        return [$this->conditionFactory->propertyHasValue(
-            $procedure->getId(),
-            $this->procedure->id
-        )];
+        return [
+            $this->conditionFactory->propertyHasValue($procedure->getId(), $this->procedure->id),
+            // DPLAN-18271: a boilerplate pending async deletion is, conceptually, already
+            // gone (see BoilerplateDeletionService) — must not be listed or fetched.
+            $this->conditionFactory->propertyHasValue(false, $this->pendingDeletion),
+        ];
     }
 
     public function getDefaultSortMethods(): array

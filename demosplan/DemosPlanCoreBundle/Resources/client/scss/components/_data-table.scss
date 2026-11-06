@@ -210,10 +210,10 @@
         }
     }
 
-    // When expand follows flyout, offset flyout left by the expand column's width
+    // When expand follows flyout, offset flyout left by the expand column's width (min-w-[50px] in DpTableRow)
     td.c-data-table__col--flyout:has(+ td.c-data-table__col--expand),
     th.c-data-table__col--flyout:has(+ th.c-data-table__col--expand) {
-        right: 30px;
+        right: 50px;
     }
 
     td.c-data-table__col--expand,

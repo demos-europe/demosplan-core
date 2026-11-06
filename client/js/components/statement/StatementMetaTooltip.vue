@@ -95,7 +95,7 @@
 </template>
 
 <script>
-import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
+import StatementMetaData from '@DpJs/components/statement/StatementMetaData.vue'
 
 export default {
   name: 'StatementMetaTooltip',
@@ -157,16 +157,20 @@ export default {
     },
 
     segmentAssignee () {
-      return this.segment?.relationships?.assignee?.data ?
-        this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id) :
-        {}
+      if (!this.segment?.relationships?.assignee?.data || !Array.isArray(this.assignableUsers)) {
+        return {}
+      }
+
+      return this.assignableUsers.find(user => user.id === this.segment.relationships.assignee.data.id) || {}
     },
 
     // Object with id and name
     segmentPlace () {
-      return Object.keys(this.segment).length && this.segment.relationships.place ?
-        this.places.find(place => place.id === this.segment.relationships.place.data.id) :
-        {}
+      if (!this.segment?.relationships?.place?.data || !Array.isArray(this.places)) {
+        return {}
+      }
+
+      return this.places.find(place => place.id === this.segment.relationships.place.data.id) || {}
     },
   },
 }

@@ -31,43 +31,7 @@ class StatementFormatter
         $formattedStatement = [];
 
         foreach ($keysOfAttributesToExport as $attributeKey) {
-            $value = $this->getStatementValue($attributeKey, $statementArray);
-
-            if ('numberOfAnonymVotes' === $attributeKey || 'votesNum' === $attributeKey) {
-                $formattedStatement[$attributeKey] = (string) $value;
-                continue;
-            }
-
-            $formattedStatement[$attributeKey] = $value;
-
-            // simplify every attribute that is an array (to string)
-            if (is_array($formattedStatement[$attributeKey])) {
-                $formattedStatement[$attributeKey] = implode("\n", $formattedStatement[$attributeKey]);
-            }
-
-            if (in_array($attributeKey, ['text', 'recommendation'])) {
-                $formattedStatement[$attributeKey] = $this->preserveUnderlinedAndStrikethroughText($formattedStatement[$attributeKey]);
-                $formattedStatement[$attributeKey] =
-                    str_replace('\_', '_', $formattedStatement[$attributeKey]);
-            }
-
-            if ('status' === $attributeKey) {
-                $formattedStatement[$attributeKey] = $this->formOptionsResolver->resolve(
-                    FormOptionsResolver::STATEMENT_STATUS,
-                    $formattedStatement[$attributeKey]
-                );
-            }
-
-            if ('votePla' === $attributeKey) {
-                $formattedStatement[$attributeKey] = $this->formOptionsResolver->resolve(
-                    FormOptionsResolver::STATEMENT_FRAGMENT_ADVICE_VALUES,
-                    $formattedStatement[$attributeKey] ?? ''
-                );
-            }
-
-            if (true === $formattedStatement[$attributeKey]) {
-                $formattedStatement[$attributeKey] = 'x';
-            }
+            $formattedStatement[$attributeKey] = $this->formatAttributeValue($attributeKey, $statementArray);
         }
 
         $formattedStatement['externId'] = $this->assessmentTableOutput->createExternIdString($statementArray);
@@ -81,6 +45,42 @@ class StatementFormatter
         }
 
         return $formattedStatement;
+    }
+
+    private function formatAttributeValue(string $attributeKey, array $statementArray): mixed
+    {
+        $value = $this->getStatementValue($attributeKey, $statementArray);
+
+        if ('numberOfAnonymVotes' === $attributeKey || 'votesNum' === $attributeKey) {
+            return (string) $value;
+        }
+
+        // simplify every attribute that is an array (to string)
+        if (is_array($value)) {
+            $value = implode("\n", $value);
+        }
+
+        if (in_array($attributeKey, ['text', 'recommendation'])) {
+            $value = $this->preserveUnderlinedAndStrikethroughText($value);
+            $value = str_replace('\_', '_', $value);
+        }
+
+        if ('status' === $attributeKey || 'statementStatus' === $attributeKey) {
+            $value = $this->formOptionsResolver->resolve(FormOptionsResolver::STATEMENT_STATUS, $value);
+        }
+
+        if ('votePla' === $attributeKey) {
+            $value = $this->formOptionsResolver->resolve(
+                FormOptionsResolver::STATEMENT_FRAGMENT_ADVICE_VALUES,
+                $value ?? ''
+            );
+        }
+
+        if (true === $value) {
+            $value = 'x';
+        }
+
+        return $value;
     }
 
     // Get the value from the statement array, including dot notation for nested values

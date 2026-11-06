@@ -443,21 +443,6 @@ export default {
      *
      * @param {Object} data
      */
-    copyStatementAction ({ state }, data) {
-      return dpApi({
-        method: 'POST',
-        url: Routing.generate('dplan_api_statement_copy_to_procedure', {
-          procedureId: state.procedureId,
-          statementId: data.statementId,
-          targetProcedureId: data.procedureId,
-        }),
-      })
-    },
-
-    /**
-     *
-     * @param {Object} data
-     */
     createClusterAction ({ commit, dispatch, state }, data) {
       return dpApi({
         method: 'POST',
@@ -690,24 +675,6 @@ export default {
 
           return {}
         })
-    },
-
-    /**
-     *
-     * @param {Object} data
-     */
-    moveStatementAction ({ state }, data) {
-      return dpApi({
-        method: 'POST',
-        url: Routing.generate('dplan_api_statement_move', {
-          procedureId: state.procedureId,
-          statementId: data.statementId,
-          targetProcedureId: data.procedureId,
-        }),
-        data: {
-          deleteVersionHistory: data.deleteVersionHistory,
-        },
-      })
     },
 
     /**

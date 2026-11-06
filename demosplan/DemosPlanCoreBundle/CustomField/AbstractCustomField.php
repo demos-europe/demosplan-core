@@ -30,6 +30,8 @@ abstract class AbstractCustomField implements CustomFieldInterface
 
     protected string $description = '';
 
+    protected bool $isSeparateColumn = true;
+
     abstract protected function validateFieldSpecific(array $options): void;
 
     public function validate(?array $newOptions = null): void
@@ -50,9 +52,23 @@ abstract class AbstractCustomField implements CustomFieldInterface
         }
 
         // Check for duplicate labels using Collections
-        $labels = collect($options)->pluck('label')->map('trim');
+        $labels = collect($options)->pluck('label')->map(fn ($label) => trim((string) $label));
         if ($labels->count() !== $labels->unique()->count()) {
             throw new InvalidArgumentException('Option labels must be unique');
+        }
+    }
+
+    /**
+     * @param list<string> $optionIds
+     *
+     * @throws InvalidArgumentException if one of the ids is not an option of this field
+     */
+    public function assertHasOptions(array $optionIds): void
+    {
+        foreach ($optionIds as $optionId) {
+            if (!$this->getCustomOptionValueById($optionId) instanceof CustomFieldOption) {
+                throw new InvalidArgumentException("Invalid option ID: {$optionId}");
+            }
         }
     }
 
@@ -123,6 +139,16 @@ abstract class AbstractCustomField implements CustomFieldInterface
     public function getRequired(): bool
     {
         return false;
+    }
+
+    public function isSeparateColumn(): bool
+    {
+        return $this->isSeparateColumn;
+    }
+
+    public function setSeparateColumn(bool $isSeparateColumn): void
+    {
+        $this->isSeparateColumn = $isSeparateColumn;
     }
 
     public function setFieldType(string $type): void

@@ -5,9 +5,72 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Editing the organisation types and showing the customer (Bundesland) of an organisation
+  are gated by the new permissions `feature_orga_registration_status_edit` and `field_organisation_customer`;
+  projects must grant them explicitly, `CUSTOMER_MASTER_USER` no longer holds them by default (DPLAN-18505)
+- Organisations can be marked as requiring two-factor authentication for their users (DPLAN-17501)
+- When an organisation requires two-factor authentication (feature permission `feature_orga_two_factor_required`),
+  its users without a second factor are sent to their profile page after login and cannot use any other part of the
+  application until a factor is set up; imprint and data protection stay reachable. Sessions that started before the
+  requirement was switched on stay valid until the next login (DPLAN-17433)
+- Setting up a second factor is recorded in the report (DPLAN-17433)
+- While an organisation requires two-factor authentication, the last second factor of a user cannot be disabled on the
+  profile page (DPLAN-17433)
+- Node.js 24.22.1 for the image build, CI and `engines` (October 2026 security release)
+- `MailService` implements the new `MailServiceInterface` of the contract layer, so addons can queue mails
+- composer.json declares every PHP extension the application needs (adds apcu, exif, pcntl, pdo_mysql; drops soap, posix), so a missing extension fails the image build
+- production image: PHP extensions bcmath, bz2, calendar, ffi, gettext, mysqli, shmop, soap, sysvmsg, sysvsem, sysvshm and xsl removed; compiler toolchain removed from the fpm image (~220 MB smaller)
+- The institution resources `InvitedToeb`, `InvitableToeb` (JSON:API 2.0) and `InvitableInstitution` (API Platform 3.0) expose the attribute `hasActiveUsers`: true if the organisation has a non-deleted user with an institution role in the current customer
+- The lists of invitable institutions (institution tags page, "add institution" list of a procedure) include every organisation that is accepted as public agency in the current customer, also if none of its users holds an institution role. Such an organisation can be added to a procedure
+
+### Added
+- addons can add entries to the menus with a `menus.yml` in their `config` directory
+- menu entries can name the `addon` they belong to, so their permissions are looked up in the permissions of that addon
+- `path_params` of a menu entry can contain fixed values, e.g. `hookName: 'some.hook'`
+- new generic page `/addon/page/{hookName}` (`DemosPlan_addon_page`) that shows the components an addon provides for a hook, for users who may see that hook
+- addons can cancel saving an organisation, e.g. to ask for a confirmation first
+
+## v4.65.0 (2026-10-22)
+
+### Added
+- Custom fields filter are now applied to segments export
+- Custom fields are added to the segments' list filter side panel (version without filter count)
+- The boilerplate edit page lists the segments that use the boilerplate in the recommendation text, with assignee, workflow step and the current recommendation text
+- Specific branches of an addon can be installed
+
+## v4.64.0 (2026-10-21)
 - bump contract layer demosplan-addon to v0.83
 - depends on contract layer >= v0.83
 - new SegmentTagsChangedEvent implements new interface added to contract layer in v0.83
+
+## v4.63.0 (2026-10-08)
+
+## v4.62.1 (2026-10-22)
+
+## v4.62.0 (2026-10-08)
+
+## v4.61.5 (2026-11-04)
+
+### Fixed
+- Links in the daily mail about newly assigned sections now point to the customer of the procedure instead of the host the mail job runs with, and a user with assigned sections in several customers receives one mail per customer
+- While the spell check is unavailable, an info hint is shown instead of an error message for every failed check
+
+## v4.61.4 (2026-10-21)
+
+### Changed
+- PHP updated to version 8.4.27
+
+### Fixed
+- Setting a password via the link in the password recovery or invitation mail now shows a message and keeps the form open when the chosen password was used recently, instead of silently redirecting to the login page without saving it
+
+## v4.61.3 (2026-09-30)
+
+### Added
+- The right to create procedures can now be granted to individual users of an organization, instead of to all Fachplanung-Admins and Anhörungsbehörde-Admins at once
+
+### Fixed
+- Splitting a statement no longer fails with an error message when an assignable user has no name set
+- Deleting a user's personal data now also removes them as the default assignee of tags
 
 ## v4.61.2 (2026-09-23)
 
@@ -37,6 +100,9 @@
 - Global GIS layers are now scoped to their own customer
 - Maximum email attachment size for the final decision email reduced to a sane limit
 
+### Added
+- The segments list can be exported as Excel or CSV, respecting the currently applied filters, search term and column selection. The submitting organisation is now shown as an "Organisation" column, replacing the address column. (DPLAN-18217)
+
 ## v4.60.0 (2026-09-09)
 
 ## v4.59.0 (2026-09-09)
@@ -46,6 +112,11 @@
 ### Changed
 - Moves segments' list inline filter to a slide bar
 - api-platform upgraded from 3.4 to 4.3; 3.4.x is blocked by security advisories. Two options in `config/packages/api_platform.yaml` changed: `keep_legacy_inflector` no longer exists in v4 and was removed, and `validator.legacy_query_parameter_validation` is now `validator.query_parameter_validation` (same behaviour; deprecated in 4.2, removal in 5.0). Projects overriding either option must adjust them, otherwise the container fails to compile with an "Unrecognized option" error.
+
+### Added
+- The right to create procedures can now be granted to individual users with the Fachplanung-Admin or Anhörungsbehörde-Admin
+  role via a checkbox in the user administration form. Alternatively, the right can be activated for all users with those roles in
+  organization settings
 
 ### New dependencies
 - `symfony/type-info ^7.4` — required by api-platform 4.3 and pulled in transitively. It installs alongside Symfony 6.4 without a framework upgrade: the component has no 6.x release, so Symfony Flex exempts it from the `extra.symfony.require: "6.*.*"` constraint rather than filtering it out. No explicit root require is needed.
@@ -454,12 +525,12 @@
 ### Added
 - Enable GetFeatureInfo requests for visible WMS layers in the map
 - Add `FileService::saveBinaryFileContent()` method to save binary file content directly without manual temporary file handling
-  - Accepts filename, binary content, and optional filename prefix
-  - Automatically handles temporary file creation and cleanup using Symfony Filesystem (`dumpFile()` and `deleteLocalFile()`)
-  - Supports virus checking and procedure/user association
-  - Useful for saving already-decoded base64 content from external sources
-  - Validates filename is not empty
-  - Sanitizes filename using existing `sanitizeFileName()` method
+    - Accepts filename, binary content, and optional filename prefix
+    - Automatically handles temporary file creation and cleanup using Symfony Filesystem (`dumpFile()` and `deleteLocalFile()`)
+    - Supports virus checking and procedure/user association
+    - Useful for saving already-decoded base64 content from external sources
+    - Validates filename is not empty
+    - Sanitizes filename using existing `sanitizeFileName()` method
 - Add `FileWriteException` for dedicated file write error handling
 
 ### Changed
@@ -497,6 +568,8 @@
 - Fix missing form fields in procedure basic settings
 - Add anonymous voters column to statement XLSX export
 
+## v4.26.1 (2026-04-30)
+## v4.26.0 (2025-11-07)
 ## v4.25.0 (2025-11-06)
 
 ## v4.24.1 (2025-12-24)
@@ -514,9 +587,14 @@
 ## v4.24.0 (2025-11-06)
 - Detect Company Department from OzgKeycloak token and assign it to user
 
-## v4.23.0 (2025-10-22)
-## v4.21.0 (2025-10-22)
+## v4.22.1 (2025-10-30)
+- Fix Textbaustein checkbox disappearing bug by removing cascade delete from BoilerplateCategory relations
+- Detect Company Department from OzgKeycloak token and assign it to user
 
+## v4.23.0 (2025-10-22)
+## v4.22.0 (2025-10-22)
+## v4.21.0 (2025-10-22)
+## v4.20.0 (2025-10-09)
 ## v4.18.1 (2025-10-16)
 ## v4.18.0 (2025-10-13)
 
@@ -653,6 +731,7 @@
 - Update Elasticsearch to version 8
 - Export Original Statements as csv in the Statement List
 
+## v4.2.0 (2025-05-22)
 ## v4.1.0 (2025-05-21)
 ## v4.0.0 (2025-05-21)
 - Update to symfony 6.4

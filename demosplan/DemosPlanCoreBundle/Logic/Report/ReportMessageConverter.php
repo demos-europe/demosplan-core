@@ -407,6 +407,11 @@ class ReportMessageConverter
                 'externalDesc' => $message['externalDesc'],
             ]);
         }
+        if (array_key_exists('readOnly', $message)) {
+            $returnMessage[] = $this->translator->trans($message['readOnly']
+                ? 'text.protocol.procedure.read.only.set'
+                : 'text.protocol.procedure.read.only.reactivated');
+        }
         if (array_key_exists('oldAuthorizedUsers', $message) && array_key_exists('newAuthorizedUsers', $message)) {
             $returnMessage[] = $this->translator->trans('text.protocol.procedure.authorized.user.changed', [
                 'oldAuthorizedUsers' => $message['oldAuthorizedUsers'],

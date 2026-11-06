@@ -260,6 +260,13 @@ class ServiceStorage implements MapServiceStorageInterface
             $gislayer['projectionValue'] = $this->getProjectionValueByServiceType($gislayer, $data, $projectionLabel);
         }
 
+        if (array_key_exists('r_layerProjection', $data)) {
+            $projectionLabel = $data['r_layerProjection'];
+            $gislayer['projectionLabel'] = $projectionLabel;
+
+            $gislayer['projectionValue'] = $this->getProjectionValueByServiceType($gislayer, $data, $projectionLabel);
+        }
+
         if (is_string($procedure)) {
             $gislayer['pId'] = $procedure;
         }

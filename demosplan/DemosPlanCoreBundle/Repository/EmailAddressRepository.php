@@ -13,10 +13,12 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\EmailAddressRepositoryInterface;
 use demosplan\DemosPlanCoreBundle\Entity\EmailAddress;
 use Doctrine\DBAL\ArrayParameterType;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
 /**
  * @template-extends CoreRepository<EmailAddress>
  */
+#[AsAlias(EmailAddressRepositoryInterface::class)]
 class EmailAddressRepository extends CoreRepository implements EmailAddressRepositoryInterface
 {
     /**

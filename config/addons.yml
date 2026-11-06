@@ -6,3 +6,7 @@
 #    -
 #      name: "mygithuborga/myaddon2"
 #      version: "v0.31.1"
+# alternatively, install the head of a branch (reinstalled on every autoinstall run); use either version or branch
+#    -
+#      name: "mygithuborga/myaddon3"
+#      branch: "f-my-feature"

@@ -10,7 +10,7 @@
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 // Component to test
-import SubmitterComponent from '@DpJs/components/statement/statement/DpAutofillSubmitterData'
+import SubmitterComponent from '@DpJs/components/statement/statement/DpAutofillSubmitterData.vue'
 
 // Test data which is defined in Twig
 import Submitters from './fixtures/DpAutofillSubmitterData.json'

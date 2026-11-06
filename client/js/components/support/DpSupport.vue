@@ -65,7 +65,7 @@ All rights reserved
 <script>
 
 import { mapActions, mapState } from 'vuex'
-import DpSupportCard from './DpSupportCard'
+import DpSupportCard from './DpSupportCard.vue'
 import { hasPermission } from '@demos-europe/demosplan-ui'
 
 export default {

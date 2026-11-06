@@ -18,7 +18,6 @@ import {
   DpDatepicker,
   DpEditor,
   DpMultiselect,
-  DpSlidebar,
   DpUploadFiles,
   dpValidate,
   hasPermission,
@@ -28,17 +27,16 @@ import AssessmentStatement from '@DpJs/lib/statement/AssessmentStatement'
 import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import { defineAsyncComponent } from 'vue'
-import DetailView from '@DpJs/components/statement/assessmentTable/DetailView/DetailView'
-import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
-import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import DetailView from '@DpJs/components/statement/assessmentTable/DetailView/DetailView.vue'
+import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody.vue'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal.vue'
 import { initialize } from '@DpJs/InitVue'
-import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
+import StatementPublish from '@DpJs/components/statement/statement/StatementPublish.vue'
 import StatementStore from '@DpJs/store/statement/Statement'
 import VoterStore from '@DpJs/store/statement/Voter'
 
-const DpSelectStatementCluster = defineAsyncComponent(() => import('@DpJs/components/statement/statement/SelectStatementCluster'))
-const DpVersionHistory = defineAsyncComponent(() => import('@DpJs/components/statement/statement/DpVersionHistory'))
-const StatementVoter = defineAsyncComponent(() => import('@DpJs/components/statement/voter/StatementVoter'))
+const DpSelectStatementCluster = defineAsyncComponent(() => import('@DpJs/components/statement/statement/SelectStatementCluster.vue'))
+const StatementVoter = defineAsyncComponent(() => import('@DpJs/components/statement/voter/StatementVoter.vue'))
 
 const stores = {
   AssessmentTable: AssessmentTableStore,
@@ -56,9 +54,7 @@ const components = {
   DpEditor,
   DpMultiselect,
   DpSelectStatementCluster,
-  DpSlidebar,
   DpUploadFiles,
-  DpVersionHistory,
   StatementPublish,
   StatementVoter,
 }

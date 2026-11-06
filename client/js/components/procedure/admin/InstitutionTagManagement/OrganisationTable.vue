@@ -66,8 +66,27 @@ All rights reserved
       :translations="{ lockedForSelection: Translator.trans('add_orga.email_hint') }"
       @items-selected="setSelectedItems"
     >
-      <!-- Resource-specific content based on resourceType -->
-      <template v-slot:expandedContent="{ id, participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags }">
+      <template v-slot:legalName="{ hasActiveUsers, legalName }">
+        <div>{{ legalName }}</div>
+        <dp-badge
+          v-if="hasActiveUsers === false"
+          :text="Translator.trans('invitable_institution.users.active.none')"
+          class="inline-block mt-1"
+          color="default"
+          data-cy="organisationTable:noActiveUsersBadge"
+          size="small"
+        />
+      </template>
+
+      <!-- Expanded row: institution details -->
+      <template v-slot:expandedContent="{ id, participationFeedbackEmailAddress, locationContacts, ccEmailAddresses, contactPerson, assignedTags, hasActiveUsers, hasNoEmail }">
+        <dp-inline-notification
+          v-if="hasActiveUsers === false && !hasNoEmail"
+          :message="Translator.trans(noActiveUsersHintKey)"
+          class="ml-4 mt-1"
+          data-cy="organisationTable:noActiveUsersHint"
+          type="info"
+        />
         <div class="border-l-4 border-neutral mb-2 ml-4 mt-4 pl-4">
           <p class="weight--bold pb-2">
             {{ Translator.trans('institution.general.information') }}
@@ -200,14 +219,16 @@ All rights reserved
 
 <script>
 import {
+  DpBadge,
   DpContextualHelp,
   DpDataTable,
+  DpInlineNotification,
   DpLoading,
   DpPager,
   DpSearchField,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
-import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter'
+import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter.vue'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
@@ -216,8 +237,10 @@ export default {
 
   components: {
     ClientSideTagFilter,
+    DpBadge,
     DpContextualHelp,
     DpDataTable,
+    DpInlineNotification,
     DpLoading,
     DpPager,
     DpSearchField,
@@ -307,7 +330,7 @@ export default {
 
     apiRequestFields () {
       const headerFieldNames = this.headerFields.map(field => field.field)
-      const baseFields = ['participationFeedbackEmailAddress', 'locationContacts']
+      const baseFields = ['hasActiveUsers', 'participationFeedbackEmailAddress', 'locationContacts']
       const customFields = hasPermission('field_organisations_custom_fields') ? ['customFields'] : []
       const tagFields = hasPermission('feature_institution_tag_read') ? ['assignedTags'] : []
 
@@ -342,6 +365,12 @@ export default {
 
     itemsPerPageOptions () {
       return this.pagination.limits || this.defaultPagination.limits
+    },
+
+    noActiveUsersHintKey () {
+      return this.resourceType === 'InvitedToeb' ?
+        'invitable_institution.users.active.none.hint.invited' :
+        'invitable_institution.users.active.none.hint.invitable'
     },
 
     rowItems () {

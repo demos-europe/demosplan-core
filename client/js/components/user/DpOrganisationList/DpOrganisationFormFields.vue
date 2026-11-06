@@ -248,12 +248,15 @@
       />
 
       <div class="layout__item u-1-of-1 u-mt">
-        <legend class="u-pb-0_5">
+        <legend
+          v-if="canEditRegistrationStatuses"
+          class="u-pb-0_5"
+        >
           {{ Translator.trans('organisation.types.permissions') }}
         </legend>
 
         <!-- Currently assigned or requested permissions -->
-        <template v-if="registrationStatuses.length > 0 && canEdit('registrationStatuses') || hasPermission('area_organisations_applications_manage')">
+        <template v-if="registrationStatuses.length > 0 && canEditRegistrationStatuses">
           <div
             v-for="(registrationStatus, idx) in registrationStatuses"
             :key="`lbl${idx}`"
@@ -290,7 +293,7 @@
         </template>
 
         <!-- Readonly: Currently assigned or requested permissions -->
-        <template v-if="!canEdit('registrationStatuses') && !hasPermission('area_organisations_applications_manage')">
+        <template v-if="!canEditRegistrationStatuses">
           <div
             v-for="(registrationStatus, idx) in registrationStatuses"
             :key="idx"
@@ -311,7 +314,7 @@
 
         <!-- Assign new permissions -->
         <template
-          v-if="availableRegistrationTypes.length > 0 && (canEdit('registrationStatuses') || hasPermission('area_organisations_applications_manage'))"
+          v-if="availableRegistrationTypes.length > 0 && canEditRegistrationStatuses"
         >
           <button
             v-if="!showAddStatusForm"
@@ -325,7 +328,7 @@
 
           <div
             v-if="showAddStatusForm"
-            class="layout"
+            class="layout flex items-end"
           >
             <!-- Select row  -->
             <div class="layout__item u-1-of-4">
@@ -362,7 +365,7 @@
             </div>
 
             <!-- Button row  -->
-            <div class="layout__item u-1-of-2 u-mt-0_5 space-inline-m">
+            <div class="layout__item u-1-of-2 space-inline-m">
               <button
                 class="btn btn--primary"
                 data-cy="orgaFormField:saveNewRegistrationStatus"
@@ -384,17 +387,61 @@
         </template>
 
         <dp-checkbox
-          v-if="hasPermission('feature_manage_procedure_creation_permission') && isPlanningOfficeOrMunicipalityAcceptedOrPending"
+          v-if="hasPermission('feature_manage_procedure_creation_permission') && isProcedureCreationOrgaTypeAccepted"
           :id="`${organisation.id}:procedureCreatePermission`"
           v-model="localOrganisation.attributes.canCreateProcedures"
           class="mt-2"
           data-cy="orgaFormField:procedureCreatePermission"
           :label="{
-            text: Translator.trans('procedure.canCreate'),
-            bold: true
+            text: Translator.trans('procedure.canCreate')
           }"
-          @change="emitOrganisationUpdate"
+          @change="onCanCreateProceduresChange"
         />
+
+        <template v-if="showsIndividualGrants && !localOrganisation.attributes.canCreateProcedures">
+          <p
+            v-if="!usersWithIndividualProcedureCreationPermission.length"
+            class="mt-1 lbl__hint"
+            data-cy="orgaFormField:procedureCreatePermission:hintEmpty"
+          >
+            {{ Translator.trans('procedure.canManage.orga.none') }}
+          </p>
+          <template v-else>
+            <p
+              class="mt-1 u-mb-0_25"
+              data-cy="orgaFormField:procedureCreatePermission:usersLabel"
+            >
+              {{ Translator.trans('procedure.canManage.orga.users') }}
+            </p>
+            <ul
+              class="list-disc u-ml-0_75 u-mb-0"
+              data-cy="orgaFormField:procedureCreatePermission:usersList"
+            >
+              <li
+                v-for="user in visibleProcedureCreationUsers"
+                :key="user.id"
+                class="u-mb-0_25"
+              >
+                {{ user.firstname }} {{ user.lastname }}
+              </li>
+            </ul>
+            <dp-details
+              v-if="collapsedProcedureCreationUsers.length"
+              data-cy="orgaFormField:procedureCreatePermission:usersMore"
+              :summary="Translator.trans('procedure.canManage.orga.users.more', { count: collapsedProcedureCreationUsers.length })"
+            >
+              <ul class="list-disc u-ml-0_75 u-mb-0">
+                <li
+                  v-for="user in collapsedProcedureCreationUsers"
+                  :key="user.id"
+                  class="u-mb-0_25"
+                >
+                  {{ user.firstname }} {{ user.lastname }}
+                </li>
+              </ul>
+            </dp-details>
+          </template>
+        </template>
       </div>
 
       <div
@@ -458,7 +505,7 @@
       </div>
 
       <div
-        v-if="organisationId !== ''"
+        v-if="organisationId !== '' && hasPermission('field_organisation_customer')"
         class="layout__item u-mt"
       >
         <label class="u-mb-0_25">
@@ -847,12 +894,57 @@
         @input="emitOrganisationUpdate"
       />
     </fieldset>
+
+    <!-- Two-factor authentication -->
+    <fieldset v-if="hasPermission('field_organisation_two_factor_required')">
+      <legend class="layout__item p-0 pb-2">
+        {{ Translator.trans('2fa.required.label') }}
+      </legend>
+      <template v-if="canEdit('twoFactorRequired')">
+        <dp-radio
+          :id="`${twoFactorRadioGroup}:mandatory`"
+          :checked="localOrganisation.attributes.twoFactorRequired === true"
+          :label="{ text: Translator.trans('2fa.required.mandatory') }"
+          :name="twoFactorRadioGroup"
+          class="mb-1"
+          data-cy="orgaFormField:twoFactorRequired:mandatory"
+          value="1"
+          @change="setTwoFactorRequired(true)"
+        />
+        <dp-radio
+          :id="`${twoFactorRadioGroup}:optional`"
+          :checked="localOrganisation.attributes.twoFactorRequired !== true"
+          :label="{ text: Translator.trans('2fa.required.optional') }"
+          :name="twoFactorRadioGroup"
+          data-cy="orgaFormField:twoFactorRequired:optional"
+          value="0"
+          @change="setTwoFactorRequired(false)"
+        />
+        <dp-inline-notification
+          :message="Translator.trans('2fa.required.hint')"
+          class="mt-2"
+          data-cy="orgaFormField:twoFactorRequired:hint"
+          dismissible
+          dismissible-key="orgaTwoFactorRequiredHint"
+          type="info"
+        />
+      </template>
+      <p
+        v-else
+        class="text-muted"
+      >
+        {{ Translator.trans(localOrganisation.attributes.twoFactorRequired ? '2fa.required.mandatory' : '2fa.required.optional') }}
+      </p>
+    </fieldset>
   </div>
 </template>
 
 <script>
-import { CleanHtml, DpCheckbox, DpDetails, DpEditor, DpSelect, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import { CleanHtml, dpApi, DpCheckbox, DpDetails, DpEditor, DpInlineNotification, DpRadio, DpSelect, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper.vue'
+import { isOrgaAcceptedAsType } from '@DpJs/lib/shared/isOrgaAcceptedAsType'
+
+let formFieldsInstanceCount = 0
 
 export default {
   name: 'DpOrganisationFormFields',
@@ -862,6 +954,8 @@ export default {
     DpCheckbox,
     DpDetails,
     DpEditor,
+    DpInlineNotification,
+    DpRadio,
     DpTextArea,
     DpSelect,
   },
@@ -900,6 +994,16 @@ export default {
       },
     },
 
+    /**
+     * Whether the surrounding card is expanded. Collapsed cards stay mounted, so per-card requests
+     * must wait for this instead of firing on creation.
+     */
+    isOpen: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+
     organisation: {
       type: Object,
       required: false,
@@ -907,7 +1011,8 @@ export default {
         return {
           attributes: {
             addressExtension: '',
-            canCreateProcedures: false,
+            // New organizations get the orga-wide procedure-creation grant unless the admin opts out
+            canCreateProcedures: true,
             ccEmail2: '',
             city: '',
             dataProtection: '',
@@ -932,6 +1037,7 @@ export default {
             street: '',
             houseNumber: '',
             submissionType: 'standard',
+            twoFactorRequired: false,
             type: '',
           },
           relationships: {
@@ -979,12 +1085,16 @@ export default {
     'addon:update',
     'addonOptions:loaded',
     'organisation:update',
+    'procedureCreationToggled',
     'reset:complete',
   ],
 
   data () {
     return {
+      hasFetchedIndividualGrants: false,
       localOrganisation: {},
+      // A pending orga is rendered in both lists; radios of the same name would share one group across the page
+      twoFactorRadioGroup: `twoFactorRequired-${formFieldsInstanceCount++}`,
       typeStatuses: [
         {
           value: 'accepted',
@@ -999,15 +1109,21 @@ export default {
           label: Translator.trans('rejected'),
         },
       ],
+      procedureCreationUsersVisibleLimit: 5,
       showAddStatusForm: false,
       statusForm: {
         status: 'pending',
         type: 'TöB',
       },
+      usersWithIndividualProcedureCreationPermission: [],
     }
   },
 
   computed: {
+    canEditRegistrationStatuses () {
+      return hasPermission('feature_orga_registration_status_edit') && this.writableFields.includes('registrationStatuses')
+    },
+
     availableRegistrationTypes () {
       const activeTypes = this.registrationStatuses.map(status => status.type) || []
 
@@ -1018,6 +1134,10 @@ export default {
      * A.k.a. Mandanten / Bundesländer
      * @return {String}
      */
+    collapsedProcedureCreationUsers () {
+      return this.usersWithIndividualProcedureCreationPermission.slice(this.procedureCreationUsersVisibleLimit)
+    },
+
     customers () {
       if (hasOwnProp(this.organisation.relationships, 'customers') === false) {
         return ''
@@ -1037,8 +1157,23 @@ export default {
       }
     },
 
-    isPlanningOfficeOrMunicipalityAcceptedOrPending () {
-      return this.registrationStatuses.some(registration => (registration.status === 'accepted' || registration.status === 'pending') && (registration.type === 'OPAUTH' || registration.type === 'OLAUTH'))
+    /**
+     * Individual grants only exist for the admin roles of Kommune and Anhörungsbehörde, only in
+     * projects that expose the per-user permission, and are only manageable (and thus worth
+     * pointing at) for users who have access to the user management
+     */
+    showsIndividualGrants () {
+      return hasPermission('feature_manage_procedure_creation_permission') &&
+        hasPermission('feature_manage_user_procedure_creation_permission') &&
+        hasPermission('area_manage_users') &&
+        isOrgaAcceptedAsType(this.orgaRegistrationStatuses, ['OLAUTH', 'OHAUTH'])
+    },
+
+    /**
+     * The orga-wide grant also covers Planungsbüro, whose users hold the RMOPPO role
+     */
+    isProcedureCreationOrgaTypeAccepted () {
+      return isOrgaAcceptedAsType(this.orgaRegistrationStatuses, ['OLAUTH', 'OHAUTH', 'OPAUTH'])
     },
 
     /**
@@ -1066,18 +1201,31 @@ export default {
       return Array.from({ length: 11 }, (_, i) => ({ value: i, label: String(i) }))
     },
 
-    registrationStatuses () {
-      const registrationStatuses = hasOwnProp(this.localOrganisation.attributes, 'registrationStatuses') ?
+    // Types of the current subdomain, independent of whether the user may see or edit them
+    orgaRegistrationStatuses () {
+      return hasOwnProp(this.localOrganisation.attributes, 'registrationStatuses') ?
         Object.values(this.localOrganisation.attributes.registrationStatuses).filter(el => el.subdomain === this.subdomain) :
         []
+    },
 
-      return (this.canEdit('registrationStatuses') || hasPermission('area_organisations_applications_manage')) ?
-        registrationStatuses :
-        []
+    registrationStatuses () {
+      return this.canEditRegistrationStatuses ? this.orgaRegistrationStatuses : []
+    },
+
+    visibleProcedureCreationUsers () {
+      return this.usersWithIndividualProcedureCreationPermission.slice(0, this.procedureCreationUsersVisibleLimit)
     },
   },
 
   watch: {
+    // Loads the individual grants the first time the card is expanded
+    isOpen (isOpenNow) {
+      if (isOpenNow && !this.hasFetchedIndividualGrants) {
+        this.hasFetchedIndividualGrants = true
+        this.fetchUsersWithIndividualProcedureCreationPermissionIfNeeded()
+      }
+    },
+
     organisation: {
       handler () {
         this.setInitialOrganisation()
@@ -1107,6 +1255,36 @@ export default {
       Vue.nextTick(() => {
         this.$emit('organisation:update', this.localOrganisation)
       })
+    },
+
+    /**
+     * Emitted in addition to the regular organization:update, so the parent can track the toggle
+     * independently of the store - a background refresh of the organizations list (triggered by
+     * an unrelated save elsewhere) can overwrite the `organization` prop with server state while
+     * this one is still being edited, which would otherwise make an in-progress enable/disable
+     * detection based on that prop flicker back to "unchanged".
+     */
+    onCanCreateProceduresChange (checked) {
+      this.emitOrganisationUpdate()
+      // Under @vue/compat this listener runs before the legacy v-model write, so localOrganisation is still stale here
+      this.$emit('procedureCreationToggled', checked)
+    },
+
+    async fetchUsersWithIndividualProcedureCreationPermission () {
+      const url = Routing.generate('dplan_api_organisation_procedure_creation_individual_grants', { id: this.organisation.id })
+      const response = await dpApi.get(url)
+
+      this.usersWithIndividualProcedureCreationPermission = response.data.data || []
+    },
+
+    /**
+     * Refetches the individual-grants list whenever the organization's data changes (e.g. after a
+     * save) so the list shown below the org-wide checkbox is updated
+     */
+    fetchUsersWithIndividualProcedureCreationPermissionIfNeeded () {
+      if (this.showsIndividualGrants) {
+        this.fetchUsersWithIndividualProcedureCreationPermission()
+      }
     },
 
     hasChanged (field) {
@@ -1162,6 +1340,11 @@ export default {
 
     setAdditionalFieldOptions (options) {
       this.$emit('addonOptions:loaded', options)
+    },
+
+    setTwoFactorRequired (required) {
+      this.localOrganisation.attributes.twoFactorRequired = required
+      this.emitOrganisationUpdate()
     },
 
     updateAddonPayload (payload) {

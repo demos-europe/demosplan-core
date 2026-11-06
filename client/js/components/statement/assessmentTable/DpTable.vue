@@ -111,6 +111,7 @@
     <copy-statement-modal
       v-if="hasPermission('feature_statement_move_to_procedure') && copyStatementModal.show"
       :accessible-procedures="accessibleProcedures"
+      :current-user-id="currentUserId"
       :inaccessible-procedures="inaccessibleProcedures"
       :procedure-id="procedureId"
     />
@@ -118,6 +119,7 @@
     <dp-move-statement-modal
       v-if="hasPermission('feature_statement_move_to_procedure') && moveStatementModal.show"
       :accessible-procedures="accessibleProcedures"
+      :current-user-id="currentUserId"
       :inaccessible-procedures="inaccessibleProcedures"
       :procedure-id="procedureId"
     />
@@ -146,7 +148,10 @@
     />
 
     <!-- Version History Slidebar -->
-    <dp-slidebar>
+    <dp-slidebar
+      :open="isSlidebarOpen"
+      @close="setIsSlidebarOpen(false)"
+    >
       <dp-version-history :procedure-id="procedureId" />
     </dp-slidebar>
 
@@ -275,11 +280,11 @@
 <script>
 import { CleanHtml, DpLoading, DpPager, handleResponseMessages, Stickier } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import AssessmentTableFilter from '@DpJs/components/statement/assessmentTable/AssessmentTableFilter'
+import AssessmentTableFilter from '@DpJs/components/statement/assessmentTable/AssessmentTableFilter.vue'
 import changeUrlforPager from './utils/changeUrlforPager'
 import { defineAsyncComponent } from 'vue'
-import DpAssessmentTableCard from '@DpJs/components/statement/assessmentTable/DpAssessmentTableCard'
-import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
+import DpAssessmentTableCard from '@DpJs/components/statement/assessmentTable/DpAssessmentTableCard.vue'
+import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal.vue'
 import { scrollTo } from 'vue-scrollto'
 
 /*
@@ -291,15 +296,15 @@ export default {
   name: 'DpTable',
 
   components: {
-    AssessmentTableGroupList: defineAsyncComponent(() => import(/* webpackChunkName: "assessment-table-group-list" */ './TocView/AssessmentTableGroupList')),
+    AssessmentTableGroupList: defineAsyncComponent(() => import(/* webpackChunkName: "assessment-table-group-list" */ './TocView/AssessmentTableGroupList.vue')),
     AssessmentTableFilter,
-    AssignEntityModal: defineAsyncComponent(() => import(/* webpackChunkName: "assign-entity-modal" */ '@DpJs/components/statement/assessmentTable/AssignEntityModal')),
-    ConsolidateModal: defineAsyncComponent(() => import(/* webpackChunkName: "consolidate-modal" */ '@DpJs/components/statement/assessmentTable/ConsolidateModal')),
-    CopyStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal')),
+    AssignEntityModal: defineAsyncComponent(() => import(/* webpackChunkName: "assign-entity-modal" */ '@DpJs/components/statement/assessmentTable/AssignEntityModal.vue')),
+    ConsolidateModal: defineAsyncComponent(() => import(/* webpackChunkName: "consolidate-modal" */ '@DpJs/components/statement/assessmentTable/ConsolidateModal.vue')),
+    CopyStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal.vue')),
     ExportModal,
     DpLoading,
-    DpMapModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal')),
-    DpMoveStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal')),
+    DpMapModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal.vue')),
+    DpMoveStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal.vue')),
     DpPager,
     DpSlidebar: defineAsyncComponent(async () => {
       const { DpSlidebar } = await import('@demos-europe/demosplan-ui')
@@ -307,7 +312,7 @@ export default {
       return DpSlidebar
     }),
     DpAssessmentTableCard,
-    DpVersionHistory: defineAsyncComponent(() => import(/* webpackChunkName: "dp-version-history" */ '@DpJs/components/statement/statement/DpVersionHistory')),
+    DpVersionHistory: defineAsyncComponent(() => import(/* webpackChunkName: "dp-version-history" */ '@DpJs/components/statement/statement/DpVersionHistory.vue')),
   },
 
   directives: {
@@ -475,6 +480,10 @@ export default {
       'statementsInOrder',
     ]),
 
+    ...mapState('VersionHistorySlidebar', {
+      isSlidebarOpen: 'isOpen',
+    }),
+
     ...mapGetters('Fragment', [
       'selectedFragments',
     ]),
@@ -544,6 +553,10 @@ export default {
       'setModalProperty',
       'setProperty',
     ]),
+
+    ...mapMutations('VersionHistorySlidebar', {
+      setIsSlidebarOpen: 'setIsOpen',
+    }),
 
     ...mapMutations('Statement', [
       'updatePagination',

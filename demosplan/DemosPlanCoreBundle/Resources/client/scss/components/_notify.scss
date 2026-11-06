@@ -107,22 +107,29 @@
 
         &:hover {
             text-decoration: underline;
+
+            // Cancel DpButton's own (blue) hover background so the type color stays consistent.
+            background-color: $dp-color-white !important;
         }
 
         .c-notify__message--info & {
-            color: $dp-color-message-info-interactive;
+            color: $dp-color-message-info-interactive !important;
+            border-color: $dp-color-message-info-interactive !important;
         }
 
         .c-notify__message--confirm & {
-            color: $dp-color-message-success-interactive;
+            color: $dp-color-message-success-interactive !important;
+            border-color: $dp-color-message-success-interactive !important;
         }
 
         .c-notify__message--warning & {
-            color: $dp-color-message-warning-interactive;
+            color: $dp-color-message-warning-interactive !important;
+            border-color: $dp-color-message-warning-interactive !important;
         }
 
         .c-notify__message--error & {
-            color: $dp-color-message-severe-interactive;
+            color: $dp-color-message-severe-interactive !important;
+            border-color: $dp-color-message-severe-interactive !important;
         }
 
         .c-notify__message--dev & {
