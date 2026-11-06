@@ -22,6 +22,7 @@ import {
 } from '@DpJs/lib/core/libs'
 import BackToTopButton from '@DpJs/components/button/BackToTopButton'
 import { bootstrap } from '@DpJs/bootstrap'
+import { compatConfig } from '@DpJs/lib/vue/compatConfig'
 import { configureCompat } from '@vue/compat'
 import { createApp } from 'vue'
 import DPVueCorePlugin from '@DpJs/plugins/DPVueCore'
@@ -53,9 +54,7 @@ function initialize (components = {}, storeModules = {}, apiStoreModules = [], p
   bootstrap()
 
   return initStore(storeModules, apiStoreModules, presetStoreModules, pageSpecificApi3Modules).then(store => {
-    configureCompat({
-      RENDER_FUNCTION: false,
-    })
+    configureCompat(compatConfig)
 
     const app = createApp({
       mounted () {
