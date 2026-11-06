@@ -12,7 +12,7 @@
     <p class="mb-4">
       {{ Translator.trans('export.xlsx.scheduled.description') }}
     </p>
-    <fieldset class="border-b border-neutral">
+    <fieldset>
       <legend class="sr-only">
         {{ Translator.trans('export.xlsx.scheduled.add') }}
       </legend>
@@ -39,7 +39,7 @@
     </fieldset>
 
     <div class="rounded bg-neutral-light-4 p-3 mt-4">
-      <dl class="grid grid-cols-3 gap-2">
+      <dl class="grid grid-cols-3 gap-2 m-0">
         <dt>
           {{ `${Translator.trans('export.xlsx.scheduled.frequency')}:` }}
         </dt>
