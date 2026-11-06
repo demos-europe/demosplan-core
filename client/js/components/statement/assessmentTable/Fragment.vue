@@ -423,7 +423,7 @@ useful info about the component:
 
 <script>
 import { dpApi, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
-import { mapActions, mapGetters, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim.vue'
 import DpEditFieldMultiSelect from './DpEditFieldMultiSelect.vue'
@@ -643,6 +643,8 @@ export default {
   methods: {
     ...mapActions('Fragment', ['updateFragmentAction', 'addFragmentToSelectionAction', 'deleteFragmentAction', 'removeFragmentFromSelectionAction', 'setAssigneeAction']),
 
+    ...mapMutations('VersionHistorySlidebar', ['markEntityUpdated']),
+
     deleteFragment (fragmentId) {
       if (dpconfirm(Translator.trans('check.fragment.delete'))) {
         this.deleteFragmentAction({ procedureId: this.procedureId, statementId: this.statement.id, fragmentId })
@@ -771,8 +773,7 @@ export default {
 
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
 
-        // Used in DpVersionHistory to update items in version history sidebar
-        this.$root.$emit('entity:updated', this.fragmentId, 'fragment')
+        this.markEntityUpdated(this.fragmentId)
 
         return updatedField
       })
@@ -810,7 +811,7 @@ export default {
       this.setAssigneeAction(assigneeData)
         .then(() => {
           this.updatingClaimState = false
-          this.$root.$emit('entity:updated', this.fragment.id, 'fragment')
+          this.markEntityUpdated(this.fragment.id)
 
           if (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee?.id !== this.currentUserId) {
             this.reviewerEditing = false

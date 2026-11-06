@@ -1575,7 +1575,6 @@ export default {
         return
       }
 
-      this.$root.$emit('version:history', this.segment.id, 'segment', this.segment.attributes.externId)
       this.toggleSlidebarContent({ prop: 'slidebar', val: { externId: this.segment.attributes.externId, isOpen: true, segmentId: this.segment.id, showTab: 'history' } })
     },
 
