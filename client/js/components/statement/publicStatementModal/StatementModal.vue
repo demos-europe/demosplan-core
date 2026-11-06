@@ -357,6 +357,7 @@
             :required="formDefinition.required && formData.r_isNegativeReport !== '1'"
             :logged-in="loggedIn"
             :counties="counties"
+            @goToTab="gotoTab"
           />
         </template>
 
@@ -2233,10 +2234,6 @@ export default {
     // Set data from map
     this.$root.$on('updateStatementFormMapData', (data, toggle) => {
       this.setLocation(data, toggle)
-    })
-
-    this.$root.$on('statementModal:goToTab', tabname => {
-      this.gotoTab(tabname)
     })
   },
 }
