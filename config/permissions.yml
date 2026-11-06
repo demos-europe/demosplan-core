@@ -2988,10 +2988,10 @@ field_organisation_phone:
     parent: field_organisation
 field_organisation_technical_name:
     description: |-
-        Shows the official name of an organisation (the name delivered by the identity provider) read-only
-        next to its editable display name in the organisation form.
+        Shows the technical name of an organisation (the official name delivered by the identity provider)
+        read-only next to its editable name in the organisation form.
     expose: true
-    label: 'Offiziellen Namen der Organisation anzeigen'
+    label: 'Technischen Namen der Organisation anzeigen'
     loginRequired: true
     parent: field_organisation
 field_organisation_two_factor_required:

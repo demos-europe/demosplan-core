@@ -72,20 +72,19 @@ describe('DpOrganisationFormFields', () => {
     globalThis.hasPermission.mockImplementation(() => true)
   })
 
-  it('labels the editable name field as display name', () => {
+  it('labels the editable name field as official name', () => {
     const wrapper = mountFields({ writableFields: ['name'] })
 
-    expect(wrapper.find('label[for="orga-1:orgaName"]').text()).toContain('name.displayed')
+    expect(wrapper.find('label[for="orga-1:orgaName"]').text()).toContain('name.legal')
     expect(wrapper.find('[data-cy="orgaFormField:orgaName"]').element.value).toBe('Display name')
   })
 
-  it('keeps the former label of the name field without the permission to see the official name', () => {
+  it('keeps the label of the name field without the permission to see the technical name', () => {
     denyPermission('field_organisation_technical_name')
 
     const wrapper = mountFields({ writableFields: ['name'] })
 
     expect(wrapper.find('label[for="orga-1:orgaName"]').text()).toContain('name.legal')
-    expect(wrapper.find('label[for="orga-1:orgaName"]').text()).not.toContain('name.displayed')
   })
 
   it('shows the technical name as read-only text, even when the name is editable', () => {
@@ -96,7 +95,7 @@ describe('DpOrganisationFormFields', () => {
     expect(technicalName.exists()).toBe(true)
     expect(technicalName.text()).toBe('Official name')
     expect(technicalName.element.tagName).toBe('P')
-    expect(wrapper.text()).toContain('name.legal')
+    expect(wrapper.text()).toContain('name.technical')
   })
 
   it.each([
@@ -109,7 +108,7 @@ describe('DpOrganisationFormFields', () => {
     expect(wrapper.find('[data-cy="orgaFormField:technicalName"]').text()).toBe('–')
   })
 
-  it('hides the technical name without the permission to see the official name', () => {
+  it('hides the technical name without the permission to see it', () => {
     denyPermission('field_organisation_technical_name')
 
     const wrapper = mountFields()

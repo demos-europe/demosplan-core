@@ -54,24 +54,23 @@ describe('OrganisationDataForm', () => {
     globalThis.hasPermission.mockImplementation(() => true)
   })
 
-  describe('display name', () => {
-    it('renders the editable name field as display name and submits it as name', () => {
+  describe('name', () => {
+    it('renders the editable name field as official name and submits it as name', () => {
       const wrapper = mountForm()
 
       const input = wrapper.find('[data-cy="organisationData:name"]')
 
       expect(input.element.value).toBe('Display name')
       expect(input.attributes('name')).toBe('orga-1:name')
-      expect(wrapper.find('label[for="orga_name"]').text()).toContain('name.displayed')
+      expect(wrapper.find('label[for="orga_name"]').text()).toContain('name.legal')
     })
 
-    it('keeps the former label of the name field without the permission to see the official name', () => {
+    it('keeps the label of the name field without the permission to see the technical name', () => {
       denyPermission('field_organisation_technical_name')
 
       const wrapper = mountForm()
 
       expect(wrapper.find('label[for="orga_name"]').text()).toContain('name.legal')
-      expect(wrapper.find('label[for="orga_name"]').text()).not.toContain('name.displayed')
     })
 
     it('is disabled without the permission to edit the name', () => {
@@ -81,7 +80,7 @@ describe('OrganisationDataForm', () => {
     })
   })
 
-  describe('official name', () => {
+  describe('technical name', () => {
     it('renders the technical name as read-only field that is not submitted', () => {
       const wrapper = mountForm()
 
@@ -91,7 +90,7 @@ describe('OrganisationDataForm', () => {
       expect(input.element.value).toBe('Official name')
       expect(input.attributes('disabled')).toBeDefined()
       expect(input.attributes('name')).toBeUndefined()
-      expect(wrapper.find('label[for="orga_technical_name"]').text()).toContain('name.legal')
+      expect(wrapper.find('label[for="orga_technical_name"]').text()).toContain('name.technical')
     })
 
     it.each([
@@ -104,7 +103,7 @@ describe('OrganisationDataForm', () => {
       expect(wrapper.find('[data-cy="organisationData:technicalName"]').element.value).toBe('–')
     })
 
-    it('is hidden without the permission to see the official name', () => {
+    it('is hidden without the permission to see it', () => {
       denyPermission('field_organisation_technical_name')
 
       const wrapper = mountForm()
