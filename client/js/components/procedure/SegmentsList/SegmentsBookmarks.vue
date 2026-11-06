@@ -196,22 +196,6 @@ const abort = async (): Promise<void> => {
   }
 }
 
-const handleDeleteBookmark = async (bookmarkId: string): Promise<void> => {
-  const wasSelected = currentBookmarkId.value === bookmarkId
-
-  deletingBookmarkId.value = bookmarkId
-
-  try {
-    const success = await deleteBookmarkAction(bookmarkId)
-
-    if (success && wasSelected) {
-      setDefaultBookmark()
-    }
-  } finally {
-    deletingBookmarkId.value = null
-  }
-}
-
 const applySelectedBookmark = async (bookmarkId): Promise<void> => {
   const selectedBookmark = bookmarks.value.find(({ id }) => id === bookmarkId)
 
@@ -265,83 +249,19 @@ const createNewBookmark = async (): Promise<void> => {
     }
   }
 }
-const handlePrimaryAction = async (): Promise<void> => {
-  await createNewBookmark()
-  showNewBookmarkForm.value = false
-  showUnsavedChanges.value = false
-}
 
-const handleViewChange = async (bookmarkId: string | null): Promise<void> => {
-  showNewBookmarkForm.value = false
-
-  if (bookmarkId === null) {
-    await setDefaultBookmark()
-
-    return
+const findBookmarkByQueryHash = (queryHash: string): Bookmark | undefined => {
+  if (!queryHash) {
+    return undefined
   }
 
-  await applySelectedBookmark(bookmarkId)
+  return bookmarks.value.find(bookmark => bookmark.attributes.queryHash === queryHash)
 }
 
-const openNewBookmarkForm = (): void => {
-  showNewBookmarkForm.value = true
-  showUnsavedChanges.value = false
-}
+const getQueryHashFromUrl = (): string => {
+  const hrefParts = globalThis.location.href.split('/')
 
-/**
- * Initialize the view state from a bookmark's settings.
- * When no bookmark is provided, defaults are handled by SegmentsList via the resetView event.
- */
-const initializeViewState = (bookmark: Bookmark | null): void => {
-  if (bookmark) {
-    const { searchPhrase, viewSettings } = bookmark.attributes
-    const { selectedColumns, sorting } = viewSettings ?? {}
-
-    setStoreSearchPhrase(searchPhrase ?? '')
-    setStoreSelectedColumns(Array.isArray(selectedColumns) ? selectedColumns : [])
-    setStoreSorting(sorting ?? '')
-  }
-
-  setViewStateInitialized(true)
-}
-
-const restoreSavedBookmark = async (): Promise<void> => {
-  const savedBookmarkId: string | null = lscache.get(lsKey)
-
-  if (!savedBookmarkId) {
-    emit('resetView')
-
-    return
-  }
-
-  const savedBookmark: Bookmark | undefined = bookmarks.value.find(bookmark => bookmark.id === savedBookmarkId)
-
-  if (!savedBookmark) {
-    lscache.remove(lsKey)
-    emit('resetView')
-
-    return
-  }
-
-  initializeViewState(savedBookmark)
-
-  const success: boolean = await applyBookmarkAction({
-    bookmarkId: savedBookmarkId,
-    bookmark: savedBookmark,
-  })
-
-  if (success) {
-    updateBookmarkButtonText(savedBookmark)
-    emit('applyBookmark', savedBookmark)
-    hasUnsavedChanges.value = false
-    emit('hasUnsavedChanges', false)
-  }
-}
-
-const setDefaultBookmark = (): void => {
-  lscache.remove(lsKey)
-  updateBookmarkButtonText(null)
-  emit('resetView')
+  return hrefParts[hrefParts.length - 1] || ''
 }
 
 const handleBookmarkUpdate = async (): Promise<void> => {
@@ -368,6 +288,111 @@ const handleBookmarkUpdate = async (): Promise<void> => {
     hasUnsavedChanges.value = false
     emit('hasUnsavedChanges', false)
   }
+}
+
+const handleDeleteBookmark = async (bookmarkId: string): Promise<void> => {
+  const wasSelected = currentBookmarkId.value === bookmarkId
+
+  deletingBookmarkId.value = bookmarkId
+
+  try {
+    const success = await deleteBookmarkAction(bookmarkId)
+
+    if (success && wasSelected) {
+      setDefaultBookmark()
+    }
+  } finally {
+    deletingBookmarkId.value = null
+  }
+}
+
+const handlePrimaryAction = async (): Promise<void> => {
+  await createNewBookmark()
+  showNewBookmarkForm.value = false
+  showUnsavedChanges.value = false
+}
+
+const handleViewChange = async (bookmarkId: string | null): Promise<void> => {
+  showNewBookmarkForm.value = false
+
+  if (bookmarkId === null) {
+    await setDefaultBookmark()
+
+    return
+  }
+
+  await applySelectedBookmark(bookmarkId)
+}
+
+/**
+ * Initialize the view state from a bookmark's settings.
+ * When no bookmark is provided, defaults are handled by SegmentsList via the resetView event.
+ */
+const initializeViewState = (bookmark: Bookmark | null): void => {
+  if (bookmark) {
+    const { searchPhrase, viewSettings } = bookmark.attributes
+    const { selectedColumns, sorting } = viewSettings ?? {}
+
+    setStoreSearchPhrase(searchPhrase ?? '')
+    setStoreSelectedColumns(Array.isArray(selectedColumns) ? selectedColumns : [])
+    setStoreSorting(sorting ?? '')
+  }
+
+  setViewStateInitialized(true)
+}
+
+const restoreSavedBookmark = async (): Promise<void> => {
+  let bookmarkToApply: Bookmark | undefined
+
+  // First, try to find a bookmark from localStorage
+  const savedBookmarkId: string | null = lscache.get(lsKey)
+
+  if (savedBookmarkId) {
+    bookmarkToApply = bookmarks.value.find(bookmark => bookmark.id === savedBookmarkId)
+
+    if (!bookmarkToApply) {
+      lscache.remove(lsKey)
+    }
+  }
+
+  // If localStorage is empty, fall back to URL hash (for shared links / new users)
+  if (!bookmarkToApply) {
+    const urlQueryHash = getQueryHashFromUrl()
+
+    bookmarkToApply = findBookmarkByQueryHash(urlQueryHash)
+  }
+
+  if (!bookmarkToApply) {
+    emit('resetView')
+
+    return
+  }
+
+  initializeViewState(bookmarkToApply)
+  lscache.set(lsKey, bookmarkToApply.id)
+
+  const success: boolean = await applyBookmarkAction({
+    bookmarkId: bookmarkToApply.id,
+    bookmark: bookmarkToApply,
+  })
+
+  if (success) {
+    updateBookmarkButtonText(bookmarkToApply)
+    emit('applyBookmark', bookmarkToApply)
+    hasUnsavedChanges.value = false
+    emit('hasUnsavedChanges', false)
+  }
+}
+
+const setDefaultBookmark = (): void => {
+  lscache.remove(lsKey)
+  updateBookmarkButtonText(null)
+  emit('resetView')
+}
+
+const openNewBookmarkForm = (): void => {
+  showNewBookmarkForm.value = true
+  showUnsavedChanges.value = false
 }
 
 const updateBookmarkButtonText = (bookmark: Bookmark | null): void => {
