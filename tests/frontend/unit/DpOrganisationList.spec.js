@@ -7,7 +7,7 @@
  * All rights reserved
  */
 import { createStore } from 'vuex'
-import DpOrganisationList from '@DpJs/components/user/DpOrganisationList/DpOrganisationList'
+import DpOrganisationList from '@DpJs/components/user/DpOrganisationList/DpOrganisationList.vue'
 import { flushPromises } from '@vue/test-utils'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 

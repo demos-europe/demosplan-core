@@ -41,7 +41,7 @@
 
 <script>
 import { defineAsyncComponent } from 'vue'
-import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal.vue'
 import { prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {

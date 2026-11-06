@@ -31,7 +31,7 @@
 </template>
 
 <script>
-import DpNewOrgaModal from './DpNewOrgaModal'
+import DpNewOrgaModal from './DpNewOrgaModal.vue'
 import { makeFormPost } from '@demos-europe/demosplan-ui'
 
 export default {

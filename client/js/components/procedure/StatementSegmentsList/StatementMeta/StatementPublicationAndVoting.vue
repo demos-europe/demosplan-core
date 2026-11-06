@@ -238,7 +238,7 @@ import {
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
+import StatementPublish from '@DpJs/components/statement/statement/StatementPublish.vue'
 import { v4 as uuid } from 'uuid'
 
 export default {

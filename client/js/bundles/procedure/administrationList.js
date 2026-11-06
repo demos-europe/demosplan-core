@@ -11,7 +11,7 @@
  * This is the entry point for administration_list.html.twig
  */
 
-import AdministrationProceduresList from '@DpJs/components/procedure/admin/AdministrationProceduresList'
+import AdministrationProceduresList from '@DpJs/components/procedure/admin/AdministrationProceduresList.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

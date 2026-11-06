@@ -6,7 +6,7 @@
  *
  * All rights reserved
  */
-import InstitutionTagManagement from '@DpJs/components/procedure/admin/InstitutionTagManagement/InstitutionTagManagement'
+import InstitutionTagManagement from '@DpJs/components/procedure/admin/InstitutionTagManagement/InstitutionTagManagement.vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('InstitutionTagManagement', () => {

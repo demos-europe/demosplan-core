@@ -116,9 +116,9 @@
 <script>
 import { dpApi, DpButtonRow } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import DpOlMap from '@DpJs/components/map/map/DpOlMap'
-import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
-import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
+import DpOlMap from '@DpJs/components/map/map/DpOlMap.vue'
+import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature.vue'
+import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature.vue'
 import { extend } from 'ol/extent'
 
 export default {

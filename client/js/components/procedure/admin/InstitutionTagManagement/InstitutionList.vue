@@ -214,8 +214,8 @@ import {
   formatDate,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter'
-import CustomField from '@DpJs/components/customFields/CustomField'
+import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter.vue'
+import CustomField from '@DpJs/components/customFields/CustomField.vue'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 

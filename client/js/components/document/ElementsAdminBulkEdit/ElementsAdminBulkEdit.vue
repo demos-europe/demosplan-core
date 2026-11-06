@@ -96,8 +96,8 @@ import {
   dpValidateMixin,
   formatDate,
 } from '@demos-europe/demosplan-ui'
-import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
-import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
+import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper.vue'
+import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse.vue'
 import lscache from 'lscache'
 
 export default {

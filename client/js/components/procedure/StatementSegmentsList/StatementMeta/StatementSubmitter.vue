@@ -184,7 +184,7 @@ import {
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapState } from 'vuex'
-import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
+import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters.vue'
 
 export default {
   name: 'StatementSubmitter',
