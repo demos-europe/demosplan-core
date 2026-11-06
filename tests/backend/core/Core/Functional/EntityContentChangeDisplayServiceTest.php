@@ -215,14 +215,14 @@ class EntityContentChangeDisplayServiceTest extends FunctionalTestCase
     {
         $textMapping = ['fieldType' => 'tipTapHtmlString', 'translationKey' => 'statement.text.short'];
         if ($hideText) {
-            $textMapping['noHistoryDisplay'] = true;
+            $textMapping[EntityContentChangeService::NO_HISTORY_DISPLAY_PROPERTY] = true;
         }
 
         $globalConfig = self::getContainer()->get(GlobalConfigInterface::class);
         (new ReflectionProperty($globalConfig, 'entityContentChangeFieldMapping'))->setValue($globalConfig, [
             Statement::class => [
-                'customFields' => ['fieldType' => 'json', 'noHighlighting' => true],
-                'text'         => $textMapping,
+                EntityContentChange::CUSTOM_FIELDS_MAPPING_KEY => ['fieldType' => 'json', 'noHighlighting' => true],
+                'text'                                         => $textMapping,
             ],
         ]);
     }

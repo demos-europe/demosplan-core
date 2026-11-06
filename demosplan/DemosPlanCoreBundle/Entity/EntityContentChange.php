@@ -23,6 +23,15 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class EntityContentChange extends CoreEntity implements UuidEntityInterface, EntityContentChangeInterface
 {
     /**
+     * Key of the entry in "entity_content_change_fields_mapping" which allows changes of custom fields.
+     * Custom field names are defined by users, so this single key stands for all of them.
+     *
+     * @see config/entity_content_change_fields_mapping.yml
+     * @see projects/{project}/app/config/entity_content_change_fields_mapping.yml
+     */
+    final public const CUSTOM_FIELDS_MAPPING_KEY = 'customFields';
+
+    /**
      * @var string|null
      */
     #[ORM\Column(type: 'string', length: 36, options: ['fixed' => true])]

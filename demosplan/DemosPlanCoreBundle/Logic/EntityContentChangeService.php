@@ -69,6 +69,15 @@ class EntityContentChangeService
      */
     final public const BOILERPLATE_MATERIALIZED_CONTENT_CHANGE_TYPE = 'boilerplateMaterialized';
 
+    /**
+     * Property of a field entry in "entity_content_change_fields_mapping". If set to true, changes of the field are
+     * still recorded, but not shown in the web interface.
+     *
+     * @see config/entity_content_change_fields_mapping.yml
+     * @see projects/{project}/app/config/entity_content_change_fields_mapping.yml
+     */
+    final public const NO_HISTORY_DISPLAY_PROPERTY = 'noHistoryDisplay';
+
     private const TIMEZONE = 'Europe/Berlin';
 
     /**
@@ -175,7 +184,7 @@ class EntityContentChangeService
     public function isFieldDisplayedInHistory(string $fieldName, string $class): bool
     {
         return array_key_exists($fieldName, $this->getFieldMapping($class))
-            && true !== $this->getMappingValue($fieldName, $class, 'noHistoryDisplay');
+            && true !== $this->getMappingValue($fieldName, $class, self::NO_HISTORY_DISPLAY_PROPERTY);
     }
 
     /**
@@ -185,7 +194,7 @@ class EntityContentChangeService
     {
         $fieldNames = [];
         foreach ($this->getFieldMapping($class) as $fieldName => $fieldMapping) {
-            if (false === ($fieldMapping['noHistoryDisplay'] ?? false)) {
+            if (false === ($fieldMapping[self::NO_HISTORY_DISPLAY_PROPERTY] ?? false)) {
                 $fieldNames[] = $fieldName;
             }
         }
@@ -1551,9 +1560,9 @@ class EntityContentChangeService
             if ('sentViaMail' === $propertyName) {
                 continue;
             }
-            if ('customFields' === $propertyName) {
-                $changes['customFields'] = $this->diffCustomFields(
-                    $preUpdateArray['customFields'] ?? null,
+            if (EntityContentChange::CUSTOM_FIELDS_MAPPING_KEY === $propertyName) {
+                $changes[EntityContentChange::CUSTOM_FIELDS_MAPPING_KEY] = $this->diffCustomFields(
+                    $preUpdateArray[EntityContentChange::CUSTOM_FIELDS_MAPPING_KEY] ?? null,
                     $incomingUpdatedObject->getCustomFields()
                 );
             } else {
@@ -1653,10 +1662,10 @@ class EntityContentChangeService
             if ('sentViaMail' === $propertyName) {
                 continue;
             }
-            if ('customFields' === $propertyName && array_key_exists($propertyName, $incomingDataArray)) {
-                $changes['customFields'] = $this->diffCustomFields(
+            if (EntityContentChange::CUSTOM_FIELDS_MAPPING_KEY === $propertyName && array_key_exists($propertyName, $incomingDataArray)) {
+                $changes[EntityContentChange::CUSTOM_FIELDS_MAPPING_KEY] = $this->diffCustomFields(
                     $preUpdateObject->getCustomFields(),
-                    $incomingDataArray['customFields'] ?? null
+                    $incomingDataArray[EntityContentChange::CUSTOM_FIELDS_MAPPING_KEY] ?? null
                 );
             } elseif (array_key_exists($propertyName, $incomingDataArray)) {
                 $methodName = $this->getGetterMethodName($preUpdateObject, $propertyName);

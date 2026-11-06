@@ -156,7 +156,7 @@ class EntityContentChangeRepository extends CoreRepository implements ImmutableO
             ->orderBy('change.created', 'DESC');
 
         if (is_array($whitelistedFields)) {
-            $includeCustomFields = in_array('customFields', $whitelistedFields, true);
+            $includeCustomFields = in_array(EntityContentChange::CUSTOM_FIELDS_MAPPING_KEY, $whitelistedFields, true);
             if ($includeCustomFields) {
                 $queryBuilder
                     ->andWhere(
