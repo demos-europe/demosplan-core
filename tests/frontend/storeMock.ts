@@ -33,7 +33,7 @@ interface CollectionState {
  * const mockStore = createStore(createMockStore('ScheduledExport'))
  * ```
  */
-export function createMockStore(moduleName: string) {
+export function createMockStore (moduleName: string) {
   return {
     modules: {
       [moduleName]: {
