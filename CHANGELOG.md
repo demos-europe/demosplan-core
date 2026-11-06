@@ -5,6 +5,14 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Organisations get a read-only technical name from the identity provider, stored as `Orga::$technicalName` (JSON:API 2.0
+  attribute `Orga.technicalName`) next to the editable name (`Orga::$name`). Only the Keycloak OZG login
+  (`/connect/keycloak_ozg`) writes it: it sets both names when it creates the organisation, updates only the technical
+  name on every later login and leaves an edited name untouched. The technical name of existing organisations stays empty
+  until a user of the organisation logs in again. All other logins (gateways, generic Keycloak) are unchanged.
+  Showing the technical name needs the new permission `field_organisation_technical_name`; no role holds it by default,
+  projects must grant it explicitly. With it the organisation forms show it read-only as "Technischer Name" below the
+  editable "Offizieller Name", with a dash while it is unknown; without it the forms look as before (DPLAN-18443)
 - Editing the organisation types and showing the customer (Bundesland) of an organisation
   are gated by the new permissions `feature_orga_registration_status_edit` and `field_organisation_customer`;
   projects must grant them explicitly, `CUSTOMER_MASTER_USER` no longer holds them by default (DPLAN-18505)

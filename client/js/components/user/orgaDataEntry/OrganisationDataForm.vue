@@ -27,7 +27,7 @@
         {{ Translator.trans('organisation.data') }}
       </legend>
 
-      <!-- Name -->
+      <!-- Name (editable) -->
       <dp-input
         id="orga_name"
         v-model="localOrganisation.name"
@@ -39,6 +39,19 @@
         }"
         :disabled="!isOrgaNameEditable"
         required
+      />
+
+      <!-- Technical name from the identity provider (read-only, not submitted), a dash while it is not known yet -->
+      <dp-input
+        v-if="isTechnicalNameVisible"
+        id="orga_technical_name"
+        :class="prefixClass('mb-2')"
+        :label="{
+          text: Translator.trans('name.technical')
+        }"
+        :model-value="localOrganisation.technicalName || '–'"
+        data-cy="organisationData:technicalName"
+        disabled
       />
 
       <!-- Street -->
@@ -418,6 +431,7 @@ export default {
       hasPaperCopyPermission: hasPermission('field_organisation_paper_copy') ||
         hasPermission('field_organisation_paper_copy_spec') ||
         hasPermission('field_organisation_competence'),
+      isTechnicalNameVisible: hasPermission('field_organisation_technical_name'),
       localOrganisation: { ...this.organisation },
     }
   },
