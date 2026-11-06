@@ -264,6 +264,34 @@ const getQueryHashFromUrl = (): string => {
   return hrefParts[hrefParts.length - 1] || ''
 }
 
+const findBookmarkToRestore = (): Bookmark | undefined => {
+  const urlQueryHash = getQueryHashFromUrl()
+
+  if (urlQueryHash) {
+    const bookmarkFromUrl = findBookmarkByQueryHash(urlQueryHash)
+
+    if (bookmarkFromUrl) {
+      return bookmarkFromUrl
+    }
+  }
+
+  const savedBookmarkId: string | null = lscache.get(lsKey)
+
+  if (!savedBookmarkId) {
+    return undefined
+  }
+
+  const savedBookmark = bookmarks.value.find(
+    bookmark => bookmark.id === savedBookmarkId
+  )
+
+  if (!savedBookmark) {
+    lscache.remove(lsKey)
+  }
+
+  return savedBookmark
+}
+
 const handleBookmarkUpdate = async (): Promise<void> => {
   const bookmarkId = currentBookmarkId.value
   const queryHash = currentQueryHash.value
@@ -342,25 +370,7 @@ const initializeViewState = (bookmark: Bookmark | null): void => {
 }
 
 const restoreSavedBookmark = async (): Promise<void> => {
-  let bookmarkToApply: Bookmark | undefined
-
-  // First, try to find a bookmark from localStorage
-  const savedBookmarkId: string | null = lscache.get(lsKey)
-
-  if (savedBookmarkId) {
-    bookmarkToApply = bookmarks.value.find(bookmark => bookmark.id === savedBookmarkId)
-
-    if (!bookmarkToApply) {
-      lscache.remove(lsKey)
-    }
-  }
-
-  // If localStorage is empty, fall back to URL hash (for shared links / new users)
-  if (!bookmarkToApply) {
-    const urlQueryHash = getQueryHashFromUrl()
-
-    bookmarkToApply = findBookmarkByQueryHash(urlQueryHash)
-  }
+  const bookmarkToApply = findBookmarkToRestore()
 
   if (!bookmarkToApply) {
     emit('resetView')
@@ -371,17 +381,19 @@ const restoreSavedBookmark = async (): Promise<void> => {
   initializeViewState(bookmarkToApply)
   lscache.set(lsKey, bookmarkToApply.id)
 
-  const success: boolean = await applyBookmarkAction({
+  const success = await applyBookmarkAction({
     bookmarkId: bookmarkToApply.id,
     bookmark: bookmarkToApply,
   })
 
-  if (success) {
-    updateBookmarkButtonText(bookmarkToApply)
-    emit('applyBookmark', bookmarkToApply)
-    hasUnsavedChanges.value = false
-    emit('hasUnsavedChanges', false)
+  if (!success) {
+    return
   }
+
+  updateBookmarkButtonText(bookmarkToApply)
+  emit('applyBookmark', bookmarkToApply)
+  hasUnsavedChanges.value = false
+  emit('hasUnsavedChanges', false)
 }
 
 const setDefaultBookmark = (): void => {
