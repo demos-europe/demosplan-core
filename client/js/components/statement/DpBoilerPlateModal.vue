@@ -62,8 +62,8 @@
 <script>
 import { DpButtonRow, DpModal } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapState } from 'vuex'
-import DpBoilerPlate from '@DpJs/components/statement/DpBoilerPlate'
-import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import DpBoilerPlate from '@DpJs/components/statement/DpBoilerPlate.vue'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer.vue'
 
 export default {
   name: 'DpBoilerPlateModal',

@@ -60,6 +60,27 @@ class CustomFieldUpdaterTest extends UnitTestCase
         static::assertEquals('Updated Field Name', $result->getName());
     }
 
+    public function testUpdateCustomFieldDoesNotChangeIsSeparateColumn(): void
+    {
+        // Arrange
+        $procedure = ProcedureFactory::createOne();
+        $customField = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->asRadioButton('Color1')->create();
+        $repository = $this->getContainer()->get(CustomFieldConfigurationRepository::class);
+        $configuration = $repository->find($customField->getId());
+        $separateColumnField = clone $configuration->getConfiguration();
+        $separateColumnField->setSeparateColumn(false);
+        $configuration->setConfiguration($separateColumnField);
+        $repository->updateObject($configuration);
+
+        // Act
+        $result = $this->sut->updateCustomField($customField->getId(), ['isSeparateColumn' => true]);
+
+        // Assert
+        static::assertFalse($result->isSeparateColumn());
+    }
+
     public function testUpdateCustomFieldWithValidOptionsUpdate(): void
     {
         // Arrange

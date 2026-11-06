@@ -9,7 +9,7 @@
 
 import { createStore } from 'vuex'
 import Filter from '@DpJs/store/statement/Filter'
-import FilterModalSelectItem from '@DpJs/components/statement/assessmentTable/FilterModalSelectItem'
+import FilterModalSelectItem from '@DpJs/components/statement/assessmentTable/FilterModalSelectItem.vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('FilterModalSelectItem', () => {

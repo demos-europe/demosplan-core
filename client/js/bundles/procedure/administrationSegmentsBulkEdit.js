@@ -13,7 +13,7 @@
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
 import { hasPermission } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
-import SegmentsBulkEdit from '@DpJs/components/procedure/SegmentsBulkEdit/SegmentsBulkEdit'
+import SegmentsBulkEdit from '@DpJs/components/procedure/SegmentsBulkEdit/SegmentsBulkEdit.vue'
 
 const components = { SegmentsBulkEdit }
 const stores = {}

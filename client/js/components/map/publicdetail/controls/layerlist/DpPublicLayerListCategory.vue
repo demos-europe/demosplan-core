@@ -68,7 +68,7 @@
 <script>
 import { DpContextualHelp, hasOwnProp, prefixClass } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import DpPublicLayerList from './DpPublicLayerList'
+import DpPublicLayerList from './DpPublicLayerList.vue'
 
 export default {
   name: 'DpPublicLayerListCategory',
