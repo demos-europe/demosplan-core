@@ -357,7 +357,7 @@
             :required="formDefinition.required && formData.r_isNegativeReport !== '1'"
             :logged-in="loggedIn"
             :counties="counties"
-            @goToTab="gotoTab"
+            @go-to-tab="gotoTab"
           />
         </template>
 
