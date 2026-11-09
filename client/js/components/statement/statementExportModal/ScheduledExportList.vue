@@ -15,10 +15,10 @@
       </h3>
       <dp-button
         data-cy="scheduledExportList:add"
-        icon="calendar-blank"
+        icon="plus"
         icon-size="medium"
         :text="Translator.trans('export.xlsx.scheduled.add')"
-        variant="outline"
+        variant="transparent"
         @click="$emit('add')"
       />
     </div>
