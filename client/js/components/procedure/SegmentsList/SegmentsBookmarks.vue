@@ -266,15 +266,16 @@ const getQueryHashFromUrl = (): string => {
 
 const findBookmarkToRestore = (): Bookmark | undefined => {
   const urlQueryHash = getQueryHashFromUrl()
+  const bookmarkFromUrl = urlQueryHash
+    ? findBookmarkByQueryHash(urlQueryHash)
+    : undefined
 
-  if (urlQueryHash) {
-    const bookmarkFromUrl = findBookmarkByQueryHash(urlQueryHash)
-
-    if (bookmarkFromUrl) {
-      return bookmarkFromUrl
-    }
+  // Prefer the URL hash for shared links and navigation
+  if (bookmarkFromUrl) {
+    return bookmarkFromUrl
   }
 
+  // Fall back to the user's last selected bookmark
   const savedBookmarkId: string | null = lscache.get(lsKey)
 
   if (!savedBookmarkId) {
