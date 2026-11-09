@@ -632,6 +632,7 @@ export default {
      */
     const syncFromBookmark = (bookmarkFilters) => {
       if (!bookmarkFilters || Array.isArray(bookmarkFilters) || Object.keys(bookmarkFilters).length === 0) {
+        isResetDone = true
         categories.forEach((category) => {
           category.currentQuery = []
           category.appliedQuery = []

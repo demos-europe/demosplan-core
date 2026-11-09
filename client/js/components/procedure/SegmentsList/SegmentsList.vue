@@ -2303,6 +2303,8 @@ export default {
 
     this.setCurrentQueryHashFromUrl()
 
+    this.initPagination()
+
     const addons = await loadAddonComponents('tag.style.segments.list')
 
     this.hasStyledTopicalTags = addons.length > 0
@@ -2318,8 +2320,6 @@ export default {
     lscache.remove(navigationSourceKey)
 
     this.restoreSorting()
-
-    this.initPagination()
 
     if (hasPermission('field_segments_custom_fields')) {
       await this.loadSegmentCustomFields()
