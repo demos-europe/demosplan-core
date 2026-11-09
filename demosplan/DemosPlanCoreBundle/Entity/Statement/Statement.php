@@ -640,6 +640,14 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $polygon = '';
 
     /**
+     * GeoJSON FeatureCollection of the location reference (Ortsbezug), stored separately from the drawing.
+     *
+     * @var string
+     */
+    #[ORM\Column(name: '_st_location_reference', type: 'text', length: 65535, nullable: false)]
+    protected $locationReference = '';
+
+    /**
      * @var DraftStatement
      */
     #[ORM\JoinColumn(name: '_ds_id', referencedColumnName: '_ds_id', onDelete: self::ON_DELETE_SET_NULL)]
@@ -2863,6 +2871,18 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function getPolygon()
     {
         return $this->polygon;
+    }
+
+    public function setLocationReference(string $locationReference): self
+    {
+        $this->locationReference = $locationReference;
+
+        return $this;
+    }
+
+    public function getLocationReference(): string
+    {
+        return $this->locationReference;
     }
 
     /**
