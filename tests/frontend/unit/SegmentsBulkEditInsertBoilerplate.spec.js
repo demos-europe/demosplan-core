@@ -7,7 +7,7 @@
  * All rights reserved
  */
 import { dpApi } from '@demos-europe/demosplan-ui'
-import SegmentsBulkEdit from '@DpJs/components/procedure/SegmentsBulkEdit/SegmentsBulkEdit'
+import SegmentsBulkEdit from '@DpJs/components/procedure/SegmentsBulkEdit/SegmentsBulkEdit.vue'
 
 describe('SegmentsBulkEdit.insertBoilerplateText', () => {
   let handleInsertText

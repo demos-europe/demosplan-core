@@ -397,15 +397,15 @@ import {
   reformatDateString,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
-import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
-import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
+import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper.vue'
+import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction.vue'
+import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse.vue'
 import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 import { defineAsyncComponent } from 'vue'
-import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal.vue'
 import lscache from 'lscache'
-import RecommendationModal from '../Shared/RecommendationModal'
-import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList'
+import RecommendationModal from '../Shared/RecommendationModal.vue'
+import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList.vue'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {

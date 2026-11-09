@@ -47,7 +47,7 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,sharing=locked \
     npm install --ignore-scripts -g n && \
 # Install specific node version first \
-    n 24.15.0 && \
+    n 24.22.1 && \
     npm install --ignore-scripts -g corepack && \
     corepack enable && yarn set version 4.2.2
 
@@ -118,6 +118,8 @@ COPY sbom-prod-filter.php ./
 RUN --mount=type=cache,target=/var/www/.npm,uid=33,gid=33,sharing=locked \
     --mount=type=cache,target=/var/www/.cache,uid=33,gid=33,sharing=locked \
     mkdir -p /tmp/sbom && \
+# cdxgen picks up every yarn.lock under the tree; this one is dropped from the image in the build stage \
+    rm -f /srv/www/vendor/cebe/php-openapi/yarn.lock /srv/www/vendor/cebe/php-openapi/package.json && \
 # npx resolves the dependency tree without a lockfile, so no install script gets to run \
     npx --yes --ignore-scripts @cyclonedx/cdxgen@12.8.4 \
         -t yarn \

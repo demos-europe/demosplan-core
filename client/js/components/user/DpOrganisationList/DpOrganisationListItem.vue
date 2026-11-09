@@ -31,6 +31,14 @@
           @click="isOpen = !isOpen"
         >
           {{ initialOrganisation.attributes.name }}
+          <dp-badge
+            v-if="organisation.attributes.twoFactorRequired"
+            :text="Translator.trans('2fa.required.badge')"
+            class="ml-2 font-normal"
+            color="info"
+            data-cy="organisationTwoFactorBadge"
+            size="small"
+          />
         </div>
         <button
           type="button"
@@ -92,19 +100,20 @@
 </template>
 
 <script>
-import { dpApi, DpButtonRow, DpConfirmDialog, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
+import { dpApi, DpBadge, DpButtonRow, DpConfirmDialog, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
-import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
+import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard.vue'
 import { mapState } from 'vuex'
 
 export default {
   name: 'DpOrganisationListItem',
 
   components: {
+    DpBadge,
     DpButtonRow,
     DpConfirmDialog,
     DpIcon,
-    DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields')),
+    DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields.vue')),
     DpTableCard,
   },
 
@@ -161,6 +170,8 @@ export default {
     return {
       addonPayload: { /** The payload required for addon requests. When a value is entered in the addon field, it emits data that must include the following fields */
         attributes: null,
+        // Optional () => Promise<boolean> of the addon, e.g. to ask for a confirmation; false cancels the save
+        beforeSave: null,
         id: '',
         initValue: '',
         resourceType: '',
@@ -379,12 +390,24 @@ export default {
             return
           }
 
+          // Cancelling keeps the form open with all changes
+          const isAddonSaveAllowed = await (this.addonPayload.beforeSave?.() ?? true)
+
+          if (!isAddonSaveAllowed) {
+            return
+          }
+
           this.isOpen = !this.isOpen
           const addonExists = Boolean(window.dplan.loadedAddons['interface.fields.to.transmit'])
           const addonHasValue = this.addonPayload.value || this.addonPayload.initValue
 
           if (addonExists && addonHasValue) {
-            await this.handleAddonRequest().then(() => this.submitOrganisationForm())
+            await this.handleAddonRequest().then(() => {
+              // The cached addon options still hold the old value, so the addon has to fetch them again
+              this.setAdditionalFieldOptions([])
+
+              return this.submitOrganisationForm()
+            })
           } else {
             await this.submitOrganisationForm()
           }

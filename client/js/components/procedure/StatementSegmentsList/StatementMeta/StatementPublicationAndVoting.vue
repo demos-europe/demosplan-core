@@ -238,7 +238,7 @@ import {
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import StatementPublish from '@DpJs/components/statement/statement/StatementPublish'
+import StatementPublish from '@DpJs/components/statement/statement/StatementPublish.vue'
 import { v4 as uuid } from 'uuid'
 
 export default {
@@ -398,7 +398,7 @@ export default {
        * The Vuex-json-Api has a bug, where the store is not updated correctly,
        * so we have to remove the item from the store and the local data
        */
-      this.$delete(this.votes, id)
+      delete this.votes[id]
       this.removeStatementVote(id)
     },
 

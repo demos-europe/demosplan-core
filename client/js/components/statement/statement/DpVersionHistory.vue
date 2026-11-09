@@ -77,7 +77,7 @@
 <script>
 import { dpApi, DpLoading } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
-import DpVersionHistoryDay from './DpVersionHistoryDay'
+import DpVersionHistoryDay from './DpVersionHistoryDay.vue'
 
 export default {
   name: 'DpVersionHistory',

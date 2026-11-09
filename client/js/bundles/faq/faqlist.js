@@ -11,10 +11,10 @@
  * This is the entrypoint for faqlist.html.twig
  */
 
-import DpSupport from '@DpJs/components/support/DpSupport'
+import DpSupport from '@DpJs/components/support/DpSupport.vue'
 import { highlightActiveLinks } from '@DpJs/lib/core/libs'
 import { initialize } from '@DpJs/InitVue'
-import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout.vue'
 
 const components = {
   DpSupport,

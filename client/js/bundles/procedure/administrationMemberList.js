@@ -11,11 +11,11 @@
  * This is the entrypoint for administration_member_list.html.twig
  */
 import { addFormHiddenField, removeFormHiddenField } from '../../lib/core/libs/FormActions'
-import AdministrationMemberList from '@DpJs/components/procedure/admin/AdministrationMemberList'
+import AdministrationMemberList from '@DpJs/components/procedure/admin/AdministrationMemberList.vue'
 import { DpContextualHelp } from '@demos-europe/demosplan-ui'
 import FilterFlyoutStore from '@DpJs/store/procedure/FilterFlyout'
 import { initialize } from '@DpJs/InitVue'
-import OrganisationTable from '@DpJs/components/procedure/admin/InstitutionTagManagement/OrganisationTable'
+import OrganisationTable from '@DpJs/components/procedure/admin/InstitutionTagManagement/OrganisationTable.vue'
 
 const components = {
   AdministrationMemberList,

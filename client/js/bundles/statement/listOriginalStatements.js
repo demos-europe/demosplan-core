@@ -12,7 +12,7 @@
  */
 
 import { initialize } from '@DpJs/InitVue'
-import ListOriginalStatements from '@DpJs/components/statement/listOriginalStatements/ListOriginalStatements'
+import ListOriginalStatements from '@DpJs/components/statement/listOriginalStatements/ListOriginalStatements.vue'
 
 const components = {
   ListOriginalStatements,

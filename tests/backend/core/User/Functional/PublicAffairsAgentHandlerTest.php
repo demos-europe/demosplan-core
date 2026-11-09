@@ -10,7 +10,19 @@
 
 namespace Tests\Core\User\Functional;
 
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaStatusInCustomerFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaTypeFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\User\PublicAffairsAgentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use Tests\Base\FunctionalTestCase;
 
 class PublicAffairsAgentHandlerTest extends FunctionalTestCase
@@ -50,5 +62,156 @@ class PublicAffairsAgentHandlerTest extends FunctionalTestCase
         self::assertFalse($this->sut->isPublicAffairsAgent($orga7));
         self::assertFalse($this->sut->isPublicAffairsAgent($orga8));
         self::assertFalse($this->sut->isPublicAffairsAgent($orga9));
+    }
+
+    public function testAcceptedPublicAgencyWithoutUsersIsPublicAffairsAgent(): void
+    {
+        // Arrange
+        $orga = $this->createOrga($this->makeNewCustomerCurrent());
+
+        // Act
+        $result = $this->sut->isPublicAffairsAgent($this->reload($orga));
+
+        // Assert
+        self::assertTrue($result);
+    }
+
+    public function testAcceptedPublicAgencyWithOnlyPlanningAgencyUserIsPublicAffairsAgent(): void
+    {
+        // Arrange
+        $customer = $this->makeNewCustomerCurrent();
+        $orga = $this->createOrga($customer);
+        $this->addUser($orga, RoleInterface::PLANNING_AGENCY_ADMIN, $customer);
+
+        // Act
+        $result = $this->sut->isPublicAffairsAgent($this->reload($orga));
+
+        // Assert
+        self::assertTrue($result);
+    }
+
+    public function testAcceptedPublicAgencyWithInstitutionRoleInAnotherCustomerIsPublicAffairsAgent(): void
+    {
+        // Arrange
+        $orga = $this->createOrga($this->makeNewCustomerCurrent());
+        $this->addUser($orga, RoleInterface::PUBLIC_AGENCY_WORKER, $this->createCustomer());
+
+        // Act
+        $result = $this->sut->isPublicAffairsAgent($this->reload($orga));
+
+        // Assert
+        self::assertTrue($result);
+    }
+
+    public function testPublicAgencyAcceptedOnlyInAnotherCustomerIsNoPublicAffairsAgent(): void
+    {
+        // Arrange
+        $this->makeNewCustomerCurrent();
+        $orga = $this->createOrga($this->createCustomer());
+
+        // Act
+        $result = $this->sut->isPublicAffairsAgent($this->reload($orga));
+
+        // Assert
+        self::assertFalse($result);
+    }
+
+    public function testNotAcceptedPublicAgencyIsNoPublicAffairsAgent(): void
+    {
+        // Arrange
+        $orga = $this->createOrga(
+            $this->makeNewCustomerCurrent(),
+            status: OrgaStatusInCustomerInterface::STATUS_REJECTED
+        );
+
+        // Act
+        $result = $this->sut->isPublicAffairsAgent($this->reload($orga));
+
+        // Assert
+        self::assertFalse($result);
+    }
+
+    public function testAcceptedOrgaOfAnotherTypeIsNoPublicAffairsAgent(): void
+    {
+        // Arrange
+        $orga = $this->createOrga(
+            $this->makeNewCustomerCurrent(),
+            orgaTypeName: OrgaTypeInterface::MUNICIPALITY
+        );
+
+        // Act
+        $result = $this->sut->isPublicAffairsAgent($this->reload($orga));
+
+        // Assert
+        self::assertFalse($result);
+    }
+
+    public function testDeletedPublicAgencyWithoutUsersIsNoPublicAffairsAgent(): void
+    {
+        // Arrange
+        $orga = $this->createOrga($this->makeNewCustomerCurrent(), deleted: true);
+
+        // Act
+        $result = $this->sut->isPublicAffairsAgent($this->reload($orga));
+
+        // Assert
+        self::assertFalse($result);
+    }
+
+    private function createCustomer(): Customer
+    {
+        return CustomerFactory::createOne(['subdomain' => 'agent-handler-'.uniqid()])->_real();
+    }
+
+    private function makeNewCustomerCurrent(): Customer
+    {
+        $customer = $this->createCustomer();
+        $this->getContainer()->get(GlobalConfigInterface::class)->setSubdomain($customer->getSubdomain());
+
+        return $customer;
+    }
+
+    /**
+     * Creates an organisation without users, which has the given type and status in the given customer.
+     */
+    private function createOrga(
+        Customer $customer,
+        string $orgaTypeName = OrgaTypeInterface::PUBLIC_AGENCY,
+        string $status = OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
+        bool $deleted = false,
+    ): Orga {
+        $orga = OrgaFactory::createOne(['deleted' => $deleted, 'showlist' => true])->_real();
+        OrgaStatusInCustomerFactory::createOne([
+            'orga'     => $orga,
+            'customer' => $customer,
+            'orgaType' => OrgaTypeFactory::createOne(['name' => $orgaTypeName])->_real(),
+            'status'   => $status,
+            'showlist' => true,
+        ]);
+
+        return $orga;
+    }
+
+    /**
+     * Adds a new user with the given role, held in the given customer, to the organisation.
+     */
+    private function addUser(Orga $orga, string $roleCode, Customer $roleCustomer): void
+    {
+        $role = $this->getContainer()->get(RoleHandler::class)->getUserRolesByCodes([$roleCode])[0];
+        $user = UserFactory::createOne(['deleted' => false])->_real();
+        $orga->addUser($user);
+        $user->addDplanrole($role, $roleCustomer);
+        $this->getEntityManager()->flush();
+    }
+
+    /**
+     * Loads the organisation anew, so that its relations are those stored in the database.
+     */
+    private function reload(Orga $orga): Orga
+    {
+        $id = $orga->getId();
+        $this->getEntityManager()->clear();
+
+        return $this->getEntityManager()->find(Orga::class, $id);
     }
 }

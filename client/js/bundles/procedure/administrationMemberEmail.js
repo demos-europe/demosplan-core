@@ -12,8 +12,8 @@
  */
 import { DpAccordion, DpEditor, DpInlineNotification, DpLabel, dpValidate, hasPermission } from '@demos-europe/demosplan-ui'
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
-import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
-import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal.vue'
+import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

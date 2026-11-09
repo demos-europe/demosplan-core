@@ -231,10 +231,10 @@ import {
   toggleFullscreen,
   unbindFullScreenChange,
 } from '@demos-europe/demosplan-ui'
-import DpDeleteMasterToeb from './DpMasterToebList/DpDeleteMasterToeb'
-import DpFilterMasterToeb from './DpMasterToebList/DpFilterMasterToeb'
-import DpInviteMasterToeb from './DpMasterToebList/DpInviteMasterToeb'
-import DpNewMasterToeb from './DpMasterToebList/DpNewMasterToeb'
+import DpDeleteMasterToeb from './DpMasterToebList/DpDeleteMasterToeb.vue'
+import DpFilterMasterToeb from './DpMasterToebList/DpFilterMasterToeb.vue'
+import DpInviteMasterToeb from './DpMasterToebList/DpInviteMasterToeb.vue'
+import DpNewMasterToeb from './DpMasterToebList/DpNewMasterToeb.vue'
 import DpUpdateMastertoeb from './DpMasterToebList/DpUpdateMastertoeb'
 import Scroller from '@DpJs/directives/scroller'
 

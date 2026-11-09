@@ -92,13 +92,13 @@
 </template>
 
 <script>
-import DpOlMap from '@DpJs/components/map/map/DpOlMap'
-import DpOlMapDragZoom from '@DpJs/components/map/map/DpOlMapDragZoom'
-import DpOlMapDrawPoint from '@DpJs/components/map/map/DpOlMapDrawPoint'
-import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
-import DpProcedureCoordinateInput from './DpProcedureCoordinateInput'
+import DpOlMap from '@DpJs/components/map/map/DpOlMap.vue'
+import DpOlMapDragZoom from '@DpJs/components/map/map/DpOlMapDragZoom.vue'
+import DpOlMapDrawPoint from '@DpJs/components/map/map/DpOlMapDrawPoint.vue'
+import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector.vue'
+import DpProcedureCoordinateInput from './DpProcedureCoordinateInput.vue'
 import { prefixClassMixin } from '@demos-europe/demosplan-ui'
-import ProcedureCoordinateGeolocation from '@DpJs/components/procedure/basicSettings/ProcedureCoordinateGeolocation'
+import ProcedureCoordinateGeolocation from '@DpJs/components/procedure/basicSettings/ProcedureCoordinateGeolocation.vue'
 
 export default {
   name: 'DpProcedureCoordinate',

@@ -12,10 +12,10 @@
  */
 
 import { DpUploadFiles, prefixClass, TableWrapper } from '@demos-europe/demosplan-ui'
-import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
+import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap.vue'
 import { initialize } from '@DpJs/InitVue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
-import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
+import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal.vue'
 import TocStateMemorizer from '@DpJs/lib/statement/TocStateMemorizer'
 
 /*

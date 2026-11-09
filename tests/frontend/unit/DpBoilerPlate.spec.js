@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import DpBoilerPlate from '@DpJs/components/statement/DpBoilerPlate'
+import DpBoilerPlate from '@DpJs/components/statement/DpBoilerPlate.vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import { vi } from 'vitest'
 
