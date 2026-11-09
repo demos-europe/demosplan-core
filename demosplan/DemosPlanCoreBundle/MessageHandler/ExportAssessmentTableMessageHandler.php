@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\ExportResponseFileStore;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableExporterStrategy;
 use demosplan\DemosPlanCoreBundle\Message\ExportAssessmentTableMessage;
+use demosplan\DemosPlanCoreBundle\Tools\SessionLockReleaser;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -116,6 +117,7 @@ class ExportAssessmentTableMessageHandler
         }
         $request = new Request();
         $request->setSession($session);
+        SessionLockReleaser::markSynthetic($request);
         $this->requestStack->push($request);
     }
 }
