@@ -282,7 +282,7 @@ const findBookmarkToRestore = (): Bookmark | undefined => {
   }
 
   const savedBookmark = bookmarks.value.find(
-    bookmark => bookmark.id === savedBookmarkId
+    bookmark => bookmark.id === savedBookmarkId,
   )
 
   if (!savedBookmark) {
