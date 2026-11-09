@@ -12,22 +12,26 @@
     v-if="chips.length > 0"
     class="flex flex-wrap items-center gap-1"
   >
-    <dp-tooltip
-      v-for="chip in visibleChips"
+    <span
+      v-for="(chip, index) in chips"
       :key="chip.key"
-      :text="Translator.trans('custom.fields.chip.tooltip', { name: escapeHtml(chip.fieldName) })"
-      node-type="span"
+      :class="{ 'hidden [.is-expanded-row_&]:block': index >= MAX_VISIBLE_CHIPS }"
     >
-      <dp-badge
-        :text="chip.label"
-        class="inline-flex items-center border border-transparent"
-        color="default"
-        size="small"
-      />
-    </dp-tooltip>
+      <dp-tooltip
+        :text="Translator.trans('custom.fields.chip.tooltip', { name: escapeHtml(chip.fieldName) })"
+        node-type="span"
+      >
+        <dp-badge
+          :text="chip.label"
+          class="flex items-center border border-transparent"
+          color="default"
+          size="small"
+        />
+      </dp-tooltip>
+    </span>
     <button
       v-if="hiddenCount > 0"
-      class="inline-flex cursor-pointer items-center rounded-md border border-interactive mt-0.5 px-1.5 py-0.5 text-xs text-interactive"
+      class="inline-flex cursor-pointer items-center rounded-md border border-interactive mt-0.5 px-1.5 py-0.5 text-xs text-interactive [.is-expanded-row_&]:hidden"
     >
       +{{ hiddenCount }}
     </button>
@@ -67,7 +71,7 @@ interface FieldEntry {
 }
 
 // The visible chip count is not defined in the design yet, adjust once it is.
-const MAX_VISIBLE_CHIPS = 2
+const MAX_VISIBLE_CHIPS = 4
 
 const props = defineProps({
   definitionSourceId: {
@@ -99,9 +103,8 @@ const chips = computed<Chip[]>(() => entries.value.flatMap((entry, entryIndex) =
   entry.labels.map((label, labelIndex) => ({ fieldName: entry.name, key: `${entryIndex}_${labelIndex}`, label })),
 ))
 
-const visibleChips = computed<Chip[]>(() => chips.value.slice(0, MAX_VISIBLE_CHIPS))
-
-const hiddenCount = computed<number>(() => chips.value.length - visibleChips.value.length)
+// The chips beyond the limit are only shown while the table row is expanded
+const hiddenCount = computed<number>(() => Math.max(chips.value.length - MAX_VISIBLE_CHIPS, 0))
 
 const HTML_ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' }
 
