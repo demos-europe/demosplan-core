@@ -105,11 +105,11 @@ import {
   DpTreeList,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
-import TagListEditForm from './TagListEditForm'
-import TagsCreateForm from './TagsCreateForm'
-import TagsImportForm from './TagsImportForm'
-import TagsListHeader from './TagsListHeader'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper.vue'
+import TagListEditForm from './TagListEditForm.vue'
+import TagsCreateForm from './TagsCreateForm.vue'
+import TagsImportForm from './TagsImportForm.vue'
+import TagsListHeader from './TagsListHeader.vue'
 export default {
   name: 'TagsList',
 

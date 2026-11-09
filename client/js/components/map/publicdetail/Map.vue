@@ -65,7 +65,7 @@ import TileLayer from 'ol/layer/Tile'
 import { unByKey } from 'ol/Observable'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import WmsGetFeatureInfo from './controls/WmsGetFeatureInfo'
+import WmsGetFeatureInfo from './controls/WmsGetFeatureInfo.vue'
 
 export default {
   name: 'DpMap',

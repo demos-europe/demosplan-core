@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for administration_search_submitters.html.twig
  */
-import DpSearchSubmitters from '@DpJs/components/procedure/DpSearchSubmitters'
+import DpSearchSubmitters from '@DpJs/components/procedure/DpSearchSubmitters.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = { DpSearchSubmitters }

@@ -9,7 +9,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { createStore } from 'vuex'
-import ListStatements from '@DpJs/components/statement/listStatements/ListStatements'
+import ListStatements from '@DpJs/components/statement/listStatements/ListStatements.vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 const buildStatement = (relationships = {}) => ({

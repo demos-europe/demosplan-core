@@ -941,7 +941,7 @@
 
 <script>
 import { CleanHtml, dpApi, DpCheckbox, DpDetails, DpEditor, DpInlineNotification, DpRadio, DpSelect, DpTextArea, hasOwnProp } from '@demos-europe/demosplan-ui'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper.vue'
 import { isOrgaAcceptedAsType } from '@DpJs/lib/shared/isOrgaAcceptedAsType'
 
 let formFieldsInstanceCount = 0

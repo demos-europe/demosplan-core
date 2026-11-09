@@ -442,7 +442,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import dayjs from 'dayjs'
 import { defineAsyncComponent } from 'vue'
-import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters'
+import SimilarStatementSubmitters from '@DpJs/components/procedure/Shared/SimilarStatementSubmitters/SimilarStatementSubmitters.vue'
 import { v4 as uuid } from 'uuid'
 
 const submitterProperties = {

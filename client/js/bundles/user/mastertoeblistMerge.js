@@ -12,7 +12,7 @@
  */
 
 import { initialize } from '@DpJs/InitVue'
-import MasterToebListMerge from '@DpJs/components/user/MasterToebListMerge/MasterToebListMerge'
+import MasterToebListMerge from '@DpJs/components/user/MasterToebListMerge/MasterToebListMerge.vue'
 
 const components = {
   MasterToebListMerge,

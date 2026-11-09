@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createStore } from 'vuex'
-import ListStatements from '@DpJs/components/statement/listStatements/ListStatements'
+import ListStatements from '@DpJs/components/statement/listStatements/ListStatements.vue'
 import { shallowMount } from '@vue/test-utils'
 
 const extendedStatement = {

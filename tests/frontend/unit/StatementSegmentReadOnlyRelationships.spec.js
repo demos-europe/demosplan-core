@@ -6,7 +6,7 @@
  *
  * All rights reserved
  */
-import StatementSegment from '@DpJs/components/procedure/StatementSegmentsList/StatementSegment'
+import StatementSegment from '@DpJs/components/procedure/StatementSegmentsList/StatementSegment.vue'
 
 /*
  * `comments` and `recommendationVersions` are read-only on the StatementSegment resource. The BE rejects

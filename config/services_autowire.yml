@@ -6,7 +6,7 @@ services:
 
     # Auto-tag CustomField usage removal strategies
     _instanceof:
-        demosplan\DemosPlanCoreBundle\Utils\CustomField\Strategy\EntityCustomFieldUsageRemovalStrategyInterface:
+        demosplan\DemosPlanCoreBundle\Utils\CustomField\UsageRemoval\Strategy\EntityCustomFieldUsageRemovalStrategyInterface:
             tags:
                 - name: entity_custom_field_usage_removal_strategy
 

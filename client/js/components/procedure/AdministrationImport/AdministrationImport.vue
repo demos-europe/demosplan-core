@@ -50,12 +50,12 @@ import {
   DpTabs,
   hasAnyPermissions,
 } from '@demos-europe/demosplan-ui'
-import AdministrationImportNone from './AdministrationImportNone'
-import ExcelImport from './ExcelImport/ExcelImport'
+import AdministrationImportNone from './AdministrationImportNone.vue'
+import ExcelImport from './ExcelImport/ExcelImport.vue'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
-import ParticipationImport from './ParticipationImport/ParticipationImport'
+import ParticipationImport from './ParticipationImport/ParticipationImport.vue'
 import { shallowRef } from 'vue'
-import StatementFormImport from './StatementFormImport/StatementFormImport'
+import StatementFormImport from './StatementFormImport/StatementFormImport.vue'
 
 export default {
   name: 'AdministrationImport',

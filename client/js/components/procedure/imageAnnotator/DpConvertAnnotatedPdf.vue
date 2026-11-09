@@ -86,8 +86,8 @@
 
 <script>
 import { dpApi, DpButton, DpLoading } from '@demos-europe/demosplan-ui'
-import DpSendBeacon from './DpSendBeacon'
-import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm'
+import DpSendBeacon from './DpSendBeacon.vue'
+import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm.vue'
 import { inlineImageAnchorsForEditing } from '@DpJs/lib/shared/inlineImageAnchors'
 
 export default {

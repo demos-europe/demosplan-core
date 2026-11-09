@@ -14,7 +14,7 @@
 import { DpInlineNotification, DpUploadFiles, dpValidate } from '@demos-europe/demosplan-ui'
 import GisLayerEdit from '@DpJs/lib/map/GisLayerEdit'
 import { initialize } from '@DpJs/InitVue'
-import LayerSettings from '@DpJs/components/map/admin/LayerSettings'
+import LayerSettings from '@DpJs/components/map/admin/LayerSettings.vue'
 
 const components = {
   DpInlineNotification,
