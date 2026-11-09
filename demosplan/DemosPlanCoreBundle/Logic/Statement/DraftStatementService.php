@@ -1120,6 +1120,10 @@ class DraftStatementService
                 $mapService = $this->getServiceMap();
                 $mapFile = $mapService->createMapScreenshot($draftStatement->getPId(), $data['ident']);
                 $draftStatement->setMapFile($mapFile);
+            }
+
+            // a drawing or a location reference replaces "no location" and a selected county
+            if ('' !== (string) ($data['polygon'] ?? '') || '' !== (string) ($data['locationReference'] ?? '')) {
                 $attrRepo->unsetNoLocation($draftStatement);
                 $attrRepo->removeCounty($draftStatement);
             }
@@ -1134,12 +1138,14 @@ class DraftStatementService
                     $attrRepo->setNoLocation($draftStatement);
                     $draftStatement->setMapFile('');
                     $draftStatement->setPolygon('');
+                    $draftStatement->setLocationReference('');
                 } elseif (array_key_exists('county', $data['statementAttributes']) && '' !== (string) $data['statementAttributes']['county']) {
                     try {
                         $attrRepo->addCounty($draftStatement, $data['statementAttributes']['county']);
                         $attrRepo->unsetNoLocation($draftStatement);
                         $draftStatement->setMapFile('');
                         $draftStatement->setPolygon('');
+                        $draftStatement->setLocationReference('');
                     } catch (Exception) {
                         $attrRepo->removeCounty($draftStatement);
                     }
@@ -1979,7 +1985,7 @@ class DraftStatementService
 
         // #1: Einzeichnung/Planzeichnung:
         $geoData = $this->extractGeoData($data, []);
-        if (array_key_exists('polygon', $geoData) && 0 !== strlen((string) $geoData['polygon'])) {
+        if (0 !== strlen((string) ($geoData['polygon'] ?? '')) || 0 !== strlen((string) ($geoData['locationReference'] ?? ''))) {
             $determinedElementId = $elementService->getMapElement($procedureId)->getId();
         }
 
@@ -2034,6 +2040,7 @@ class DraftStatementService
             $statement['statementAttributes']['noLocation'] = true;
             // delete existing spatial data
             $statement['polygon'] = '';
+            $statement['locationReference'] = '';
             $statement['statementAttributes']['priorityAreaKey'] = '';
             $statement['statementAttributes']['priorityAreaType'] = '';
         }
@@ -2055,7 +2062,7 @@ class DraftStatementService
             if (array_key_exists('r_location_point', $data) && '' !== (string) $data['r_location_point']) {
                 try {
                     // wandle die Punktkoordinate in ein valides GeoJson um
-                    $statement['polygon'] = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":['.$data['r_location_point'].']},"properties":null}]}';
+                    $statement['locationReference'] = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":['.$data['r_location_point'].']},"properties":null}]}';
                 } catch (Exception $e) {
                     $this->logger->warning('Could not create Point Polygon', ['data' => $data['r_location_point'], 'exception' => $e]);
                 }

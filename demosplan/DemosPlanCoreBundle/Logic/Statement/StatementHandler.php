@@ -955,7 +955,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             if (array_key_exists('r_location_point', $data) && '' !== (string) $data['r_location_point']) {
                 try {
                     // wandle die Punktkoordinate in ein valides GeoJson um
-                    $statement['polygon'] = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":['.$data['r_location_point'].']},"properties":null}]}';
+                    $statement['locationReference'] = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":['.$data['r_location_point'].']},"properties":null}]}';
                 } catch (Exception $e) {
                     $this->getLogger()->warning('Could not create Point Polygon', ['data' => $data['r_location_point'], 'exception' => $e]);
                 }

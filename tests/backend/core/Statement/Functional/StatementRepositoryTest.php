@@ -57,6 +57,23 @@ class StatementRepositoryTest extends FunctionalTestCase
         $this->testProcedure = $this->fixtures->getReference('testProcedure');
     }
 
+    public function testUpdateStoresDrawingAndLocationReferenceSeparately(): void
+    {
+        // Arrange
+        $statement = $this->getStatementReference('testStatement1');
+        $drawing = '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[1,2]}}]}';
+        $locationReference = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[3,4]},"properties":null}]}';
+
+        // Act
+        $this->sut->update($statement->getId(), ['polygon' => $drawing, 'locationReference' => $locationReference]);
+        $this->getEntityManager()->clear();
+        $reloaded = $this->sut->get($statement->getId());
+
+        // Assert
+        static::assertSame($drawing, $reloaded->getPolygon());
+        static::assertSame($locationReference, $reloaded->getLocationReference());
+    }
+
     public function testEqualsIdOrEqualsId()
     {
         $expectedStatementA = $this->getStatementReference('testStatement20');
