@@ -158,7 +158,7 @@
             />
           </div>
           <dp-column-selector
-            v-if="customFieldsReady && (!hasBookmarks || isViewStateInitialized)"
+            v-if="customFieldsReady && (!hasBookmarks || isBookmarkStateInitialized)"
             :key="columnSelectorKey"
             appearance="subtle"
             data-cy="segmentsList:selectableColumns"
@@ -778,7 +778,7 @@ export default {
     }),
 
     ...mapState('Bookmark', {
-      isViewStateInitialized: 'isViewStateInitialized',
+      isBookmarkStateInitialized: 'isBookmarkStateInitialized',
     }),
 
     assignableUsers () {

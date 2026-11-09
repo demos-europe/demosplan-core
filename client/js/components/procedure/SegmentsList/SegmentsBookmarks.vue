@@ -164,7 +164,7 @@ const updateBookmarkAction = (payload: UpdateBookmarkPayload): Promise<boolean> 
 const setStoreSearchPhrase = (searchPhrase: string): void => store.commit('Bookmark/setCurrentSearchPhrase', searchPhrase)
 const setStoreSelectedColumns = (columns: string[]): void => store.commit('Bookmark/setCurrentSelectedColumns', columns)
 const setStoreSorting = (sorting: string): void => store.commit('Bookmark/setCurrentSorting', sorting)
-const setViewStateInitialized = (value: boolean): void => store.commit('Bookmark/setViewStateInitialized', value)
+const setBookmarkStateInitialized = (value: boolean): void => store.commit('Bookmark/setBookmarkStateInitialized', value)
 
 /* Emits */
 interface SegmentsBookmarksEmits {
@@ -366,14 +366,14 @@ const initializeViewState = (bookmark: Bookmark | null): void => {
     setStoreSorting(sorting ?? '')
   }
 
-  setViewStateInitialized(true)
+  setBookmarkStateInitialized(true)
 }
 
 const restoreSavedBookmark = async (): Promise<void> => {
   const bookmarkToApply = findBookmarkToRestore()
 
   if (!bookmarkToApply) {
-    setViewStateInitialized(true)
+    setBookmarkStateInitialized(true)
     emit('resetView')
 
     return

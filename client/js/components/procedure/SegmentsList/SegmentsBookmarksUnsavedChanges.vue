@@ -204,7 +204,7 @@ const storeSearchPhrase: ComputedRef<string> = computed(() => state.Bookmark?.cu
 const storeSorting: ComputedRef<string> = computed(() => state.Bookmark?.currentSorting || '')
 const storeSelectedColumns: ComputedRef<string[]> = computed(() => state.Bookmark?.currentSelectedColumns || [])
 const storeDefaultSelectedColumns: ComputedRef<string[]> = computed(() => state.Bookmark?.defaultSelectedColumns || [])
-const isViewStateInitialized: ComputedRef<boolean> = computed(() => state.Bookmark?.isViewStateInitialized || false)
+const isBookmarkStateInitialized: ComputedRef<boolean> = computed(() => state.Bookmark?.isBookmarkStateInitialized || false)
 
 const detailedChanges: ComputedRef<DetailedChange[]> = computed(() => {
   if (props.currentBookmark) {
@@ -213,7 +213,7 @@ const detailedChanges: ComputedRef<DetailedChange[]> = computed(() => {
 
   return getDetailedDefaultViewChanges()
 })
-const hasChanges: ComputedRef<boolean> = computed(() => isViewStateInitialized.value && detailedChanges.value.length > 0)
+const hasChanges: ComputedRef<boolean> = computed(() => isBookmarkStateInitialized.value && detailedChanges.value.length > 0)
 
 const notificationTitle: ComputedRef<string> = computed(() => {
   if (props.currentBookmark) {
@@ -476,10 +476,10 @@ watch(
     storeSelectedColumns.value,
     props.currentBookmark,
     currentFilters.value,
-    isViewStateInitialized.value,
+    isBookmarkStateInitialized.value,
   ],
   () => {
-    if (!isViewStateInitialized.value) {
+    if (!isBookmarkStateInitialized.value) {
       return
     }
 
