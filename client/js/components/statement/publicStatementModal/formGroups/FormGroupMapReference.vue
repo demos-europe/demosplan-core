@@ -179,7 +179,7 @@ export default {
   },
 
   emits: [
-    'statementModal:goToTab',
+    'goToTab',
   ],
 
   computed: {
@@ -195,7 +195,7 @@ export default {
 
     gotoTab (tabName) {
       this.update({ key: 'activeActionBoxTab', val: 'draw' })
-      this.$root.$emit('statementModal:goToTab', tabName)
+      this.$emit('goToTab', tabName)
     },
   },
 }
