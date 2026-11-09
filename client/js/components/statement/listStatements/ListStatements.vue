@@ -405,9 +405,10 @@
                 </button>
               </dp-flyout>
             </template>
-            <template v-slot:customFieldsCollection="{ id }">
+            <template v-slot:customFieldsCollection="{ externId, id }">
               <statement-custom-field-chips
                 :definition-source-id="procedureId"
+                :extern-id="externId"
                 :resource-id="id"
               />
             </template>
