@@ -564,19 +564,19 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { inlineImageAnchors, stripInlineImageAnchors } from '@DpJs/lib/shared/inlineImageAnchors'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import AssignEntityModal from '@DpJs/components/statement/assessmentTable/AssignEntityModal'
-import CustomSearchStatements from './CustomSearchStatements'
+import AssignEntityModal from '@DpJs/components/statement/assessmentTable/AssignEntityModal.vue'
+import CustomSearchStatements from './CustomSearchStatements.vue'
 import { defineAsyncComponent } from 'vue'
-import DpClaim from '@DpJs/components/statement/DpClaim'
+import DpClaim from '@DpJs/components/statement/DpClaim.vue'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { pollExportJob } from '@DpJs/lib/shared/persistentExportPoll'
 import { resolveCustomFieldLabels } from '@DpJs/lib/shared/resolveCustomFieldLabels'
-import StatementCustomFieldChips from './StatementCustomFieldChips'
-import StatementExportModal from '@DpJs/components/statement/statementExportModal/StatementExportModal'
-import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
-import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
-import TableScrollbar from '@DpJs/components/shared/TableScrollbar'
+import StatementCustomFieldChips from './StatementCustomFieldChips.vue'
+import StatementExportModal from '@DpJs/components/statement/statementExportModal/StatementExportModal.vue'
+import StatementMetaData from '@DpJs/components/statement/StatementMetaData.vue'
+import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge.vue'
+import TableScrollbar from '@DpJs/components/shared/TableScrollbar.vue'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
@@ -594,7 +594,7 @@ export default {
 
   components: {
     AssignEntityModal,
-    CopyStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal')),
+    CopyStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal.vue')),
     CustomSearchStatements,
     DpBadge,
     DpBulkEditHeader,
@@ -609,7 +609,7 @@ export default {
     DpPager,
     DpSelect,
     DpStickyElement,
-    DpMoveStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal')),
+    DpMoveStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal.vue')),
     StatementCustomFieldChips,
     StatementExportModal,
     StatementMetaData,

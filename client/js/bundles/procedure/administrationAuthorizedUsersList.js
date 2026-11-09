@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_authorized_users_list.html.twig
  */
 
-import AuthorizedUsersList from '@DpJs/components/procedure/admin/AuthorizedUsersList'
+import AuthorizedUsersList from '@DpJs/components/procedure/admin/AuthorizedUsersList.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = { AuthorizedUsersList }

@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_procedure_proposal_edit.html.twig
  */
 
-import DpProcedureCoordinate from '@DpJs/components/procedure/basicSettings/DpProcedureCoordinate'
+import DpProcedureCoordinate from '@DpJs/components/procedure/basicSettings/DpProcedureCoordinate.vue'
 import { initialize } from '@DpJs/InitVue'
 
 initialize({ DpProcedureCoordinate })

@@ -12,8 +12,8 @@
  */
 
 import { DpDetails, DpModal } from '@demos-europe/demosplan-ui'
-import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
-import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList.vue'
+import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

@@ -333,7 +333,7 @@ import {
   DpTabs,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
-import CreateCustomFieldForm from '@DpJs/components/procedure/admin/CreateCustomFieldForm'
+import CreateCustomFieldForm from '@DpJs/components/procedure/admin/CreateCustomFieldForm.vue'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useCustomFieldTypes } from '@DpJs/composables/useCustomFieldTypes'
 

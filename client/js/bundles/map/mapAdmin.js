@@ -12,7 +12,7 @@
  */
 
 import { initialize } from '@DpJs/InitVue'
-import MapAdmin from '@DpJs/components/map/admin/MapAdmin'
+import MapAdmin from '@DpJs/components/map/admin/MapAdmin.vue'
 import procedureMapSettings from '@DpJs/store/map/ProcedureMapSettings'
 
 const components = { MapAdmin }

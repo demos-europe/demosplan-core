@@ -563,13 +563,13 @@ import {
   VPopover,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import DpClaim from '../DpClaim'
-import DpFragmentEdit from '../fragment/Edit'
-import DpFragmentStatus from '../fragment/Status'
-import DpFragmentVersions from '../fragment/Version'
-import DpItemRow from '../assessmentTable/ItemRow'
-import HeightLimit from '@DpJs/components/statement/HeightLimit'
-import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import DpClaim from '../DpClaim.vue'
+import DpFragmentEdit from '../fragment/Edit.vue'
+import DpFragmentStatus from '../fragment/Status.vue'
+import DpFragmentVersions from '../fragment/Version.vue'
+import DpItemRow from '../assessmentTable/ItemRow.vue'
+import HeightLimit from '@DpJs/components/statement/HeightLimit.vue'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer.vue'
 
 export default {
   name: 'DpStatementFragment',

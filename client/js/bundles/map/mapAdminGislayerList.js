@@ -12,7 +12,7 @@
  */
 
 import { DpSplitButton, DpUploadFiles, dpValidate } from '@demos-europe/demosplan-ui'
-import AdminLayerList from '@DpJs/components/map/admin/AdminLayerList'
+import AdminLayerList from '@DpJs/components/map/admin/AdminLayerList.vue'
 import { initialize } from '@DpJs/InitVue'
 import layers from '@DpJs/store/map/Layers'
 

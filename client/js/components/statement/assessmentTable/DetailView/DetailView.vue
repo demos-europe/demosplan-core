@@ -57,9 +57,9 @@
 import { dpApi, DpSlidebar } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters } from 'vuex'
 import { defineAsyncComponent } from 'vue'
-import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
+import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal.vue'
 
-const DpVersionHistory = defineAsyncComponent(() => import('@DpJs/components/statement/statement/DpVersionHistory'))
+const DpVersionHistory = defineAsyncComponent(() => import('@DpJs/components/statement/statement/DpVersionHistory.vue'))
 
 export default {
   name: 'DpDetailView',

@@ -51,8 +51,8 @@ export default {
 
   components: {
     DpButton,
-    DpSelectedItemsStatements: () => import(/* webpackChunkName: "dp-selected-items-statements" */ './DpSelectedItemsStatements'),
-    DpSelectedItemsFragments: () => import(/* webpackChunkName: "dp-selected-items-fragments" */ './DpSelectedItemsFragments'),
+    DpSelectedItemsStatements: () => import(/* webpackChunkName: "dp-selected-items-statements" */ './DpSelectedItemsStatements.vue'),
+    DpSelectedItemsFragments: () => import(/* webpackChunkName: "dp-selected-items-fragments" */ './DpSelectedItemsFragments.vue'),
   },
 
   props: {
