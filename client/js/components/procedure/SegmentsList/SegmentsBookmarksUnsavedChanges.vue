@@ -138,6 +138,7 @@ import type {
 import {
   computed,
   type ComputedRef,
+  onMounted,
   ref,
   type Ref,
   watch,
@@ -152,6 +153,8 @@ import type {
   FilterOption,
   RootState,
 } from '@DpJs/types/store'
+import { CUSTOM_FIELD_GROUP_PREFIX } from '@DpJs/composables/useApiPlatformFilters'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useStore } from 'vuex'
 
 /* Props */
@@ -159,6 +162,7 @@ const props = defineProps<{
   currentBookmark: Bookmark | null
   filters: Record<string, { labelTranslationKey: string, rootPath: string, comparisonOperator: string }>
   isOpen: boolean
+  procedureId: string
 }>()
 
 /* Emits */
@@ -176,6 +180,8 @@ const state = store.state as RootState
 const filterLabelCache: Ref<FilterLabelCache> = ref({
   unassigned: Translator.trans('not.assigned'),
 })
+
+const customFieldDefinitions: Ref<Array<{ id: string, attributes: { name: string } }>> = ref([])
 
 /**
  * Updates the label cache with all labels from the store's filter options.
@@ -235,6 +241,7 @@ const notificationMessage: ComputedRef<string> = computed(() => {
 const extractFilterValues = (filters: Record<string, any> = {}) => {
   const filterValues = new Set<string>()
   const filterPaths: Record<string, string> = {}
+  const filterMemberOf: Record<string, string | undefined> = {}
 
   Object.entries(filters || {}).forEach(([key, filter]) => {
     if (filter.condition) {
@@ -242,12 +249,14 @@ const extractFilterValues = (filters: Record<string, any> = {}) => {
 
       filterValues.add(valueKey)
       filterPaths[valueKey] = filter.condition.path
+      filterMemberOf[valueKey] = filter.condition.memberOf
     }
   })
 
   return {
     filterValues,
     filterPaths,
+    filterMemberOf,
   }
 }
 
@@ -299,11 +308,13 @@ const getDetailedFilterChanges = (bookmarkFilters: Record<string, any>, currentF
   const {
     filterValues: bookmarkFilterValues,
     filterPaths: bookmarkFilterPaths,
+    filterMemberOf: bookmarkFilterMemberOf,
   } = extractFilterValues(bookmarkFilters)
 
   const {
     filterValues: currentFilterValues,
     filterPaths: currentFilterPaths,
+    filterMemberOf: currentFilterMemberOf,
   } = extractFilterValues(currentFilters)
 
   const individualFilterChanges: IndividualFilterChange[] = [
@@ -311,12 +322,14 @@ const getDetailedFilterChanges = (bookmarkFilters: Record<string, any>, currentF
       bookmarkFilterValues,
       currentFilterValues,
       bookmarkFilterPaths,
+      bookmarkFilterMemberOf,
       'removed',
     ),
     ...getFilterChanges(
       currentFilterValues,
       bookmarkFilterValues,
       currentFilterPaths,
+      currentFilterMemberOf,
       'added',
     ),
   ]
@@ -394,11 +407,11 @@ const getDetailedSortingChanges = (bookmarkSorting: string = '', currentSorting:
   }
 }
 
-const getFilterChanges = (sourceValues: Set<string>, targetValues: Set<string>, filterPaths: Record<string, string>, action: 'added' | 'removed'): IndividualFilterChange[] => {
+const getFilterChanges = (sourceValues: Set<string>, targetValues: Set<string>, filterPaths: Record<string, string>, filterMemberOf: Record<string, string | undefined>, action: 'added' | 'removed'): IndividualFilterChange[] => {
   return [...sourceValues]
     .filter(valueKey => !targetValues.has(valueKey))
     .map(valueKey => ({
-      filterCategory: getFilterNameByPath(filterPaths[valueKey]),
+      filterCategory: getFilterNameByPath(filterPaths[valueKey], filterMemberOf[valueKey]),
       filterValue: getFilterValueLabel(valueKey),
       action,
     }))
@@ -421,7 +434,17 @@ const getColumnLabel = (fieldName: string): string => {
   return Translator.trans(columnTranslations[fieldName] || fieldName)
 }
 
-const getFilterNameByPath = (filterPath: string): string => {
+const getFilterNameByPath = (filterPath: string, memberOf?: string): string => {
+  // Check for custom field - use memberOf to look up the field name
+  if (filterPath === 'customFields' && memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX)) {
+    const fieldId = memberOf.replace(CUSTOM_FIELD_GROUP_PREFIX, '')
+    const customField = customFieldDefinitions.value.find(field => field.id === fieldId)
+
+    if (customField) {
+      return customField.attributes.name
+    }
+  }
+
   const filterConfig = Object.values(props.filters || {}).find(
     filter => filter.rootPath === filterPath,
   )
@@ -487,4 +510,18 @@ watch(
   },
   { deep: true },
 )
+
+onMounted(async () => {
+  if (hasPermission('field_segments_custom_fields')) {
+    const { fetchCustomFields } = useCustomFields()
+
+    try {
+      const definitions = await fetchCustomFields(props.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'SEGMENT' })
+
+      customFieldDefinitions.value = definitions
+    } catch {
+      // Notification already shown by useCustomFieldDefinitions
+    }
+  }
+})
 </script>

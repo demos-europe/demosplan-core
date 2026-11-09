@@ -16,6 +16,7 @@
         :current-bookmark="currentBookmark"
         :filters="filters"
         :is-open="showUnsavedChanges"
+        :procedure-id="procedureId"
         @toggle="showUnsavedChanges = $event"
         @has-changes="hasUnsavedChanges = $event"
       />
@@ -96,6 +97,15 @@
 </template>
 
 <script setup lang="ts">
+import type {
+  Bookmark,
+  CreateBookmarkPayload,
+  UpdateBookmarkPayload,
+} from '@DpJs/types/bookmarks'
+import type {
+  RootState,
+  Slidebar,
+} from '@DpJs/types/store'
 import {
   computed,
   type ComputedRef,
@@ -104,20 +114,11 @@ import {
   ref,
   watch,
 } from 'vue'
-import type {
-  Bookmark,
-  CreateBookmarkPayload,
-  UpdateBookmarkPayload,
-} from '@DpJs/types/bookmarks'
 import {
   DpButton,
   DpButtonRow,
   DpInput,
 } from '@demos-europe/demosplan-ui'
-import type {
-  RootState,
-  Slidebar,
-} from '@DpJs/types/store'
 import lscache from 'lscache'
 import SegmentsBookmarksList from '@DpJs/components/procedure/SegmentsList/SegmentsBookmarksList.vue'
 import SegmentsBookmarksUnsavedChanges from '@DpJs/components/procedure/SegmentsList/SegmentsBookmarksUnsavedChanges.vue'
