@@ -59,7 +59,8 @@
         primary
         secondary
         :disabled="{
-          primary: !newBookmarkName || isBookmarkLoading
+          primary: !newBookmarkName || isBookmarkLoading,
+          secondary: isBookmarkLoading,
         }"
         data-cy="segmentsBookmarks:save"
         @primary-action="handlePrimaryAction"
