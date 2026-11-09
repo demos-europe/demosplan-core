@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\EventSubscriber;
 use demosplan\DemosPlanCoreBundle\Entity\User\FunctionalUser;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\TwoFactorRequirementResolver;
+use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\ApiAuthenticator;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
 use Scheb\TwoFactorBundle\Security\Http\Authenticator\TwoFactorAuthenticator;
 use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
@@ -47,6 +48,10 @@ class TwoFactorSetupRequirementSubscriber extends BaseEventSubscriber
 
         // Scheb re-fires LoginSuccessEvent after the second step succeeded. The user has a factor then.
         if ($event->getAuthenticator() instanceof TwoFactorAuthenticator) {
+            return;
+        }
+
+        if ($event->getAuthenticator() instanceof ApiAuthenticator) {
             return;
         }
 
