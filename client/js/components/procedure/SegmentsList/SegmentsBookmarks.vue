@@ -373,6 +373,7 @@ const restoreSavedBookmark = async (): Promise<void> => {
   const bookmarkToApply = findBookmarkToRestore()
 
   if (!bookmarkToApply) {
+    setViewStateInitialized(true)
     emit('resetView')
 
     return
