@@ -14,15 +14,22 @@ namespace Tests\Core\JsonApi;
 
 use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\InstitutionTagCategoryFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\InstitutionTagFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaStatusInCustomerFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\AbstractApiTest;
@@ -235,6 +242,125 @@ class InvitableInstitutionResourceApiTest extends AbstractApiTest
         self::assertNotContains($institution->getId(), $ids);
     }
 
+    public function testGetReturnsHasActiveUsersForInstitutionWithInstitutionUser(): void
+    {
+        // Arrange
+        $institution = $this->getInstitution();
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.'/'.$institution->getId(), 'GET', $this->user, null);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        self::assertTrue(Json::decodeToArray($response->getContent())['data']['attributes']['hasActiveUsers']);
+    }
+
+    /**
+     * An institution is returned whatever its users are, as long as it is accepted as public agency in the
+     * current customer. Single and list use different code paths for the flag, so both are checked.
+     */
+    public function testGetAndListReturnInstitutionsWithoutInstitutionUser(): void
+    {
+        // Arrange
+        $withoutUsers = $this->createInstitution();
+        $withPlanningUserOnly = $this->createInstitution(RoleInterface::PLANNING_AGENCY_ADMIN);
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $single = $this->sendRequest(self::ROUTE.'/'.$withoutUsers->getId(), 'GET', $this->user, null);
+        $list = $this->sendRequest(self::ROUTE.'?pagination=false', 'GET', $this->user, null);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $single->getStatusCode());
+        self::assertFalse(Json::decodeToArray($single->getContent())['data']['attributes']['hasActiveUsers']);
+        self::assertFalse($this->getRow($list, $withoutUsers)['attributes']['hasActiveUsers']);
+        self::assertFalse($this->getRow($list, $withPlanningUserOnly)['attributes']['hasActiveUsers']);
+    }
+
+    public function testListExcludesInstitutionsWithoutUsersThatAreAcceptedInAnotherCustomerOnly(): void
+    {
+        // Arrange
+        $foreign = $this->createInstitution(acceptedInCustomer: CustomerFactory::createOne(['subdomain' => 'other-'.uniqid()])->_real());
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.'?pagination=false', 'GET', $this->user, null);
+
+        // Assert
+        self::assertNotContains($foreign->getId(), $this->getIds($response));
+    }
+
+    /**
+     * An institution whose users are all deleted is still returned, with the flag off. Single and list
+     * use different code paths for the flag, so both are checked.
+     */
+    public function testGetAndListReturnHasActiveUsersFalseWhenAllUsersAreDeleted(): void
+    {
+        // Arrange
+        $institution = $this->getInstitution();
+        $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
+        foreach ($entityManager->find(Orga::class, $institution->getId())->getAllUsers() as $user) {
+            $user->setDeleted(true);
+        }
+        $entityManager->flush();
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $single = $this->sendRequest(self::ROUTE.'/'.$institution->getId(), 'GET', $this->user, null);
+        $list = $this->sendRequest(self::ROUTE.'?pagination=false', 'GET', $this->user, null);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $single->getStatusCode());
+        self::assertFalse(Json::decodeToArray($single->getContent())['data']['attributes']['hasActiveUsers']);
+        $row = $this->getRow($list, $institution);
+        self::assertFalse($row['attributes']['hasActiveUsers']);
+    }
+
+    public function testListReturnsHasActiveUsersForEveryRow(): void
+    {
+        // Arrange
+        $institution = $this->getInstitution();
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.'?pagination=false', 'GET', $this->user, null);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $rows = Json::decodeToArray($response->getContent())['data'];
+        self::assertNotEmpty($rows);
+        foreach ($rows as $row) {
+            self::assertIsBool($row['attributes']['hasActiveUsers']);
+        }
+        self::assertTrue($this->getRow($response, $institution)['attributes']['hasActiveUsers']);
+    }
+
+    public function testListRestrictsAttributesToRequestedFieldsIncludingHasActiveUsers(): void
+    {
+        // Arrange
+        $institution = $this->getInstitution();
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $response = $this->sendRequest(
+            self::ROUTE.'?pagination=false&fields[InvitableInstitution]=name,hasActiveUsers',
+            'GET',
+            $this->user,
+            null
+        );
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        self::assertSame(['name', 'hasActiveUsers'], array_keys($this->getRow($response, $institution)['attributes']));
+    }
+
     public function testGetIsDeniedWithoutTagPermission(): void
     {
         $this->loginForApiPlatform();
@@ -264,9 +390,56 @@ class InvitableInstitutionResourceApiTest extends AbstractApiTest
         return array_column(Json::decodeToArray($response->getContent())['data'], 'id');
     }
 
+    /**
+     * @return array<string, mixed> the entry of the given institution in the response of a list request
+     */
+    private function getRow(Response $response, Orga $institution): array
+    {
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $rows = array_filter(
+            Json::decodeToArray($response->getContent())['data'],
+            static fn (array $row): bool => $row['id'] === $institution->getId()
+        );
+        self::assertCount(1, $rows);
+
+        return array_shift($rows);
+    }
+
     private function getInstitution(): Orga
     {
         return $this->getReference(LoadUserData::TEST_ORGA_PUBLIC_AGENCY);
+    }
+
+    /**
+     * Creates an institution like the fixture institution: accepted as public agency in the current customer unless
+     * another one is given. It has one user holding the given role, in the current customer, or no user at all.
+     */
+    private function createInstitution(?string $roleCode = null, ?Customer $acceptedInCustomer = null): Orga
+    {
+        // The kernel is rebooted after the fixtures are loaded, so the references are known to the old entity manager only.
+        $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
+        $fixtureStatus = $this->getInstitution()->getStatusInCustomers()->first();
+        $currentCustomer = $entityManager->find(Customer::class, $fixtureStatus->getCustomer()->getId());
+
+        $orga = OrgaFactory::createOne(['deleted' => false, 'showlist' => true])->_real();
+        $status = OrgaStatusInCustomerFactory::createOne([
+            'orga'     => $orga,
+            'customer' => $acceptedInCustomer ?? $currentCustomer,
+            'orgaType' => $entityManager->find(OrgaType::class, $fixtureStatus->getOrgaType()->getId()),
+            'status'   => OrgaStatusInCustomerInterface::STATUS_ACCEPTED,
+            'showlist' => true,
+        ])->_real();
+        $orga->addStatusInCustomer($status);
+
+        if (null !== $roleCode) {
+            $role = $this->getContainer()->get(RoleHandler::class)->getUserRolesByCodes([$roleCode])[0];
+            $user = UserFactory::createOne(['deleted' => false])->_real();
+            $orga->addUser($user);
+            $user->addDplanrole($role, $currentCustomer);
+        }
+        $entityManager->flush();
+
+        return $orga;
     }
 
     private function getCurrentCustomerOf(Orga $institution): Customer

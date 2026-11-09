@@ -49,6 +49,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Orga extends SluggedEntity implements OrgaInterface, Stringable
 {
     /**
+     * Data key and API attribute name of the two-factor requirement.
+     */
+    final public const TWO_FACTOR_REQUIRED = 'twoFactorRequired';
+
+    /**
      * @var string|null
      */
     #[ORM\Column(name: '_o_id', type: 'string', length: 36, options: ['fixed' => true])]
@@ -129,6 +134,11 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      */
     #[ORM\Column(name: '_o_showlist', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $showlist = true;
+    /**
+     * Forces every user of this orga to log in with a second factor.
+     */
+    #[ORM\Column(name: '_o_two_factor_required', type: 'boolean', nullable: false, options: ['default' => false])]
+    protected bool $twoFactorRequired = false;
     /**
      * @var string|null
      */
@@ -504,6 +514,18 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     public function isShowlist(): bool
     {
         return $this->getShowlist();
+    }
+
+    public function isTwoFactorRequired(): bool
+    {
+        return $this->twoFactorRequired;
+    }
+
+    public function setTwoFactorRequired(bool $twoFactorRequired): self
+    {
+        $this->twoFactorRequired = $twoFactorRequired;
+
+        return $this;
     }
 
     /**
@@ -970,6 +992,15 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
         }
 
         return $notDeletedUser;
+    }
+
+    /**
+     * True if at least one of the users of this organisation is not deleted and holds an institution role
+     * ({@see User::PUBLIC_AGENCY_ROLES}) in the current customer.
+     */
+    public function hasActiveInstitutionUsers(): bool
+    {
+        return $this->getUsers()->contains(static fn (User $user): bool => $user->isPublicAgency());
     }
 
     /**

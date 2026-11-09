@@ -1,5 +1,5 @@
 import { enableAutoUnmount } from '@vue/test-utils'
-import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
+import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal.vue'
 import { pollExportJob } from '@DpJs/lib/shared/persistentExportPoll'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import { vi } from 'vitest'

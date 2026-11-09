@@ -24,14 +24,14 @@
 
 <script>
 import { defineAsyncComponent } from 'vue'
-import DpDrawer from './drawer/Drawer'
+import DpDrawer from './drawer/Drawer.vue'
 import { mapActions } from 'vuex'
 
 export default {
   name: 'DpProcedures',
 
   components: {
-    DpMap: defineAsyncComponent(() => import('./map/Map')),
+    DpMap: defineAsyncComponent(() => import('./map/Map.vue')),
     DpDrawer,
   },
 

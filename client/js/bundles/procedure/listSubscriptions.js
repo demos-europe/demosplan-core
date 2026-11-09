@@ -12,7 +12,7 @@
  */
 
 import { initialize } from '@DpJs/InitVue'
-import ListSubscriptions from '@DpJs/components/procedure/listSubscriptions/ListSubscriptions'
+import ListSubscriptions from '@DpJs/components/procedure/listSubscriptions/ListSubscriptions.vue'
 
 const components = { ListSubscriptions }
 

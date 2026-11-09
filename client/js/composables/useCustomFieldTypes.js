@@ -1,6 +1,6 @@
-import MultiselectCustomField from '@DpJs/components/customFields/MultiselectCustomField'
-import SingleselectCustomField from '@DpJs/components/customFields/SingleselectCustomField'
-import TextCustomField from '@DpJs/components/customFields/TextCustomField'
+import MultiselectCustomField from '@DpJs/components/customFields/MultiselectCustomField.vue'
+import SingleselectCustomField from '@DpJs/components/customFields/SingleselectCustomField.vue'
+import TextCustomField from '@DpJs/components/customFields/TextCustomField.vue'
 
 function enrichSelectValue (rawValue, options) {
   const optionIds = rawValue ? [rawValue].flat() : []

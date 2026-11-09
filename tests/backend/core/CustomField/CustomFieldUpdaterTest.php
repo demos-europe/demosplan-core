@@ -60,6 +60,27 @@ class CustomFieldUpdaterTest extends UnitTestCase
         static::assertEquals('Updated Field Name', $result->getName());
     }
 
+    public function testUpdateCustomFieldDoesNotChangeIsSeparateColumn(): void
+    {
+        // Arrange
+        $procedure = ProcedureFactory::createOne();
+        $customField = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->asRadioButton('Color1')->create();
+        $repository = $this->getContainer()->get(CustomFieldConfigurationRepository::class);
+        $configuration = $repository->find($customField->getId());
+        $separateColumnField = clone $configuration->getConfiguration();
+        $separateColumnField->setSeparateColumn(false);
+        $configuration->setConfiguration($separateColumnField);
+        $repository->updateObject($configuration);
+
+        // Act
+        $result = $this->sut->updateCustomField($customField->getId(), ['isSeparateColumn' => true]);
+
+        // Assert
+        static::assertFalse($result->isSeparateColumn());
+    }
+
     public function testUpdateCustomFieldWithValidOptionsUpdate(): void
     {
         // Arrange
@@ -181,6 +202,53 @@ class CustomFieldUpdaterTest extends UnitTestCase
             'sameLabelsInReversedOrder'        => ['41', '4'],
             'textLabelEndingWithItsIndex'      => ['x', 'x1'],
         ];
+    }
+
+    public function testDeletingAnOptionTrimsItFromMultiSelectValuesOfSegments(): void
+    {
+        // Arrange
+        $procedure = ProcedureFactory::createOne();
+        $customField = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->withRelatedTargetEntity('SEGMENT')
+            ->asMultiSelect('Topics', options: ['Option1', 'Option2', 'Option3'])
+            ->create();
+
+        $customFieldId = $customField->getId();
+        [$option1, $option2, $option3] = $customField->getConfiguration()->getOptions();
+
+        $valuesBySegment = [
+            'both'      => [$option1->getId(), $option2->getId()], // Option1 deleted, Option2 remains
+            'onlyOne'   => [$option1->getId()],                    // Nothing remains
+            'untouched' => [$option2->getId(), $option3->getId()], // Nothing deleted
+        ];
+        $segments = [];
+        foreach ($valuesBySegment as $key => $value) {
+            $customFieldValue = new CustomFieldValue();
+            $customFieldValue->setId($customFieldId);
+            $customFieldValue->setValue($value);
+            $list = new CustomFieldValuesList();
+            $list->addCustomFieldValue($customFieldValue);
+
+            $segments[$key] = SegmentFactory::createOne();
+            $segments[$key]->_real()->setCustomFields($list);
+            $segments[$key]->_save();
+        }
+
+        // Act - Delete Option1 only
+        $this->sut->updateCustomField($customFieldId, ['options' => [
+            ['id' => $option2->getId(), 'label' => $option2->getLabel()],
+            ['id' => $option3->getId(), 'label' => $option3->getLabel()],
+        ]]);
+
+        // Assert
+        $segmentRepo = $this->getContainer()->get(SegmentRepository::class);
+        $valueOf = static fn (string $key) => $segmentRepo->find($segments[$key]->getId())
+            ->getCustomFields()?->findById($customFieldId)?->getValue();
+
+        self::assertSame([$option2->getId()], $valueOf('both'));
+        self::assertNull($valueOf('onlyOne'));
+        self::assertSame([$option2->getId(), $option3->getId()], $valueOf('untouched'));
     }
 
     public function testDeleteCustomFieldOptionsCallsRemoveOptionUsagesWithMultipleSegments(): void

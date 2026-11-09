@@ -298,7 +298,7 @@
 
 <script>
 import { CleanHtml, DpInlineNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
-import CustomField from '@DpJs/components/customFields/CustomField'
+import CustomField from '@DpJs/components/customFields/CustomField.vue'
 
 export default {
   name: 'StatementModalRecheck',

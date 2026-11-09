@@ -162,12 +162,15 @@ class OrgaHandler extends CoreHandler
             'emailNotificationEndingPhase',
             'emailNotificationNewStatement',
             'participationEmail',
-            'registrationStatuses',
             'showlist',
             'showlistChangeReason',
             'showname',
             'canCreateProcedures',
         ];
+
+        if ($this->currentUser->hasPermission('feature_orga_registration_status_edit')) {
+            $writableAttributes[] = 'registrationStatuses';
+        }
 
         if ($this->currentUser->hasPermission('field_organisation_email2_cc')) {
             $writableAttributes[] = 'email2';
@@ -183,6 +186,10 @@ class OrgaHandler extends CoreHandler
 
         if ($this->currentUser->hasPermission('field_imprint_text_customized_edit_orga')) {
             $writableAttributes[] = 'imprint';
+        }
+
+        if ($this->currentUser->hasPermission('field_organisation_two_factor_required')) {
+            $writableAttributes[] = Orga::TWO_FACTOR_REQUIRED;
         }
 
         // these are writable in 'portal' mode only

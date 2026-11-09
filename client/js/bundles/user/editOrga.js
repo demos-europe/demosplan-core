@@ -13,7 +13,7 @@
 
 import { DpAccordion, DpEditor, dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
-import OrganisationDataForm from '@DpJs/components/user/orgaDataEntry/OrganisationDataForm'
+import OrganisationDataForm from '@DpJs/components/user/orgaDataEntry/OrganisationDataForm.vue'
 
 import UrlPreview from '@DpJs/lib/shared/UrlPreview'
 

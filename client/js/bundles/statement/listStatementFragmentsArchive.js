@@ -13,8 +13,8 @@
 
 import { DpModal, DpMultiselect } from '@demos-europe/demosplan-ui'
 import assessmentTableStore from '@DpJs/store/statement/AssessmentTable'
-import DpFragmentList from '@DpJs/components/statement/fragmentList/DpFragmentList'
-import DpFragmentListFilterModal from '@DpJs/components/statement/fragmentList/DpFragmentListFilterModal'
+import DpFragmentList from '@DpJs/components/statement/fragmentList/DpFragmentList.vue'
+import DpFragmentListFilterModal from '@DpJs/components/statement/fragmentList/DpFragmentListFilterModal.vue'
 import fragmentStore from '@DpJs/store/statement/Fragment'
 import { initialize } from '@DpJs/InitVue'
 import ListStatementFragments from '@DpJs/lib/statement/ListStatementFragments'

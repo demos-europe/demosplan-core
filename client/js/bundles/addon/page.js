@@ -11,7 +11,7 @@
  * This is the entrypoint for addon_page.html.twig, a page that only consists of the addon components of one hook.
  */
 
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

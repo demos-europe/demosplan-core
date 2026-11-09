@@ -5,10 +5,23 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Editing the organisation types and showing the customer (Bundesland) of an organisation
+  are gated by the new permissions `feature_orga_registration_status_edit` and `field_organisation_customer`;
+  projects must grant them explicitly, `CUSTOMER_MASTER_USER` no longer holds them by default (DPLAN-18505)
+- Organisations can be marked as requiring two-factor authentication for their users (DPLAN-17501)
+- When an organisation requires two-factor authentication (feature permission `feature_orga_two_factor_required`),
+  its users without a second factor are sent to their profile page after login and cannot use any other part of the
+  application until a factor is set up; imprint and data protection stay reachable. Sessions that started before the
+  requirement was switched on stay valid until the next login (DPLAN-17433)
+- Setting up a second factor is recorded in the report (DPLAN-17433)
+- While an organisation requires two-factor authentication, the last second factor of a user cannot be disabled on the
+  profile page (DPLAN-17433)
 - Node.js 24.22.1 for the image build, CI and `engines` (October 2026 security release)
 - `MailService` implements the new `MailServiceInterface` of the contract layer, so addons can queue mails
 - composer.json declares every PHP extension the application needs (adds apcu, exif, pcntl, pdo_mysql; drops soap, posix), so a missing extension fails the image build
 - production image: PHP extensions bcmath, bz2, calendar, ffi, gettext, mysqli, shmop, soap, sysvmsg, sysvsem, sysvshm and xsl removed; compiler toolchain removed from the fpm image (~220 MB smaller)
+- The institution resources `InvitedToeb`, `InvitableToeb` (JSON:API 2.0) and `InvitableInstitution` (API Platform 3.0) expose the attribute `hasActiveUsers`: true if the organisation has a non-deleted user with an institution role in the current customer
+- The lists of invitable institutions (institution tags page, "add institution" list of a procedure) include every organisation that is accepted as public agency in the current customer, also if none of its users holds an institution role. Such an organisation can be added to a procedure
 
 ### Added
 - new Bookmarks feature for the segments list, allowing users to create, save, update, and switch between different views
@@ -36,6 +49,12 @@
 ## v4.62.1 (2026-10-22)
 
 ## v4.62.0 (2026-10-08)
+
+## v4.61.5 (2026-11-04)
+
+### Fixed
+- Links in the daily mail about newly assigned sections now point to the customer of the procedure instead of the host the mail job runs with, and a user with assigned sections in several customers receives one mail per customer
+- While the spell check is unavailable, an info hint is shown instead of an error message for every failed check
 
 ## v4.61.4 (2026-10-21)
 

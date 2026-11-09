@@ -11,7 +11,7 @@
  * This is the entrypoint for new_public_participation_statement_vote.html.twig
  */
 
-import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
+import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal.vue'
 import { DpModal } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 
