@@ -266,9 +266,9 @@ const getQueryHashFromUrl = (): string => {
 
 const findBookmarkToRestore = (): Bookmark | undefined => {
   const urlQueryHash = getQueryHashFromUrl()
-  const bookmarkFromUrl = urlQueryHash
-    ? findBookmarkByQueryHash(urlQueryHash)
-    : undefined
+  const bookmarkFromUrl = urlQueryHash ?
+    findBookmarkByQueryHash(urlQueryHash) :
+    undefined
 
   // Prefer the URL hash for shared links and navigation
   if (bookmarkFromUrl) {
