@@ -9,7 +9,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, mount } from '@vue/test-utils'
-import AssignEntityModal from '@DpJs/components/statement/assessmentTable/AssignEntityModal'
+import AssignEntityModal from '@DpJs/components/statement/assessmentTable/AssignEntityModal.vue'
 import { createStore } from 'vuex'
 
 const { mockDpApi } = vi.hoisted(() => ({ mockDpApi: vi.fn() }))

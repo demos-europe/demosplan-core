@@ -324,7 +324,7 @@
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { DpInlineNotification } from '@demos-europe/demosplan-ui'
-import SearchAndSorting from '@DpJs/components/statement/assessmentTable/TocView/SearchAndSorting'
+import SearchAndSorting from '@DpJs/components/statement/assessmentTable/TocView/SearchAndSorting.vue'
 
 export default {
   name: 'AssessmentTableFilter',

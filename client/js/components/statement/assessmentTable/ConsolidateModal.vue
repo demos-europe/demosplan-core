@@ -244,7 +244,7 @@ import {
   hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import DpSelectStatementCluster from '@DpJs/components/statement/statement/SelectStatementCluster'
+import DpSelectStatementCluster from '@DpJs/components/statement/statement/SelectStatementCluster.vue'
 
 const emptyAssignee = {
   id: '',

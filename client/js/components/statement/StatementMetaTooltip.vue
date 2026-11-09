@@ -95,7 +95,7 @@
 </template>
 
 <script>
-import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
+import StatementMetaData from '@DpJs/components/statement/StatementMetaData.vue'
 
 export default {
   name: 'StatementMetaTooltip',

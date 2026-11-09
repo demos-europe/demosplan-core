@@ -102,7 +102,7 @@
 <script>
 import { dpApi, DpBadge, DpButtonRow, DpConfirmDialog, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
-import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
+import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard.vue'
 import { mapState } from 'vuex'
 
 export default {
@@ -113,7 +113,7 @@ export default {
     DpButtonRow,
     DpConfirmDialog,
     DpIcon,
-    DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields')),
+    DpOrganisationFormFields: defineAsyncComponent(() => import(/* webpackChunkName: "organisation-form-fields" */ './DpOrganisationFormFields.vue')),
     DpTableCard,
   },
 

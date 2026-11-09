@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import DpClaim from '@DpJs/components/statement/DpClaim'
+import DpClaim from '@DpJs/components/statement/DpClaim.vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('DpClaim', () => {

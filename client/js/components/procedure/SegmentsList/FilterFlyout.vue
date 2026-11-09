@@ -194,7 +194,7 @@ import {
   hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import FilterFlyoutCheckbox from './FilterFlyoutCheckbox'
+import FilterFlyoutCheckbox from './FilterFlyoutCheckbox.vue'
 
 export default {
   name: 'FilterFlyout',

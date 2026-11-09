@@ -166,8 +166,8 @@ import { DpLoading, DpPager } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import changeUrlforPager from '../assessmentTable/utils/changeUrlforPager'
 import { defineAsyncComponent } from 'vue'
-import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal'
-import OriginalStatementsTableItem from './OriginalStatementsTableItem'
+import ExportModal from '@DpJs/components/statement/assessmentTable/ExportModal.vue'
+import OriginalStatementsTableItem from './OriginalStatementsTableItem.vue'
 
 export default {
   name: 'OriginalStatementsTable',
@@ -180,7 +180,7 @@ export default {
 
       return DpInlineNotification
     }),
-    DpMapModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal')),
+    DpMapModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-map-modal" */ '@DpJs/components/statement/assessmentTable/DpMapModal.vue')),
     DpPager,
     OriginalStatementsTableItem,
   },

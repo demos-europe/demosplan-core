@@ -133,8 +133,8 @@ import { mapActions, mapState } from 'vuex'
 import { Attribution } from 'ol/control'
 import convertExtentToObject from '../map/utils/convertExtentToObject'
 import { fromExtent } from 'ol/geom/Polygon'
-import MapAdminScales from './MapAdminScales'
-import MapView from '@DpJs/components/map/map/MapView'
+import MapAdminScales from './MapAdminScales.vue'
+import MapView from '@DpJs/components/map/map/MapView.vue'
 
 export default {
   name: 'MapAdmin',

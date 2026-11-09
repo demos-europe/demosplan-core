@@ -113,8 +113,8 @@ import { mapActions, mapMutations, mapState } from 'vuex'
 import { handleSegmentNavigation } from '@DpJs/lib/segment/handleSegmentNavigation'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { scrollTo } from 'vue-scrollto'
-import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
-import StatementSegment from './StatementSegment'
+import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal.vue'
+import StatementSegment from './StatementSegment.vue'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 
 export default {

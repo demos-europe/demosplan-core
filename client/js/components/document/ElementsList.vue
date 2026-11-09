@@ -85,7 +85,7 @@ export default {
   components: {
     DpLoading,
     DpTreeList,
-    FileInfo: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/FileInfo')),
+    FileInfo: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList/FileInfo.vue')),
   },
 
   directives: {

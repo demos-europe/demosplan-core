@@ -13,8 +13,8 @@
 
 import { dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
-import OrgaRegisterForm from '@DpJs/components/user/orgaRegisterForm/OrgaRegisterForm'
-import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
+import OrgaRegisterForm from '@DpJs/components/user/orgaRegisterForm/OrgaRegisterForm.vue'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout.vue'
 
 const components = {
   OrgaRegisterForm,
