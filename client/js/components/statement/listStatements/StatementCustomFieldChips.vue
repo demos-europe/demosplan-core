@@ -33,6 +33,7 @@
     <dp-popover
       v-if="hiddenCount > 0"
       :aria-label="Translator.trans('custom.fields.chips.show.all')"
+      :panel-label="Translator.trans('custom.fields.collection')"
       button-class="inline-flex cursor-pointer items-center rounded-md border border-interactive px-1.5 py-0.5 text-xs text-interactive hover:bg-interactive-subtle-hover [.is-expanded-row_&]:hidden"
     >
       <template v-slot:trigger>
@@ -92,7 +93,6 @@ interface FieldEntry {
   labels: string[]
 }
 
-// The visible chip count is not defined in the design yet, adjust once it is.
 const MAX_VISIBLE_CHIPS = 4
 
 const props = defineProps({
