@@ -264,7 +264,7 @@ const findBookmarkByQueryHash = (queryHash: string): Bookmark | undefined => {
 const getQueryHashFromUrl = (): string => {
   const hrefParts = globalThis.location.href.split('/')
 
-  return hrefParts[hrefParts.length - 1] || ''
+  return hrefParts.at(-1) || ''
 }
 
 const findBookmarkToRestore = (): Bookmark | undefined => {
