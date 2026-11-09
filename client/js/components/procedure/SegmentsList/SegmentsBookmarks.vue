@@ -14,9 +14,9 @@
     <div class="flex-1 overflow-y-auto min-h-0">
       <segments-bookmarks-unsaved-changes
         :current-bookmark="currentBookmark"
+        :custom-field-definitions="customFieldDefinitions"
         :filters="filters"
         :is-open="showUnsavedChanges"
-        :procedure-id="procedureId"
         @toggle="showUnsavedChanges = $event"
         @has-changes="hasUnsavedChanges = $event"
       />
@@ -126,10 +126,12 @@ import { useStore } from 'vuex'
 
 /* Props */
 const props = withDefaults(defineProps<{
+  customFieldDefinitions?: Array<{ id: string, attributes: { name: string } }>
   procedureId: string
   totalColumnCount?: number
   filters?: Record<string, { labelTranslationKey: string, rootPath: string, comparisonOperator: string }>
 }>(), {
+  customFieldDefinitions: () => [],
   totalColumnCount: 0,
   filters: () => ({}),
 })

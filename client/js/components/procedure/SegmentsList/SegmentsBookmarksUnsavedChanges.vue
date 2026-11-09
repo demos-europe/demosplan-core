@@ -138,7 +138,6 @@ import type {
 import {
   computed,
   type ComputedRef,
-  onMounted,
   ref,
   type Ref,
   watch,
@@ -154,15 +153,14 @@ import type {
   RootState,
 } from '@DpJs/types/store'
 import { CUSTOM_FIELD_GROUP_PREFIX } from '@DpJs/composables/useApiPlatformFilters'
-import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useStore } from 'vuex'
 
 /* Props */
 const props = defineProps<{
   currentBookmark: Bookmark | null
+  customFieldDefinitions: Array<{ id: string, attributes: { name: string } }>
   filters: Record<string, { labelTranslationKey: string, rootPath: string, comparisonOperator: string }>
   isOpen: boolean
-  procedureId: string
 }>()
 
 /* Emits */
@@ -180,8 +178,6 @@ const state = store.state as RootState
 const filterLabelCache: Ref<FilterLabelCache> = ref({
   unassigned: Translator.trans('not.assigned'),
 })
-
-const customFieldDefinitions: Ref<Array<{ id: string, attributes: { name: string } }>> = ref([])
 
 /**
  * Updates the label cache with all labels from the store's filter options.
@@ -438,7 +434,7 @@ const getFilterNameByPath = (filterPath: string, memberOf?: string): string => {
   // Check for custom field - use memberOf to look up the field name
   if (filterPath === 'customFields' && memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX)) {
     const fieldId = memberOf.replace(CUSTOM_FIELD_GROUP_PREFIX, '')
-    const customField = customFieldDefinitions.value.find(field => field.id === fieldId)
+    const customField = props.customFieldDefinitions.find(field => field.id === fieldId)
 
     if (customField) {
       return customField.attributes.name
@@ -510,18 +506,4 @@ watch(
   },
   { deep: true },
 )
-
-onMounted(async () => {
-  if (hasPermission('field_segments_custom_fields')) {
-    const { fetchCustomFields } = useCustomFields()
-
-    try {
-      const definitions = await fetchCustomFields(props.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'SEGMENT' })
-
-      customFieldDefinitions.value = definitions
-    } catch {
-      // Notification already shown by useCustomFieldDefinitions
-    }
-  }
-})
 </script>

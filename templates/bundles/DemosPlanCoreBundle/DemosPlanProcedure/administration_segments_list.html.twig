@@ -36,6 +36,7 @@
         {% if hasPermission('feature_procedure_user_filter_sets') %}
             <segments-bookmarks
                 procedure-id="{{ procedure }}"
+                :custom-field-definitions="$refs.segmentsList?.customFieldDefinitions || []"
                 :total-column-count="$refs.segmentsList?.selectableColumns?.length || 0"
                 :filters="JSON.parse('{{ filterNames|json_encode|e('js', 'utf-8') }}')"
                 @apply-bookmark="$refs.segmentsList.applyBookmarkSettings($event); $refs.segmentsListFilter.syncFromBookmark($event.attributes.filter)"
