@@ -39,8 +39,8 @@
 
 <script>
 import { mapGetters, mapState } from 'vuex'
-import DpPublicLayerListCategory from './DpPublicLayerListCategory'
-import DpPublicLayerListLayer from './DpPublicLayerListLayer'
+import DpPublicLayerListCategory from './DpPublicLayerListCategory.vue'
+import DpPublicLayerListLayer from './DpPublicLayerListLayer.vue'
 import { prefixClass } from '@demos-europe/demosplan-ui'
 
 export default {

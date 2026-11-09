@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import DpPublicStatement from '@DpJs/components/statement/publicStatementLists/DpPublicStatement'
+import DpPublicStatement from '@DpJs/components/statement/publicStatementLists/DpPublicStatement.vue'
 import { generateMenuItems } from '@DpJs/components/statement/publicStatementLists/menuItems'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 

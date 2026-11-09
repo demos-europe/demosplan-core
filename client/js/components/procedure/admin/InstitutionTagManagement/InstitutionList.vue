@@ -76,6 +76,15 @@
               <li class="o-list__item o-hellip--nowrap">
                 {{ date(institution.createdDate) }}
               </li>
+              <li v-if="institution.hasActiveUsers === false">
+                <dp-badge
+                  :text="Translator.trans('invitable_institution.users.active.none')"
+                  class="inline-block mt-1"
+                  color="default"
+                  data-cy="institutionList:noActiveUsersBadge"
+                  size="small"
+                />
+              </li>
             </ul>
           </template>
           <template v-slot:email="institution">
@@ -193,6 +202,7 @@
 
 <script>
 import {
+  DpBadge,
   DpColumnSelector,
   DpDataTable,
   DpIcon,
@@ -204,8 +214,8 @@ import {
   formatDate,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter'
-import CustomField from '@DpJs/components/customFields/CustomField'
+import ClientSideTagFilter from '@DpJs/components/procedure/admin/InstitutionTagManagement/ClientSideTagFilter.vue'
+import CustomField from '@DpJs/components/customFields/CustomField.vue'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
@@ -215,6 +225,7 @@ export default {
   components: {
     ClientSideTagFilter,
     CustomField,
+    DpBadge,
     DpColumnSelector,
     DpDataTable,
     DpIcon,
@@ -345,6 +356,7 @@ export default {
           customFields: this.customFieldValuesByInstitutionId[id] || {},
           edit: this.editingInstitutionId === id,
           email: this.cleanEmail(attributes.participationFeedbackEmailAddress),
+          hasActiveUsers: attributes.hasActiveUsers,
           id,
           name: attributes.name,
           tags: relationships.assignedTags.data
@@ -523,6 +535,7 @@ export default {
           InvitableInstitution: [
             'name',
             'createdDate',
+            'hasActiveUsers',
             'participationFeedbackEmailAddress',
             'assignedTags',
             ...customFields,

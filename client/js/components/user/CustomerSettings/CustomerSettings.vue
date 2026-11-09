@@ -299,11 +299,11 @@
 <script>
 import { DpButtonRow, DpLabel, DpLoading, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import CustomerSettingsBranding from './CustomerSettingsBranding'
-import CustomerSettingsLoginSupport from './CustomerSettingsLoginSupport'
-import CustomerSettingsSection from './CustomerSettingsSection'
-import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo'
-import CustomerSettingsSupport from './CustomerSettingsSupport'
+import CustomerSettingsBranding from './CustomerSettingsBranding.vue'
+import CustomerSettingsLoginSupport from './CustomerSettingsLoginSupport.vue'
+import CustomerSettingsSection from './CustomerSettingsSection.vue'
+import CustomerSettingsSignLanguageVideo from './CustomerSettingsSignLanguageVideo.vue'
+import CustomerSettingsSupport from './CustomerSettingsSupport.vue'
 import { defineAsyncComponent } from 'vue'
 
 export default {
@@ -313,7 +313,7 @@ export default {
     DpButtonRow,
     CustomerSettingsBranding,
     CustomerSettingsLoginSupport,
-    CustomerSettingsMap: defineAsyncComponent(() => import('./CustomerSettingsMap')),
+    CustomerSettingsMap: defineAsyncComponent(() => import('./CustomerSettingsMap.vue')),
     CustomerSettingsSection,
     CustomerSettingsSignLanguageVideo,
     CustomerSettingsSupport,

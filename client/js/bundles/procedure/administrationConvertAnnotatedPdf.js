@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_convert_annotated_pdf.html.twig
  */
 
-import DpConvertAnnotatedPdf from '@DpJs/components/procedure/imageAnnotator/DpConvertAnnotatedPdf'
+import DpConvertAnnotatedPdf from '@DpJs/components/procedure/imageAnnotator/DpConvertAnnotatedPdf.vue'
 import { DpInlineNotification } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
 

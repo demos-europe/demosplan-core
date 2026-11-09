@@ -416,10 +416,10 @@ import {
   sessionStorageMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
+import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout.vue'
 import qs from 'qs'
-import ScheduledExportFormFields from '@DpJs/components/statement/statementExportModal/ScheduledExportFormFields'
-import ScheduledExportList from '@DpJs/components/statement/statementExportModal/ScheduledExportList'
+import ScheduledExportFormFields from '@DpJs/components/statement/statementExportModal/ScheduledExportFormFields.vue'
+import ScheduledExportList from '@DpJs/components/statement/statementExportModal/ScheduledExportList.vue'
 
 export default {
   name: 'StatementExportModal',

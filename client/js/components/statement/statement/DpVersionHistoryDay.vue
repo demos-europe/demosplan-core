@@ -59,7 +59,7 @@
 </template>
 
 <script>
-import DpVersionHistoryItem from './DpVersionHistoryItem'
+import DpVersionHistoryItem from './DpVersionHistoryItem.vue'
 import { formatDate } from '@demos-europe/demosplan-ui'
 
 export default {

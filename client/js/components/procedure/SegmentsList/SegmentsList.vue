@@ -474,28 +474,15 @@
             </template>
           </dp-data-table>
         </div>
-        <div
+        <table-scrollbar
           v-show="scrollbarVisible"
           ref="scrollBar"
-          class="h-[16px] z-[11] relative bg-neutral-light-4 mt-[10px]"
-          :class="
-            isFullscreen
-              ? 'fixed bottom-3 left-0 right-0 mx-2'
-              : 'sticky bottom-0 left-0 right-0'
-          "
-        >
-          <div
-            :aria-valuenow="scrollPercent"
-            :style="thumbStyle"
-            aria-controls="segmentsListScrollContainer"
-            aria-valuemax="100"
-            aria-valuemin="0"
-            class="absolute inset-y-[2px] rounded-full bg-neutral-light-2 cursor-pointer hover:bg-interactive active:bg-interactive-hover"
-            role="scrollbar"
-            tabindex="0"
-            @mousedown="onThumbMousedown"
-          />
-        </div>
+          :is-fullscreen="isFullscreen"
+          :scroll-percent="scrollPercent"
+          :thumb-style="thumbStyle"
+          controls="segmentsListScrollContainer"
+          @thumb-mousedown="onThumbMousedown"
+        />
       </template>
 
       <dp-inline-notification
@@ -542,20 +529,21 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { CUSTOM_FIELD_GROUP_PREFIX, useApiPlatformFilters } from '@DpJs/composables/useApiPlatformFilters'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper.vue'
 import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
-import CustomSearch from './CustomSearch'
+import CustomSearch from './CustomSearch.vue'
 import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMixin'
-import ImageModal from '@DpJs/components/shared/ImageModal'
+import ImageModal from '@DpJs/components/shared/ImageModal.vue'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
-import SegmentsExportModal from './SegmentsExportModal'
-import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
-import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
-import StatusBadge from '../Shared/StatusBadge'
+import SegmentsExportModal from './SegmentsExportModal.vue'
+import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal.vue'
+import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip.vue'
+import StatusBadge from '../Shared/StatusBadge.vue'
+import TableScrollbar from '@DpJs/components/shared/TableScrollbar.vue'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
-import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer.vue'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 
@@ -589,6 +577,7 @@ export default {
     SegmentUnlockModal,
     StatementMetaTooltip,
     StatusBadge,
+    TableScrollbar,
     TextContentRenderer,
     VPopover,
   },

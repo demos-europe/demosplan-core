@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for administration_custom_fields_list.html.twig
  */
-import AdministrationCustomFieldsList from '@DpJs/components/procedure/admin/AdministrationCustomFieldsList'
+import AdministrationCustomFieldsList from '@DpJs/components/procedure/admin/AdministrationCustomFieldsList.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

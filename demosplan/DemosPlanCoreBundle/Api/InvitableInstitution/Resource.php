@@ -75,6 +75,13 @@ class Resource
     public array $assignedTags = [];
 
     /**
+     * True if at least one user of the institution is not deleted and holds an institution role in the
+     * current customer, see {@see Orga::hasActiveInstitutionUsers()}.
+     */
+    #[ApiProperty(readable: true, writable: false)]
+    public bool $hasActiveUsers = false;
+
+    /**
      * @param list<InstitutionTag> $visibleTags only the tags the current user may read
      */
     public static function fromEntity(Orga $orga, array $visibleTags, bool $withCustomFields): self
@@ -89,6 +96,7 @@ class Resource
             static fn (InstitutionTag $tag): InstitutionTagResource => InstitutionTagResource::fromEntity($tag),
             $visibleTags
         );
+        $resource->hasActiveUsers = $orga->hasActiveInstitutionUsers();
 
         return $resource;
     }

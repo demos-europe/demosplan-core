@@ -58,9 +58,9 @@ import {
   DpTab,
   DpTabs,
 } from '@demos-europe/demosplan-ui'
-import AdministrationCustomFieldsList from '@DpJs/components/procedure/admin/AdministrationCustomFieldsList'
-import InstitutionList from './InstitutionList'
-import TagList from './TagList'
+import AdministrationCustomFieldsList from '@DpJs/components/procedure/admin/AdministrationCustomFieldsList.vue'
+import InstitutionList from './InstitutionList.vue'
+import TagList from './TagList.vue'
 
 export default {
   name: 'InstitutionTagManagement',

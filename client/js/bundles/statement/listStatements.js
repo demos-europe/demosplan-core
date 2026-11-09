@@ -15,8 +15,8 @@ import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import FilterFlyoutStore from '@DpJs/store/procedure/FilterFlyout'
 import FragmentStore from '@DpJs/store/statement/Fragment'
 import { initialize } from '@DpJs/InitVue'
-import ListOriginalStatements from '@DpJs/components/statement/listOriginalStatements/ListOriginalStatements'
-import ListStatements from '@DpJs/components/statement/listStatements/ListStatements'
+import ListOriginalStatements from '@DpJs/components/statement/listOriginalStatements/ListOriginalStatements.vue'
+import ListStatements from '@DpJs/components/statement/listStatements/ListStatements.vue'
 
 const components = {
   ListStatements,

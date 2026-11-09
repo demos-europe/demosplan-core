@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import BoilerplateSaveConfirmModal from '@DpJs/components/procedure/admin/BoilerplateSaveConfirmModal'
+import BoilerplateSaveConfirmModal from '@DpJs/components/procedure/admin/BoilerplateSaveConfirmModal.vue'
 import { validateForm } from '@demos-europe/demosplan-ui'
 
 export default {

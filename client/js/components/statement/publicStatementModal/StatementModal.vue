@@ -357,6 +357,7 @@
             :required="formDefinition.required && formData.r_isNegativeReport !== '1'"
             :logged-in="loggedIn"
             :counties="counties"
+            @go-to-tab="gotoTab"
           />
         </template>
 
@@ -890,11 +891,11 @@ import {
   toggleFullscreen,
 } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
-import CustomField from '@DpJs/components/customFields/CustomField'
-import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
+import CustomField from '@DpJs/components/customFields/CustomField.vue'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList.vue'
 import dayjs from 'dayjs'
 import { defineAsyncComponent } from 'vue'
-import StatementModalRecheck from './StatementModalRecheck'
+import StatementModalRecheck from './StatementModalRecheck.vue'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
@@ -943,19 +944,19 @@ export default {
       return DpEditor
     }),
     DpUploadFiles,
-    FormGroupCitizenOrInstitution: defineAsyncComponent(() => import('./formGroups/FormGroupCitizenOrInstitution')),
-    FormGroupCountyReference: defineAsyncComponent(() => import('./formGroups/FormGroupCountyReference')),
-    FormGroupEmailAddress: defineAsyncComponent(() => import('./formGroups/FormGroupEmailAddress')),
-    FormGroupEvaluationMailViaEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaEmail')),
-    FormGroupEvaluationMailViaSnailMailOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaSnailMailOrEmail')),
-    FormGroupMapReference: defineAsyncComponent(() => import('./formGroups/FormGroupMapReference')),
-    FormGroupName: defineAsyncComponent(() => import('./formGroups/FormGroupName')),
-    FormGroupPhoneNumber: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneNumber')),
-    FormGroupPhoneOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneOrEmail')),
-    FormGroupPostalAndCity: defineAsyncComponent(() => import('./formGroups/FormGroupPostalAndCity')),
-    FormGroupStateAndGroupAndOrgaNameAndPosition: defineAsyncComponent(() => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition')),
-    FormGroupStreet: defineAsyncComponent(() => import('./formGroups/FormGroupStreet')),
-    FormGroupStreetAndHouseNumber: defineAsyncComponent(() => import('./formGroups/FormGroupStreetAndHouseNumber')),
+    FormGroupCitizenOrInstitution: defineAsyncComponent(() => import('./formGroups/FormGroupCitizenOrInstitution.vue')),
+    FormGroupCountyReference: defineAsyncComponent(() => import('./formGroups/FormGroupCountyReference.vue')),
+    FormGroupEmailAddress: defineAsyncComponent(() => import('./formGroups/FormGroupEmailAddress.vue')),
+    FormGroupEvaluationMailViaEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaEmail.vue')),
+    FormGroupEvaluationMailViaSnailMailOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaSnailMailOrEmail.vue')),
+    FormGroupMapReference: defineAsyncComponent(() => import('./formGroups/FormGroupMapReference.vue')),
+    FormGroupName: defineAsyncComponent(() => import('./formGroups/FormGroupName.vue')),
+    FormGroupPhoneNumber: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneNumber.vue')),
+    FormGroupPhoneOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneOrEmail.vue')),
+    FormGroupPostalAndCity: defineAsyncComponent(() => import('./formGroups/FormGroupPostalAndCity.vue')),
+    FormGroupStateAndGroupAndOrgaNameAndPosition: defineAsyncComponent(() => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition.vue')),
+    FormGroupStreet: defineAsyncComponent(() => import('./formGroups/FormGroupStreet.vue')),
+    FormGroupStreetAndHouseNumber: defineAsyncComponent(() => import('./formGroups/FormGroupStreetAndHouseNumber.vue')),
     StatementModalRecheck,
   },
 
@@ -2233,10 +2234,6 @@ export default {
     // Set data from map
     this.$root.$on('updateStatementFormMapData', (data, toggle) => {
       this.setLocation(data, toggle)
-    })
-
-    this.$root.$on('statementModal:goToTab', tabname => {
-      this.gotoTab(tabname)
     })
   },
 }
