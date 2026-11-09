@@ -6,6 +6,11 @@
 
 ## UNRELEASED
 
+## v4.64.1 (2026-11-09)
+
+### Fixed
+- Exporting statements as a ZIP file no longer aborts when a statement has several original PDF files
+
 ## v4.64.0 (2026-10-21)
 - bump contract layer demosplan-addon to v0.83
 - depends on contract layer >= v0.83
