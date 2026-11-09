@@ -18,7 +18,6 @@
       </legend>
 
       <dp-select
-        class="mt-4"
         data-cy="scheduledExportForm:selectedFrequency"
         :label="{ text: Translator.trans('export.xlsx.scheduled.frequency') }"
         name="frequency"
@@ -38,7 +37,7 @@
       />
     </fieldset>
 
-    <div class="rounded bg-neutral-light-4 p-3 mt-4">
+    <div class="rounded bg-neutral-light-4 p-3">
       <dl class="grid grid-cols-3 gap-2 m-0">
         <dt>
           {{ `${Translator.trans('export.xlsx.scheduled.frequency')}:` }}
