@@ -571,6 +571,7 @@ export default {
               'initialOrganisationName',
               'isCluster',
               'likesNum',
+              'locationReference',
               'movedStatementId',
               'movedFromProcedureId',
               'movedFromProcedureName',

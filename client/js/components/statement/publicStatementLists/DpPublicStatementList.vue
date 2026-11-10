@@ -106,6 +106,7 @@ import {
 import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
 import DpPublicStatement from './DpPublicStatement'
 import { generateMenuItems } from './menuItems'
+import { mergeFeatureCollections } from '@DpJs/lib/map/locationFeatures'
 
 const editPermissions = {
   draft: 'feature_statements_draft_edit',
@@ -327,6 +328,7 @@ export default {
         oName,
         phaseDefinition,
         polygon,
+        locationReference,
         elementId,
         paragraphId,
         showToAll,
@@ -365,7 +367,8 @@ export default {
       const transformedSubmitDate = submitted === false ? {} : { submittedDate: formatDate(submittedDate, 'DD.MM.YYYY HH:mm') }
       const transformedCreatedDate = formatDate(createdDate, 'DD.MM.YYYY HH:mm')
 
-      const transformedPolygon = polygon === '' ? {} : JSON.parse(polygon)
+      // The drawing and the location reference (Ortsbezug) are shown together
+      const transformedPolygon = mergeFeatureCollections(polygon, locationReference)
 
       return {
         authorOnly,

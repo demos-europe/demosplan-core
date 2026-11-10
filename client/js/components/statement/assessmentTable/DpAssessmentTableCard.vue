@@ -406,7 +406,7 @@
               @field:save="data => saveStatement(data, 'relationship', 'priorityAreas')"
             />
 
-            <template v-if="statement.polygon !== '' && statementFormDefinitions.mapAndCountyReference.enabled">
+            <template v-if="hasLocation && statementFormDefinitions.mapAndCountyReference.enabled">
               <dt class="layout__item u-pb-0_25 u-pt-0_25 u-1-of-6 weight--bold">
                 {{ Translator.trans('statement.map.drawing') }}:
               </dt><!--
@@ -415,7 +415,7 @@
                     class="u-5-of-6 relative"
                     href="#"
                     rel="noopener"
-                    @click.prevent.stop="toggleMapModal(JSON.parse(statement.polygon))"
+                    @click.prevent.stop="toggleMapModal(locationFeatures)"
                   >
                     {{ Translator.trans('see') }}
                   </a>
@@ -762,6 +762,7 @@
 
 <script>
 import { dpApi, DpContextualHelp, DpTooltip, formatDate, hasOwnProp } from '@demos-europe/demosplan-ui'
+import { hasLocationFeatures, mergeFeatureCollections } from '@DpJs/lib/map/locationFeatures'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
@@ -904,8 +905,19 @@ export default {
       return Base64.encode(this.statement.text)
     },
 
+    hasLocation () {
+      return hasLocationFeatures(this.statement.polygon, this.statement.locationReference)
+    },
+
     isClaimed () {
       return hasPermission('feature_statement_assignment') ? this.statement.assignee.id === this.currentUserId : true
+    },
+
+    /**
+     * The drawing and the location reference (Ortsbezug) are shown together.
+     */
+    locationFeatures () {
+      return mergeFeatureCollections(this.statement.polygon, this.statement.locationReference)
     },
 
     publicVerifiedKeyIcon () {
@@ -947,7 +959,7 @@ export default {
     },
 
     showLocationRow () {
-      return this.statementFormDefinitions.countyReference.enabled || this.statementFormDefinitions.mapAndCountyReference.enabled ? (this.statement.polygon !== '' || dplan.procedureStatementPriorityArea || hasPermission('field_statement_county') || hasPermission('field_statement_municipality') || hasPermission('field_statement_priority_area')) : false
+      return this.statementFormDefinitions.countyReference.enabled || this.statementFormDefinitions.mapAndCountyReference.enabled ? (this.hasLocation || dplan.procedureStatementPriorityArea || hasPermission('field_statement_county') || hasPermission('field_statement_municipality') || hasPermission('field_statement_priority_area')) : false
     },
 
     statementDetailPath () {

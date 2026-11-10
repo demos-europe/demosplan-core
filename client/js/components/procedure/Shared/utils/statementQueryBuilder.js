@@ -51,6 +51,7 @@ export function buildDetailedStatementQuery (statementId, options = {}) {
     'isCluster',
     'isManual',
     'isSubmittedByCitizen',
+    'locationReference',
     'memo',
     'municipalities',
     'numberOfAnonymVotes',

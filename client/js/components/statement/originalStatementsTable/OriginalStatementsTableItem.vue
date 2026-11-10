@@ -132,7 +132,7 @@
         </custom-fields-list>
 
         <div
-          v-if="statement.sourceAttachment || statement.genericAttachments.length > 0 || statement.polygon !== ''"
+          v-if="statement.sourceAttachment || statement.genericAttachments.length > 0 || hasLocation"
           class="u-ml u-pr text-left border--top"
         >
           <div
@@ -170,7 +170,7 @@
           </div>
 
           <button
-            v-if="statement.polygon !== ''"
+            v-if="hasLocation"
             class="btn--blank o-link--default"
             type="button"
             @click="toggleModal"
@@ -234,6 +234,7 @@ import {
   formatDate,
   hasOwnProp,
 } from '@demos-europe/demosplan-ui'
+import { hasLocationFeatures, mergeFeatureCollections } from '@DpJs/lib/map/locationFeatures'
 import { mapGetters, mapMutations, mapState } from 'vuex'
 import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
 import HeightLimit from '@DpJs/components/statement/HeightLimit'
@@ -316,6 +317,10 @@ export default {
       return elementTitle
     },
 
+    hasLocation () {
+      return hasLocationFeatures(this.statement.polygon, this.statement.locationReference)
+    },
+
     statement () {
       return this.statements[this.statementId]
     },
@@ -389,7 +394,7 @@ export default {
     },
 
     toggleModal () {
-      this.$parent.$refs.mapModal.toggleModal(JSON.parse(this.statement.polygon))
+      this.$parent.$refs.mapModal.toggleModal(mergeFeatureCollections(this.statement.polygon, this.statement.locationReference))
     },
 
     toggleSelection () {

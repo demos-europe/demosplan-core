@@ -17,7 +17,7 @@
 
     <div class="space-y-4">
       <div v-if="hasPermission('field_statement_polygon')">
-        <template v-if="statement.attributes.polygon">
+        <template v-if="hasLocation">
           <dp-button
             :aria-label="Translator.trans('location.reference_view')"
             data-cy="statementMeta:toggleLocationReference"
@@ -126,6 +126,7 @@ import {
   DpSelect,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
+import { hasLocationFeatures, mergeFeatureCollections } from '@DpJs/lib/map/locationFeatures'
 import { mapActions, mapState } from 'vuex'
 
 export default {
@@ -210,6 +211,10 @@ export default {
         value: element.id,
       }),
       )
+    },
+
+    hasLocation () {
+      return hasLocationFeatures(this.statement.attributes.polygon, this.statement.attributes.locationReference)
     },
 
     isButtonRowDisabled () {
@@ -324,10 +329,11 @@ export default {
     },
 
     toggleLocationModal () {
-      const polygon = this.statement.attributes.polygon ? JSON.parse(this.statement.attributes.polygon) : null
-
-      if (polygon) {
-        this.$refs.locationReferenceModal.toggleModal(polygon)
+      // The drawing and the location reference (Ortsbezug) are shown together
+      if (this.hasLocation) {
+        this.$refs.locationReferenceModal.toggleModal(
+          mergeFeatureCollections(this.statement.attributes.polygon, this.statement.attributes.locationReference),
+        )
       }
     },
 

@@ -109,6 +109,7 @@
           v-slot:expandedContent="{
             fullText,
             id,
+            locationReference,
             polygon,
             shortText,
             textIsTruncated
@@ -165,11 +166,11 @@
                 </dt>
                 <dd class="ml-0">
                   <button
-                    v-if="polygon !== ''"
+                    v-if="hasLocation(polygon, locationReference)"
                     class="btn--blank o-link--default"
                     data-cy="originalStatementList:toggleLocationModal"
                     type="button"
-                    @click="toggleLocationModal(JSON.parse(polygon))"
+                    @click="toggleLocationModal(getLocation(polygon, locationReference))"
                   >
                     {{ Translator.trans('see') }}
                   </button>
@@ -300,6 +301,7 @@ import {
   hasOwnProp,
   tableSelectAllItems,
 } from '@demos-europe/demosplan-ui'
+import { hasLocationFeatures, mergeFeatureCollections } from '@DpJs/lib/map/locationFeatures'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 import ExportFlyout from './ExportFlyout'
@@ -632,6 +634,13 @@ export default {
         []
     },
 
+    /**
+     * The drawing and the location reference (Ortsbezug) are shown together.
+     */
+    getLocation (polygon, locationReference) {
+      return mergeFeatureCollections(polygon, locationReference)
+    },
+
     getOrganisationName (originalStatementId) {
       const originalStatement = this.originalStatements[originalStatementId]
       const originalStatementMeta = originalStatement.relationships.meta?.data ? originalStatement.relationships.meta.get() : null
@@ -660,6 +669,10 @@ export default {
       return procedurePhase?.attributes.name ?? ''
     },
 
+    hasLocation (polygon, locationReference) {
+      return hasLocationFeatures(polygon, locationReference)
+    },
+
     handleSizeChange (newSize) {
       const page = Math.floor((this.pagination.perPage * (this.pagination.currentPage - 1) / newSize) + 1)
 
@@ -673,6 +686,7 @@ export default {
         'elements',
         'externId',
         'genericAttachments',
+        'locationReference',
         'meta',
         'paragraph',
         'procedurePhase',
