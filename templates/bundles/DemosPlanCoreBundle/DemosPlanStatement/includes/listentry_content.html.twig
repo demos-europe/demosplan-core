@@ -21,15 +21,15 @@
     {% endif %}
 
     {% if hasPermission( 'field_statement_location' ) %}
-        <dt class="{{ 'layout__item u-1-of-6 u-1-of-3-palm u-pl-palm weight--bold'|prefixClass }}{{ statement.polygon|default|isNot(' color--grey')|prefixClass }}">
+        <dt class="{{ 'layout__item u-1-of-6 u-1-of-3-palm u-pl-palm weight--bold'|prefixClass }}{{ (statement.polygon|default ~ statement.locationReference|default)|isNot(' color--grey')|prefixClass }}">
             {{ "location"|trans }}:
         </dt>
-        <dd class="{{ 'layout__item u-1-of-3 u-2-of-3-palm u-ml-0'|prefixClass }}{{ statement.polygon|default|isNot(' color--grey')|prefixClass }}">
-            {% if statement.polygon|default != '' %}
+        <dd class="{{ 'layout__item u-1-of-3 u-2-of-3-palm u-ml-0'|prefixClass }}{{ (statement.polygon|default ~ statement.locationReference|default)|isNot(' color--grey')|prefixClass }}">
+            {% if statement.polygon|default != '' or statement.locationReference|default != '' %}
                 <button
                     class="{{ 'btn--blank o-link--default'|prefixClass }}"
                     type="button"
-                    @click.prevent.stop="(function(){$refs.mapModal.toggleModal({{ statement.polygon|convertLegacyPolygon|escape('html_attr') }})})()"
+                    @click.prevent.stop="(function(){$refs.mapModal.toggleModal({{ mergeFeatureCollections(statement.polygon|default, statement.locationReference|default)|escape('html_attr') }})})()"
                     aria-label="{{ 'statement.map.drawing.show'|trans }} {{ 'statement'|trans }}: {{ statement.externId }}"
                 >
                     {{ 'see'|trans }}

@@ -23,11 +23,11 @@
                 {{ "location"|trans }}
             </dt>
              <dd class="{{ 'inline-block ml-0 w-3/4 md:w-7/12 lg:w-3/4'|prefixClass }}">
-                {% if statement.polygon|default != '' %}
+                {% if statement.polygon|default != '' or statement.locationReference|default != '' %}
                     <button
                         class="{{ 'btn--blank o-link--default'|prefixClass }}"
                         type="button"
-                        @click.prevent.stop="(function(){$refs.mapModal.toggleModal({{ statement.polygon|convertLegacyPolygon|escape('html_attr') }})})()">
+                        @click.prevent.stop="(function(){$refs.mapModal.toggleModal({{ mergeFeatureCollections(statement.polygon|default, statement.locationReference|default)|escape('html_attr') }})})()">
                         {{ 'see'|trans }}
                     </button>
                 {% else %}
