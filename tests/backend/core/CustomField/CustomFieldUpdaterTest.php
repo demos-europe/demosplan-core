@@ -156,6 +156,31 @@ class CustomFieldUpdaterTest extends UnitTestCase
         $this->sut->updateCustomField($entityId, $attributes);
     }
 
+    #[DataProvider('selectFieldTypeProvider')]
+    public function testUpdateSelectFieldWithLessThanTwoOptionsThrowsException(string $fieldType): void
+    {
+        // Arrange
+        $procedure = ProcedureFactory::createOne();
+        $factory = CustomFieldConfigurationFactory::new()->withRelatedProcedure($procedure->_real());
+        $customField = 'multiSelect' === $fieldType
+            ? $factory->asMultiSelect('Color', options: ['green', 'yellow'])->create()
+            : $factory->asRadioButton('Color', options: ['green', 'yellow'])->create();
+        $remainingOption = $customField->getConfiguration()->getOptions()[0];
+
+        // Act & Assert
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Select fields must have at least 2 options');
+        $this->sut->updateCustomField($customField->getId(), ['options' => [['id' => $remainingOption->getId(), 'label' => 'green']]]);
+    }
+
+    public static function selectFieldTypeProvider(): array
+    {
+        return [
+            'multiSelect'  => ['multiSelect'],
+            'singleSelect' => ['singleSelect'],
+        ];
+    }
+
     public static function updateCustomFieldDataProvider(): array
     {
         return [
