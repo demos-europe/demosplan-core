@@ -78,6 +78,7 @@ class MapService
     protected $procedureService;
 
     public function __construct(
+        private readonly CoordinateJsonConverter $coordinateJsonConverter,
         private readonly DateHelper $dateHelper,
         private readonly EntityHelper $entityHelper,
         FileService $fileService,
@@ -421,7 +422,10 @@ class MapService
 
             // Make screenshot and return file name and path
             $copyrightText = $this->getReplacedMapAttribution($kindOfStatement->getProcedure());
-            $polygon = $kindOfStatement->getPolygon();
+            $polygon = $this->coordinateJsonConverter->mergeFeatureCollections(
+                (string) $kindOfStatement->getPolygon(),
+                $kindOfStatement->getLocationReference()
+            );
             $this->logger->info('Found polygon: '.DemosPlanTools::varExport($polygon, true));
             $file = $this->mapScreenshotter->makeScreenshot($polygon, $gisLayer, $copyrightText);
 

@@ -2478,7 +2478,7 @@ class StatementService implements StatementServiceInterface
             return $statementAbwaegungstabelle;
         }
 
-        if (!is_null($statementAbwaegungstabelle->getPolygon()) && '' !== (string) $statementAbwaegungstabelle->getPolygon()) {
+        if ('' !== (string) $statementAbwaegungstabelle->getPolygon() || '' !== $statementAbwaegungstabelle->getLocationReference()) {
             try {
                 $this->statementGeoService->scheduleFetchGeoData($statementAbwaegungstabelle->getId());
             } catch (Exception $e) {

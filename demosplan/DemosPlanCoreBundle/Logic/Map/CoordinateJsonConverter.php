@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Map;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use InvalidArgumentException;
+use JsonException;
 use Webmozart\Assert\Assert;
 
 class CoordinateJsonConverter
@@ -21,6 +22,37 @@ class CoordinateJsonConverter
     public function convertCoordinatesToJson(?array $coordinates): string
     {
         return null === $coordinates ? '' : Json::encode($coordinates);
+    }
+
+    /**
+     * Merges the features of GeoJSON FeatureCollections, e.g. the drawing and the location reference of a statement.
+     *
+     * Empty values are ignored. If only one value is given it is returned unchanged.
+     */
+    public function mergeFeatureCollections(string ...$featureCollections): string
+    {
+        $givenCollections = array_values(array_filter(
+            $featureCollections,
+            static fn (string $featureCollection): bool => '' !== $featureCollection
+        ));
+        if (count($givenCollections) <= 1) {
+            return $givenCollections[0] ?? '';
+        }
+
+        $features = [];
+        try {
+            foreach ($givenCollections as $featureCollection) {
+                $decoded = Json::decodeToArray($featureCollection);
+                if (!is_array($decoded['features'] ?? null)) {
+                    return $givenCollections[0];
+                }
+                $features = array_merge($features, $decoded['features']);
+            }
+        } catch (JsonException) {
+            return $givenCollections[0];
+        }
+
+        return Json::encode(['type' => 'FeatureCollection', 'features' => $features]);
     }
 
     public function convertJsonToCoordinates(string $rawCoordinateValues): ?array

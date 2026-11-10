@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\PriorityArea;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Event\Procedure\GetDatasheetFilePathAbsoluteEvent;
 use demosplan\DemosPlanCoreBundle\Logic\HttpCall;
+use demosplan\DemosPlanCoreBundle\Logic\Map\CoordinateJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\ProfilerService;
 use demosplan\DemosPlanCoreBundle\Repository\StatementAttributeRepository;
 use demosplan\DemosPlanCoreBundle\Services\DatasheetService;
@@ -52,6 +53,7 @@ class StatementGeoService
     public function __construct(
         private readonly DatasheetService $datasheetService,
         private readonly CountyService $countyService,
+        private readonly CoordinateJsonConverter $coordinateJsonConverter,
         Environment $twig,
         private readonly GlobalConfigInterface $globalConfig,
         private readonly HttpCall $httpCall,
@@ -70,13 +72,21 @@ class StatementGeoService
     /**
      * Add robob Data to statement.
      *
-     * @param Statement $statement
+     * @param Statement|null $statement
      */
     public function getStatementGeoData($statement)
     {
         $data = [];
         try {
-            if (!$statement instanceof Statement || in_array($statement->getPolygon(), [null, ''], true)) {
+            if (!$statement instanceof Statement) {
+                return $data;
+            }
+            // the drawing and the location reference both contribute to the geo data
+            $geoJson = $this->coordinateJsonConverter->mergeFeatureCollections(
+                (string) $statement->getPolygon(),
+                $statement->getLocationReference()
+            );
+            if ('' === $geoJson) {
                 return $data;
             }
 
@@ -94,7 +104,7 @@ class StatementGeoService
                 'priorityAreas'  => collect(),
             ];
             // Lade das Geoobjekt
-            $geo = geoPHP::load($statement->getPolygon());
+            $geo = geoPHP::load($geoJson);
             // Einfache Geometrien können gleich verarbeitet werden, komplexere einzeln
             if ($geo instanceof Point || $geo instanceof LineString || $geo instanceof Polygon) {
                 $geometries = $this->setSimpleGeoData($geo, $geometries);

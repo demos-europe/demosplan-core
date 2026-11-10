@@ -778,7 +778,7 @@ class DraftStatementService
         });
 
         // generate Screenshot if necessary
-        if (array_key_exists('polygon', $data) && '' !== (string) $data['polygon']) {
+        if ($this->hasGeometry($data)) {
             $mapService = $this->getServiceMap();
             $mapService->createMapScreenshot($data['pId'], $draftStatement->getId());
         }
@@ -999,10 +999,18 @@ class DraftStatementService
         return $pictures;
     }
 
+    /**
+     * Has the given statement data a drawing or a location reference?
+     */
+    private function hasGeometry(array $statementData): bool
+    {
+        return '' !== (string) ($statementData['polygon'] ?? '') || '' !== (string) ($statementData['locationReference'] ?? '');
+    }
+
     protected function checkMapScreenshotFile(array $statementArray, string $procedureId): array
     {
         // Does the statement have a polygon but no screenshot?
-        if ('' !== (string) $statementArray['polygon'] && '' === (string) ($statementArray['mapFile'] ?? '')) {
+        if ($this->hasGeometry($statementArray) && '' === (string) ($statementArray['mapFile'] ?? '')) {
             $this->logger->info('DraftStatement has a polygon but no screenshot. Creating one');
             $statementArray['mapFile'] = $this->getServiceMap()->createMapScreenshot($procedureId, $statementArray['ident']);
         }
@@ -1018,7 +1026,7 @@ class DraftStatementService
             // If the screenshot should be there but isn't, try to regenerate it
             if (null === $fileInfo || !$this->defaultStorage->fileExists($fileInfo->getAbsolutePath())) {
                 $this->logger->info('Screenshot could not be found');
-                if ('' !== (string) $statementArray['polygon']) {
+                if ($this->hasGeometry($statementArray)) {
                     $this->logger->info('Regenerating screenshot');
                     $statementArray['mapFile'] = $this->getServiceMap()->createMapScreenshot($procedureId, $statementArray['ident']);
                 }
@@ -1115,15 +1123,12 @@ class DraftStatementService
 
             $attrRepo = $this->statementAttributeRepository;
 
-            // generate Screenshot if necessary
-            if (array_key_exists('polygon', $data) && '' !== (string) $data['polygon']) {
+            // a drawing or a location reference replaces "no location" and a selected county
+            if ($this->hasGeometry($data)) {
+                // generate Screenshot
                 $mapService = $this->getServiceMap();
                 $mapFile = $mapService->createMapScreenshot($draftStatement->getPId(), $data['ident']);
                 $draftStatement->setMapFile($mapFile);
-            }
-
-            // a drawing or a location reference replaces "no location" and a selected county
-            if ('' !== (string) ($data['polygon'] ?? '') || '' !== (string) ($data['locationReference'] ?? '')) {
                 $attrRepo->unsetNoLocation($draftStatement);
                 $attrRepo->removeCounty($draftStatement);
             }
