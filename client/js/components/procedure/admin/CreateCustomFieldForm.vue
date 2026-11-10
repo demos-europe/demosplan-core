@@ -72,7 +72,7 @@
         />
 
         <dp-checkbox
-          v-if="customField.targetEntity === 'STATEMENT'"
+          v-if="customField.targetEntity === 'STATEMENT' && canSetRequired"
           id="requiredCheckbox"
           v-model="customField.isRequired"
           :label="{
@@ -172,6 +172,10 @@ export default {
   },
 
   computed: {
+    canSetRequired () {
+      return hasPermission('feature_statements_custom_fields_required')
+    },
+
     targetEntityOptions () {
       return Object.entries(this.targetOptions).map(([value, label]) => ({ value, label }))
     },
