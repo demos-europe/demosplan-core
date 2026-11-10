@@ -19,6 +19,8 @@ use DemosEurope\DemosplanAddon\Contracts\ResourceType\DoctrineResourceTypeInject
 use DemosEurope\DemosplanAddon\Contracts\ResourceType\JsonApiResourceTypeInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldOption;
+use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
+use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
@@ -73,6 +75,8 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 {
     use PropertyAutoPathTrait;
     use DoctrineResourceTypeInjectionTrait;
+
+    private const STATEMENT_CUSTOM_FIELD_IS_REQUIRED_PERMISSION = 'feature_statements_custom_fields_required';
 
     public function __construct(
         protected readonly DqlConditionFactory $conditionFactory,
@@ -286,6 +290,13 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
 
     public function createEntity(CreationDataInterface $entityData): ModifiedEntity
     {
+        $requestedAttributes = $entityData->getAttributes();
+        $this->guardRequiredPermission(
+            $requestedAttributes['targetEntity'] ?? null,
+                $requestedAttributes['isRequired'] ?? false,
+            false
+        );
+
         try {
             return $this->getTransactionService()->executeAndFlushInTransaction(
                 function () use ($entityData): ModifiedEntity {
@@ -309,6 +320,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     {
         // Update the fields from the request, and deletes non included but previously persisted options and removes their usages from segments
         $attributes = $entityData->getAttributes();
+        $this->guardRequiredPermissionOnUpdate($entityId, $attributes);
         $customField = $this->customFieldUpdater->updateCustomField($entityId, $attributes);
 
         return new ModifiedEntity($customField, ['name', 'description', 'options']);
@@ -317,6 +329,40 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     public function deleteEntity(string $entityIdentifier): void
     {
         $this->customFieldDeleter->deleteCustomField($entityIdentifier);
+    }
+
+    /**
+     * @param array<non-empty-string, mixed> $attributes
+     */
+    private function guardRequiredPermissionOnUpdate(string $entityId, array $attributes): void
+    {
+        $configuration = $this->customFieldConfigurationRepository->find($entityId);
+        if (!$configuration instanceof CustomFieldConfiguration) {
+            return;
+        }
+
+        $isRequired = $configuration->getConfiguration()->getRequired();
+
+        $this->guardRequiredPermission(
+            $configuration->getTargetEntityClass(),
+            $attributes['isRequired'] ?? $isRequired,
+            $isRequired
+        );
+    }
+
+    private function guardRequiredPermission(
+        ?string $targetEntity,
+        mixed $requestedIsRequired,
+        bool $currentIsRequired
+    ): void {
+        if (CustomFieldSupportedEntity::statement->value !== $targetEntity
+            || $requestedIsRequired === $currentIsRequired) {
+            return;
+        }
+
+        if (!$this->currentUser->hasPermission(self::STATEMENT_CUSTOM_FIELD_IS_REQUIRED_PERMISSION)) {
+            throw AccessDeniedException::missingPermission(self::STATEMENT_CUSTOM_FIELD_IS_REQUIRED_PERMISSION);
+        }
     }
 
     /**

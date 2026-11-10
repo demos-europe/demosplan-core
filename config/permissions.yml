@@ -2538,6 +2538,12 @@ feature_statements_custom_fields_column_display:
     expose: true
     label: 'Column display of custom fields in the statement list'
     loginRequired: true
+feature_statements_custom_fields_required:
+    description: |-
+        Allows to change whether a custom field of statements is required when it is created or edited.
+    expose: true
+    label: 'Required option of custom fields of statements'
+    loginRequired: true
 feature_statements_draft_delete:
     expose: true
     label: 'Stell. Entwuerfe Loeschen'
