@@ -12,11 +12,76 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\CustomField;
 
-class MultiSelectField extends AbstractOptionsCustomField
+use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+
+class MultiSelectField extends AbstractCustomField
 {
+    protected string $id = '';
+
+    protected string $fieldType = 'multiSelect';
+
+    /**
+     * Options for multi-select field (checkboxes).
+     */
+    protected array $options = [];
+
+    protected string $description = '';
+
     public function getFieldType(): string
     {
         return 'multiSelect';
+    }
+
+    public function fromJson(array $json): void
+    {
+        $this->fieldType = $json['fieldType'];
+        $this->name = $json['name'];
+        $this->description = $json['description'];
+        $this->isSeparateColumn = $json['isSeparateColumn'] ?? true;
+        $this->isRequired = $json['isRequired'];
+        $this->options = array_map(static function ($optionData) {
+            $customFieldOption = new CustomFieldOption();
+            $customFieldOption->fromJson($optionData);
+
+            return $customFieldOption;
+        }, $json['options']);
+    }
+
+    public function toJson(): array
+    {
+        $options = array_map(static function ($customField) {
+            return $customField->toJson();
+        }, $this->options);
+
+        return [
+            'fieldType'        => $this->fieldType,
+            'name'             => $this->name,
+            'description'      => $this->description,
+            'isSeparateColumn' => $this->isSeparateColumn,
+            'isRequired'       => $this->isRequired,
+            'options'          => $options,
+        ];
+    }
+
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
+
+    public function setOptions(array $options): void
+    {
+        $this->options = $options;
+    }
+
+    public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption
+    {
+        foreach ($this->options as $option) {
+            if ($customFieldOptionValueId === $option->getId()) {
+                return $option;
+            }
+        }
+
+        return null;
     }
 
     public function formatValueForDisplay(mixed $value): string
@@ -29,5 +94,12 @@ class MultiSelectField extends AbstractOptionsCustomField
             ->map(fn (string $optionId) => $this->getCustomOptionValueById($optionId)?->getLabel())
             ->filter()
             ->implode(', ');
+    }
+
+    protected function validateFieldSpecific(array $options): void
+    {
+        if (count($options) < 2) {
+            throw new InvalidArgumentException('Multi select fields must have at least 2 options');
+        }
     }
 }

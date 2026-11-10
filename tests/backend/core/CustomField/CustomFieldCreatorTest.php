@@ -348,30 +348,26 @@ class CustomFieldCreatorTest extends UnitTestCase
         static::assertTrue($configuration->getConfiguration()->getRequired());
     }
 
-    #[DataProvider('fromJsonProvider')]
-    public function testFromJsonWithoutIsRequiredDefaultsToFalse(string $fieldClass, array $json): void
+    public function testFromJsonWithoutIsRequiredDefaultsToFalseForSingleSelect(): void
     {
-        // Arrange
-        unset($json['isRequired']);
-        $field = new $fieldClass();
+        // Arrange: a single select stored before the field supported isRequired
+        $field = new RadioButtonField();
 
         // Act
-        $field->fromJson($json);
+        $field->fromJson(['fieldType' => 'singleSelect', 'name' => 'Status', 'description' => 'Pick status', 'options' => []]);
 
         // Assert
         static::assertFalse($field->getRequired());
     }
 
-    #[DataProvider('fromJsonProvider')]
-    public function testIsRequiredSurvivesJsonRoundTrip(string $fieldClass, array $json): void
+    public function testIsRequiredSurvivesJsonRoundTripForSingleSelect(): void
     {
         // Arrange
-        $json['isRequired'] = true;
-        $field = new $fieldClass();
-        $field->fromJson($json);
+        $field = new RadioButtonField();
+        $field->fromJson(['fieldType' => 'singleSelect', 'name' => 'Status', 'description' => 'Pick status', 'isRequired' => true, 'options' => []]);
 
         // Act
-        $restored = new $fieldClass();
+        $restored = new RadioButtonField();
         $restored->fromJson($field->toJson());
 
         // Assert
@@ -506,9 +502,11 @@ class CustomFieldCreatorTest extends UnitTestCase
             'TextField missing fieldType'          => [TextField::class,       array_diff_key($fullTextField, ['fieldType' => ''])],
             'TextField missing name'               => [TextField::class,       array_diff_key($fullTextField, ['name' => ''])],
             'TextField missing description'        => [TextField::class,       array_diff_key($fullTextField, ['description' => ''])],
+            'TextField missing isRequired'         => [TextField::class,       array_diff_key($fullTextField, ['isRequired' => ''])],
             'MultiSelectField missing fieldType'   => [MultiSelectField::class, array_diff_key($fullMultiSelectField, ['fieldType' => ''])],
             'MultiSelectField missing name'        => [MultiSelectField::class, array_diff_key($fullMultiSelectField, ['name' => ''])],
             'MultiSelectField missing description' => [MultiSelectField::class, array_diff_key($fullMultiSelectField, ['description' => ''])],
+            'MultiSelectField missing isRequired'  => [MultiSelectField::class, array_diff_key($fullMultiSelectField, ['isRequired' => ''])],
             'MultiSelectField missing options'     => [MultiSelectField::class, array_diff_key($fullMultiSelectField, ['options' => ''])],
             'RadioButtonField missing fieldType'   => [RadioButtonField::class, array_diff_key($fullRadioButtonField, ['fieldType' => ''])],
             'RadioButtonField missing name'        => [RadioButtonField::class, array_diff_key($fullRadioButtonField, ['name' => ''])],
