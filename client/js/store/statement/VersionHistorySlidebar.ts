@@ -8,11 +8,19 @@
  */
 
 /**
- * Open state of the version history slidebar. Lives in the store because the trigger
- * (e.g. TableCardFlyoutMenu) is far away from the component owning the slidebar (e.g. DpTable)
+ * Version history slidebar of the assessment table. Lives in the store because the triggers
+ * (e.g. TableCardFlyoutMenu) are far away from the component owning the slidebar (DpTable)
  */
+interface VersionHistoryEntity {
+  externId: string
+  id: string
+  type: 'fragment' | 'statement'
+}
+
 interface VersionHistorySlidebarState {
+  entity: VersionHistoryEntity | null
   isOpen: boolean
+  reloadKey: number
 }
 
 const VersionHistorySlidebarStore = {
@@ -21,12 +29,28 @@ const VersionHistorySlidebarStore = {
   name: 'VersionHistorySlidebar',
 
   state: (): VersionHistorySlidebarState => ({
+    entity: null,
     isOpen: false,
+    reloadKey: 0,
   }),
 
   mutations: {
+    // Ignores other entities so edits elsewhere in the table do not reload the shown history
+    markEntityUpdated (state: VersionHistorySlidebarState, entityId: string) {
+      if (state.entity?.id === entityId) {
+        state.reloadKey++
+      }
+    },
+
     setIsOpen (state: VersionHistorySlidebarState, isOpen: boolean) {
       state.isOpen = isOpen
+    },
+
+    // Bumps the reload key so reopening the same entity reloads its history
+    showHistory (state: VersionHistorySlidebarState, entity: VersionHistoryEntity) {
+      state.entity = entity
+      state.isOpen = true
+      state.reloadKey++
     },
   },
 }

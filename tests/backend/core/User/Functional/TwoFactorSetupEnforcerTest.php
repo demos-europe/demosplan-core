@@ -155,6 +155,36 @@ class TwoFactorSetupEnforcerTest extends FunctionalTestCase
         self::assertSame($emailAuthEnabled && !$expectLocked, str_contains($html, 'name="disableTwoFactorCodeEmail"'));
     }
 
+    #[DataProvider('saveButtonProvider')]
+    public function testProfileTemplateShowsSaveButtonForTwoFactorSetup(
+        bool $profileEditable,
+        bool $twoFactorEnabled,
+        bool $expectButton,
+    ): void {
+        $user = $this->arrangeUser(['A' => false]);
+        $this->enablePermissions(array_merge(
+            $profileEditable ? ['feature_profile_editable'] : [],
+            $twoFactorEnabled ? [self::FEATURE_2FA] : [],
+        ));
+
+        $html = self::getContainer()->get('twig')->render(
+            '@DemosPlanCore/DemosPlanUser/portal_profile.html.twig',
+            ['templateVars' => ['twoFactorSetup' => $this->sut->getSetupState()], 'user' => $user, 'hasIdentityprovider' => false, 'projectName' => 'test']
+        );
+
+        self::assertSame($expectButton, str_contains($html, 'type="submit"'));
+    }
+
+    public static function saveButtonProvider(): array
+    {
+        return [
+            'profile editable and 2fa'  => [true, true, true],
+            'profile editable only'     => [true, false, true],
+            '2fa only'                  => [false, true, true],
+            'neither'                   => [false, false, false],
+        ];
+    }
+
     public static function disableInputProvider(): array
     {
         return [

@@ -8,7 +8,7 @@
 </license>
 
 <documentation>
-  <!-- This component contains changes to a statement at a specific time, it is the child of DpVersionHistoryDay.vue -->
+  <!-- This component contains changes to a statement at a specific time, it is the child of VersionHistoryDay.vue -->
 </documentation>
 
 <template>
@@ -36,7 +36,10 @@
         <tbody>
           <tr
             class="o-sortablelist__item cursor-pointer"
+            tabindex="0"
             @click="getContent"
+            @keydown.enter="getContent"
+            @keydown.space.prevent="getContent"
           >
             <!-- time -->
             <td
@@ -203,7 +206,7 @@
 import { CleanHtml, dpApi, DpLoading, formatDate } from '@demos-europe/demosplan-ui'
 
 export default {
-  name: 'DpVersionHistoryItem',
+  name: 'VersionHistoryItem',
 
   components: {
     DpLoading,
