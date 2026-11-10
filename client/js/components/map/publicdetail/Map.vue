@@ -1135,6 +1135,24 @@ export default {
 
       this.map.addLayer(mapdrawvector)
 
+      /*
+       * The location reference is shown in its own layer. If it would be part of the drawing source, it would be
+       * written into the drawing when the user draws something.
+       */
+      const locationReferenceSource = new VectorSource({
+        format: geoJSONFormat,
+        projection: this.mapprojection,
+        features: this.draftStatement && this.draftStatement.locationReference ? geoJSONFormat.readFeatures(this.draftStatement.locationReference) : null,
+      })
+
+      this.map.addLayer(new VectorLayer({
+        source: locationReferenceSource,
+        name: 'locationReferenceVector',
+        title: 'locationReference',
+        type: 'draw',
+        style: this.drawDoneStyle(),
+      }))
+
       //  Define vars to init interactions
       let drawingexists = false
       const drawTools = [
@@ -1186,14 +1204,9 @@ export default {
         }
 
         window.dplan.clearMapDrawings()
-        const resetData = {
-          r_location: 'notLocated',
-          r_location_geometry: '',
-          r_location_point: '',
-          location_is_set: '',
-        }
 
-        this.$root.$emit('updateStatementFormMapData', resetData, false)
+        // Only the drawing is removed, a marked place (location reference) is kept
+        this.$root.$emit('updateStatementFormMapData', { r_location_geometry: '' }, false)
       })
 
       window.dplan.clearMapDrawings = () => {
@@ -1315,7 +1328,6 @@ export default {
           r_location_geometry: geoJSONFormat.writeFeatures(allFeatures),
           r_location_priority_area_key: '',
           r_location_priority_area_type: '',
-          r_location_point: '',
           location_is_set: 'geometry',
         }
 
@@ -1348,7 +1360,6 @@ export default {
             r_location_geometry: geoJSONFormat.writeFeatures(mapdrawsource.getFeatures()),
             r_location_priority_area_key: '',
             r_location_priority_area_type: '',
-            r_location_point: '',
             location_is_set: 'geometry',
           }
 
@@ -1371,7 +1382,6 @@ export default {
           r_location_point: coordinate.join(','),
           r_location_priority_area_key: '',
           r_location_priority_area_type: '',
-          r_location_geometry: '',
           location_is_set: 'point',
         }
         window.statementActionState = 'locationPointAdded'

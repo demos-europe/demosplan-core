@@ -81,18 +81,7 @@
         data-cy="formGroupMap:procedureDetailsMap"
         @click.prevent="gotoTab('procedureDetailsMap')"
       >
-        <template v-if="statement.r_location_point !== ''">
-          {{ Translator.trans('location.marked.yours') }}
-        </template>
-        <template v-else-if="statement.r_location_priority_area_key !== ''">
-          {{ Translator.trans('potential.areas') }} {{ statement.r_location_priority_area_key }}
-        </template>
-        <template v-else-if="statement.r_location_geometry !== ''">
-          {{ Translator.trans('statement.map.drawing.yours') }}
-        </template>
-        <template v-else>
-          {{ Translator.trans('map.to') }}
-        </template>
+        {{ locationSummary }}
       </a>
     </div>
 
@@ -187,6 +176,27 @@ export default {
 
     isLocationSelected () {
       return this.statement.r_location === 'point' || this.statement.r_location === 'priorityAreaType'
+    },
+
+    /**
+     * The marked place (location reference) and the drawing can both be set, so both are mentioned.
+     */
+    locationSummary () {
+      const parts = []
+
+      if (this.statement.r_location_point !== '') {
+        parts.push(Translator.trans('location.marked.yours'))
+      }
+
+      if (this.statement.r_location_priority_area_key !== '') {
+        parts.push(`${Translator.trans('potential.areas')} ${this.statement.r_location_priority_area_key}`)
+      }
+
+      if (this.statement.r_location_geometry !== '') {
+        parts.push(Translator.trans('statement.map.drawing.yours'))
+      }
+
+      return parts.length > 0 ? parts.join(', ') : Translator.trans('map.to')
     },
   },
 

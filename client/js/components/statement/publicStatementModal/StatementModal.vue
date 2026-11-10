@@ -889,6 +889,7 @@ import {
   prefixClassMixin,
   toggleFullscreen,
 } from '@demos-europe/demosplan-ui'
+import { getConsistentLocationData, getLocationIsSet, getLocationReferenceCoordinates } from '@DpJs/lib/map/locationFeatures'
 import { mapMutations, mapState } from 'vuex'
 import CustomField from '@DpJs/components/customFields/CustomField'
 import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
@@ -2021,6 +2022,7 @@ export default {
     },
 
     setDraftData (data, priorityAreaKey, priorityAreaType) {
+      const locationPoint = getLocationReferenceCoordinates(data.draftStatement.locationReference)
       const draft = {
         r_text: data.draftStatement.text,
         r_files_initial: data.draftStatement.files ? JSON.stringify(data.draftStatement.files) : [],
@@ -2037,8 +2039,8 @@ export default {
         r_location_geometry: data.draftStatement.polygon,
         r_location_priority_area_key: priorityAreaKey,
         r_location_priority_area_type: priorityAreaType,
-        r_location_point: '',
-        location_is_set: priorityAreaKey.length > 0 ? 'priority_area' : 'geometry',
+        r_location_point: locationPoint,
+        location_is_set: getLocationIsSet(priorityAreaKey, locationPoint, data.draftStatement.polygon),
         r_county: data.draftStatement.statementAttributes.county ?? '',
         r_makePublic: data.draftStatement.publicAllowed ? 'on' : 'off',
       }
@@ -2047,7 +2049,7 @@ export default {
         draft.r_location = 'notLocated'
       }
 
-      if (draft.r_location === 'mapLocation' && data.draftStatement.polygon) {
+      if (draft.r_location === 'mapLocation' && (data.draftStatement.polygon || locationPoint)) {
         draft.r_location = 'point'
       }
 
@@ -2065,7 +2067,7 @@ export default {
     },
 
     setLocation (data = {}, toggle = true) {
-      this.setStatementData(data)
+      this.setStatementData(getConsistentLocationData(this.formData, data))
 
       if (toggle) {
         this.toggleModal(false)
