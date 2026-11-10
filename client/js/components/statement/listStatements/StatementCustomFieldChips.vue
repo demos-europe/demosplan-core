@@ -41,7 +41,7 @@
       </template>
       <div class="w-max max-w-[400px] p-3 text-sm text-[#333333]">
         <p class="font-semibold">
-          {{'#'+ externId }} | {{ Translator.trans('custom.fields.collection') }}
+          {{ '#'+ externId }} | {{ Translator.trans('custom.fields.collection') }}
         </p>
         <dl class="mt-1 grid grid-cols-[auto_1fr] gap-x-3">
           <template
