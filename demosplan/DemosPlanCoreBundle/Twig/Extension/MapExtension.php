@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
+use demosplan\DemosPlanCoreBundle\Logic\Map\CoordinateJsonConverter;
 use demosplan\DemosPlanCoreBundle\Logic\Maps\WktToGeoJsonConverter;
 use demosplan\DemosPlanCoreBundle\Utilities\Map\MapScreenshotter;
 use Psr\Container\ContainerInterface;
@@ -31,6 +32,7 @@ class MapExtension extends ExtensionBase
     public function __construct(
         private readonly array $mapDefaultProjection,
         ContainerInterface $container,
+        private readonly CoordinateJsonConverter $coordinateJsonConverter,
         private readonly WktToGeoJsonConverter $wktToGeoJsonConverter)
     {
         parent::__construct($container);
@@ -54,6 +56,7 @@ class MapExtension extends ExtensionBase
         return [
             new TwigFunction('defaultProjectionLabel', $this->getDefaultProjectionLabel(...)),
             new TwigFunction('defaultProjectionValue', $this->getDefaultProjectionValue(...)),
+            new TwigFunction('mergeFeatureCollections', $this->mergeFeatureCollections(...)),
         ];
     }
 
@@ -77,6 +80,18 @@ class MapExtension extends ExtensionBase
     public function convertLegacyPolygonFilter($string)
     {
         return $this->wktToGeoJsonConverter->convertIfNeeded($string);
+    }
+
+    /**
+     * Merges the drawing (may be in a legacy format) and the location reference of a statement
+     * into one GeoJSON FeatureCollection, e.g. to show both in a map modal.
+     */
+    public function mergeFeatureCollections(?string $polygon, ?string $locationReference): string
+    {
+        return $this->coordinateJsonConverter->mergeFeatureCollections(
+            $this->wktToGeoJsonConverter->convertIfNeeded((string) $polygon),
+            (string) $locationReference
+        );
     }
 
     public static function getSubscribedServices(): array

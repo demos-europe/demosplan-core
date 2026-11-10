@@ -1278,8 +1278,8 @@
                             <strong class="layout__item u-1-of-4 block u-mb-0_25">
                                 {{ "location"|trans }}
                             </strong>
-                            {% if statement.polygon is defined and statement.polygon != '' %}
-                                <a href="#" @click.prevent.stop="openMapModal({{ statement.polygon|convertLegacyPolygon|escape('html_attr') }})">{{ 'see'|trans }}</a>
+                            {% if (statement.polygon is defined and statement.polygon != '') or (statement.locationReference is defined and statement.locationReference != '') %}
+                                <a href="#" @click.prevent.stop="openMapModal({{ mergeFeatureCollections(statement.polygon|default, statement.locationReference|default)|escape('html_attr') }})">{{ 'see'|trans }}</a>
                             {% else %}
                                 <span class="layout__item u-3-of-4 color--grey">{{ 'map.no_outline'|trans }}</span>
                             {% endif %}

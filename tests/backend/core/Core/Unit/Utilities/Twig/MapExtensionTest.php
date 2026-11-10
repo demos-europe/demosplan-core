@@ -49,6 +49,37 @@ class MapExtensionTest extends FunctionalTestCase
         }
     }
 
+    public function testMergeFeatureCollectionsContainsDrawingAndLocationReference(): void
+    {
+        // Arrange
+        $drawing = '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Polygon","coordinates":[[[0,0],[0,1],[1,1],[0,0]]]}}]}';
+        $locationReference = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[3,4]},"properties":null}]}';
+
+        // Act
+        $result = $this->twigExtension->mergeFeatureCollections($drawing, $locationReference);
+
+        // Assert
+        $merged = json_decode($result, true, 512, JSON_THROW_ON_ERROR);
+        static::assertCount(2, $merged['features']);
+        static::assertSame('Polygon', $merged['features'][0]['geometry']['type']);
+        static::assertSame('Point', $merged['features'][1]['geometry']['type']);
+    }
+
+    public function testMergeFeatureCollectionsWithOnlyOneValueReturnsThatValue(): void
+    {
+        $locationReference = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[3,4]},"properties":null}]}';
+
+        static::assertSame($locationReference, $this->twigExtension->mergeFeatureCollections(null, $locationReference));
+        static::assertSame('', $this->twigExtension->mergeFeatureCollections(null, null));
+    }
+
+    public function testMergeFeatureCollectionsIsAvailableInTwig(): void
+    {
+        $names = array_map(static fn ($function) => $function->getName(), $this->twigExtension->getFunctions());
+
+        static::assertContains('mergeFeatureCollections', $names);
+    }
+
     public function testConvertLegacy()
     {
         self::markSkippedForCIIntervention();
