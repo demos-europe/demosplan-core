@@ -14,6 +14,8 @@ use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedurePhaseDefinitionData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFragmentFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Paragraph;
@@ -1492,6 +1494,31 @@ class StatementHandlerTest extends FunctionalTestCase
 
         static::assertEquals($statement1->getFragments()->count(), $clusterHeadStatement->getFragments()->count());
         static::assertEquals($statement1->getFragments()->first()->getText(), $clusterHeadStatement->getFragments()->first()->getText());
+    }
+
+    public function testClusterHeadStatementCopiesDrawingAndLocationReference(): void
+    {
+        // Arrange
+        $procedure = ProcedureFactory::createOne()->_real();
+        $drawing = '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[1,2]}}]}';
+        $locationReference = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[3,4]},"properties":null}]}';
+        $representativeStatement = StatementFactory::createOne(['procedure' => $procedure])->_real();
+        $representativeStatement->setPolygon($drawing);
+        $representativeStatement->setLocationReference($locationReference);
+        $otherStatement = StatementFactory::createOne(['procedure' => $procedure])->_real();
+        $this->getEntityManager()->flush();
+
+        // Act
+        $clusterHeadStatement = $this->sut->createStatementCluster(
+            $procedure->getId(),
+            [$representativeStatement->getId(), $otherStatement->getId()],
+            $representativeStatement->getId()
+        );
+
+        // Assert
+        static::assertInstanceOf(Statement::class, $clusterHeadStatement);
+        static::assertSame($drawing, $clusterHeadStatement->getPolygon());
+        static::assertSame($locationReference, $clusterHeadStatement->getLocationReference());
     }
 
     public function testAddStatementToCluster()
