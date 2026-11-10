@@ -130,6 +130,32 @@ class DraftStatementServiceTest extends FunctionalTestCase
         static::assertStringContainsString('"coordinates":[3.5,4.5]', $result['locationReference']);
     }
 
+    public function testExtractGeoDataEmptyValuesRemoveDrawingAndLocationReference(): void
+    {
+        // Arrange: the form sends both fields; empty means "removed"
+        $data = ['r_location' => 'point', 'r_location_geometry' => '', 'r_location_point' => ''];
+
+        // Act
+        $result = $this->sut->extractGeoData($data, []);
+
+        // Assert
+        static::assertSame('', $result['polygon']);
+        static::assertSame('', $result['locationReference']);
+    }
+
+    public function testExtractGeoDataEmptyDrawingKeepsLocationReference(): void
+    {
+        // Arrange: the user removed the drawing but kept the marked place
+        $data = ['r_location' => 'point', 'r_location_geometry' => '', 'r_location_point' => '3.5,4.5'];
+
+        // Act
+        $result = $this->sut->extractGeoData($data, []);
+
+        // Assert
+        static::assertSame('', $result['polygon']);
+        static::assertStringContainsString('"coordinates":[3.5,4.5]', $result['locationReference']);
+    }
+
     public function testExtractGeoDataNotLocatedClearsDrawingAndLocationReference(): void
     {
         // Arrange

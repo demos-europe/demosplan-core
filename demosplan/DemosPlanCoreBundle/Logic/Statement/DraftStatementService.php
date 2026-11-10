@@ -2052,9 +2052,9 @@ class DraftStatementService
 
         // in 3 Fällen wird r_location == point übergeben: Ortsbezug, Vorranggebietsauswahl und Ortseinzeichung
         if (array_key_exists('r_location', $data) && 'point' === $data['r_location']) {
-            // Punkteinzeichnung
-            if (array_key_exists('r_location_geometry', $data) && '' !== (string) $data['r_location_geometry']) {
-                $statement['polygon'] = $data['r_location_geometry'];
+            // Punkteinzeichnung; an empty value removes the drawing
+            if (array_key_exists('r_location_geometry', $data)) {
+                $statement['polygon'] = (string) $data['r_location_geometry'];
             }
 
             // Vorranggebiet
@@ -2063,13 +2063,16 @@ class DraftStatementService
                 $statement['statementAttributes']['priorityAreaType'] = $data['r_location_priority_area_type'];
             }
 
-            // Ortsbezug
-            if (array_key_exists('r_location_point', $data) && '' !== (string) $data['r_location_point']) {
-                try {
-                    // wandle die Punktkoordinate in ein valides GeoJson um
-                    $statement['locationReference'] = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":['.$data['r_location_point'].']},"properties":null}]}';
-                } catch (Exception $e) {
-                    $this->logger->warning('Could not create Point Polygon', ['data' => $data['r_location_point'], 'exception' => $e]);
+            // Ortsbezug; an empty value removes the location reference
+            if (array_key_exists('r_location_point', $data)) {
+                $statement['locationReference'] = '';
+                if ('' !== (string) $data['r_location_point']) {
+                    try {
+                        // wandle die Punktkoordinate in ein valides GeoJson um
+                        $statement['locationReference'] = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":['.$data['r_location_point'].']},"properties":null}]}';
+                    } catch (Exception $e) {
+                        $this->logger->warning('Could not create Point Polygon', ['data' => $data['r_location_point'], 'exception' => $e]);
+                    }
                 }
             }
         }
