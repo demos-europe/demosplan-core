@@ -136,13 +136,13 @@
           v-if="customFieldsReady"
           :key="columnSelectorKey"
           :initial-selection="currentSelection"
+          :local-storage-key="storageKeyColumns"
           :selectable-columns="selectableColumns"
           appearance="subtle"
           class="ml-2"
           data-cy="statementList:selectableColumns"
           has-reset-option
           has-select-all-option
-          local-storage-key="statementsList"
           use-local-storage
           @reset="resetColumnSelection"
           @selection-changed="setCurrentSelection"
@@ -166,6 +166,7 @@
             ref="dataTable"
             :key="columnSelectorKey"
             :class="{ 'px-2': isFullscreen, 'scrollbar-none': !isFullscreen }"
+            :column-storage-key="storageKeyColumns"
             :header-fields="headerFields"
             :is-selectable="(isSourceAndCoupledProcedure && hasPermission('feature_statements_sync_to_procedure')) || hasPermission('feature_statement_cluster')"
             :items="items"
@@ -175,7 +176,6 @@
             :should-be-selected-items="currentlySelectedItems"
             :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection') }"
             class="min-h-12"
-            column-storage-key="statementsList"
             column-width-storage-key="statementsListColumnWidths"
             data-cy="listStatements"
             density="spacious"
@@ -890,6 +890,11 @@ export default {
         .map(definition => ({ field: `customField_${definition.id}`, definition }))
     },
 
+    // Custom field columns exist only in their procedure, so the selection and order of columns are stored per procedure
+    storageKeyColumns () {
+      return `statementsList:${this.procedureId}`
+    },
+
     storageKeyPagination () {
       return `${this.currentUserId}:${this.procedureId}:paginationStatementList`
     },
@@ -1089,8 +1094,8 @@ export default {
     },
 
     resetColumnSelection () {
-      localStorage.removeItem('statementsList')
-      localStorage.removeItem('dpDataTable:columnOrder:statementsList')
+      localStorage.removeItem(this.storageKeyColumns)
+      localStorage.removeItem(`dpDataTable:columnOrder:${this.storageKeyColumns}`)
       this.setCurrentSelection([...this.defaultColumnSelection])
 
       // Clear persisted column widths
