@@ -62,10 +62,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, type PropType } from 'vue'
 import { DpBadge, DpPopover, DpTooltip } from '@demos-europe/demosplan-ui'
 import { resolveCustomFieldLabels } from '@DpJs/lib/shared/resolveCustomFieldLabels'
-import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 interface CustomFieldDefinition {
   id: string
@@ -96,8 +95,15 @@ interface FieldEntry {
 const MAX_VISIBLE_CHIPS = 4
 
 const props = defineProps({
-  definitionSourceId: {
-    type: String,
+  // The values of the statement, as already requested for the row
+  customFields: {
+    type: Array as PropType<CustomFieldValue[] | null>,
+    required: false,
+    default: null,
+  },
+
+  definitions: {
+    type: Array as PropType<CustomFieldDefinition[]>,
     required: true,
   },
 
@@ -105,24 +111,14 @@ const props = defineProps({
     type: String,
     required: true,
   },
-
-  resourceId: {
-    type: String,
-    required: true,
-  },
 })
 
-const { fetchCustomFields, fetchCustomFieldValues } = useCustomFields()
-
-const definitions = ref<CustomFieldDefinition[]>([])
-const values = ref<CustomFieldValue[]>([])
-
 // Fields shown in their own column are not part of the collective column
-const entries = computed<FieldEntry[]>(() => definitions.value
+const entries = computed<FieldEntry[]>(() => props.definitions
   .filter(definition => !definition.attributes.isSeparateColumn)
   .map(definition => ({
     name: definition.attributes.name,
-    labels: resolveCustomFieldLabels(definition, values.value.find(value => value.id === definition.id)?.value ?? null),
+    labels: resolveCustomFieldLabels(definition, props.customFields?.find(value => value.id === definition.id)?.value ?? null),
   }))
   .filter(entry => entry.labels.length > 0))
 
@@ -136,16 +132,4 @@ const HTML_ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '
 
 // DpTooltip inserts its text as HTML, field names and labels are user input and must be escaped.
 const escapeHtml = (text: string): string => text.replace(/[&<>"']/g, character => HTML_ESCAPES[character])
-
-onMounted(async () => {
-  try {
-    definitions.value = await fetchCustomFields(props.definitionSourceId, {
-      sourceEntity: 'PROCEDURE',
-      targetEntity: 'STATEMENT',
-    })
-    values.value = await fetchCustomFieldValues('Statement', props.resourceId, props.definitionSourceId, 'procedure.id')
-  } catch (error) {
-    console.error('Failed to load custom fields of statement', props.resourceId, error)
-  }
-})
 </script>
