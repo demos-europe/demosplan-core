@@ -25,6 +25,7 @@
 
 ### Added
 - new Bookmarks feature for the segments list, allowing users to create, save, update, and switch between different views
+- new functionality for creating and managing scheduled synopsis exports
 - addons can add entries to the menus with a `menus.yml` in their `config` directory
 - menu entries can name the `addon` they belong to, so their permissions are looked up in the permissions of that addon
 - `path_params` of a menu entry can contain fixed values, e.g. `hookName: 'some.hook'`

@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EventSubscriber\TwoFactorSetupRequirementSubscriber;
 use demosplan\DemosPlanCoreBundle\Logic\User\TwoFactorRequirementResolver;
+use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\ApiAuthenticator;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\JWTUserToken;
 use Monolog\Handler\TestHandler;
 use Monolog\Logger;
@@ -32,6 +33,7 @@ use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Http\Authenticator\AuthenticatorInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
+use Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken;
 use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
 use Tests\Base\FunctionalTestCase;
 
@@ -125,6 +127,17 @@ class TwoFactorSetupRequirementSubscriberTest extends FunctionalTestCase
         $authenticator = self::createStub(TwoFactorAuthenticator::class);
 
         $this->sut->onLogin($this->createEvent($user, $this->createRequest(), $authenticator));
+
+        self::assertFalse($this->resolver->isSetupPending($this->session));
+    }
+
+    public function testApiAuthenticatorIsSkipped(): void
+    {
+        $user = $this->createUser([true]);
+        $authenticator = $this->createStub(ApiAuthenticator::class);
+        $token = new PostAuthenticationToken($user, 'api', $user->getRoles());
+
+        $this->sut->onLogin($this->createEvent($user, $this->createRequest(), $authenticator, $token));
 
         self::assertFalse($this->resolver->isSetupPending($this->session));
     }
