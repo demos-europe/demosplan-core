@@ -34,7 +34,7 @@
       v-if="hiddenCount > 0"
       :aria-label="Translator.trans('custom.fields.chips.show.all')"
       :panel-label="Translator.trans('custom.fields.collection')"
-      button-class="inline-flex cursor-pointer items-center rounded-md border border-interactive px-1.5 py-0.5 text-xs text-interactive hover:bg-interactive-subtle-hover [.is-expanded-row_&]:hidden"
+      button-class="inline-flex cursor-pointer items-center rounded-md border border-interactive px-1.5 py-0.5 text-xs text-interactive hover:bg-interactive-subtle-hover aria-expanded:bg-interactive-subtle-active [.is-expanded-row_&]:hidden"
     >
       <template v-slot:trigger>
         +{{ hiddenCount }}
