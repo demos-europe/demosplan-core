@@ -301,6 +301,79 @@ class CustomFieldCreatorTest extends UnitTestCase
         $this->sut->createCustomField($this->attributes);
     }
 
+    public function testCreateSingleSelectFieldForStatementWithoutIsRequired(): void
+    {
+        // Arrange
+        $this->attributes['fieldType'] = 'singleSelect';
+        $this->attributes['targetEntity'] = 'STATEMENT';
+        unset($this->attributes['isRequired']);
+
+        // Act
+        $result = $this->sut->createCustomField($this->attributes);
+
+        // Assert
+        static::assertInstanceOf(RadioButtonField::class, $result);
+        static::assertFalse($result->getRequired());
+    }
+
+    public function testCreateRequiredSingleSelectFieldForStatement(): void
+    {
+        // Arrange
+        $this->attributes['fieldType'] = 'singleSelect';
+        $this->attributes['targetEntity'] = 'STATEMENT';
+        $this->attributes['isRequired'] = true;
+
+        // Act
+        $result = $this->sut->createCustomField($this->attributes);
+
+        // Assert
+        static::assertInstanceOf(RadioButtonField::class, $result);
+        static::assertTrue($result->getRequired());
+    }
+
+    public function testIsRequiredOfSingleSelectFieldIsPersisted(): void
+    {
+        // Arrange
+        $this->attributes['fieldType'] = 'singleSelect';
+        $this->attributes['targetEntity'] = 'STATEMENT';
+        $this->attributes['isRequired'] = true;
+
+        // Act
+        $created = $this->sut->createCustomField($this->attributes);
+
+        // Assert
+        $configuration = $this->getContainer()
+            ->get(CustomFieldConfigurationRepository::class)
+            ->find($created->getId());
+        static::assertTrue($configuration->getConfiguration()->getRequired());
+    }
+
+    public function testFromJsonWithoutIsRequiredDefaultsToFalseForSingleSelect(): void
+    {
+        // Arrange: a single select stored before the field supported isRequired
+        $field = new RadioButtonField();
+
+        // Act
+        $field->fromJson(['fieldType' => 'singleSelect', 'name' => 'Status', 'description' => 'Pick status', 'options' => []]);
+
+        // Assert
+        static::assertFalse($field->getRequired());
+    }
+
+    public function testIsRequiredSurvivesJsonRoundTripForSingleSelect(): void
+    {
+        // Arrange
+        $field = new RadioButtonField();
+        $field->fromJson(['fieldType' => 'singleSelect', 'name' => 'Status', 'description' => 'Pick status', 'isRequired' => true, 'options' => []]);
+
+        // Act
+        $restored = new RadioButtonField();
+        $restored->fromJson($field->toJson());
+
+        // Assert
+        static::assertTrue($restored->getRequired());
+    }
+
     public function testCreateStatementFieldAsCollectionColumn(): void
     {
         // Arrange

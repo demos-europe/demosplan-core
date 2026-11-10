@@ -251,7 +251,8 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
             CustomFieldSupportedEntity::segment->value,
             fn ($factory, $data) => $factory->asRadioButton(
                 $data['fieldName'],
-                options: $data['fieldOptions']
+                options: $data['fieldOptions'],
+                isRequired: $data['isRequired'] ?? false
             )->create()
         );
     }
@@ -287,6 +288,17 @@ class CustomFieldValueCreatorTest extends FunctionalTestCase
                     'value'        => 'non-existent-option-uuid-12345',
                 ],
                 'expectedErrorMessage' => 'SingleSelect invalid option id "non-existent-option-uuid-12345" for CustomFieldId',
+            ],
+
+            'nullWhenRequired' => [
+                'testData' => [
+                    'fieldType'    => 'singleSelect',
+                    'fieldName'    => 'RequiredCategory',
+                    'fieldOptions' => ['Cat1', 'Cat2'],
+                    'isRequired'   => true,
+                    'value'        => null,
+                ],
+                'expectedErrorMessage' => 'Required fields must have a selection',
             ],
         ];
     }
