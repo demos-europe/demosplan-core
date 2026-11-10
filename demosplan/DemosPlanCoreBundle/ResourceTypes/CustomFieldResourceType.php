@@ -293,7 +293,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
         $requestedAttributes = $entityData->getAttributes();
         $this->guardRequiredPermission(
             $requestedAttributes['targetEntity'] ?? null,
-                $requestedAttributes['isRequired'] ?? false,
+            $requestedAttributes['isRequired'] ?? false,
             false
         );
 
@@ -353,7 +353,7 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
     private function guardRequiredPermission(
         ?string $targetEntity,
         mixed $requestedIsRequired,
-        bool $currentIsRequired
+        bool $currentIsRequired,
     ): void {
         if (CustomFieldSupportedEntity::statement->value !== $targetEntity
             || $requestedIsRequired === $currentIsRequired) {
