@@ -48,6 +48,12 @@ const TARGET_ENTITY_DEFAULT_TYPE = {
   STATEMENT: 'multiSelect',
 }
 
+/*
+ * Targets whose fieldType can be chosen in the create form.
+ * Every other target is fixed to its default fieldType.
+ */
+const TARGET_ENTITIES_WITH_SELECTABLE_TYPE = new Set(['SEGMENT'])
+
 function enrichFieldValue (fieldType, rawValue, options) {
   const enrich = FIELD_TYPE_REGISTRY[fieldType]?.enrichValue
 
@@ -86,6 +92,10 @@ function getFieldTypeLabel (fieldType) {
   return translationKey ? Translator.trans(translationKey) : fieldType
 }
 
+function isFieldTypeSelectableForTarget (targetEntity) {
+  return TARGET_ENTITIES_WITH_SELECTABLE_TYPE.has(targetEntity)
+}
+
 export function useCustomFieldTypes () {
   return {
     enrichFieldValue,
@@ -93,5 +103,6 @@ export function useCustomFieldTypes () {
     getComponentForFieldType,
     getDefaultFieldTypeForTarget,
     getFieldTypeLabel,
+    isFieldTypeSelectableForTarget,
   }
 }
