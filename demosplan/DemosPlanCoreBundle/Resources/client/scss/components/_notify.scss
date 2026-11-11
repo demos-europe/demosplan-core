@@ -139,7 +139,7 @@
 }
 
 .transition-slide-up {
-    &-enter,
+    &-enter-from,
     &-leave-to {
         height: 0;
 
@@ -151,7 +151,7 @@
 
 
     &-enter-to,
-    &-leave {
+    &-leave-from {
         height: 100%;
 
         transition-duration: .5s;

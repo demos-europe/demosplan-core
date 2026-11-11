@@ -19,7 +19,7 @@
         transition-property: opacity, height;
     }
 
-    .expand-enter,
+    .expand-enter-from,
     .expand-leave-to {
         opacity: 0;
     }
