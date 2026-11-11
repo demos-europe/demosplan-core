@@ -111,7 +111,7 @@ describe('DpOrganisationList', () => {
     vi.clearAllMocks()
   })
 
-  it('requests the technical name so the form can show the official name', async () => {
+  it('requests the technical name of the organisation', async () => {
     mountList()
 
     await flushPromises()
