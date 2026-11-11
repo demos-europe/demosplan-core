@@ -13,7 +13,6 @@
 import BookmarkStore from '@DpJs/store/procedure/SegmentsBookmarks'
 import { DpButton } from '@demos-europe/demosplan-ui'
 import DpSegmentRecommendationEmail from '@DpJs/components/statement/statement/DpSegmentRecommendationEmail.vue'
-import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory.vue'
 import FilterFlyoutStore from '@DpJs/store/procedure/FilterFlyout'
 import { initialize } from '@DpJs/InitVue'
 import SegmentsBookmarks from '@DpJs/components/procedure/SegmentsList/SegmentsBookmarks.vue'
@@ -22,16 +21,17 @@ import SegmentSlidebar from '@DpJs/components/procedure/SegmentsList/SegmentSlid
 import SegmentSlidebarStore from '@DpJs/store/procedure/SegmentSlidebar'
 import SegmentsList from '@DpJs/components/procedure/SegmentsList/SegmentsList.vue'
 import SegmentsListFilter from '@DpJs/components/procedure/SegmentsList/SegmentsListFilter.vue'
+import VersionHistory from '@DpJs/components/statement/statement/VersionHistory.vue'
 
 const components = {
   DpButton,
   DpSegmentRecommendationEmail,
-  DpVersionHistory,
   SegmentsBookmarks,
   SegmentsBookmarksButton,
   SegmentsList,
   SegmentsListFilter,
   SegmentSlidebar,
+  VersionHistory,
 }
 const stores = {
   Bookmark: BookmarkStore,
