@@ -59,10 +59,13 @@
         v-if="showNewBookmarkForm"
         primary
         secondary
-        :disabled="!newBookmarkName || isBookmarkLoading"
+        :disabled="{
+          primary: !newBookmarkName || isBookmarkLoading,
+          secondary: isBookmarkLoading,
+        }"
         data-cy="segmentsBookmarks:save"
         @primary-action="handlePrimaryAction"
-        @secondary-action="abort"
+        @secondary-action="cancel"
       />
 
       <div
@@ -80,7 +83,7 @@
           data-cy="segmentsBookmarks:showNewBookmarkForm"
           :disabled="isBookmarkLoading"
           :text="Translator.trans('segments.bookmarks.save.as.new')"
-          variant="outline"
+          :variant="currentBookmarkId ? 'outline' : 'solid'"
           @click="openNewBookmarkForm"
         />
         <dp-button
@@ -88,7 +91,7 @@
           class="col-span-2 justify-self-end"
           data-cy="segmentsBookmarks:update"
           :disabled="isBookmarkLoading"
-          :text="Translator.trans('segments.bookmarks.changes.apply')"
+          :text="Translator.trans('segments.bookmarks.change.apply')"
           @click="handleBookmarkUpdate"
         />
       </div>

@@ -2192,7 +2192,6 @@ export default {
 
     showVersionHistory (segmentId, externId) {
       this.setSlidebarContent({ externId, isOpen: true, segmentId, showTab: 'history' })
-      this.$root.$emit('version:history', segmentId, 'segment', externId)
     },
 
     showSendViaMail (segmentId, externId) {

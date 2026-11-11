@@ -214,7 +214,6 @@ export default {
     'fragment:delete',
     'statement:copy',
     'statement:move',
-    'version:history',
   ],
 
   data () {
@@ -234,13 +233,12 @@ export default {
       'setModalProperty',
     ]),
 
-    ...mapMutations('VersionHistorySlidebar', {
-      setIsSlidebarOpen: 'setIsOpen',
-    }),
+    ...mapMutations('VersionHistorySlidebar', [
+      'showHistory',
+    ]),
 
     showVersionHistory () {
-      this.$root.$emit('version:history', this.entityId, this.entity, this.externId)
-      this.setIsSlidebarOpen(true)
+      this.showHistory({ externId: this.externId, id: this.entityId, type: this.entity })
     },
 
     toggleAssignEntityModal (entity, assigneeId) {

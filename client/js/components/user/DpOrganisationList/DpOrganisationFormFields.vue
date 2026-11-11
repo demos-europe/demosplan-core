@@ -45,6 +45,22 @@
         </p>
       </div>
 
+      <!-- Read-only, comes from identity provider -->
+      <div
+        v-if="organisation.id && hasPermission('field_organisation_technical_name')"
+        class="u-1-of-1 layout__item"
+      >
+        <span class="block u-mb-0_25">
+          {{ Translator.trans('name.technical') }}
+        </span>
+        <p
+          class="color--grey u-mb-0_5"
+          data-cy="orgaFormField:technicalName"
+        >
+          {{ organisation.attributes?.technicalName || '–' }}
+        </p>
+      </div>
+
       <div class="layout__item u-4-of-12">
         <label
           :for="organisation.id + 'addressStreet'"

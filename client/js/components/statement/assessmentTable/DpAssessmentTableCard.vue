@@ -1080,6 +1080,10 @@ export default {
       'replaceStatement',
     ]),
 
+    ...mapMutations('VersionHistorySlidebar', [
+      'markEntityUpdated',
+    ]),
+
     fetchStatementFragments () {
       if (Object.values(this.fragmentsByStatement(this.statementId).fragments).length === 0 && this.statement.fragmentsTotal !== 0) {
         this.fragmentsLoading = true
@@ -1322,8 +1326,7 @@ export default {
             }
           }
 
-          // Used in DpVersionHistory to update items in version history sidebar
-          this.$root.$emit('entity:updated', this.statementId, 'statement')
+          this.markEntityUpdated(this.statementId)
           // Used in DpEditField to disable editing
           this.$root.$emit('saveSuccess', this.statementId, 'statement')
 
@@ -1407,7 +1410,7 @@ export default {
       this.setAssigneeAction({ statementId: this.statementId, assigneeId: (hasOwnProp(this.statement.assignee, 'id') && this.currentUserId === this.statement.assignee.id ? '' : this.currentUserId) })
         .then(response => {
           this.updatingClaimState = false
-          this.$root.$emit('entity:updated', this.statementId, 'statement')
+          this.markEntityUpdated(this.statementId)
         })
     },
   },
