@@ -7,7 +7,7 @@
  * All rights reserved
  */
 import { mount } from '@vue/test-utils'
-import OrganisationDataForm from '@DpJs/components/user/orgaDataEntry/OrganisationDataForm'
+import OrganisationDataForm from '@DpJs/components/user/orgaDataEntry/OrganisationDataForm.vue'
 
 const organisation = (overrides = {}) => ({
   id: 'orga-1',

@@ -6,7 +6,7 @@
  *
  * All rights reserved
  */
-import DpOrganisationFormFields from '@DpJs/components/user/DpOrganisationList/DpOrganisationFormFields'
+import DpOrganisationFormFields from '@DpJs/components/user/DpOrganisationList/DpOrganisationFormFields.vue'
 import { mount } from '@vue/test-utils'
 
 const organisation = (attributes = {}) => ({
