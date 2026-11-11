@@ -8,13 +8,13 @@
 </license>
 
 <documentation>
-  <!-- This component is used as a wrapper for DpVersionHistoryDay.vue, which contains the table header for one day and is
-   a wrapper for DpVersionHistoryItem.vue, which contains the changes for a certain time on that day
+  <!-- This component is used as a wrapper for VersionHistoryDay.vue, which contains the table header for one day and is
+   a wrapper for VersionHistoryItem.vue, which contains the changes for a certain time on that day
    -->
 </documentation>
 
 <template>
-  <div v-if="isVisible">
+  <div v-if="entityId">
     <h2 class="u-mb-0_75">
       {{ versionHistoryHeading }}
     </h2>
@@ -58,14 +58,14 @@
           <!-- if there are history items -->
           <!-- for each day -->
           <template v-if="days.length">
-            <dp-version-history-day
+            <version-history-day
               v-for="(day, idx) in days"
               :key="idx"
               :procedure-id="procedureId"
               :date="day.attributes.day"
               :day="day"
               :all-times="times"
-              :entity="entity"
+              :entity="entityType"
             />
           </template>
         </tbody>
@@ -77,10 +77,10 @@
 <script>
 import { dpApi, DpLoading } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
-import DpVersionHistoryDay from './DpVersionHistoryDay.vue'
+import VersionHistoryDay from './VersionHistoryDay.vue'
 
 export default {
-  name: 'DpVersionHistory',
+  name: 'VersionHistory',
 
   components: {
     DpInlineNotification: defineAsyncComponent(async () => {
@@ -89,47 +89,59 @@ export default {
       return DpInlineNotification
     }),
     DpLoading,
-    DpVersionHistoryDay,
+    VersionHistoryDay,
   },
 
   props: {
+    entityId: {
+      type: String,
+      default: '',
+    },
+
+    entityType: {
+      type: String,
+      default: '',
+      validator: (value) => ['', 'fragment', 'segment', 'statement'].includes(value),
+    },
+
+    externId: {
+      type: String,
+      default: '',
+    },
+
     procedureId: {
       type: String,
       required: true,
+    },
+
+    // Bumped by the parent to reload the history of the same entity, e.g. after it was edited
+    reloadKey: {
+      type: Number,
+      default: 0,
     },
   },
 
   data () {
     return {
       days: [],
-      entity: '',
-      entityId: null,
-      externId: '',
-      isVisible: false,
       isLoading: true,
       times: [],
     }
   },
 
   computed: {
-    /*
-     * Only the segment pages register the SegmentSlidebar store; on the assessment table this
-     * component is mounted without it, so the panel state is read defensively.
-     */
-    slidebarTab () {
-      return this.$store.hasModule('SegmentSlidebar') ?
-        this.$store.state.SegmentSlidebar.slidebar.showTab :
-        null
+    loadKey () {
+      return `${this.entityType}:${this.entityId}:${this.reloadKey}`
     },
 
     versionHistoryHeading () {
-      if (this.entity === '' || this.externId === '') {
+      if (this.entityType === '' || this.externId === '') {
         return Translator.trans('history')
       }
 
       let entityKey
 
-      switch (this.entity) {
+      switch (this.entityType) {
         case 'statement':
           if (this.externId.includes('GM')) {
             entityKey = Translator.trans('statement.cluster')
@@ -151,41 +163,25 @@ export default {
   },
 
   watch: {
-    // Another panel of the segment slidebar took over, so this one steps back.
-    slidebarTab (newTab) {
-      if (newTab !== null && newTab !== 'history') {
-        this.isVisible = false
-      }
+    loadKey: {
+      handler () {
+        if (this.entityId) {
+          this.loadItems(this.entityId, this.entityType)
+        }
+      },
+      immediate: true,
     },
   },
 
   methods: {
-    handleEntityUpdated (entityId, entityType) {
-      this.updateVersionHistory(entityId, entityType)
-    },
-
-    handleVersionHistory (entityId, entityType, externId) {
-      this.isVisible = true
-      this.externId = externId
-      this.loadItems(entityId, entityType)
-      this.entity = entityType
-    },
-
     loadItems (id, type) {
       this.isLoading = true
-      const route = type === 'statement' ?
-        'dplan_api_statement_history_get' :
-        type === 'segment' ?
-          'dplan_api_segment_history_get' :
-          'dplan_api_statement_fragment_history'
-
-      const params = type === 'statement' ?
-        { statementId: id } :
-        type === 'segment' ?
-          { segmentId: id } :
-          { statementFragmentId: id, procedureId: this.procedureId }
-
-      this.entityId = id
+      const requests = {
+        fragment: ['dplan_api_statement_fragment_history', { statementFragmentId: id, procedureId: this.procedureId }],
+        segment: ['dplan_api_segment_history_get', { segmentId: id }],
+        statement: ['dplan_api_statement_history_get', { statementId: id }],
+      }
+      const [route, params] = requests[type]
 
       return dpApi({
         method: 'GET',
@@ -197,22 +193,6 @@ export default {
           this.isLoading = false
         })
     },
-
-    updateVersionHistory (entityId, entityType) {
-      if (entityId === this.entityId) {
-        this.loadItems(entityId, entityType)
-      }
-    },
-  },
-
-  mounted () {
-    this.$root.$on('entity:updated', this.handleEntityUpdated)
-    this.$root.$on('version:history', this.handleVersionHistory)
-  },
-
-  beforeUnmount () {
-    this.$root.$off('entity:updated', this.handleEntityUpdated)
-    this.$root.$off('version:history', this.handleVersionHistory)
   },
 }
 </script>
