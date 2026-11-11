@@ -120,11 +120,11 @@ parameters:
                     endDate:
                         titleKey: "sort.enddate"
                         fields:
-                            endDate: "asc"
+                            endDateTimestamp: "asc"
                     startDate:
                         titleKey: "sort.startdate"
                         fields:
-                            startDate: "desc"
+                            startDateTimestamp: "desc"
                 external:
                     externalName:
                         titleKey: "sort.procedurename"
@@ -137,16 +137,16 @@ parameters:
                     publicParticipationEndDate:
                         titleKey: "sort.enddate"
                         fields:
-                            publicParticipationEndDate: "asc"
+                            publicParticipationEndDateTimestamp: "asc"
                     publicParticipationStartDate:
                         titleKey: "sort.startdate"
                         fields:
-                            publicParticipationStartDate: "desc"
+                            publicParticipationStartDateTimestamp: "desc"
                 planner:
                     endDate:
                         titleKey: "sort.enddate"
                         fields:
-                            endDate: "asc"
+                            endDateTimestamp: "asc"
                     phaseDefinitionId:
                         titleKey: "sort.phase"
                         fields:
@@ -156,13 +156,13 @@ parameters:
                     field: "name.rawSort"
                     direction: "asc"
                 internal:
-                    field: "endDate"
+                    field: "endDateTimestamp"
                     direction: "asc"
                 external:
                     field: "%procedure_public_list_default_sort_key%"
                     direction: "asc"
                 planner:
-                    field: "endDate"
+                    field: "endDateTimestamp"
                     direction: "asc"
             search:
                 all:

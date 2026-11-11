@@ -40,7 +40,7 @@ parameters:
     procedure_entrypoint_route: "DemosPlan_procedure_dashboard"
     # #refactor: Could be removed, always the same value is used
     # Sort public procedurelist by following elasticsearch key by default
-    procedure_public_list_default_sort_key: "publicParticipationEndDate"
+    procedure_public_list_default_sort_key: "publicParticipationEndDateTimestamp"
     # Purge procedures if deleted
     purge_deleted_procedures: false
     # Days to keep deleted procedures after deletion to be able to restore them in case of an emergency
