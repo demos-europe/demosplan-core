@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\EventListener;
 
 use demosplan\DemosPlanCoreBundle\Doctrine\Type\EncryptedStringType;
 use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
+use Psr\Log\LoggerInterface;
 
 /**
  * Injects the SecretEncryptor into the EncryptedStringType DBAL type
@@ -24,12 +25,15 @@ use demosplan\DemosPlanCoreBundle\Utilities\Crypto\SecretEncryptor;
  */
 class EncryptedStringTypeInitializer
 {
-    public function __construct(private readonly SecretEncryptor $encryptor)
-    {
+    public function __construct(
+        private readonly SecretEncryptor $encryptor,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     public function postConnect(): void
     {
         EncryptedStringType::setEncryptor($this->encryptor);
+        EncryptedStringType::setLogger($this->logger);
     }
 }
