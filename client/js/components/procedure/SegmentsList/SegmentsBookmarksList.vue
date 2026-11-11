@@ -23,11 +23,12 @@
     <div
       v-for="bookmark in bookmarks"
       :key="bookmark.id"
-      class="flex justify-between border my-2 p-1"
+      class="flex justify-between items-start border rounded-sm my-2 p-1"
       :class="bookmark.id === currentBookmarkId ? 'border-blue-base' : 'border-neutral-light-3'"
     >
       <dp-radio
         :id="bookmark.id"
+        class="p-1"
         :checked="bookmark.id === currentBookmarkId"
         :disabled="isLoading"
         data-cy="segmentsBookmarksList:bookmark"
@@ -43,6 +44,7 @@
         data-cy="segmentsBookmarksList:delete"
         hide-text
         icon="delete"
+        icon-size="medium"
         :text="Translator.trans('delete')"
         variant="subtle"
         @click="$emit('delete', bookmark.id)"
