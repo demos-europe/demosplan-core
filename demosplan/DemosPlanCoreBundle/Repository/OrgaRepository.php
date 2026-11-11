@@ -650,6 +650,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
             $organisation = $this->find($organisationId);
 
             $organisation->setName(null);
+            $organisation->setTechnicalName(null);
             $organisation->setGatewayName(null);
             $organisation->setCode(null);
             $organisation->setEmail2(null);
