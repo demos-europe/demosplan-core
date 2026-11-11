@@ -10,18 +10,17 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Orga;
 
-use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
-use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Schema\SchemaException;
+use Doctrine\DBAL\Types\Types;
 use Exception;
 
 class OrgaDeleter
 {
     public function __construct(
         private readonly SqlQueriesService $queriesService,
-        private readonly ProcedureRepository $procedureRepository,
         private readonly ProcedureDeleter $procedureDeleter,
     ) {
     }
@@ -73,17 +72,32 @@ class OrgaDeleter
 
         $this->deleteAccesssControl($orgaIds, $isDryRun);
 
-        $orgasProcedureIds = Collect($this->procedureRepository->findBy(['orga' => $orgaIds]))->map(
-            static fn (Procedure $procedure): string => $procedure->getId()
-        );
-        // delete procedures
-        // handles tables with orga_ids as well as procedureIds like:
-        // procedure_planningoffices, procedure_orga_datainput, institution_mail, _draft_statement_versions
-        $this->procedureDeleter->deleteProcedures($orgasProcedureIds->toArray(), $isDryRun);
+        // procedures are only flagged as deleted and detached from the organisation
+        $this->softDeleteProcedures($orgaIds, $isDryRun);
 
         $this->deleteProcedurePlannungOffices($orgaIds, $isDryRun);
         // delete organisations
         $this->deleteOrgas($orgaIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function softDeleteProcedures(array $orgaIds, bool $isDryRun): void
+    {
+        if ($isDryRun) {
+            return;
+        }
+
+        $this->queriesService->getConnection()->createQueryBuilder()
+            ->update('_procedure')
+            ->set('_p_deleted', '1')
+            ->set('_p_deleted_date', ':now')
+            ->set('_o_id', 'NULL')
+            ->where('_o_id IN (:orgaIds)')
+            ->setParameter('now', new \DateTime(), Types::DATETIME_MUTABLE)
+            ->setParameter('orgaIds', $orgaIds, ArrayParameterType::STRING)
+            ->executeStatement();
     }
 
     /**

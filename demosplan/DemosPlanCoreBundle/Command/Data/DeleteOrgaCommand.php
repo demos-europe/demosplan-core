@@ -26,7 +26,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-#[AsCommand(name: 'dplan:organisation:delete', description: 'Deletes an organisation including all related content like procedure, statements, tags, News, etc.')]
+#[AsCommand(name: 'dplan:organisation:delete', description: 'Deletes an organisation and its related content. Its procedures are soft-deleted and detached from the organisation.')]
 class DeleteOrgaCommand extends CoreCommand
 {
     public function __construct(
