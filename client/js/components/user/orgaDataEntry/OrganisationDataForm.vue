@@ -461,7 +461,7 @@ export default {
   },
 
   mounted () {
-    this.$el.querySelectorAll('input[type=text]').forEach((input) => {
+    this.$el.querySelectorAll('input[type=text], textarea').forEach((input) => {
       input.defaultValue = input.value
     })
 
