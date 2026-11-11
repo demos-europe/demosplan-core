@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
 
 class UserWhitespaceTrimTest extends TestCase
 {
-    private const ADDRESS = 'Max.Hendricks@ibl.fichtner.de';
+    private const ADDRESS = 'max.mustermann@example.com';
 
     public function testSetEmailTrimsSurroundingWhitespace(): void
     {
