@@ -73,6 +73,7 @@
         class="grid grid-cols-2 gap-2"
       >
         <dp-button
+          class="justify-self-start w-fit"
           data-cy="segmentsBookmarks:abort"
           :disabled="isBookmarkLoading"
           :text="Translator.trans('segments.bookmarks.changes.discard')"
