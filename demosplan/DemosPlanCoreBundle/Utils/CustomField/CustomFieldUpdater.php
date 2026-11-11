@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Constraint\ProcedureWithStatementsCustomFieldConstraint;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Permission\CustomFieldAttributePermissionGuard;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\UsageRemoval\EntityCustomFieldUsageStrategyFactory;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -25,6 +26,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class CustomFieldUpdater
 {
     public function __construct(
+        private readonly CustomFieldAttributePermissionGuard $attributePermissionGuard,
         private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
         private readonly EntityCustomFieldUsageStrategyFactory $entityCustomFieldUsageStrategyFactory,
         private readonly ValidatorInterface $validator,
@@ -55,6 +57,11 @@ class CustomFieldUpdater
         $customField = clone $customFieldConfiguration->getConfiguration();
         $customField->setId($customFieldConfiguration->getId());
 
+        $this->attributePermissionGuard->assertUpdateAllowed(
+            $customFieldConfiguration->getTargetEntityClass(),
+            $attributes,
+            $customField
+        );
         $this->updateBasicFields($customField, $attributes);
         $this->updateOptionsIfPresent($customField, $attributes, $customFieldConfiguration->getTargetEntityClass());
         // Save back to CustomFieldConfiguration
