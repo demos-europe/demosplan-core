@@ -73,6 +73,14 @@
           />
         </statement-meta-group>
 
+        <statement-meta-custom-fields
+          v-if="hasPermission('field_statements_custom_fields')"
+          :editable="editable"
+          :procedure-id="procedure.id"
+          :statement-id="statement.id"
+        >
+        </statement-meta-custom-fields>
+
         <statement-publication-and-voting
           v-if="hasPermission('feature_statements_vote') || hasPermission('feature_statements_publication')"
           :editable="editable"
@@ -155,6 +163,7 @@ import {
 import { mapActions, mapMutations, mapState } from 'vuex'
 import StatementEntry from './StatementEntry.vue'
 import StatementMetaAttachments from './StatementMetaAttachments.vue'
+import StatementMetaCustomFields from './StatementMetaCustomFields.vue'
 import StatementMetaFinalEmail from './StatementMetaFinalEmail.vue'
 import StatementMetaGroup from './StatementMetaGroup.vue'
 import StatementMetaLocationAndDocumentReference from './StatementMetaLocationAndDocumentReference.vue'
@@ -170,6 +179,7 @@ export default {
     DpIcon,
     StatementEntry,
     StatementMetaAttachments,
+    StatementMetaCustomFields,
     StatementMetaFinalEmail,
     StatementMetaGroup,
     StatementMetaLocationAndDocumentReference,
