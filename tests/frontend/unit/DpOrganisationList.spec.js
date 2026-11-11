@@ -31,6 +31,7 @@ const rpcResponse = (updatedIds, skippedIds = []) => Promise.resolve({
 vi.hoisted(() => {
   globalThis.dplan.permissions = {
     feature_orga_delete: true,
+    field_organisation_technical_name: true,
     field_organisation_two_factor_required: true,
   }
 })
@@ -108,6 +109,14 @@ describe('DpOrganisationList', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
     vi.clearAllMocks()
+  })
+
+  it('requests the technical name of the organisation', async () => {
+    mountList()
+
+    await flushPromises()
+
+    expect(orgaModule.actions.list.mock.lastCall[1].fields.Orga).toContain('technicalName')
   })
 
   it('tracks single selections with the organisation name', async () => {
