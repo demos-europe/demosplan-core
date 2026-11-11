@@ -414,6 +414,15 @@ const getFilterChanges = (sourceValues: Set<string>, targetValues: Set<string>, 
 }
 
 const getColumnLabel = (fieldName: string): string => {
+  if (fieldName.startsWith('customField_')) {
+    const fieldId = fieldName.replace('customField_', '')
+    const customField = props.customFieldDefinitions.find(field => field.id === fieldId)
+
+    if (customField) {
+      return customField.attributes.name
+    }
+  }
+
   const columnTranslations: Record<string, string> = {
     externId: 'id',
     statementStatus: 'statement.status',

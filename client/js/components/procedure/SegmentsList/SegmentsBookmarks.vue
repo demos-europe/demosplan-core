@@ -195,7 +195,7 @@ const abort = async (): Promise<void> => {
   if (currentBookmarkId.value) {
     await applySelectedBookmark(currentBookmarkId.value)
   } else {
-    await setDefaultBookmark()
+    setDefaultBookmark()
   }
 }
 
@@ -350,7 +350,7 @@ const handleViewChange = async (bookmarkId: string | null): Promise<void> => {
   showNewBookmarkForm.value = false
 
   if (bookmarkId === null) {
-    await setDefaultBookmark()
+    setDefaultBookmark()
 
     return
   }
@@ -394,6 +394,9 @@ const restoreSavedBookmark = async (): Promise<void> => {
   })
 
   if (!success) {
+    setDefaultBookmark()
+    dplan.notify.error(Translator.trans('error.api.generic'))
+
     return
   }
 
