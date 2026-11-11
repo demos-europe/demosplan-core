@@ -1744,13 +1744,13 @@ export default {
 
     getCustomFieldOptionLabel (customFields, fieldId) {
       // A singleSelect stores one option id, a multiSelect a list of option ids
-      const optionIds = [customFields?.find((el) => el.id === fieldId)?.value ?? []].flat()
+      const optionIds = new Set([customFields?.find((el) => el.id === fieldId)?.value ?? []].flat())
       const options = this.customFieldDefinitions.find(
         (customField) => customField.id === fieldId,
       )?.attributes.options ?? []
 
       return options
-        .filter((option) => optionIds.includes(option.id))
+        .filter((option) => optionIds.has(option.id))
         .map((option) => option.label)
         .join(', ')
     },
