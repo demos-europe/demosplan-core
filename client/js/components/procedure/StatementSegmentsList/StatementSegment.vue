@@ -764,7 +764,24 @@ export default {
       return this.customFieldValues.some((currentField) => {
         const initialField = initialFieldsById[currentField.id]
 
-        return !initialField || currentField.value !== initialField.value
+        if (!initialField) {
+          return true
+        }
+
+        // For multiSelect fields, the value is an array - compare by content, not reference
+        if (Array.isArray(currentField.value) && Array.isArray(initialField.value)) {
+          if (currentField.value.length !== initialField.value.length) {
+            return true
+          }
+
+          const sortedCurrent = [...currentField.value].sort((a, b) => String(a).localeCompare(String(b)))
+          const sortedInitial = [...initialField.value].sort((a, b) => String(a).localeCompare(String(b)))
+
+          return sortedCurrent.some((val, idx) => val !== sortedInitial[idx])
+        }
+
+        // For singleSelect and text fields, compare primitives directly
+        return currentField.value !== initialField.value
       })
     },
 
