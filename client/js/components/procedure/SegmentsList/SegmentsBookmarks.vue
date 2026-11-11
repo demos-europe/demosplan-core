@@ -91,7 +91,7 @@
           class="col-span-2 justify-self-end"
           data-cy="segmentsBookmarks:update"
           :disabled="isBookmarkLoading"
-          :text="Translator.trans('segments.bookmarks.change.apply')"
+          :text="Translator.trans('segments.bookmarks.changes.apply')"
           @click="handleBookmarkUpdate"
         />
       </div>
@@ -223,6 +223,11 @@ const applySelectedBookmark = async (bookmarkId): Promise<void> => {
   emit('applyBookmark', selectedBookmark)
   hasUnsavedChanges.value = false
   emit('hasUnsavedChanges', false)
+}
+
+const cancel = (): void => {
+  showNewBookmarkForm.value = false
+  newBookmarkName.value = ''
 }
 
 const createNewBookmark = async (): Promise<void> => {
