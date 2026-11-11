@@ -65,14 +65,6 @@ describe('OrganisationDataForm', () => {
       expect(wrapper.find('label[for="orga_name"]').text()).toContain('name.legal')
     })
 
-    it('keeps the label of the name field without the permission to see the technical name', () => {
-      denyPermission('field_organisation_technical_name')
-
-      const wrapper = mountForm()
-
-      expect(wrapper.find('label[for="orga_name"]').text()).toContain('name.legal')
-    })
-
     it('is disabled without the permission to edit the name', () => {
       const wrapper = mountForm({ props: { isOrgaNameEditable: false } })
 

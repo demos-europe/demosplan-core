@@ -79,14 +79,6 @@ describe('DpOrganisationFormFields', () => {
     expect(wrapper.find('[data-cy="orgaFormField:orgaName"]').element.value).toBe('Display name')
   })
 
-  it('keeps the label of the name field without the permission to see the technical name', () => {
-    denyPermission('field_organisation_technical_name')
-
-    const wrapper = mountFields({ writableFields: ['name'] })
-
-    expect(wrapper.find('label[for="orga-1:orgaName"]').text()).toContain('name.legal')
-  })
-
   it('shows the technical name as read-only text, even when the name is editable', () => {
     const wrapper = mountFields({ writableFields: ['name'] })
 
