@@ -80,7 +80,7 @@ describe('OrganisationDataForm', () => {
 
       expect(input.exists()).toBe(true)
       expect(input.element.value).toBe('Official name')
-      expect(input.attributes('disabled')).toBeDefined()
+      expect(input.attributes('readonly')).toBeDefined()
       expect(input.attributes('name')).toBeUndefined()
       expect(wrapper.find('label[for="orga_technical_name"]').text()).toContain('name.technical')
     })

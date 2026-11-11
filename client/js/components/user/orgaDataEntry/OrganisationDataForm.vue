@@ -51,7 +51,7 @@
         }"
         :model-value="localOrganisation.technicalName || '–'"
         data-cy="organisationData:technicalName"
-        disabled
+        readonly
       />
 
       <!-- Street -->
