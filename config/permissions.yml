@@ -2986,6 +2986,14 @@ field_organisation_phone:
     label: 'Telefon des Verfahrensträger'
     loginRequired: false
     parent: field_organisation
+field_organisation_technical_name:
+    description: |-
+        Shows the technical name of an organisation (the official name delivered by the identity provider)
+        read-only next to its editable name in the organisation form.
+    expose: true
+    label: 'Technischen Namen der Organisation anzeigen'
+    loginRequired: true
+    parent: field_organisation
 field_organisation_two_factor_required:
     description: 'Allows the user to force two-factor authentication for all users of an organisation'
     expose: true
