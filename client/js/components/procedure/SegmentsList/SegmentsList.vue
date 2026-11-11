@@ -1743,22 +1743,16 @@ export default {
     },
 
     getCustomFieldOptionLabel (customFields, fieldId) {
-      const customFieldOptionId =
-        customFields?.find((el) => el.id === fieldId)?.value || ''
-
-      if (customFieldOptionId === '') {
-        return ''
-      }
-
-      const definition = this.customFieldDefinitions.find(
+      // A singleSelect stores one option id, a multiSelect a list of option ids
+      const optionIds = new Set([customFields?.find((el) => el.id === fieldId)?.value ?? []].flat())
+      const options = this.customFieldDefinitions.find(
         (customField) => customField.id === fieldId,
-      )
+      )?.attributes.options ?? []
 
-      return (
-        definition?.attributes.options.find(
-          (option) => option.id === customFieldOptionId,
-        )?.label || ''
-      )
+      return options
+        .filter((option) => optionIds.has(option.id))
+        .map((option) => option.label)
+        .join(', ')
     },
 
     loadSegmentCustomFields () {
