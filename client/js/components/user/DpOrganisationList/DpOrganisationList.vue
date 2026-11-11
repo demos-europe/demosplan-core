@@ -338,6 +338,10 @@ if (hasPermission('field_organisation_two_factor_required')) {
   orgaFieldsArrays.Orga.push('twoFactorRequired')
 }
 
+if (hasPermission('field_organisation_technical_name')) {
+  orgaFieldsArrays.Orga.push('technicalName')
+}
+
 const orgaFields = {
   Branding: orgaFieldsArrays.Branding.join(),
   Customer: orgaFieldsArrays.Customer.join(),
