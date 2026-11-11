@@ -91,4 +91,17 @@ class OrgaDeleterTest extends FunctionalTestCase
         static::assertNull($reloaded->getOrga());
         static::assertSame($procedureCount, $this->countEntries(Procedure::class));
     }
+
+    public function testDeleteOrgaHardDeletesProceduresOnRequest()
+    {
+        $procedure = ProcedureFactory::createOne(['orga' => $this->testOrga]);
+        $procedureId = $procedure->getId();
+        $procedureCount = $this->countEntries(Procedure::class);
+
+        $this->sut->deleteOrganisations([$this->testOrga->getId()], false, true);
+
+        $this->getEntityManager()->clear();
+        static::assertNull($this->getEntityManager()->find(Procedure::class, $procedureId));
+        static::assertSame($procedureCount - 1, $this->countEntries(Procedure::class));
+    }
 }
