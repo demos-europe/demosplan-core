@@ -78,8 +78,7 @@
           :editable="editable"
           :procedure-id="procedure.id"
           :statement-id="statement.id"
-        >
-        </statement-meta-custom-fields>
+        />
 
         <statement-publication-and-voting
           v-if="hasPermission('feature_statements_vote') || hasPermission('feature_statements_publication')"

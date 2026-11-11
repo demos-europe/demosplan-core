@@ -116,7 +116,7 @@ const save = () => {
 
   const { updateCustomFields } = useCustomFields()
 
-  return updateCustomFields('Statement', props.statementId,currentValues.value)
+  return updateCustomFields('Statement', props.statementId, currentValues.value)
     .then(() => {
       initialValues.value = clone(currentValues.value)
       dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
