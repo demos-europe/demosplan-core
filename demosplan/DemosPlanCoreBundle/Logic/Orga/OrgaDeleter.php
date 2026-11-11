@@ -10,6 +10,7 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Orga;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
 use Doctrine\DBAL\ArrayParameterType;
@@ -95,7 +96,7 @@ class OrgaDeleter
             ->set('_p_deleted_date', ':now')
             ->set('_o_id', 'NULL')
             ->where('_o_id IN (:orgaIds)')
-            ->setParameter('now', new \DateTime(), Types::DATETIME_MUTABLE)
+            ->setParameter('now', new DateTime(), Types::DATETIME_MUTABLE)
             ->setParameter('orgaIds', $orgaIds, ArrayParameterType::STRING)
             ->executeStatement();
     }

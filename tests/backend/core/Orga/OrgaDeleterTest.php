@@ -21,7 +21,7 @@ use Zenstruck\Foundry\Persistence\Proxy;
 
 class OrgaDeleterTest extends FunctionalTestCase
 {
-    private null|Orga|Proxy $testOrga;
+    private Orga|Proxy|null $testOrga;
 
     private ?array $testOrgas;
 
