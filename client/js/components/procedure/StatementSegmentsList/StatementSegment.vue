@@ -774,8 +774,8 @@ export default {
             return true
           }
 
-          const sortedCurrent = [...currentField.value].sort()
-          const sortedInitial = [...initialField.value].sort()
+          const sortedCurrent = [...currentField.value].sort((a, b) => String(a).localeCompare(String(b)))
+          const sortedInitial = [...initialField.value].sort((a, b) => String(a).localeCompare(String(b)))
 
           return sortedCurrent.some((val, idx) => val !== sortedInitial[idx])
         }
