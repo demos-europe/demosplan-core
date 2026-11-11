@@ -59,7 +59,7 @@ All rights reserved
 import { computed, ref, toRaw } from 'vue'
 import CustomField from '@DpJs/components/customFields/CustomField.vue'
 import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList.vue'
-import { DpButtonRow } from '@DpJs/components/DpButtonRow/DpButtonRow'
+import { DpButtonRow } from '@demos-europe/demosplan-ui'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 interface CustomFieldValue {
