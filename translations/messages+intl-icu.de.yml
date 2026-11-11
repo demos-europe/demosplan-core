@@ -3636,7 +3636,7 @@ segments.bookmarks.unsaved.changes.show: "Ungespeicherte Änderungen anzeigen"
 segments.bookmarks.unsaved.changes.title: "{name} hat ungespeicherte Änderungen."
 segments.bookmarks.changes.discard: "Verwerfen"
 segments.bookmarks.save.as.new: "Als neue Ansicht speichern"
-segments.bookmarks.change.apply: "Änderung übernehmen"
+segments.bookmarks.changes.apply: "Änderungen übernehmen"
 segments.bookmarks.summary.columns.of.total: "{count} von {total} Spalten"
 segments.bookmarks.view: "Ansicht"
 items.selected.multi.page: |
