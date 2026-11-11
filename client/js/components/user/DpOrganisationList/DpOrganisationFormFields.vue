@@ -45,7 +45,7 @@
         </p>
       </div>
 
-      <!-- Technical name from the identity provider, always read-only, a dash while it is not known yet -->
+      <!-- Read-only, comes from identity provider -->
       <div
         v-if="organisation.id && hasPermission('field_organisation_technical_name')"
         class="u-1-of-1 layout__item"

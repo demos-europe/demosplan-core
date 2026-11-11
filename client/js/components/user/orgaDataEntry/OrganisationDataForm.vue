@@ -41,7 +41,7 @@
         required
       />
 
-      <!-- Technical name from the identity provider (read-only, not submitted), a dash while it is not known yet -->
+      <!-- Read-only, comes from identity provider -->
       <dp-input
         v-if="isTechnicalNameVisible"
         id="orga_technical_name"
