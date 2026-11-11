@@ -119,7 +119,7 @@
                     data-cy="newProcedureForm:internalNote"
                     name="r_desc"
                     :reduced-height="true"
-                    value="{% if proceduresettings.desc is defined %}{{ proceduresettings.desc }}{% else %}{{ 'notspecified'|trans }}{% endif %}"
+                    model-value="{% if proceduresettings.desc is defined %}{{ proceduresettings.desc }}{% else %}{{ 'notspecified'|trans }}{% endif %}"
                 >
                 </dp-text-area>
 

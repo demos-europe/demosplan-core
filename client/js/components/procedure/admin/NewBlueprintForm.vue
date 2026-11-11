@@ -125,8 +125,8 @@
           class="mt-4"
           :label="Translator.trans('public.participation.contact')"
           :hint="Translator.trans('explanation.public.participation.contact')"
+          :model-value="publicParticipationContact"
           name="r_publicParticipationContact"
-          :value="publicParticipationContact"
         />
 
         <dp-checkbox

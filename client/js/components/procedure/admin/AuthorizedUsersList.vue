@@ -288,8 +288,8 @@
                 :disabled="!rowData.isEditable"
                 :label="Translator.trans('memo')"
                 :maxlength="rowData.isEditable ? '1000' : false"
-                :value="rowData.note"
-                @input="val => updateUserField(rowData.tokenId, 'note', val)"
+                :model-value="rowData.note"
+                @update:model-value="val => updateUserField(rowData.tokenId, 'note', val)"
               />
               <dp-button-row
                 v-if="rowData.isEditable"

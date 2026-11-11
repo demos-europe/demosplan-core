@@ -474,7 +474,7 @@
           :hint="Translator.trans('branding.styling.hint')"
           :label="Translator.trans('branding.styling.input')"
           reduced-height
-          @input="emitOrganisationUpdate"
+          @update:model-value="emitOrganisationUpdate"
         />
         <dp-details
           data-cy="organisationFormFields:brandingStyling"
