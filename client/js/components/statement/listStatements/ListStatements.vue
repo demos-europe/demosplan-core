@@ -1131,12 +1131,11 @@ export default {
       })
         .then(definitions => {
           this.customFieldDefinitions = definitions
+          // The column selector filters the saved selection by the available columns, so it must not mount before they are known
+          this.customFieldsReady = true
         })
         .catch(() => {
           // The notification is already shown by useCustomFieldDefinitions
-        })
-        .finally(() => {
-          this.customFieldsReady = true
         })
     },
 
