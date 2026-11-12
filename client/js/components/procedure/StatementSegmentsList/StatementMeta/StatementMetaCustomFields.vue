@@ -8,7 +8,7 @@ All rights reserved
 </license>
 
 <template>
-  <fieldset>
+  <fieldset ref="customFieldsForm">
     <legend
       id="customFields"
       class="mb-3 color-text-muted font-normal"
@@ -59,9 +59,9 @@ All rights reserved
 
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { DpButtonRow, useDpValidate } from '@demos-europe/demosplan-ui'
 import CustomField from '@DpJs/components/customFields/CustomField.vue'
 import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList.vue'
-import { DpButtonRow } from '@demos-europe/demosplan-ui'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 interface CustomFieldValue {
@@ -85,6 +85,9 @@ const props = defineProps({
     required: true,
   },
 })
+
+const customFieldsForm = ref<HTMLFieldSetElement | null>(null)
+const { validate } = useDpValidate(customFieldsForm)
 
 // Values are never mutated in place, so initial and current values can share entries
 const currentValues = ref<CustomFieldValue[]>([])
@@ -113,6 +116,10 @@ const reset = () => {
 }
 
 const save = () => {
+  if (validate() === false) {
+    return
+  }
+
   isSaving.value = true
 
   const { updateCustomFields } = useCustomFields()
