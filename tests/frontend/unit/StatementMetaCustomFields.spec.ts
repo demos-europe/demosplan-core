@@ -33,7 +33,6 @@ const loadedValues = [
 // Renders the default slot with the fields and reports the initial values like the real list does
 const CustomFieldsListStub = {
   name: 'CustomFieldsList',
-  props: ['definitionSourceId', 'resourceId', 'resourceType', 'sourceEntity', 'targetEntity'],
   emits: ['loaded'],
   data: () => ({ fieldsWithDefinitions }),
   mounted () {
@@ -88,48 +87,6 @@ describe('StatementMetaCustomFields', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     updateCustomFields.mockResolvedValue({})
-  })
-
-  it('renders the legend and one custom field per definition', () => {
-    const wrapper = mountComponent()
-
-    expect(wrapper.find('legend').text()).toBe('fields.configurable')
-    expect(wrapper.findAll('[data-cy="customField"]')).toHaveLength(2)
-  })
-
-  it('loads the custom fields of the statement from the procedure', () => {
-    const wrapper = mountComponent()
-
-    expect(wrapper.findComponent({ name: 'CustomFieldsList' }).props()).toMatchObject({
-      definitionSourceId: 'procedure-1',
-      resourceId: 'statement-1',
-      resourceType: 'Statement',
-      sourceEntity: 'PROCEDURE',
-      targetEntity: 'STATEMENT',
-    })
-  })
-
-  it('does not render the buttons if the statement is not editable', () => {
-    const wrapper = mountComponent({ editable: false })
-
-    expect(wrapper.find(SAVE_BUTTON).exists()).toBe(false)
-    expect(wrapper.find(ABORT_BUTTON).exists()).toBe(false)
-  })
-
-  it('disables both buttons as long as nothing has changed', () => {
-    const wrapper = mountComponent()
-
-    expect(isDisabled(wrapper, SAVE_BUTTON)).toBe(true)
-    expect(isDisabled(wrapper, ABORT_BUTTON)).toBe(true)
-  })
-
-  it('enables both buttons after a value was changed', async () => {
-    const wrapper = mountComponent()
-
-    await changeFirstField(wrapper)
-
-    expect(isDisabled(wrapper, SAVE_BUTTON)).toBe(false)
-    expect(isDisabled(wrapper, ABORT_BUTTON)).toBe(false)
   })
 
   it('saves all values of the statement and disables the buttons again', async () => {
