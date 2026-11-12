@@ -7,17 +7,17 @@
  * All rights reserved
  */
 
+import type { CustomFieldDefinition } from '@DpJs/types/customFields'
+
 /**
  * Turns the stored value of a custom field into the labels to display.
  * Select fields store option IDs (a string or a list of strings), text fields store the text itself.
  * Option IDs that no longer exist in the definition are dropped.
- *
- * @param {Object} definition Custom field definition with attributes.fieldType and attributes.options
- * @param {string|string[]|null} value Stored value of the field
- *
- * @return {string[]}
  */
-export function resolveCustomFieldLabels (definition, value) {
+export function resolveCustomFieldLabels (
+  definition: Pick<CustomFieldDefinition, 'attributes'>,
+  value: string | string[] | null | undefined,
+): string[] {
   if (value === null || value === undefined || value === '') {
     return []
   }
@@ -30,5 +30,5 @@ export function resolveCustomFieldLabels (definition, value) {
 
   return optionIds
     .map(optionId => definition.attributes.options.find(option => option.id === optionId)?.label)
-    .filter(label => Boolean(label))
+    .filter((label): label is string => Boolean(label))
 }
