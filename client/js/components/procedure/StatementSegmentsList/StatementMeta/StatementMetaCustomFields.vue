@@ -64,9 +64,11 @@ import CustomField from '@DpJs/components/customFields/CustomField.vue'
 import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList.vue'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
+type CustomFieldValueType = string | string[] | null
+
 interface CustomFieldValue {
   id: string
-  value: unknown
+  value: CustomFieldValueType
 }
 
 const props = defineProps({
@@ -94,7 +96,7 @@ const currentValues = ref<CustomFieldValue[]>([])
 const initialValues = ref<CustomFieldValue[]>([])
 const isSaving = ref(false)
 
-const isEmptyValue = (value: unknown) => value === null || value === undefined || value === '' ||
+const isEmptyValue = (value: CustomFieldValueType | undefined) => value === null || value === undefined || value === '' ||
   (Array.isArray(value) && value.length === 0)
 
 // A field that was never set has no entry, so empty values and absent entries count as the same
@@ -116,7 +118,7 @@ const onLoaded = (values: CustomFieldValue[]) => {
   currentValues.value = values
 }
 
-const onValueUpdate = (fieldId: string, value: unknown) => {
+const onValueUpdate = (fieldId: string, value: CustomFieldValueType) => {
   const exists = currentValues.value.some(entry => entry.id === fieldId)
 
   currentValues.value = exists ?
