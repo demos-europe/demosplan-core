@@ -2020,7 +2020,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 'r_location_priority_area_type',
                 'r_location_point',
                 'r_location_geometry',
-                PointCountySplitService::COUNTY_FIELD,
+                PointCountySplitService::LOCATION_REFERENCE_FIELD,
                 'r_userGroup',
                 'r_userOrganisation',
                 'r_userPosition',

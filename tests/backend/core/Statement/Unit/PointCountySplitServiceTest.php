@@ -52,33 +52,33 @@ class PointCountySplitServiceTest extends TestCase
         $point = $this->featureCollection('Point');
 
         $polygon = $this->createSut(false)->extractGeometry([
-            PointCountySplitService::POINT_FIELD  => $point,
-            PointCountySplitService::COUNTY_FIELD => $this->featureCollection('Polygon'),
+            PointCountySplitService::POINT_FIELD              => $point,
+            PointCountySplitService::LOCATION_REFERENCE_FIELD => $this->featureCollection('Polygon'),
         ]);
 
         self::assertSame($point, $polygon);
     }
 
-    public function testExtractGeometryJoinsPointAndCountyWithPermission(): void
+    public function testExtractGeometryJoinsPointAndLocationReferenceWithPermission(): void
     {
         $polygon = $this->sut->extractGeometry([
-            PointCountySplitService::POINT_FIELD  => $this->featureCollection('Point'),
-            PointCountySplitService::COUNTY_FIELD => $this->featureCollection('Polygon'),
+            PointCountySplitService::POINT_FIELD              => $this->featureCollection('Point'),
+            PointCountySplitService::LOCATION_REFERENCE_FIELD => $this->featureCollection('Polygon'),
         ]);
 
         $features = json_decode($polygon, false, 512, JSON_THROW_ON_ERROR)->features;
-        self::assertSame(['point', 'county'], array_map(static fn (object $feature): string => $feature->properties->locationType, $features));
+        self::assertSame(['point', 'locationReference'], array_map(static fn (object $feature): string => $feature->properties->locationType, $features));
     }
 
-    public function testExtractGeometryKeepsCountyWhenThePointWasRemoved(): void
+    public function testExtractGeometryKeepsLocationReferenceWhenThePointWasRemoved(): void
     {
         $polygon = $this->sut->extractGeometry([
-            PointCountySplitService::POINT_FIELD  => '',
-            PointCountySplitService::COUNTY_FIELD => $this->featureCollection('Polygon'),
+            PointCountySplitService::POINT_FIELD              => '',
+            PointCountySplitService::LOCATION_REFERENCE_FIELD => $this->featureCollection('Polygon'),
         ]);
 
         $features = json_decode($polygon, false, 512, JSON_THROW_ON_ERROR)->features;
-        self::assertSame(['county'], array_map(static fn (object $feature): string => $feature->properties->locationType, $features));
+        self::assertSame(['locationReference'], array_map(static fn (object $feature): string => $feature->properties->locationType, $features));
     }
 
     public function testExtractGeometryReturnsEmptyStringWithoutFields(): void
@@ -87,7 +87,7 @@ class PointCountySplitServiceTest extends TestCase
         self::assertSame('', $this->createSut(false)->extractGeometry([]));
     }
 
-    public function testAppendFieldsAddsPointAndCountyWithPermission(): void
+    public function testAppendFieldsAddsPointAndLocationReferenceWithPermission(): void
     {
         $polygon = $this->sut->merge($this->featureCollection('Point'), $this->featureCollection('Polygon'));
 
@@ -95,7 +95,7 @@ class PointCountySplitServiceTest extends TestCase
 
         self::assertSame($polygon, $draftStatement['polygon']);
         self::assertSame('Point', json_decode($draftStatement[PointCountySplitService::POINT_FIELD], false, 512, JSON_THROW_ON_ERROR)->features[0]->geometry->type);
-        self::assertSame('Polygon', json_decode($draftStatement[PointCountySplitService::COUNTY_FIELD], false, 512, JSON_THROW_ON_ERROR)->features[0]->geometry->type);
+        self::assertSame('Polygon', json_decode($draftStatement[PointCountySplitService::LOCATION_REFERENCE_FIELD], false, 512, JSON_THROW_ON_ERROR)->features[0]->geometry->type);
         self::assertSame('a', $draftStatement['id']);
     }
 
@@ -116,7 +116,7 @@ class PointCountySplitServiceTest extends TestCase
         $draftStatement = $this->sut->appendFields(['id' => 'a']);
 
         self::assertSame('', $draftStatement[PointCountySplitService::POINT_FIELD]);
-        self::assertSame('', $draftStatement[PointCountySplitService::COUNTY_FIELD]);
+        self::assertSame('', $draftStatement[PointCountySplitService::LOCATION_REFERENCE_FIELD]);
     }
 
     public function testMergeTagsFeaturesAndPutsPointFirst(): void
@@ -124,7 +124,7 @@ class PointCountySplitServiceTest extends TestCase
         $merged = $this->sut->merge($this->featureCollection('Point'), $this->featureCollection('Polygon'));
 
         $features = json_decode($merged, false, 512, JSON_THROW_ON_ERROR)->features;
-        self::assertSame(['point', 'county'], array_map(static fn (object $feature): string => $feature->properties->locationType, $features));
+        self::assertSame(['point', 'locationReference'], array_map(static fn (object $feature): string => $feature->properties->locationType, $features));
         self::assertSame(['Point', 'Polygon'], array_map(static fn (object $feature): string => $feature->geometry->type, $features));
     }
 
@@ -133,13 +133,13 @@ class PointCountySplitServiceTest extends TestCase
         self::assertSame('', $this->sut->merge('', ''));
     }
 
-    public function testMergeKeepsCountyWhenPointIsEmpty(): void
+    public function testMergeKeepsLocationReferenceWhenPointIsEmpty(): void
     {
         $merged = $this->sut->merge('', $this->featureCollection('Polygon'));
 
         $features = json_decode($merged, false, 512, JSON_THROW_ON_ERROR)->features;
         self::assertCount(1, $features);
-        self::assertSame('county', $features[0]->properties->locationType);
+        self::assertSame('locationReference', $features[0]->properties->locationType);
     }
 
     public function testMergeKeepsExistingFeatureProperties(): void
@@ -167,10 +167,10 @@ class PointCountySplitServiceTest extends TestCase
         $split = $this->sut->split($merged);
 
         $point = json_decode($split[PointCountySplitService::POINT_FIELD], false, 512, JSON_THROW_ON_ERROR);
-        $county = json_decode($split[PointCountySplitService::COUNTY_FIELD], false, 512, JSON_THROW_ON_ERROR);
+        $locationReference = json_decode($split[PointCountySplitService::LOCATION_REFERENCE_FIELD], false, 512, JSON_THROW_ON_ERROR);
         self::assertSame('FeatureCollection', $point->type);
         self::assertSame('Point', $point->features[0]->geometry->type);
-        self::assertSame('Polygon', $county->features[0]->geometry->type);
+        self::assertSame('Polygon', $locationReference->features[0]->geometry->type);
     }
 
     public function testSplitTreatsUntaggedFeaturesAsPoint(): void
@@ -178,7 +178,7 @@ class PointCountySplitServiceTest extends TestCase
         $split = $this->sut->split($this->featureCollection('Polygon'));
 
         self::assertNotSame('', $split[PointCountySplitService::POINT_FIELD]);
-        self::assertSame('', $split[PointCountySplitService::COUNTY_FIELD]);
+        self::assertSame('', $split[PointCountySplitService::LOCATION_REFERENCE_FIELD]);
     }
 
     public function testSplitReturnsEmptyPartsForEmptyPolygon(): void
@@ -186,7 +186,7 @@ class PointCountySplitServiceTest extends TestCase
         $split = $this->sut->split('');
 
         self::assertSame('', $split[PointCountySplitService::POINT_FIELD]);
-        self::assertSame('', $split[PointCountySplitService::COUNTY_FIELD]);
+        self::assertSame('', $split[PointCountySplitService::LOCATION_REFERENCE_FIELD]);
     }
 
     public function testSplitReturnsNonGeoJsonAsPoint(): void
@@ -194,6 +194,6 @@ class PointCountySplitServiceTest extends TestCase
         $split = $this->sut->split('randomLocation');
 
         self::assertSame('randomLocation', $split[PointCountySplitService::POINT_FIELD]);
-        self::assertSame('', $split[PointCountySplitService::COUNTY_FIELD]);
+        self::assertSame('', $split[PointCountySplitService::LOCATION_REFERENCE_FIELD]);
     }
 }

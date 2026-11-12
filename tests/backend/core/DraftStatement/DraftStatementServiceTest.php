@@ -1676,9 +1676,9 @@ class DraftStatementServiceTest extends FunctionalTestCase
         $point = $this->featureCollection('Point', [1, 2]);
 
         $statement = $this->sut->extractGeoData([
-            'r_location'                          => 'point',
-            PointCountySplitService::POINT_FIELD  => $point,
-            PointCountySplitService::COUNTY_FIELD => $this->featureCollection('Polygon', [[[0, 0], [4, 0], [4, 4], [0, 0]]]),
+            'r_location'                                      => 'point',
+            PointCountySplitService::POINT_FIELD              => $point,
+            PointCountySplitService::LOCATION_REFERENCE_FIELD => $this->featureCollection('Polygon', [[[0, 0], [4, 0], [4, 4], [0, 0]]]),
         ], []);
 
         static::assertSame($point, $statement['polygon']);
@@ -1690,13 +1690,13 @@ class DraftStatementServiceTest extends FunctionalTestCase
         $this->enablePermissions(['feature_diplankarte_split_point_county']);
 
         $statement = $this->sut->extractGeoData([
-            'r_location'                          => 'point',
-            PointCountySplitService::POINT_FIELD  => $this->featureCollection('Point', [1, 2]),
-            PointCountySplitService::COUNTY_FIELD => $this->featureCollection('Polygon', [[[0, 0], [4, 0], [4, 4], [0, 0]]]),
+            'r_location'                                      => 'point',
+            PointCountySplitService::POINT_FIELD              => $this->featureCollection('Point', [1, 2]),
+            PointCountySplitService::LOCATION_REFERENCE_FIELD => $this->featureCollection('Polygon', [[[0, 0], [4, 0], [4, 4], [0, 0]]]),
         ], []);
 
         $features = json_decode($statement['polygon'], false, 512, JSON_THROW_ON_ERROR)->features;
-        static::assertSame(['point', 'county'], array_map(static fn (object $feature): string => $feature->properties->locationType, $features));
+        static::assertSame(['point', 'locationReference'], array_map(static fn (object $feature): string => $feature->properties->locationType, $features));
     }
 
     public function testExtractGeoDataIgnoresBothGeometriesWhenLocationIsNotPoint(): void
@@ -1705,9 +1705,9 @@ class DraftStatementServiceTest extends FunctionalTestCase
         $this->enablePermissions(['feature_diplankarte_split_point_county']);
 
         $statement = $this->sut->extractGeoData([
-            'r_location'                          => 'notLocated',
-            PointCountySplitService::POINT_FIELD  => $this->featureCollection('Point', [1, 2]),
-            PointCountySplitService::COUNTY_FIELD => $this->featureCollection('Polygon', [[[0, 0], [4, 0], [4, 4], [0, 0]]]),
+            'r_location'                                      => 'notLocated',
+            PointCountySplitService::POINT_FIELD              => $this->featureCollection('Point', [1, 2]),
+            PointCountySplitService::LOCATION_REFERENCE_FIELD => $this->featureCollection('Polygon', [[[0, 0], [4, 0], [4, 4], [0, 0]]]),
         ], []);
 
         static::assertSame('', $statement['polygon']);

@@ -18,7 +18,7 @@ use DemosEurope\DemosplanAddon\Utilities\Json;
 use stdClass;
 
 /**
- * Diplankarte sends the location of a statement as two values: a point and a county.
+ * Diplankarte sends the location of a statement as two values: a point and a location reference.
  * The statement has only one polygon column, so both are joined into ONE FeatureCollection when saving
  * and separated again when a draft statement is loaded.
  */
@@ -29,7 +29,7 @@ class PointCountySplitService
      * the two values when a draft statement is loaded (BE -> FE).
      */
     public const POINT_FIELD = 'r_location_geometry';
-    public const COUNTY_FIELD = 'r_location_county_geometry';
+    public const LOCATION_REFERENCE_FIELD = 'r_location_reference_geometry';
 
     /*
      * Internal tag, not sent by the FE: every feature in the polygon column gets this property,
@@ -37,9 +37,9 @@ class PointCountySplitService
      */
     private const TYPE_PROPERTY = 'locationType';
     private const TYPE_POINT = 'point';
-    private const TYPE_COUNTY = 'county';
+    private const TYPE_LOCATION_REFERENCE = 'locationReference';
 
-    // Permission that switches the point/county handling on
+    // Permission that switches the point/location reference handling on
     private const PERMISSION = 'feature_diplankarte_split_point_county';
 
     public function __construct(private readonly CurrentUserInterface $currentUser)
@@ -48,7 +48,7 @@ class PointCountySplitService
 
     /**
      * Polygon to store for the location 'point': the point geometry or, if the permission is set,
-     * point and county joined into one FeatureCollection.
+     * point and location reference joined into one FeatureCollection.
      *
      * @throws JsonException
      */
@@ -59,11 +59,11 @@ class PointCountySplitService
             return $pointGeometry;
         }
 
-        return $this->merge($pointGeometry, (string) ($data[self::COUNTY_FIELD] ?? ''));
+        return $this->merge($pointGeometry, (string) ($data[self::LOCATION_REFERENCE_FIELD] ?? ''));
     }
 
     /**
-     * Adds point and county of a loaded draft statement under the two field names the FE sends,
+     * Adds point and location reference of a loaded draft statement under the two field names the FE sends,
      * if the permission is set. 'polygon' stays untouched.
      */
     public function appendFields(?array $draftStatement): ?array
@@ -76,21 +76,21 @@ class PointCountySplitService
     }
 
     /**
-     * Joins point and county into ONE FeatureCollection and tags every feature with its type.
+     * Joins point and location reference into ONE FeatureCollection and tags every feature with its type.
      * Point features come first.
      *
-     * @param string $pointGeometry  FeatureCollection as JSON string or ''
-     * @param string $countyGeometry FeatureCollection as JSON string or ''
+     * @param string $pointGeometry             FeatureCollection as JSON string or ''
+     * @param string $locationReferenceGeometry FeatureCollection as JSON string or ''
      *
      * @return string FeatureCollection as JSON string, '' if there is no feature
      *
      * @throws JsonException
      */
-    public function merge(string $pointGeometry, string $countyGeometry): string
+    public function merge(string $pointGeometry, string $locationReferenceGeometry): string
     {
         $features = [
             ...$this->getTaggedFeatures($pointGeometry, self::TYPE_POINT),
-            ...$this->getTaggedFeatures($countyGeometry, self::TYPE_COUNTY),
+            ...$this->getTaggedFeatures($locationReferenceGeometry, self::TYPE_LOCATION_REFERENCE),
         ];
 
         return [] === $features ? '' : Json::encode($this->createFeatureCollection($features));
@@ -104,7 +104,7 @@ class PointCountySplitService
      */
     public function split(string $polygon): array
     {
-        $split = [self::POINT_FIELD => '', self::COUNTY_FIELD => ''];
+        $split = [self::POINT_FIELD => '', self::LOCATION_REFERENCE_FIELD => ''];
         if ('' === $polygon) {
             return $split;
         }
@@ -121,10 +121,10 @@ class PointCountySplitService
             return $split;
         }
 
-        $featuresByField = [self::POINT_FIELD => [], self::COUNTY_FIELD => []];
+        $featuresByField = [self::POINT_FIELD => [], self::LOCATION_REFERENCE_FIELD => []];
         foreach ($features as $feature) {
-            $isCounty = self::TYPE_COUNTY === ($feature->properties->{self::TYPE_PROPERTY} ?? null);
-            $featuresByField[$isCounty ? self::COUNTY_FIELD : self::POINT_FIELD][] = $feature;
+            $isLocationReference = self::TYPE_LOCATION_REFERENCE === ($feature->properties->{self::TYPE_PROPERTY} ?? null);
+            $featuresByField[$isLocationReference ? self::LOCATION_REFERENCE_FIELD : self::POINT_FIELD][] = $feature;
         }
 
         foreach ($featuresByField as $field => $fieldFeatures) {

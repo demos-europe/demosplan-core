@@ -1741,7 +1741,7 @@ class DemosPlanStatementController extends BaseController
                 'r_county',
                 'r_represents',
                 'r_location_geometry',
-                PointCountySplitService::COUNTY_FIELD,
+                PointCountySplitService::LOCATION_REFERENCE_FIELD,
                 'r_location',
                 'r_location_point',
                 'r_location_priority_area_key',
