@@ -63,6 +63,19 @@ class PointCountySplitService
     }
 
     /**
+     * Adds point and county of a loaded draft statement under the two field names the FE sends,
+     * if the permission is set. 'polygon' stays untouched.
+     */
+    public function appendFields(?array $draftStatement): ?array
+    {
+        if (null === $draftStatement || !$this->currentUser->hasPermission(self::PERMISSION)) {
+            return $draftStatement;
+        }
+
+        return array_merge($draftStatement, $this->split((string) ($draftStatement['polygon'] ?? '')));
+    }
+
+    /**
      * Joins point and county into ONE FeatureCollection and tags every feature with its type.
      * Point features come first.
      *

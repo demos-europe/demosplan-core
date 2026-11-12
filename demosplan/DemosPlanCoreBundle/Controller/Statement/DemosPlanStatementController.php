@@ -1570,7 +1570,7 @@ class DemosPlanStatementController extends BaseController
      */
     #[DplanPermissions('area_statements')]
     #[Route(path: '/rest/draftStatement/get/{procedureId}/{draftStatementId}', name: 'DemosPlan_statement_get_ajax', options: ['expose' => true])]
-    public function getDraftStatementAjax(DocumentHandler $documentHandler, StatementHandler $statementHandler, string $procedureId, $draftStatementId): JsonResponse
+    public function getDraftStatementAjax(DocumentHandler $documentHandler, PointCountySplitService $pointCountySplitService, StatementHandler $statementHandler, string $procedureId, $draftStatementId): JsonResponse
     {
         try {
             $draftStatement = $statementHandler->getDraftStatement($draftStatementId);
@@ -1579,7 +1579,7 @@ class DemosPlanStatementController extends BaseController
             $response = [
                 'code'                 => 100,
                 'success'              => true,
-                'draftStatement'       => $draftStatement,
+                'draftStatement'       => $pointCountySplitService->appendFields($draftStatement),
                 'hasPlanningDocuments' => $documentHandler->hasProcedureElements($procedureId, $this->currentUser->getUser()->getOrganisationId()),
             ];
 

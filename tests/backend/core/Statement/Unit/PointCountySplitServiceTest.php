@@ -87,6 +87,38 @@ class PointCountySplitServiceTest extends TestCase
         self::assertSame('', $this->createSut(false)->extractGeometry([]));
     }
 
+    public function testAppendFieldsAddsPointAndCountyWithPermission(): void
+    {
+        $polygon = $this->sut->merge($this->featureCollection('Point'), $this->featureCollection('Polygon'));
+
+        $draftStatement = $this->sut->appendFields(['id' => 'a', 'polygon' => $polygon]);
+
+        self::assertSame($polygon, $draftStatement['polygon']);
+        self::assertSame('Point', json_decode($draftStatement[PointCountySplitService::POINT_FIELD], false, 512, JSON_THROW_ON_ERROR)->features[0]->geometry->type);
+        self::assertSame('Polygon', json_decode($draftStatement[PointCountySplitService::COUNTY_FIELD], false, 512, JSON_THROW_ON_ERROR)->features[0]->geometry->type);
+        self::assertSame('a', $draftStatement['id']);
+    }
+
+    public function testAppendFieldsLeavesDraftStatementUntouchedWithoutPermission(): void
+    {
+        $draftStatement = ['id' => 'a', 'polygon' => $this->featureCollection('Point')];
+
+        self::assertSame($draftStatement, $this->createSut(false)->appendFields($draftStatement));
+    }
+
+    public function testAppendFieldsPassesNullThrough(): void
+    {
+        self::assertNull($this->sut->appendFields(null));
+    }
+
+    public function testAppendFieldsReturnsEmptyPartsWithoutPolygon(): void
+    {
+        $draftStatement = $this->sut->appendFields(['id' => 'a']);
+
+        self::assertSame('', $draftStatement[PointCountySplitService::POINT_FIELD]);
+        self::assertSame('', $draftStatement[PointCountySplitService::COUNTY_FIELD]);
+    }
+
     public function testMergeTagsFeaturesAndPutsPointFirst(): void
     {
         $merged = $this->sut->merge($this->featureCollection('Point'), $this->featureCollection('Polygon'));
