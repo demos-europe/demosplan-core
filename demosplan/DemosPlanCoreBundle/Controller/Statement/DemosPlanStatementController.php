@@ -46,6 +46,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\PointCountySplit\PointCountySplitService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListHandlerResult;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
@@ -1740,6 +1741,7 @@ class DemosPlanStatementController extends BaseController
                 'r_county',
                 'r_represents',
                 'r_location_geometry',
+                PointCountySplitService::COUNTY_FIELD,
                 'r_location',
                 'r_location_point',
                 'r_location_priority_area_key',

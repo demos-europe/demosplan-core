@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Statement\PointCountySplit;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use stdClass;
@@ -37,6 +38,29 @@ class PointCountySplitService
     private const TYPE_PROPERTY = 'locationType';
     private const TYPE_POINT = 'point';
     private const TYPE_COUNTY = 'county';
+
+    // Permission that switches the point/county handling on
+    private const PERMISSION = 'feature_diplankarte_split_point_county';
+
+    public function __construct(private readonly CurrentUserInterface $currentUser)
+    {
+    }
+
+    /**
+     * Polygon to store for the location 'point': the point geometry or, if the permission is set,
+     * point and county joined into one FeatureCollection.
+     *
+     * @throws JsonException
+     */
+    public function extractGeometry(array $data): string
+    {
+        $pointGeometry = (string) ($data[self::POINT_FIELD] ?? '');
+        if (!$this->currentUser->hasPermission(self::PERMISSION)) {
+            return $pointGeometry;
+        }
+
+        return $this->merge($pointGeometry, (string) ($data[self::COUNTY_FIELD] ?? ''));
+    }
 
     /**
      * Joins point and county into ONE FeatureCollection and tags every feature with its type.

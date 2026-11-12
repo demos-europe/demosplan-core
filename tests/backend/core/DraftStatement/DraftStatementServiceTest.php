@@ -22,6 +22,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\PointCountySplit\PointCountySplitService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementResult;
 use Exception;
@@ -1659,5 +1660,56 @@ class DraftStatementServiceTest extends FunctionalTestCase
         $resultValues = $result->values();
         static::assertEquals('id1', $resultValues[0]['ident']);
         static::assertEquals('id3', $resultValues[1]['ident']);
+    }
+
+    private function featureCollection(string $geometryType, array $coordinates): string
+    {
+        return json_encode([
+            'type'     => 'FeatureCollection',
+            'features' => [['type' => 'Feature', 'geometry' => ['type' => $geometryType, 'coordinates' => $coordinates], 'properties' => (object) []]],
+        ], JSON_THROW_ON_ERROR);
+    }
+
+    public function testExtractGeoDataStoresOnlyPointWithoutPermission(): void
+    {
+        $this->loginTestUser();
+        $point = $this->featureCollection('Point', [1, 2]);
+
+        $statement = $this->sut->extractGeoData([
+            'r_location'                          => 'point',
+            PointCountySplitService::POINT_FIELD  => $point,
+            PointCountySplitService::COUNTY_FIELD => $this->featureCollection('Polygon', [[[0, 0], [4, 0], [4, 4], [0, 0]]]),
+        ], []);
+
+        static::assertSame($point, $statement['polygon']);
+    }
+
+    public function testExtractGeoDataJoinsPointAndCountyWithPermission(): void
+    {
+        $this->loginTestUser();
+        $this->enablePermissions(['feature_diplankarte_split_point_county']);
+
+        $statement = $this->sut->extractGeoData([
+            'r_location'                          => 'point',
+            PointCountySplitService::POINT_FIELD  => $this->featureCollection('Point', [1, 2]),
+            PointCountySplitService::COUNTY_FIELD => $this->featureCollection('Polygon', [[[0, 0], [4, 0], [4, 4], [0, 0]]]),
+        ], []);
+
+        $features = json_decode($statement['polygon'], false, 512, JSON_THROW_ON_ERROR)->features;
+        static::assertSame(['point', 'county'], array_map(static fn (object $feature): string => $feature->properties->locationType, $features));
+    }
+
+    public function testExtractGeoDataIgnoresBothGeometriesWhenLocationIsNotPoint(): void
+    {
+        $this->loginTestUser();
+        $this->enablePermissions(['feature_diplankarte_split_point_county']);
+
+        $statement = $this->sut->extractGeoData([
+            'r_location'                          => 'notLocated',
+            PointCountySplitService::POINT_FIELD  => $this->featureCollection('Point', [1, 2]),
+            PointCountySplitService::COUNTY_FIELD => $this->featureCollection('Polygon', [[[0, 0], [4, 0], [4, 4], [0, 0]]]),
+        ], []);
+
+        static::assertSame('', $statement['polygon']);
     }
 }

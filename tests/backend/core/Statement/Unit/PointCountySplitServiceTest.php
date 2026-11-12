@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Tests\Core\Statement\Unit;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\PointCountySplit\PointCountySplitService;
 use PHPUnit\Framework\TestCase;
 
@@ -23,7 +24,16 @@ class PointCountySplitServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->sut = new PointCountySplitService();
+        $this->sut = $this->createSut(true);
+    }
+
+    private function createSut(bool $hasPermission): PointCountySplitService
+    {
+        // The user is only a dependency of the service under test, not the service itself
+        $currentUser = $this->createStub(CurrentUserInterface::class);
+        $currentUser->method('hasPermission')->willReturn($hasPermission);
+
+        return new PointCountySplitService($currentUser);
     }
 
     private function featureCollection(string ...$geometryTypes): string
@@ -35,6 +45,46 @@ class PointCountySplitServiceTest extends TestCase
         ], $geometryTypes);
 
         return json_encode(['type' => 'FeatureCollection', 'features' => $features], JSON_THROW_ON_ERROR);
+    }
+
+    public function testExtractGeometryReturnsOnlyPointWithoutPermission(): void
+    {
+        $point = $this->featureCollection('Point');
+
+        $polygon = $this->createSut(false)->extractGeometry([
+            PointCountySplitService::POINT_FIELD  => $point,
+            PointCountySplitService::COUNTY_FIELD => $this->featureCollection('Polygon'),
+        ]);
+
+        self::assertSame($point, $polygon);
+    }
+
+    public function testExtractGeometryJoinsPointAndCountyWithPermission(): void
+    {
+        $polygon = $this->sut->extractGeometry([
+            PointCountySplitService::POINT_FIELD  => $this->featureCollection('Point'),
+            PointCountySplitService::COUNTY_FIELD => $this->featureCollection('Polygon'),
+        ]);
+
+        $features = json_decode($polygon, false, 512, JSON_THROW_ON_ERROR)->features;
+        self::assertSame(['point', 'county'], array_map(static fn (object $feature): string => $feature->properties->locationType, $features));
+    }
+
+    public function testExtractGeometryKeepsCountyWhenThePointWasRemoved(): void
+    {
+        $polygon = $this->sut->extractGeometry([
+            PointCountySplitService::POINT_FIELD  => '',
+            PointCountySplitService::COUNTY_FIELD => $this->featureCollection('Polygon'),
+        ]);
+
+        $features = json_decode($polygon, false, 512, JSON_THROW_ON_ERROR)->features;
+        self::assertSame(['county'], array_map(static fn (object $feature): string => $feature->properties->locationType, $features));
+    }
+
+    public function testExtractGeometryReturnsEmptyStringWithoutFields(): void
+    {
+        self::assertSame('', $this->sut->extractGeometry([]));
+        self::assertSame('', $this->createSut(false)->extractGeometry([]));
     }
 
     public function testMergeTagsFeaturesAndPutsPointFirst(): void
