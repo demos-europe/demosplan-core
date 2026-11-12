@@ -35,7 +35,7 @@ export interface BookmarkState {
   currentSorting: string
   defaultSelectedColumns: string[]
   isBookmarkLoading: boolean
-  isViewStateInitialized: boolean
+  isBookmarkStateInitialized: boolean
 }
 
 export interface SegmentSlidebarState {
