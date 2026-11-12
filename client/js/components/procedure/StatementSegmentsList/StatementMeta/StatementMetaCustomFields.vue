@@ -32,7 +32,7 @@ All rights reserved
         <custom-field
           v-for="{ field, definition } in fieldsWithDefinitions"
           :key="field.id"
-          :definition="definition"
+          :definition="withoutDescription(definition)"
           :disabled="!editable"
           :field-data="{ id: field.id, value: getValue(field.id) }"
           :resource-id="statementId"
@@ -97,6 +97,11 @@ const isSaving = ref(false)
 const hasChanges = computed(() => JSON.stringify(currentValues.value) !== JSON.stringify(initialValues.value))
 
 const getValue = (fieldId: string) => currentValues.value.find(entry => entry.id === fieldId)?.value ?? null
+
+// The description is shown as tooltip on the label; this view omits it
+const withoutDescription = (definition: any) => definition ?
+  { ...definition, attributes: { ...definition.attributes, description: '' } } :
+  definition
 
 const onLoaded = (values: CustomFieldValue[]) => {
   initialValues.value = values
