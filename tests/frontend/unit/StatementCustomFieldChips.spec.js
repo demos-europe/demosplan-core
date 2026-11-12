@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import StatementCustomFieldChips from '../../../client/js/components/statement/listStatements/StatementCustomFieldChips.vue'
+import StatementCustomFieldChips from '@DpJs/components/statement/listStatements/StatementCustomFieldChips.vue'
 
 describe('StatementCustomFieldChips', () => {
   const selectDefinition = (id, name, options, extra = {}) => ({
@@ -26,6 +26,12 @@ describe('StatementCustomFieldChips', () => {
     })
 
     expect(badgeTexts(wrapper)).toEqual(['North', 'South', 'Traffic'])
+  })
+
+  it('provides the field name of each chip as persistent text for assistive technology', () => {
+    const wrapper = mountChips({ customFields: [{ id: 'region', value: 'o1' }] })
+
+    expect(wrapper.find('.sr-only').text()).toBe('Region:')
   })
 
   it('does not show fields that have their own column', () => {

@@ -22,6 +22,8 @@
         :text="Translator.trans('custom.fields.chip.tooltip', { name: escapeHtml(chip.fieldName) })"
         node-type="span"
       >
+        <!-- Persistent field name for assistive technology, the tooltip is only available on hover -->
+        <span class="sr-only">{{ chip.fieldName }}:</span>
         <dp-badge
           :text="chip.label"
           class="flex items-center border border-transparent"
@@ -34,12 +36,12 @@
       v-if="hiddenCount > 0"
       :aria-label="Translator.trans('custom.fields.chips.show.all')"
       :panel-label="Translator.trans('custom.fields.collection')"
-      button-class="inline-flex cursor-pointer items-center rounded-md border border-interactive px-1.5 py-0.5 text-xs text-interactive hover:bg-interactive-subtle-hover aria-expanded:bg-interactive-subtle-active [.is-expanded-row_&]:hidden"
+      class="[.is-expanded-row_&]:hidden"
     >
       <template v-slot:trigger>
         +{{ hiddenCount }}
       </template>
-      <div class="w-max max-w-[400px] p-3 text-sm text-[#333333]">
+      <div class="w-max max-w-[400px] p-3 text-sm text-default">
         <p class="font-semibold">
           {{ '#'+ externId }} | {{ Translator.trans('custom.fields.collection') }}
         </p>
@@ -63,23 +65,9 @@
 
 <script setup lang="ts">
 import { computed, type PropType } from 'vue'
+import type { CustomFieldDefinition, CustomFieldValue } from '@DpJs/types/customFields'
 import { DpBadge, DpPopover, DpTooltip } from '@demos-europe/demosplan-ui'
 import { resolveCustomFieldLabels } from '@DpJs/lib/shared/resolveCustomFieldLabels'
-
-interface CustomFieldDefinition {
-  id: string
-  attributes: {
-    name: string
-    fieldType: string
-    isSeparateColumn?: boolean
-    options: { id: string, label: string }[]
-  }
-}
-
-interface CustomFieldValue {
-  id: string
-  value: string | string[] | null
-}
 
 interface Chip {
   fieldName: string
