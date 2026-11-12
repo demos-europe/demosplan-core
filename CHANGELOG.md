@@ -48,6 +48,11 @@
 - The boilerplate edit page lists the segments that use the boilerplate in the recommendation text, with assignee, workflow step and the current recommendation text
 - Specific branches of an addon can be installed
 
+## v4.64.1 (2026-11-09)
+
+### Fixed
+- Exporting statements as a ZIP file no longer aborts when a statement has several original PDF files
+
 ## v4.64.0 (2026-10-21)
 - bump contract layer demosplan-addon to v0.83
 - depends on contract layer >= v0.83
