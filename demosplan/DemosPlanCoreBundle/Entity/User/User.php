@@ -498,7 +498,9 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
      */
     public function setEmail($email)
     {
-        $this->email = $email;
+        // Surrounding whitespace must never be persisted: the login column is a fixed-length CHAR that
+        // drops trailing spaces while the email column keeps them, which breaks the password-edit token.
+        $this->email = is_string($email) ? trim($email) : $email;
 
         return $this;
     }
@@ -510,7 +512,8 @@ class User implements AddonUserInterface, TotpTwoFactorInterface, EmailTwoFactor
 
     public function setLogin(?string $login): void
     {
-        $this->login = $login;
+        // See setEmail(): the login is part of the password-edit token and must equal its stored value.
+        $this->login = null === $login ? null : trim($login);
     }
 
     /**
