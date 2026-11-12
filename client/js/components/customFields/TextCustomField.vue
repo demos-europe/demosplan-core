@@ -72,6 +72,7 @@ All rights reserved
     <dp-text-area
       :id="`custom-field-${field.id}`"
       :data-dp-validate-error-fieldname="field.attributes.name"
+      :disabled="disabled"
       :value="currentValue"
       maxlength="250"
       reduced-height
@@ -95,6 +96,12 @@ export default {
   mixins: [prefixClassMixin],
 
   props: {
+    disabled: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+
     field: {
       type: Object,
       required: true,

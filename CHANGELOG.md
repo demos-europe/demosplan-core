@@ -40,6 +40,7 @@
 - `path_params` of a menu entry can contain fixed values, e.g. `hookName: 'some.hook'`
 - new generic page `/addon/page/{hookName}` (`DemosPlan_addon_page`) that shows the components an addon provides for a hook, for users who may see that hook
 - addons can cancel saving an organisation, e.g. to ask for a confirmation first
+- The statement details page shows the custom fields of a statement in a new section, where they can be viewed and edited (DPLAN-17933)
 
 ## v4.67.0 (2026-11-06)
 
