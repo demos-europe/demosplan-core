@@ -80,7 +80,8 @@ class ExportAssessmentTableMessageHandler
             $this->contextRestorer->restore(
                 $message->getUserId(),
                 $message->getCustomerId(),
-                $message->getProcedureId()
+                $message->getProcedureId(),
+                $message->getOrganisationId()
             );
 
             $file = $this->assessmentExporter->export($message->getExportFormat(), $message->getParameters());
