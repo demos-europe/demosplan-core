@@ -75,6 +75,7 @@
 
         <statement-meta-custom-fields
           v-if="hasPermission('field_statements_custom_fields')"
+          ref="statementMetaCustomFields"
           :editable="editable"
           :procedure-id="procedure.id"
           :statement-id="statement.id"
@@ -319,8 +320,9 @@ export default {
       const entryHasChanges = this.$refs.statementEntry?.hasUnsavedChanges || false
       const submitterHasChanges = this.$refs.statementSubmitter?.hasUnsavedChanges || false
       const attachmentsHaveChanges = this.$refs.statementMetaAttachments?.hasUnsavedChanges || false
+      const customFieldsHaveChanges = this.$refs.statementMetaCustomFields?.hasUnsavedChanges || false
 
-      return attachmentsHaveChanges || entryHasChanges || submitterHasChanges
+      return attachmentsHaveChanges || customFieldsHaveChanges || entryHasChanges || submitterHasChanges
     },
 
     isCurrentUserAssigned () {
@@ -412,6 +414,10 @@ export default {
         this.$refs.statementMetaAttachments.handleResetGenericAttachments()
       }
 
+      if (this.$refs.statementMetaCustomFields?.hasUnsavedChanges) {
+        this.$refs.statementMetaCustomFields.reset()
+      }
+
       return Promise.resolve()
     },
 
@@ -439,6 +445,10 @@ export default {
 
       if (this.$refs.statementMetaAttachments?.hasUnsavedChanges) {
         promises.push(this.$refs.statementMetaAttachments.saveGenericAttachments())
+      }
+
+      if (this.$refs.statementMetaCustomFields?.hasUnsavedChanges) {
+        promises.push(this.$refs.statementMetaCustomFields.save())
       }
 
       return Promise.all(promises)

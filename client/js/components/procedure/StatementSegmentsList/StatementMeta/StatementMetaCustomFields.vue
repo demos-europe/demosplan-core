@@ -127,11 +127,13 @@ const save = () => {
 
   isSaving.value = true
 
+  // Keep the submitted values: edits made while the request is pending must stay unsaved
+  const submittedValues = currentValues.value
   const { updateCustomFields } = useCustomFields()
 
-  return updateCustomFields('Statement', props.statementId, currentValues.value)
+  return updateCustomFields('Statement', props.statementId, submittedValues)
     .then(() => {
-      initialValues.value = currentValues.value
+      initialValues.value = submittedValues
       dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
     })
     .catch(() => {
@@ -141,4 +143,7 @@ const save = () => {
       isSaving.value = false
     })
 }
+
+// Used by the unsaved changes guard of StatementMeta
+defineExpose({ hasUnsavedChanges: hasChanges, reset, save })
 </script>
