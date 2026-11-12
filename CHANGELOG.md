@@ -40,6 +40,10 @@
 - new generic page `/addon/page/{hookName}` (`DemosPlan_addon_page`) that shows the components an addon provides for a hook, for users who may see that hook
 - addons can cancel saving an organisation, e.g. to ask for a confirmation first
 
+## v4.67.0 (2026-11-06)
+
+## v4.66.0 (2026-11-05)
+
 ## v4.65.0 (2026-10-22)
 
 ### Added
@@ -47,6 +51,11 @@
 - Custom fields are added to the segments' list filter side panel (version without filter count)
 - The boilerplate edit page lists the segments that use the boilerplate in the recommendation text, with assignee, workflow step and the current recommendation text
 - Specific branches of an addon can be installed
+
+## v4.64.1 (2026-11-09)
+
+### Fixed
+- Exporting statements as a ZIP file no longer aborts when a statement has several original PDF files
 
 ## v4.64.0 (2026-10-21)
 - bump contract layer demosplan-addon to v0.83
