@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import DpProcedureCoordinateInput from '@DpJs/components/procedure/basicSettings/DpProcedureCoordinateInput'
+import DpProcedureCoordinateInput from '@DpJs/components/procedure/basicSettings/DpProcedureCoordinateInput.vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('DpProcedureCoordinateInput', () => {

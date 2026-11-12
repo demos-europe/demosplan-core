@@ -253,8 +253,8 @@
 <script>
 import { DpLoading, DpModal, DpMultiselect, DpTab, DpTabs, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import DpCustomFieldsFilter from '@DpJs/components/shared/DpCustomFieldsFilter'
-import DpFilterModalSelectItem from './FilterModalSelectItem'
+import DpCustomFieldsFilter from '@DpJs/components/shared/DpCustomFieldsFilter.vue'
+import DpFilterModalSelectItem from './FilterModalSelectItem.vue'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {

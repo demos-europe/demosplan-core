@@ -11,7 +11,7 @@
  * This is the entrypoint for faq_admin_list.html.twig
  */
 
-import DpFaqList from '@DpJs/components/faq/DpFaqList'
+import DpFaqList from '@DpJs/components/faq/DpFaqList.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

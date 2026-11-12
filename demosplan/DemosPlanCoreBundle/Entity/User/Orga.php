@@ -49,6 +49,11 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Orga extends SluggedEntity implements OrgaInterface, Stringable
 {
     /**
+     * Data key and API attribute name of the two-factor requirement.
+     */
+    final public const TWO_FACTOR_REQUIRED = 'twoFactorRequired';
+
+    /**
      * @var string|null
      */
     #[ORM\Column(name: '_o_id', type: 'string', length: 36, options: ['fixed' => true])]
@@ -72,6 +77,12 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      */
     #[ORM\Column(name: '_o_name', type: 'string', length: 255, nullable: true)]
     protected $name;
+    /**
+     * Official name as delivered by the identity provider (Keycloak). Read-only for users.
+     * NULL = not synced yet. {@link $name} is the user-editable display name.
+     */
+    #[ORM\Column(name: '_o_name_technical', type: 'string', length: 255, nullable: true)]
+    private ?string $technicalName = null;
     /**
      * @var string|null
      */
@@ -129,6 +140,11 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
      */
     #[ORM\Column(name: '_o_showlist', type: 'boolean', nullable: false, options: ['default' => false])]
     protected $showlist = true;
+    /**
+     * Forces every user of this orga to log in with a second factor.
+     */
+    #[ORM\Column(name: '_o_two_factor_required', type: 'boolean', nullable: false, options: ['default' => false])]
+    protected bool $twoFactorRequired = false;
     /**
      * @var string|null
      */
@@ -312,6 +328,13 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     #[ORM\Column(type: 'dplan.custom_fields_value', nullable: true)]
     private ?CustomFieldValuesList $customFields = null;
 
+    /**
+     * Explicitly chosen AI mode, NULL = no explicit choice. Validity is checked at runtime against
+     * the providers registered by addons, see AiModeResolver.
+     */
+    #[ORM\Column(name: 'ai_mode', type: 'string', length: 32, nullable: true)]
+    private ?string $aiMode = null;
+
     public function __construct()
     {
         $this->addressBookEntries = new ArrayCollection();
@@ -357,6 +380,18 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     public function getName(): ?string
     {
         return $this->name;
+    }
+
+    public function getTechnicalName(): ?string
+    {
+        return $this->technicalName;
+    }
+
+    public function setTechnicalName(?string $technicalName): self
+    {
+        $this->technicalName = $technicalName;
+
+        return $this;
     }
 
     public function getNameLegal(): ?string
@@ -497,6 +532,18 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     public function isShowlist(): bool
     {
         return $this->getShowlist();
+    }
+
+    public function isTwoFactorRequired(): bool
+    {
+        return $this->twoFactorRequired;
+    }
+
+    public function setTwoFactorRequired(bool $twoFactorRequired): self
+    {
+        $this->twoFactorRequired = $twoFactorRequired;
+
+        return $this;
     }
 
     /**
@@ -966,6 +1013,15 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     }
 
     /**
+     * True if at least one of the users of this organisation is not deleted and holds an institution role
+     * ({@see User::PUBLIC_AGENCY_ROLES}) in the current customer.
+     */
+    public function hasActiveInstitutionUsers(): bool
+    {
+        return $this->getUsers()->contains(static fn (User $user): bool => $user->isPublicAgency());
+    }
+
+    /**
      * @param array<int,UserInterface> $users
      */
     public function setUsers($users): self
@@ -1432,5 +1488,17 @@ class Orga extends SluggedEntity implements OrgaInterface, Stringable
     public function setCustomFields(?CustomFieldValuesList $customFields): void
     {
         $this->customFields = $customFields;
+    }
+
+    public function getAiMode(): ?string
+    {
+        return $this->aiMode;
+    }
+
+    public function setAiMode(?string $aiMode): self
+    {
+        $this->aiMode = $aiMode;
+
+        return $this;
     }
 }

@@ -94,7 +94,7 @@
 
 <script>
 import { CleanHtml, dpApi, DpLoading, formatDate } from '@demos-europe/demosplan-ui'
-import DpFragmentStatus from './Status'
+import DpFragmentStatus from './Status.vue'
 
 export default {
   name: 'DpFragmentVersion',

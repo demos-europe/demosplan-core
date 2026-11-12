@@ -257,7 +257,7 @@
 <script>
 import { DpButton, DpDraggable, DpLoading, DpSplitButton } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import AdminLayerListItem from './AdminLayerListItem'
+import AdminLayerListItem from './AdminLayerListItem.vue'
 import lscache from 'lscache'
 import { scrollTo } from 'vue-scrollto'
 

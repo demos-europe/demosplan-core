@@ -396,6 +396,9 @@ area_organisations:
     loginRequired: true
     parent: area_admin
 area_organisations_applications_manage:
+    description: |-
+        Shows the pending organisation applications and the edit button in the organisation list;
+        editing the organisation types needs feature_orga_registration_status_edit.
     expose: true
     label: 'This permission is limited to viewing organisations and managing their customer application.'
     loginRequired: true
@@ -594,6 +597,12 @@ feature_2fa:
     expose: true
     label: 'Allow two-factor authentication'
     loginRequired: true
+feature_orga_two_factor_required:
+    description: |-
+        Feature permission for the per-organisation two-factor authentication requirement.
+        Users of organisations with the flag are forced to set up 2FA at login. Requires feature_2fa.
+    label: 'Zwei-Faktor-Pflicht pro Organisation erzwingen'
+    loginRequired: true
 feature_admin_assessmenttable_export_docx:
     label: 'Abwägungstabelle in Docx-Format exportieren'
     loginRequired: true
@@ -611,6 +620,12 @@ feature_admin_assessmenttable_export_potential_areas_xlsx:
 feature_admin_assessmenttable_export_statement_generic_xlsx:
     label: 'Enable Excel Export'
     description: 'Permission to enable excel export for statement(s) with all data from assessmenttable.'
+    expose: true
+    loginRequired: true
+    parent: feature_admin
+feature_admin_scheduled_xlsx_export:
+    label: 'Enable Scheduled Excel Export'
+    description: 'Permission to configure, view, edit and delete a regularly recurring excel export for statement(s) with all data from assessmenttable.'
     expose: true
     loginRequired: true
     parent: feature_admin
@@ -1501,6 +1516,14 @@ feature_orga_registration:
     expose: true
     label: 'Allow organizations to register by themselves'
     loginRequired: false
+feature_orga_registration_status_edit:
+    description: |-
+        Allows the user to set the organisation types (permissions of an organisation in the customer),
+        for example municipality or hearing authority.
+    expose: true
+    label: 'edit organisation types'
+    loginRequired: true
+    parent: [area_manage_orgas, area_manage_orgas_all]
 feature_orga_slug:
     description: 'An orga slug is an URL part chosen by a user. The URL can be used to filter procedures to show by their corresponding orga. This feature enables everything regarding orga slugs: Showing/creating them (for editing: feature_orga_slug_edit). Using them in redirects.'
     expose: true
@@ -2508,6 +2531,13 @@ feature_statements_custom_fields:
     expose: true
     label: 'Allow statement fields in public view'
     loginRequired: false
+feature_statements_custom_fields_column_display:
+    description: |-
+        Allows to choose whether a custom field of statements is shown in the collective column
+        or as a separate column of the statement list.
+    expose: true
+    label: 'Column display of custom fields in the statement list'
+    loginRequired: true
 feature_statements_draft_delete:
     expose: true
     label: 'Stell. Entwuerfe Loeschen'
@@ -2919,6 +2949,12 @@ field_organisation_contact_person:
     label: 'Ansprechpartner des Verfahrensträger'
     loginRequired: false
     parent: field_organisation
+field_organisation_customer:
+    description: 'Shows the customer (Bundesland) of an organisation in the organisation form.'
+    expose: true
+    label: 'Bundesland der Organisation anzeigen'
+    loginRequired: true
+    parent: field_organisation
 field_organisation_email2_cc:
     expose: true
     label: 'Ansprechpartner des Verfahrensträger'
@@ -2950,6 +2986,20 @@ field_organisation_phone:
     label: 'Telefon des Verfahrensträger'
     loginRequired: false
     parent: field_organisation
+field_organisation_technical_name:
+    description: |-
+        Shows the technical name of an organisation (the official name delivered by the identity provider)
+        read-only next to its editable name in the organisation form.
+    expose: true
+    label: 'Technischen Namen der Organisation anzeigen'
+    loginRequired: true
+    parent: field_organisation
+field_organisation_two_factor_required:
+    description: 'Allows the user to force two-factor authentication for all users of an organisation'
+    expose: true
+    label: 'Zwei-Faktor-Authentifizierung für Organisationen verpflichtend setzen'
+    loginRequired: true
+    parent: [area_manage_orgas, area_manage_orgas_all]
 field_organisations_custom_fields:
     expose: true
     label: 'Anzeige der eigenen Werte für Custom Fields der Organisation'

@@ -158,16 +158,16 @@
             />
           </div>
           <dp-column-selector
-            v-if="customFieldsReady"
+            v-if="customFieldsReady && (!hasBookmarks || isBookmarkStateInitialized)"
             :key="columnSelectorKey"
             appearance="subtle"
             data-cy="segmentsList:selectableColumns"
             has-reset-option
             has-select-all-option
             :initial-selection="currentSelection"
-            local-storage-key="segmentList"
+            :local-storage-key="hasBookmarks ? null : 'segmentList'"
             :selectable-columns="selectableColumns"
-            use-local-storage
+            :use-local-storage="!hasBookmarks"
             @reset="resetColumnSelection"
             @selection-changed="setCurrentSelection"
           />
@@ -474,28 +474,15 @@
             </template>
           </dp-data-table>
         </div>
-        <div
+        <table-scrollbar
           v-show="scrollbarVisible"
           ref="scrollBar"
-          class="h-[16px] z-[11] relative bg-neutral-light-4 mt-[10px]"
-          :class="
-            isFullscreen
-              ? 'fixed bottom-3 left-0 right-0 mx-2'
-              : 'sticky bottom-0 left-0 right-0'
-          "
-        >
-          <div
-            :aria-valuenow="scrollPercent"
-            :style="thumbStyle"
-            aria-controls="segmentsListScrollContainer"
-            aria-valuemax="100"
-            aria-valuemin="0"
-            class="absolute inset-y-[2px] rounded-full bg-neutral-light-2 cursor-pointer hover:bg-interactive active:bg-interactive-hover"
-            role="scrollbar"
-            tabindex="0"
-            @mousedown="onThumbMousedown"
-          />
-        </div>
+          :is-fullscreen="isFullscreen"
+          :scroll-percent="scrollPercent"
+          :thumb-style="thumbStyle"
+          controls="segmentsListScrollContainer"
+          @thumb-mousedown="onThumbMousedown"
+        />
       </template>
 
       <dp-inline-notification
@@ -542,20 +529,21 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { CUSTOM_FIELD_GROUP_PREFIX, useApiPlatformFilters } from '@DpJs/composables/useApiPlatformFilters'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper.vue'
 import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
-import CustomSearch from './CustomSearch'
+import CustomSearch from './CustomSearch.vue'
 import fullscreenModeMixin from '@DpJs/components/shared/mixins/fullscreenModeMixin'
-import ImageModal from '@DpJs/components/shared/ImageModal'
+import ImageModal from '@DpJs/components/shared/ImageModal.vue'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
-import SegmentsExportModal from './SegmentsExportModal'
-import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal'
-import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
-import StatusBadge from '../Shared/StatusBadge'
+import SegmentsExportModal from './SegmentsExportModal.vue'
+import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal.vue'
+import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip.vue'
+import StatusBadge from '../Shared/StatusBadge.vue'
+import TableScrollbar from '@DpJs/components/shared/TableScrollbar.vue'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
-import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer.vue'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 
@@ -589,6 +577,7 @@ export default {
     SegmentUnlockModal,
     StatementMetaTooltip,
     StatusBadge,
+    TableScrollbar,
     TextContentRenderer,
     VPopover,
   },
@@ -654,11 +643,6 @@ export default {
       appliedFilterQuery: this.initialFilter,
       currentQueryHash: '',
       columnSelectorKey: 0,
-      defaultColumnSelection: [
-        'deadline',
-        'place',
-        'text',
-      ],
       currentSelection: [],
       customFieldDefinitions: [],
       customFieldsReady: !hasPermission('field_segments_custom_fields'),
@@ -793,6 +777,10 @@ export default {
       tagsObject: 'items',
     }),
 
+    ...mapState('Bookmark', {
+      isBookmarkStateInitialized: 'isBookmarkStateInitialized',
+    }),
+
     assignableUsers () {
       return Object.keys(this.assignableUsersObject).length ?
         Object.values(this.assignableUsersObject).map((user) => ({
@@ -802,12 +790,26 @@ export default {
         []
     },
 
+    defaultColumnSelection () {
+      const columns = ['place', 'text']
+
+      if (this.hasDeadlineColumn) {
+        columns.unshift('deadline')
+      }
+
+      return columns
+    },
+
     hasDeadlineColumn () {
       return hasPermission('field_statement_deadline')
     },
 
     canExportSegments () {
       return hasPermission('feature_segments_list_export_xlsx') || hasPermission('feature_segments_list_export_csv')
+    },
+
+    hasBookmarks () {
+      return hasPermission('feature_procedure_user_filter_sets')
     },
 
     // Passed as headerFields to DpDataTable
@@ -1149,11 +1151,74 @@ export default {
 
     ...mapMutations('SegmentSlidebar', {
       setSlidebarState: 'setContent',
+      setCurrentQueryHash: 'setCurrentQueryHash',
     }),
+
+    ...mapMutations('Bookmark', {
+      setStoreSearchPhrase: 'setCurrentSearchPhrase',
+      setStoreSorting: 'setCurrentSorting',
+      setStoreSelectedColumns: 'setCurrentSelectedColumns',
+      setStoreDefaultSelectedColumns: 'setDefaultSelectedColumns',
+    }),
+
+    ...mapActions('Bookmark', {
+      resetToDefaultView: 'resetToDefaultView',
+    }),
+
+    async applyBookmarkSettings (bookmark) {
+      if (!bookmark) {
+        await this.resetQuery()
+        this.setDefaultView()
+
+        return
+      }
+
+      const { searchPhrase, viewSettings, filter, queryHash } = bookmark.attributes
+      const { selectedColumns, sorting } = viewSettings ?? {}
+
+      // Apply search
+      this.searchTerm = searchPhrase ?? ''
+      this.setStoreSearchPhrase(this.searchTerm)
+
+      // Apply columns
+      this.currentSelection = Array.isArray(selectedColumns) ? selectedColumns : []
+      this.setStoreSelectedColumns(this.currentSelection)
+      localStorage.setItem('segmentList', JSON.stringify(this.currentSelection))
+      this.columnSelectorKey++
+
+      // Apply sorting
+      this.selectedSort = sorting || ''
+      this.setStoreSorting(this.selectedSort)
+
+      if (this.selectedSort) {
+        lscache.set(this.lsKey.selectedSort, this.selectedSort)
+      } else {
+        lscache.remove(this.lsKey.selectedSort)
+      }
+
+      // Apply filters
+      this.appliedFilterQuery = filter
+
+      // Update query hash
+      if (queryHash && this.currentQueryHash && queryHash !== this.currentQueryHash) {
+        this.updateQueryHashInURL(this.currentQueryHash, queryHash)
+        this.currentQueryHash = queryHash
+        this.setCurrentQueryHash(queryHash)
+      }
+
+      this.resetSelection()
+      this.applyQuery(1)
+    },
 
     applySort (sortValue) {
       this.selectedSort = sortValue
       lscache.set(this.lsKey.selectedSort, sortValue)
+
+      if (this.hasBookmarks) {
+        this.setStoreSorting(sortValue)
+        this.updateQueryHash()
+      }
+
       this.applyQuery(1)
     },
 
@@ -1544,6 +1609,24 @@ export default {
       return parts.filter(Boolean).join(', ')
     },
 
+    initializeFilters () {
+      const filters = this.initialFilter
+
+      if (!Array.isArray(filters) && filters && Object.keys(filters).length) {
+        Object.values(filters).forEach(filter => {
+          if (!filter.condition) {
+            return
+          }
+
+          this.updateFilterQuery({
+            [filter.condition.value]: filter,
+          })
+        })
+      }
+
+      this.commitFilterQuery()
+    },
+
     // Effective order of the list and its export: the user-selected sort, or the default order
     getSortParams () {
       const defaultOrder = {
@@ -1651,22 +1734,16 @@ export default {
     },
 
     getCustomFieldOptionLabel (customFields, fieldId) {
-      const customFieldOptionId =
-        customFields?.find((el) => el.id === fieldId)?.value || ''
-
-      if (customFieldOptionId === '') {
-        return ''
-      }
-
-      const definition = this.customFieldDefinitions.find(
+      // A singleSelect stores one option id, a multiSelect a list of option ids
+      const optionIds = new Set([customFields?.find((el) => el.id === fieldId)?.value ?? []].flat())
+      const options = this.customFieldDefinitions.find(
         (customField) => customField.id === fieldId,
-      )
+      )?.attributes.options ?? []
 
-      return (
-        definition?.attributes.options.find(
-          (option) => option.id === customFieldOptionId,
-        )?.label || ''
-      )
+      return options
+        .filter((option) => optionIds.has(option.id))
+        .map((option) => option.label)
+        .join(', ')
     },
 
     loadSegmentCustomFields () {
@@ -1734,6 +1811,7 @@ export default {
 
     handleResetSearch () {
       this.resetSearchQuery()
+      this.updateQueryHash()
       this.applyQuery(1)
     },
 
@@ -1778,11 +1856,21 @@ export default {
     // Filters live in SegmentsListFilter (in the slidebar); delegate the reset there via the twig template.
     resetQuery () {
       this.resetSearchQuery()
+
+      if (this.hasBookmarks) {
+        this.setDefaultView()
+      }
+
       this.$emit('resetFilters')
     },
 
     resetSearchQuery () {
       this.searchTerm = ''
+
+      if (this.hasBookmarks) {
+        this.setStoreSearchPhrase('')
+      }
+
       this.$refs.customSearch.reset()
     },
 
@@ -1802,6 +1890,18 @@ export default {
       }
 
       return this.toggledItems.map(item => item.id)
+    },
+
+    restoreSorting () {
+      const storedSort = lscache.get(this.lsKey.selectedSort)
+
+      if (storedSort) {
+        this.selectedSort = storedSort
+
+        if (this.hasBookmarks) {
+          this.setStoreSorting(storedSort)
+        }
+      }
     },
 
     /**
@@ -2006,6 +2106,11 @@ export default {
 
     setCurrentSelection (selection) {
       this.currentSelection = selection
+
+      if (this.hasBookmarks) {
+        this.setStoreSelectedColumns(selection)
+        this.updateQueryHash()
+      }
     },
 
     // Saves the Ids of all segments represented by the current filterQuery for later use in bulk edit view.
@@ -2054,9 +2159,33 @@ export default {
       this.applyQuery(1)
     },
 
+    setCurrentQueryHashFromUrl () {
+      const hrefParts = globalThis.location.href.split('/')
+
+      this.currentQueryHash = hrefParts[hrefParts.length - 1]
+      this.setCurrentQueryHash(this.currentQueryHash)
+    },
+
+    setDefaultView () {
+      lscache.remove(`${this.procedureId}:segments:currentBookmarkId`)
+
+      this.currentSelection = [...this.defaultColumnSelection]
+      this.setStoreSelectedColumns(this.currentSelection)
+      localStorage.setItem('segmentList', JSON.stringify(this.defaultColumnSelection))
+      this.columnSelectorKey++
+
+      this.selectedSort = ''
+      this.setStoreSorting('')
+      lscache.remove(this.lsKey.selectedSort)
+
+      this.searchTerm = ''
+      this.setStoreSearchPhrase('')
+
+      this.resetToDefaultView()
+    },
+
     showVersionHistory (segmentId, externId) {
       this.setSlidebarContent({ externId, isOpen: true, segmentId, showTab: 'history' })
-      this.$root.$emit('version:history', segmentId, 'segment', externId)
     },
 
     showSendViaMail (segmentId, externId) {
@@ -2076,6 +2205,12 @@ export default {
       this.setSlidebarContent({ externId: '', isOpen: !closing, segmentId: '', showTab: 'filter' })
     },
 
+    openBookmarks () {
+      const closing = this.slidebar.isOpen && this.slidebar.showTab === 'bookmarks'
+
+      this.setSlidebarContent({ externId: '', isOpen: !closing, segmentId: '', showTab: 'bookmarks' })
+    },
+
     updateQueryHash () {
       const hrefParts = globalThis.location.href.split('/')
       const oldQueryHash = hrefParts[hrefParts.length - 1]
@@ -2085,9 +2220,19 @@ export default {
 
       const data = { filter: this.getFilterQuery }
 
-      if (this.searchTerm !== '') {
-        data.searchPhrase = this.searchTerm
+      if (this.hasBookmarks) {
+        const orderedFields = this.$refs.dataTable?.orderedHeaderFields || this.availableHeaderFields
+        const columns = orderedFields.map(headerField => headerField.field)
+
+        data.viewSettings = {
+          columnOrder: columns,
+          selectedColumns: this.currentSelection,
+          sorting: this.selectedSort,
+        }
       }
+
+      // Always include searchPhrase so clearing it updates the query hash
+      data.searchPhrase = this.searchTerm
 
       return dpApi
         .patch(url, {}, data)
@@ -2095,6 +2240,7 @@ export default {
           if (data) {
             this.updateQueryHashInURL(oldQueryHash, data)
             this.currentQueryHash = data
+            this.setCurrentQueryHash(data)
           }
         })
         .catch((err) => console.log(err))
@@ -2119,62 +2265,68 @@ export default {
 
     updateSearchQuery (term) {
       this.searchTerm = term
+
+      if (this.hasBookmarks) {
+        this.setStoreSearchPhrase(term)
+        this.updateQueryHash()
+      }
+
       this.resetSelection()
       this.applyQuery(1)
     },
   },
 
   async mounted () {
-    // Seed the store before awaiting anything, so a quick reset can't be overwritten by the URL filter
-    if (
-      Array.isArray(this.initialFilter) === false &&
-      Object.keys(this.initialFilter).length
-    ) {
-      Object.values(this.initialFilter).forEach((filter) => {
-        if (!filter.condition) {
-          return
-        }
-
-        const query = {}
-
-        query[filter.condition.value] = filter
-        this.updateFilterQuery(query)
-      })
+    /*
+     * When bookmarks are enabled, set the default columns in the store immediately.
+     * This ensures SegmentsBookmarks has the correct defaults when initializing view state.
+     */
+    if (this.hasBookmarks) {
+      this.setStoreDefaultSelectedColumns(this.defaultColumnSelection)
     }
 
-    // Snapshot the initial filters as applied so the first applyQuery fetches with them
-    this.commitFilterQuery()
+    /*
+     * When bookmarks are enabled, the view state initialization is handled by SegmentsBookmarks.
+     * It will call applyBookmarkSettings() with the saved bookmark (or null for default view),
+     * which then triggers applyQuery(). This ensures we only query once with the correct settings.
+     */
+    if (!this.hasBookmarks) {
+      this.initializeFilters()
+    }
+
+    this.setCurrentQueryHashFromUrl()
+
+    this.initPagination()
 
     const addons = await loadAddonComponents('tag.style.segments.list')
 
     this.hasStyledTopicalTags = addons.length > 0
 
-    // Get queryHash from URL
-    const hrefParts = globalThis.location.href.split('/')
-
-    this.currentQueryHash = hrefParts[hrefParts.length - 1]
-
-    // When returning from bulk edit flow, the currentQueryHash which was used there to build a return link must be deleted.
+    /*
+     * Clear temporary navigation state. When returning from bulk edit flow,
+     * the currentQueryHash which was used there to build a return link must be deleted.
+     */
     lscache.remove(this.lsKey.currentQueryHash)
 
-    const storedSort = lscache.get(this.lsKey.selectedSort)
+    const navigationSourceKey = `${this.procedureId}:navigation:source`
 
-    if (storedSort) {
-      this.selectedSort = storedSort
-    }
+    lscache.remove(navigationSourceKey)
 
-    if (lscache.get(`${this.procedureId}:navigation:source`)) {
-      lscache.remove(`${this.procedureId}:navigation:source`)
-    }
+    this.restoreSorting()
 
-    this.initPagination()
     if (hasPermission('field_segments_custom_fields')) {
-      this.loadSegmentCustomFields()
+      await this.loadSegmentCustomFields()
     }
 
-    this.applyQuery(this.pagination.currentPage)
+    /*
+     * When bookmarks are enabled, applyQuery() is called by applyBookmarkSettings()
+     * after the bookmark/default view is determined by SegmentsBookmarks.
+     */
+    if (!this.hasBookmarks) {
+      this.applyQuery(this.pagination.currentPage)
+    }
 
-    this.fetchPlaces({
+    await this.fetchPlaces({
       fields: {
         Place: [
           'name',
@@ -2184,7 +2336,7 @@ export default {
         ].join(),
       },
     })
-    this.fetchAssignableUsers({ sort: 'lastname' })
+    await this.fetchAssignableUsers({ sort: 'lastname' })
   },
 }
 </script>

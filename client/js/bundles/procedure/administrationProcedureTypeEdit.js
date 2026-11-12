@@ -18,7 +18,7 @@
 import { defineAsyncComponent } from 'vue'
 import { dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
-import ProcedureTypeSelect from '@DpJs/components/procedure/admin/ProcedureTypeSelect'
+import ProcedureTypeSelect from '@DpJs/components/procedure/admin/ProcedureTypeSelect.vue'
 
 const components = {
   DpEditor: defineAsyncComponent(async () => {

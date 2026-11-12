@@ -151,12 +151,12 @@
 
 <script>
 import { DpContextualHelp } from '@demos-europe/demosplan-ui'
-import DpOlMap from '@DpJs/components/map/map/DpOlMap'
-import DpOlMapDragZoom from '@DpJs/components/map/map/DpOlMapDragZoom'
-import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature'
-import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature'
-import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
-import DpOlMapSetExtent from '@DpJs/components/map/map/DpOlMapSetExtent'
+import DpOlMap from '@DpJs/components/map/map/DpOlMap.vue'
+import DpOlMapDragZoom from '@DpJs/components/map/map/DpOlMapDragZoom.vue'
+import DpOlMapDrawFeature from '@DpJs/components/map/map/DpOlMapDrawFeature.vue'
+import DpOlMapEditFeature from '@DpJs/components/map/map/DpOlMapEditFeature.vue'
+import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector.vue'
+import DpOlMapSetExtent from '@DpJs/components/map/map/DpOlMapSetExtent.vue'
 
 export default {
   name: 'MapView',

@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for administration_places.html.twig
  */
-import AdministrationPlaces from '@DpJs/components/procedure/admin/AdministrationPlaces'
+import AdministrationPlaces from '@DpJs/components/procedure/admin/AdministrationPlaces.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = { AdministrationPlaces }

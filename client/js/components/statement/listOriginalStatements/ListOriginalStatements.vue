@@ -302,7 +302,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
-import ExportFlyout from './ExportFlyout'
+import ExportFlyout from './ExportFlyout.vue'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 
 export default {
@@ -314,7 +314,7 @@ export default {
     DpFlyout,
     DpInlineNotification,
     DpLoading,
-    DpMapModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/DpMapModal')),
+    DpMapModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/DpMapModal.vue')),
     DpPager,
     ExportFlyout,
   },

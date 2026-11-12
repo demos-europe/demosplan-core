@@ -53,7 +53,7 @@ Hopefully in the future we will be able to refactor this and write it in a corre
 
 <script>
 import { DpLoading, hasOwnProp } from '@demos-europe/demosplan-ui'
-import Fragment from './Fragment'
+import Fragment from './Fragment.vue'
 import { mapGetters } from 'vuex'
 
 export default {

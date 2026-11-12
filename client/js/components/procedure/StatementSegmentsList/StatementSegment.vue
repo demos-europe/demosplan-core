@@ -547,15 +547,15 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { embedBoilerplateContent, stripBoilerplateContent } from './utils/boilerplateTagContent'
 import { mapActions, mapMutations, mapState } from 'vuex'
+import CustomField from '@DpJs/components/customFields/CustomField.vue'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList.vue'
 import { defineAsyncComponent } from 'vue'
-import CustomField from '@DpJs/components/customFields/CustomField'
-import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
-import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
-import DpClaim from '@DpJs/components/statement/DpClaim'
-import ImageModal from '@DpJs/components/shared/ImageModal'
-import RecommendationModal from '../Shared/RecommendationModal'
-import SegmentTags from './SegmentTags'
-import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal.vue'
+import DpClaim from '@DpJs/components/statement/DpClaim.vue'
+import ImageModal from '@DpJs/components/shared/ImageModal.vue'
+import RecommendationModal from '../Shared/RecommendationModal.vue'
+import SegmentTags from './SegmentTags.vue'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer.vue'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
 
@@ -764,7 +764,24 @@ export default {
       return this.customFieldValues.some((currentField) => {
         const initialField = initialFieldsById[currentField.id]
 
-        return !initialField || currentField.value !== initialField.value
+        if (!initialField) {
+          return true
+        }
+
+        // For multiSelect fields, the value is an array - compare by content, not reference
+        if (Array.isArray(currentField.value) && Array.isArray(initialField.value)) {
+          if (currentField.value.length !== initialField.value.length) {
+            return true
+          }
+
+          const sortedCurrent = [...currentField.value].sort((a, b) => String(a).localeCompare(String(b)))
+          const sortedInitial = [...initialField.value].sort((a, b) => String(a).localeCompare(String(b)))
+
+          return sortedCurrent.some((val, idx) => val !== sortedInitial[idx])
+        }
+
+        // For singleSelect and text fields, compare primitives directly
+        return currentField.value !== initialField.value
       })
     },
 
@@ -1575,7 +1592,6 @@ export default {
         return
       }
 
-      this.$root.$emit('version:history', this.segment.id, 'segment', this.segment.attributes.externId)
       this.toggleSlidebarContent({ prop: 'slidebar', val: { externId: this.segment.attributes.externId, isOpen: true, segmentId: this.segment.id, showTab: 'history' } })
     },
 
