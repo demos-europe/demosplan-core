@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobStatusWriter;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportResponseFileStore;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ExportService;
 use demosplan\DemosPlanCoreBundle\Message\ExportProcedureMessage;
+use demosplan\DemosPlanCoreBundle\Tools\SessionLockReleaser;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -115,6 +116,7 @@ class ExportProcedureMessageHandler
     {
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
+        SessionLockReleaser::markSynthetic($request);
         $this->requestStack->push($request);
     }
 }

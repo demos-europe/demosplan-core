@@ -7,7 +7,7 @@
     <!-- Default bookmark -->
     <dp-radio
       id="defaultBookmark"
-      class="border my-2 p-1"
+      class="border rounded-sm my-2 p-2"
       :class="!currentBookmarkId ? 'border-blue-base' : 'border-neutral-light-3'"
       :checked="!currentBookmarkId"
       data-cy="segmentsBookmarksList:defaultBookmark"

@@ -16,8 +16,8 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
@@ -90,23 +90,36 @@ class SecurityValidationListener implements EventSubscriberInterface
             return;
         }
 
-        // 1. Reject null bytes (injection attacks)
+        $threatType = $this->detectThreat($request);
+        if (null === $threatType) {
+            return;
+        }
+
+        // Answer directly instead of throwing: an exception would be logged as an error
+        // (and reported to Sentry) and turned into a redirect to the 500 page by the
+        // exception subscriber. The threat is already logged at warning level.
+        $this->logThreat($request, $threatType);
+        $event->setResponse(new Response('Bad Request', Response::HTTP_BAD_REQUEST));
+    }
+
+    private function detectThreat(Request $request): ?string
+    {
+        // Null bytes (injection attacks)
         if ($this->containsNullBytes($request)) {
-            $this->logThreat($request, 'null_byte_detected');
-            throw new BadRequestHttpException('Invalid input detected: null byte');
+            return 'null_byte_detected';
         }
 
-        // 2. Reject DoS attempts (oversized data)
+        // DoS attempts (oversized data)
         if ($this->exceedsLimits($request)) {
-            $this->logThreat($request, 'dos_limits_exceeded');
-            throw new BadRequestHttpException('Request exceeds allowed limits');
+            return 'dos_limits_exceeded';
         }
 
-        // 3. Reject known attack patterns
+        // Known attack patterns
         if ($this->containsAttackPatterns($request)) {
-            $this->logThreat($request, 'attack_pattern_detected');
-            throw new BadRequestHttpException('Malicious pattern detected');
+            return 'attack_pattern_detected';
         }
+
+        return null;
     }
 
     private function shouldSkipValidation(Request $request): bool
