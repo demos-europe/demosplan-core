@@ -918,7 +918,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
             $data['r_text'] = str_replace("\r\n", '', (string) $data['r_text']);
             $statement['text'] = strip_tags(
                 $data['r_text'],
-                '<br><em><i><li><mark><ol><p><s><span><strike><strong><u><ul>'
+                '<a><br><em><i><li><mark><ol><p><s><span><strike><strong><u><ul>'
             );
         }
 
@@ -978,23 +978,15 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // Vorname Nachname nur mit Leerzeichen zusammensetzen, wenn beides ausgefüllt
         $userName = [];
 
-        $nameIsUsed = !array_key_exists('r_useName', $data) || 0 != $data['r_useName'];
-        // anonymous submissions discard the name, so its fields are not validated
-        foreach ($nameIsUsed ? ['r_firstname', 'r_lastname'] : [] as $nameField) {
-            $namePart = $this->cleanPublicInput($data, $nameField, 255, $mandatoryErrors);
-            if (null === $namePart) {
-                continue;
-            }
-            // a value consisting only of whitespace passes the browser's "required" check
-            if ('' === $namePart && '' !== (string) $data[$nameField]) {
-                $mandatoryErrors[] = $this->createMandatoryErrorMessage(substr($nameField, 2));
-            }
-            if (1 === preg_match('~https?:|www\.|@~i', $namePart)) {
-                $mandatoryErrors[] = $this->createInvalidFieldErrorMessage($nameField);
-            }
-            if ('' !== $namePart) {
-                $userName[] = $namePart;
-            }
+        if (array_key_exists('r_firstname', $data)
+            && isset($data['r_firstname'])
+        ) {
+            $userName[] = $data['r_firstname'];
+        }
+        if (array_key_exists('r_lastname', $data)
+            && isset($data['r_lastname'])
+        ) {
+            $userName[] = $data['r_lastname'];
         }
         $statement['uName'] = implode(' ', $userName);
 
@@ -1006,17 +998,17 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 $statement['uName'] = '';
             } else {
                 $statement['useName'] = true;
-                $addressFields = [
-                    'r_street'      => ['uStreet', 255],
-                    'r_houseNumber' => ['houseNumber', 255],
-                    'r_postalCode'  => ['uPostalCode', 6],
-                    'r_city'        => ['uCity', 255],
-                ];
-                foreach ($addressFields as $requestKey => [$statementKey, $maxLength]) {
-                    $value = $this->cleanPublicInput($data, $requestKey, $maxLength, $mandatoryErrors);
-                    if (null !== $value) {
-                        $statement[$statementKey] = $value;
-                    }
+                if (array_key_exists('r_street', $data)) {
+                    $statement['uStreet'] = $data['r_street'];
+                }
+                if (array_key_exists('r_houseNumber', $data)) {
+                    $statement['houseNumber'] = $data['r_houseNumber'];
+                }
+                if (array_key_exists('r_postalCode', $data)) {
+                    $statement['uPostalCode'] = $data['r_postalCode'];
+                }
+                if (array_key_exists('r_city', $data)) {
+                    $statement['uCity'] = $data['r_city'];
                 }
             }
         }
@@ -1065,25 +1057,23 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // add misc fields
         $miscData = collect();
 
-        $miscFields = [
-            'r_userGroup'        => 'userGroup',
-            'r_userOrganisation' => 'userOrganisation',
-            'r_userPosition'     => 'userPosition',
-            'r_userState'        => 'userState',
-            'r_submitter_role'   => 'submitterRole',
-        ];
-        foreach ($miscFields as $requestKey => $miscKey) {
-            $value = $this->cleanPublicInput($data, $requestKey, 255, $mandatoryErrors);
-            if (null !== $value) {
-                $miscData->put($miscKey, $value);
-            }
+        if (array_key_exists('r_userGroup', $data)) {
+            $miscData->put('userGroup', $data['r_userGroup']);
         }
-        $phone = $this->cleanPublicInput($data, 'r_phone', 50, $mandatoryErrors);
-        if (null !== $phone) {
-            if (1 !== preg_match('~^[\d\s+()/.\-]*$~', $phone)) {
-                $mandatoryErrors[] = $this->createInvalidFieldErrorMessage('r_phone');
-            }
-            $miscData->put('userPhone', $phone);
+        if (array_key_exists('r_userOrganisation', $data)) {
+            $miscData->put('userOrganisation', $data['r_userOrganisation']);
+        }
+        if (array_key_exists('r_userPosition', $data)) {
+            $miscData->put('userPosition', $data['r_userPosition']);
+        }
+        if (array_key_exists('r_userState', $data)) {
+            $miscData->put('userState', $data['r_userState']);
+        }
+        if (array_key_exists('r_phone', $data)) {
+            $miscData->put('userPhone', $data['r_phone']);
+        }
+        if (array_key_exists('r_submitter_role', $data)) {
+            $miscData->put('submitterRole', $data['r_submitter_role']);
         }
 
         $statement['miscData'] = $miscData->toArray();
@@ -4753,36 +4743,6 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
     public function setFileService($fileService)
     {
         $this->fileService = $fileService;
-    }
-
-    /**
-     * Strips tags and surrounding whitespace from a free-text value of the public statement form.
-     *
-     * @param array<string, mixed>                       $data
-     * @param list<array{type: string, message: string}> $errors collects an error if the value exceeds $maxLength
-     *
-     * @return string|null null if the key is not part of the request
-     */
-    private function cleanPublicInput(array $data, string $key, int $maxLength, array &$errors): ?string
-    {
-        if (!isset($data[$key]) || !is_scalar($data[$key])) {
-            return null;
-        }
-
-        $value = trim(strip_tags((string) $data[$key]));
-        if (mb_strlen($value) > $maxLength) {
-            $errors[] = $this->createInvalidFieldErrorMessage($key);
-        }
-
-        return $value;
-    }
-
-    public function createInvalidFieldErrorMessage(string $translatorLabel): array
-    {
-        return [
-            'type'    => 'error',
-            'message' => $this->translator->trans('error.field.invalid', ['name' => preg_replace('/^r_/', '', $translatorLabel)]),
-        ];
     }
 
     /**
