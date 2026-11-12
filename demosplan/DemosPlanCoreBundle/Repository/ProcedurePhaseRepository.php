@@ -15,7 +15,9 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use DemosEurope\DemosplanAddon\Contracts\Entities\ProcedureInterface;
 use DemosEurope\DemosplanAddon\Contracts\Repositories\ProcedurePhaseRepositoryInterface;
 use DemosEurope\DemosplanAddon\Logic\ApiRequest\FluentRepository;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 
+#[AsAlias(ProcedurePhaseRepositoryInterface::class)]
 class ProcedurePhaseRepository extends FluentRepository implements ProcedurePhaseRepositoryInterface
 {
     public function getProcedureByInstitutionPhaseId(string $phaseId): ?ProcedureInterface

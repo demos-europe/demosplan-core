@@ -18,6 +18,17 @@
       :procedure-id="procedureId"
     />
 
+    <!-- Version History Slidebar -->
+    <dp-slidebar v-model:open="isSlidebarOpen">
+      <version-history
+        :entity-id="versionHistory.id"
+        :extern-id="versionHistory.externId"
+        :procedure-id="procedureId"
+        :reload-key="versionHistory.reloadKey"
+        entity-type="statement"
+      />
+    </dp-slidebar>
+
     <slot
       :add-tag-boilerplate="addTagBoilerplate"
       :busy-copy-from-fragments="busyCopyFromFragments"
@@ -49,15 +60,20 @@
 </template>
 
 <script>
+import { dpApi, DpSlidebar } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters } from 'vuex'
-import { dpApi } from '@demos-europe/demosplan-ui'
-import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
+import { defineAsyncComponent } from 'vue'
+import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal.vue'
+
+const VersionHistory = defineAsyncComponent(() => import('@DpJs/components/statement/statement/VersionHistory.vue'))
 
 export default {
   name: 'DpDetailView',
 
   components: {
     DpMapModal,
+    DpSlidebar,
+    VersionHistory,
   },
 
   props: {
@@ -126,19 +142,20 @@ export default {
     },
   },
 
-  emits: [
-    'show-slidebar',
-    'version:history',
-  ],
-
   data () {
     return {
       busyCopyFromFragments: false,
       currentRecommendation: '',
+      isSlidebarOpen: false,
       selectedCounties: [],
       selectedMunicipalities: [],
       selectedPriorityAreas: [],
       selectedTags: [],
+      versionHistory: {
+        externId: '',
+        id: '',
+        reloadKey: 0,
+      },
     }
   },
 
@@ -235,6 +252,16 @@ export default {
       }
     },
 
+    // Bumps the reload key so reopening reloads the history
+    showVersionHistory (externId) {
+      this.versionHistory = {
+        externId,
+        id: this.statementId,
+        reloadKey: this.versionHistory.reloadKey + 1,
+      }
+      this.isSlidebarOpen = true
+    },
+
     updateCurrentRecommendation (value) {
       this.currentRecommendation = value
     },
@@ -273,16 +300,14 @@ export default {
         event.preventDefault()
         const externalId = this.isCopy ? Translator.trans('copyof') + ' ' + this.externId : this.externId
 
-        this.$root.$emit('version:history', this.statementId, 'statement', externalId)
-        this.$root.$emit('show-slidebar')
+        this.showVersionHistory(externalId)
       })
     }
 
     if (this.entity === 'cluster' && hasPermission('feature_statement_content_changes_save') && clusterHistoryButton) {
       clusterHistoryButton.addEventListener('click', (event) => {
         event.preventDefault()
-        this.$root.$emit('version:history', this.statementId, 'statement', this.externId)
-        this.$root.$emit('show-slidebar')
+        this.showVersionHistory(this.externId)
       })
     }
 

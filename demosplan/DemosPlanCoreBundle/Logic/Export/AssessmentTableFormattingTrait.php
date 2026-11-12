@@ -225,6 +225,9 @@ trait AssessmentTableFormattingTrait
             // as it has the same behaviour
             $item['recommendation'] = $statementFragment->getConsideration();
             $item['text'] = $statementFragment->getText();
+            // the fragment has its own priority areas/tags, distinct from the parent statement's
+            $item['priorityAreaKeys'] = $statementFragment->getPriorityAreaKeys();
+            $item['tagNames'] = $statementFragment->getTagNames();
         }
 
         $item['elementId'] = $tmpElementId;

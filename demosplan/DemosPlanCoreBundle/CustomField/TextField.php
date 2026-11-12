@@ -15,7 +15,6 @@ namespace demosplan\DemosPlanCoreBundle\CustomField;
 class TextField extends AbstractCustomField
 {
     protected string $fieldType = 'text';
-    protected bool $isRequired = false;
 
     public function getFieldType(): string
     {
@@ -27,16 +26,18 @@ class TextField extends AbstractCustomField
         $this->fieldType = $json['fieldType'];
         $this->name = $json['name'];
         $this->description = $json['description'];
+        $this->isSeparateColumn = $json['isSeparateColumn'] ?? true;
         $this->isRequired = $json['isRequired'];
     }
 
     public function toJson(): array
     {
         return [
-            'fieldType'   => $this->fieldType,
-            'name'        => $this->name,
-            'description' => $this->description,
-            'isRequired'  => $this->isRequired,
+            'fieldType'        => $this->fieldType,
+            'name'             => $this->name,
+            'description'      => $this->description,
+            'isSeparateColumn' => $this->isSeparateColumn,
+            'isRequired'       => $this->isRequired,
         ];
     }
 
@@ -48,16 +49,6 @@ class TextField extends AbstractCustomField
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption
     {
         return null;
-    }
-
-    public function setRequired(bool $isRequired): void
-    {
-        $this->isRequired = $isRequired;
-    }
-
-    public function getRequired(): bool
-    {
-        return $this->isRequired;
     }
 
     public function formatValueForDisplay(mixed $value): string

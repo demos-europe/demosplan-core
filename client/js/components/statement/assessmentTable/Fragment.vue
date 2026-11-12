@@ -423,13 +423,13 @@ useful info about the component:
 
 <script>
 import { dpApi, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
-import { mapActions, mapGetters, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
-import DpClaim from '../DpClaim'
-import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
-import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
-import EditableText from './EditableText'
-import TableCardFlyoutMenu from './TableCardFlyoutMenu'
+import DpClaim from '../DpClaim.vue'
+import DpEditFieldMultiSelect from './DpEditFieldMultiSelect.vue'
+import DpEditFieldSingleSelect from './DpEditFieldSingleSelect.vue'
+import EditableText from './EditableText.vue'
+import TableCardFlyoutMenu from './TableCardFlyoutMenu.vue'
 
 export default {
   name: 'DpAssessmentFragment',
@@ -643,6 +643,8 @@ export default {
   methods: {
     ...mapActions('Fragment', ['updateFragmentAction', 'addFragmentToSelectionAction', 'deleteFragmentAction', 'removeFragmentFromSelectionAction', 'setAssigneeAction']),
 
+    ...mapMutations('VersionHistorySlidebar', ['markEntityUpdated']),
+
     deleteFragment (fragmentId) {
       if (dpconfirm(Translator.trans('check.fragment.delete'))) {
         this.deleteFragmentAction({ procedureId: this.procedureId, statementId: this.statement.id, fragmentId })
@@ -752,12 +754,7 @@ export default {
           //  Unset loading state of saved field
           if (this.$refs[field]) {
             //  Handle components that use <dp-edit-field>
-            const editFieldComponent = this.$refs[field].$children.find(child => child.$options.name === 'DpEditField')
-
-            if (editFieldComponent) {
-              editFieldComponent.$data.loading = false
-              editFieldComponent.$data.editingEnabled = false
-            }
+            this.$refs[field].finishEditing?.()
 
             //  Handle components that have a loading state by themselves
             if (hasOwnProp(this.$refs[field].$data, 'loading')) {
@@ -776,20 +773,14 @@ export default {
 
         dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
 
-        // Used in DpVersionHistory to update items in version history sidebar
-        this.$root.$emit('entity:updated', this.fragmentId, 'fragment')
+        this.markEntityUpdated(this.fragmentId)
 
         return updatedField
       })
         .catch(e => {
           // Set the correct loading states even if error occurred
           Object.values(this.$refs).forEach(ref => {
-            const editFieldComponent = ref.$children.find(child => child.$options.name === 'DpEditField')
-
-            if (editFieldComponent) {
-              editFieldComponent.$data.loading = false
-              editFieldComponent.$data.editingEnabled = false
-            }
+            ref.finishEditing?.()
 
             //  Handle components that have a loading state by themselves
             if (hasOwnProp(ref.$data, 'loading')) {
@@ -820,7 +811,7 @@ export default {
       this.setAssigneeAction(assigneeData)
         .then(() => {
           this.updatingClaimState = false
-          this.$root.$emit('entity:updated', this.fragment.id, 'fragment')
+          this.markEntityUpdated(this.fragment.id)
 
           if (hasOwnProp(this.fragment.assignee, 'id') && this.fragment.assignee?.id !== this.currentUserId) {
             this.reviewerEditing = false

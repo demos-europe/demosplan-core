@@ -498,6 +498,13 @@ input.disabled {
                 width: .9em;
                 margin: .25em 0 0;
                 flex-shrink: 0;
+
+                &:disabled ~ label,
+                &:disabled ~ .o-form__label {
+                    color: $form-color-disabled;
+                    cursor: not-allowed;
+                    font-weight: normal;
+                }
             }
 
             > label,
@@ -520,6 +527,13 @@ input.disabled {
                 width: .9em;
                 margin: .25em 0 0;
                 flex-shrink: 0;
+
+                &:disabled ~ label,
+                &:disabled ~ .o-form__label {
+                    color: $form-color-disabled;
+                    cursor: not-allowed;
+                    font-weight: normal;
+                }
             }
 
             > label,

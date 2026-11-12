@@ -443,21 +443,6 @@ export default {
      *
      * @param {Object} data
      */
-    copyStatementAction ({ state }, data) {
-      return dpApi({
-        method: 'POST',
-        url: Routing.generate('dplan_api_statement_copy_to_procedure', {
-          procedureId: state.procedureId,
-          statementId: data.statementId,
-          targetProcedureId: data.procedureId,
-        }),
-      })
-    },
-
-    /**
-     *
-     * @param {Object} data
-     */
     createClusterAction ({ commit, dispatch, state }, data) {
       return dpApi({
         method: 'POST',
@@ -693,24 +678,6 @@ export default {
     },
 
     /**
-     *
-     * @param {Object} data
-     */
-    moveStatementAction ({ state }, data) {
-      return dpApi({
-        method: 'POST',
-        url: Routing.generate('dplan_api_statement_move', {
-          procedureId: state.procedureId,
-          statementId: data.statementId,
-          targetProcedureId: data.procedureId,
-        }),
-        data: {
-          deleteVersionHistory: data.deleteVersionHistory,
-        },
-      })
-    },
-
-    /**
      * Remove one element from the selectedElements-List and the sessionStorage
      * @param {String} id
      */
@@ -786,7 +753,7 @@ export default {
         },
       })
         .then(response => {
-          let assignee = {}
+          let assignee
 
           if (assigneeId === '' || assigneeId == null) {
             assignee = { id: '', name: '', orgaName: '', uId: '' }

@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Statement;
 
+use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Controller\Base\BaseController;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -41,6 +43,8 @@ class StatementListController extends BaseController
         string $procedureId,
         ProcedureCoupleTokenFetcher $tokenFetcher,
         ProcedureService $procedureService,
+        PermissionsInterface $permissions,
+        CurrentUserInterface $currentUser,
     ): Response {
         $procedure = $procedureService->getProcedure($procedureId);
 
@@ -50,12 +54,26 @@ class StatementListController extends BaseController
 
         $isSourceAndCoupledProcedure = $tokenFetcher->isSourceAndCoupledProcedure($procedure);
 
+        $accessibleProcedures = [];
+        $inaccessibleProcedures = [];
+        if ($permissions->hasPermission('feature_statement_copy_to_procedure')
+            || $permissions->hasPermission('feature_statement_move_to_procedure')) {
+            $accessibleProcedures = $procedureService->getAccessibleProcedureIds($currentUser->getUser(), $procedureId);
+
+            if ($permissions->hasPermission('feature_statement_copy_to_foreign_procedure')
+                || $permissions->hasPermission('feature_statement_move_to_foreign_procedure')) {
+                $inaccessibleProcedures = $procedureService->getInaccessibleProcedureIds($currentUser->getUser());
+            }
+        }
+
         return $this->render(
             '@DemosPlanCore/DemosPlanStatement/list_statements.html.twig',
             [
                 'title'          => 'statements',
                 'templateVars'   => [
                     'isSourceAndCoupledProcedure' => $isSourceAndCoupledProcedure,
+                    'accessibleProcedures'        => $accessibleProcedures,
+                    'inaccessibleProcedures'      => $inaccessibleProcedures,
                 ],
             ]
         );

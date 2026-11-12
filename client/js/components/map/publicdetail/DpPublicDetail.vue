@@ -16,8 +16,10 @@
       :check-key-event="checkKeyEvent"
       :fold-open-toolbar-items="foldOpenToolbarItems"
       :handle-fullscreen-focus="handleFullscreenFocus"
+      :handle-location-drawing="handleLocationDrawing"
       :prefix-class="prefixClass"
       :set-ref="setRef"
+      :statement="statement"
       :toggle-statement-modal="toggleStatementModal"
       :toggle-tabs="toggleTabs"
       :update="update"
@@ -138,6 +140,10 @@ export default {
         this.lastFocusedElement.focus()
         document.querySelector('html').removeAttribute('style')
       }
+    },
+
+    handleLocationDrawing (payload) {
+      this.slotRefs.statementModal.setLocation(payload, false)
     },
 
     isElementVisible (el) {

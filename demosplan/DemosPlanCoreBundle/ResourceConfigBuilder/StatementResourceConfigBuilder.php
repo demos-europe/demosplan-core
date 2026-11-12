@@ -39,6 +39,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $segmentsCount
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isCitizen
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isCluster @deprecated Cluster statements should get a separate resource type instead, which allows this attribute to be removed
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isPlaceholder
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $likesNum @deprecated Use relationship to {@link StatementLike} instead
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $movedFromProcedureId @deprecated Use relationship to a PlaceholderStatement resource type instead
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $movedFromProcedureName @deprecated Use relationship to a PlaceholderStatement resource type instead
@@ -57,6 +58,7 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $publicAllowed @deprecated Use {@link StatementResourceType::$publicVerified} instead
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $publicVerifiedTranslation
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $recommendationIsTruncated
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $recommendationEmbedded
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $submitDate @deprecated Move into StatementSubmitData resource type or something similar
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $textIsTruncated
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $userGroup @deprecated Move into separate resource type (maybe StatementSubmitData resource type or something similar)

@@ -9,6 +9,7 @@
 
 <template>
   <dp-edit-field
+    ref="editField"
     :editable="editable"
     :label="label"
     :label-grid-cols="labelGridCols"
@@ -68,7 +69,7 @@
 </template>
 
 <script>
-import DpEditField from './DpEditField'
+import DpEditField from './DpEditField.vue'
 import { DpMultiselect } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -202,11 +203,12 @@ export default {
       this.$emit('field:input', val)
     },
 
-    reset () {
-      const editFieldComponent = this.$children.find(child => child.$options.name === 'DpEditField')
+    finishEditing () {
+      this.$refs.editField?.finishEditing()
+    },
 
-      editFieldComponent.$data.loading = false
-      editFieldComponent.$data.editingEnabled = false
+    reset () {
+      this.finishEditing()
       this.$emit('toggleEditing', false)
       this.selected = this.selectedBefore
     },

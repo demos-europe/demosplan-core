@@ -27,8 +27,6 @@ class MultiSelectField extends AbstractCustomField
 
     protected string $description = '';
 
-    protected bool $isRequired = false;
-
     public function getFieldType(): string
     {
         return 'multiSelect';
@@ -39,6 +37,7 @@ class MultiSelectField extends AbstractCustomField
         $this->fieldType = $json['fieldType'];
         $this->name = $json['name'];
         $this->description = $json['description'];
+        $this->isSeparateColumn = $json['isSeparateColumn'] ?? true;
         $this->isRequired = $json['isRequired'];
         $this->options = array_map(static function ($optionData) {
             $customFieldOption = new CustomFieldOption();
@@ -55,11 +54,12 @@ class MultiSelectField extends AbstractCustomField
         }, $this->options);
 
         return [
-            'fieldType'     => $this->fieldType,
-            'name'          => $this->name,
-            'description'   => $this->description,
-            'isRequired'    => $this->isRequired,
-            'options'       => $options,
+            'fieldType'        => $this->fieldType,
+            'name'             => $this->name,
+            'description'      => $this->description,
+            'isSeparateColumn' => $this->isSeparateColumn,
+            'isRequired'       => $this->isRequired,
+            'options'          => $options,
         ];
     }
 
@@ -71,16 +71,6 @@ class MultiSelectField extends AbstractCustomField
     public function setOptions(array $options): void
     {
         $this->options = $options;
-    }
-
-    public function setRequired(bool $isRequired): void
-    {
-        $this->isRequired = $isRequired;
-    }
-
-    public function getRequired(): bool
-    {
-        return $this->isRequired;
     }
 
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption

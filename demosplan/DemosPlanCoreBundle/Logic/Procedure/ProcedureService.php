@@ -183,6 +183,7 @@ class ProcedureService implements ProcedureServiceInterface
         private readonly BoilerplateGroupRepository $boilerplateGroupRepository,
         private readonly BoilerplateRepository $boilerplateRepository,
         private readonly BoilerplateUsageRepository $boilerplateUsageRepository,
+        private readonly BoilerplateTextChangePropagator $boilerplateTextChangePropagator,
         ContentService $contentService,
         private readonly CurrentUserInterface $currentUser,
         private readonly CustomerService $customerService,
@@ -1538,7 +1539,7 @@ class ProcedureService implements ProcedureServiceInterface
         try {
             $boilerplateCategory = $this->boilerplateCategoryRepository->findOneBy(['procedure' => $procedureId, 'title' => $category]);
 
-            return $boilerplateCategory instanceof BoilerplateCategory ? $boilerplateCategory->getBoilerplates()->toArray() : [];
+            return $boilerplateCategory instanceof BoilerplateCategory ? $boilerplateCategory->getBoilerplatesExcludingPendingDeletion() : [];
         } catch (Exception $e) {
             throw new HttpException($e->getCode(), $e->getMessage(), $e);
         }
@@ -1607,15 +1608,38 @@ class ProcedureService implements ProcedureServiceInterface
     }
 
     /**
-     * Removes a boilerplate object from the database.
+     * Flags a boilerplate for deletion (DPLAN-18271). The row itself is not removed here:
+     * materializing this boilerplate's content into every one of its usages could be slow
+     * for a heavily-used boilerplate, and this method must not risk a request timeout.
+     * A recurring background job ({@see BoilerplateDeletionService})
+     * picks up flagged rows, materializes and deletes them.
      *
      * @param string $boilerplateId
      *
      * @throws Exception
      */
-    public function deleteBoilerplate($boilerplateId): bool
+    public function prepareBoilerplateDeletion($boilerplateId): bool
     {
-        return $this->boilerplateRepository->delete($boilerplateId);
+        $boilerplate = $this->boilerplateRepository->get($boilerplateId);
+        if (null === $boilerplate) {
+            return false;
+        }
+
+        $boilerplate->setPendingDeletion(true);
+        $this->entityManager->persist($boilerplate);
+        $this->entityManager->flush();
+
+        return true;
+    }
+
+    /**
+     * @see BoilerplateRepository::findPendingDeletion()
+     *
+     * @return Boilerplate[]
+     */
+    public function getBoilerplatesPendingDeletion(int $limit): array
+    {
+        return $this->boilerplateRepository->findPendingDeletion($limit);
     }
 
     /**
@@ -1653,6 +1677,9 @@ class ProcedureService implements ProcedureServiceInterface
 
     /**
      * Loads a specific boilerplateentry from the DB and edit this text and/or title.
+     *
+     * Does NOT propagate a changed text: recommendations using the boilerplate get no version or
+     * history entry and are not reindexed. Use {@see updateBoilerplateVO()} to change the text.
      *
      * @param string $boilerplateId - Identify the boilerplate, which is to be updated
      * @param array  $data          - Contains the keys and values, which are to be updated
@@ -2234,6 +2261,7 @@ class ProcedureService implements ProcedureServiceInterface
             $boilerplate->setVerified($boilerplateVO->getVerified());
         }
 
+        $oldText = $boilerplate->getText();
         $boilerplate->setTitle($boilerplateVO->getTitle());
         $boilerplate->setText($boilerplateVO->getText());
 
@@ -2252,6 +2280,11 @@ class ProcedureService implements ProcedureServiceInterface
         if (null !== $boilerplateVO->getGroupId()) {
             $group = $this->boilerplateGroupRepository->get($boilerplateVO->getGroupId());
             $boilerplate->setGroup($group);
+        }
+
+        // recommendations using this boilerplate render its new text, so they need history entries and reindexing
+        if ($oldText !== $boilerplate->getText()) {
+            return $this->boilerplateTextChangePropagator->saveAndPropagate($boilerplate, $oldText);
         }
 
         return $this->boilerplateRepository->updateObject($boilerplate);
@@ -2368,21 +2401,11 @@ class ProcedureService implements ProcedureServiceInterface
     }
 
     /**
-     * Records that the given boilerplate was inserted into the recommendation
-     * of the segment identified by `$segmentId`. Idempotent per
-     * boilerplate/segment pair.
-     *
-     * @return bool whether the segment was valid (exists and belongs to the procedure)
-     */
-    public function addBoilerplateUsage(Boilerplate $boilerplate, string $segmentId, string $procedureId): bool
-    {
-        return 0 < $this->addBoilerplateUsages($boilerplate, [$segmentId], $procedureId);
-    }
-
-    /**
      * Records that the given boilerplate was inserted into the recommendations
-     * of the segments identified by `$segmentIds`. Only segments that exist and
-     * belong to the procedure are recorded. Idempotent per boilerplate/segment pair.
+     * of the segments identified by `$segmentIds` (bulk edit). Only segments that
+     * exist and belong to the procedure are recorded. Idempotent per
+     * boilerplate/segment pair. Single edits no longer record usages here: their
+     * usage rows are reconciled from the tags in the saved text (DPLAN-18271).
      *
      * @param array<int, mixed> $segmentIds
      *
@@ -2412,28 +2435,80 @@ class ProcedureService implements ProcedureServiceInterface
     }
 
     /**
-     * Segments whose recommendation the given boilerplate was inserted into,
-     * prepared for display on the boilerplate edit page. Returns an empty array
+     * Statements/Segments whose recommendation the given boilerplate was inserted
+     * into, prepared for display on the boilerplate edit page. Returns an empty array
      * for unsaved boilerplates or when the current user may not list usages.
      *
-     * @return array<int, array{externId: string, segmentId: string, statementId: string}>
+     * `statementId` is the top-level Statement the recommendation belongs to: for a
+     * Segment usage that's its parent statement; for a plain top-level Statement usage
+     * (DPLAN-18271 widened this relation to allow both) that's the statement itself.
+     * Plain statements have no workflow place, so `placeId`/`placeName` are null and
+     * `locked` is false for them.
+     *
+     * @return array<int, array{
+     *     id: string,
+     *     type: 'segment'|'statement',
+     *     externId: string,
+     *     statementId: string,
+     *     assigneeName: string|null,
+     *     placeId: string|null,
+     *     placeName: string|null,
+     *     locked: bool,
+     *     recommendation: string,
+     * }>
      *
      * @throws Exception
      */
-    public function getBoilerplateUsagesForDisplay(string $boilerplateId): array
+    public function getBoilerplateUsagesForDisplay(string $boilerplateId, string $procedureId): array
     {
         if ('new' === $boilerplateId || !$this->permissions->hasPermission('feature_boilerplate_usage_list')) {
             return [];
         }
 
+        // The edit route only authorizes the procedure in the URL; a boilerplate id from elsewhere must not leak its rows.
+        if (null === $this->getBoilerplateOfProcedure($boilerplateId, $procedureId)) {
+            return [];
+        }
+
+        // Without the project-wide lock feature a locked place has no effect, so don't display it as locked.
+        $lockFeatureEnabled = $this->permissions->hasPermission('feature_segment_lock_by_workflow_place');
+
         return array_map(
-            static fn (BoilerplateUsage $usage): array => [
-                'externId'    => $usage->getSegment()->getExternId(),
-                'segmentId'   => $usage->getSegment()->getId(),
-                'statementId' => $usage->getSegment()->getParentStatementOfSegment()->getId(),
-            ],
+            static function (BoilerplateUsage $usage) use ($lockFeatureEnabled): array {
+                $statementOrSegment = $usage->getStatementOrSegment();
+                $segment = $statementOrSegment instanceof Segment ? $statementOrSegment : null;
+                $place = $segment?->getPlace();
+
+                return [
+                    'id'             => $statementOrSegment->getId(),
+                    'type'           => null === $segment ? 'statement' : 'segment',
+                    'externId'       => $statementOrSegment->getExternId(),
+                    'statementId'    => $segment?->getParentStatementOfSegment()->getId() ?? $statementOrSegment->getId(),
+                    'assigneeName'   => $statementOrSegment->getAssignee()?->getFullname(),
+                    'placeId'        => $place?->getId(),
+                    'placeName'      => $place?->getName(),
+                    'locked'         => $lockFeatureEnabled && true === $place?->isLocked(),
+                    'recommendation' => $statementOrSegment->getRecommendation(),
+                ];
+            },
             $this->boilerplateUsageRepository->getUsagesForBoilerplate($boilerplateId)
         );
+    }
+
+    /**
+     * Number of statements/segments whose recommendation uses the given boilerplate. Not
+     * permission-gated, unlike {@see getBoilerplateUsagesForDisplay()}: saving a changed text
+     * rewrites all of them, so the confirmation must not depend on who may list them.
+     *
+     * @throws Exception
+     */
+    public function getBoilerplateUsageCount(string $boilerplateId, string $procedureId): int
+    {
+        if ('new' === $boilerplateId || null === $this->getBoilerplateOfProcedure($boilerplateId, $procedureId)) {
+            return 0;
+        }
+
+        return $this->boilerplateUsageRepository->countUsagesForBoilerplate($boilerplateId);
     }
 
     /**

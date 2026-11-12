@@ -672,9 +672,6 @@ class GisLayer extends CoreEntity implements GisLayerInterface
 
     // improve T16806
 
-    /**
-     * @return bool
-     */
     public function getCustomer(): ?CustomerInterface
     {
         return $this->customer;

@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm'
+import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm.vue'
 
 export default {
   name: 'StatementFormImport',

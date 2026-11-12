@@ -64,7 +64,19 @@ export default {
     DpMultiselect,
   },
 
+  emits: ['assigned'],
+
   props: {
+    /**
+     * Optional function performing the assignment, receiving the same params as the entity's
+     * `setAssigneeAction`. Pages that don't register that Vuex action pass their own.
+     */
+    assignAction: {
+      required: false,
+      type: Function,
+      default: null,
+    },
+
     authorisedUsers: {
       required: false,
       type: Array,
@@ -127,8 +139,14 @@ export default {
 
       this.loading = true
 
-      //  Fire action from store
-      this.$store.dispatch(`${this.capitalizeFirstLetter(this.entityType)}/setAssigneeAction`, this.actionParams)
+      const assignmentPromise = this.assignAction ?
+        this.assignAction(this.actionParams) :
+        this.$store.dispatch(`${this.capitalizeFirstLetter(this.entityType)}/setAssigneeAction`, this.actionParams)
+
+      assignmentPromise
+        .then(({ assignee }) => {
+          this.$emit('assigned', { entityId: this.entityId, assignee })
+        })
         .catch(() => {
           dplan.notify.notify('error', Translator.trans('error.api.generic'))
         })

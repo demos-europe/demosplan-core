@@ -27,7 +27,7 @@
         {{ Translator.trans('organisation.data') }}
       </legend>
 
-      <!-- Name -->
+      <!-- Name (editable) -->
       <dp-input
         id="orga_name"
         v-model="localOrganisation.name"
@@ -39,6 +39,19 @@
         }"
         :disabled="!isOrgaNameEditable"
         required
+      />
+
+      <!-- Read-only, comes from identity provider -->
+      <dp-input
+        v-if="isTechnicalNameVisible"
+        id="orga_technical_name"
+        :class="prefixClass('mb-2')"
+        :label="{
+          text: Translator.trans('name.technical')
+        }"
+        :model-value="localOrganisation.technicalName || '–'"
+        data-cy="organisationData:technicalName"
+        readonly
       />
 
       <!-- Street -->
@@ -302,10 +315,10 @@
 
 <script>
 import { DpButton, DpInput, DpRadio, DpSelect, prefixClassMixin } from '@demos-europe/demosplan-ui'
-import EmailNotificationSettings from '@DpJs/components/user/orgaDataEntry/EmailNotificationSettings'
-import OrganisationBrandingSettings from '@DpJs/components/user/orgaDataEntry/OrganisationBrandingSettings'
-import OrganisationCompetence from '@DpJs/components/user/orgaDataEntry/OrganisationCompetence'
-import PaperCopyPreferences from '@DpJs/components/user/orgaDataEntry/PaperCopyPreferences'
+import EmailNotificationSettings from '@DpJs/components/user/orgaDataEntry/EmailNotificationSettings.vue'
+import OrganisationBrandingSettings from '@DpJs/components/user/orgaDataEntry/OrganisationBrandingSettings.vue'
+import OrganisationCompetence from '@DpJs/components/user/orgaDataEntry/OrganisationCompetence.vue'
+import PaperCopyPreferences from '@DpJs/components/user/orgaDataEntry/PaperCopyPreferences.vue'
 
 export default {
   name: 'OrganisationDataForm',
@@ -418,6 +431,7 @@ export default {
       hasPaperCopyPermission: hasPermission('field_organisation_paper_copy') ||
         hasPermission('field_organisation_paper_copy_spec') ||
         hasPermission('field_organisation_competence'),
+      isTechnicalNameVisible: hasPermission('field_organisation_technical_name'),
       localOrganisation: { ...this.organisation },
     }
   },

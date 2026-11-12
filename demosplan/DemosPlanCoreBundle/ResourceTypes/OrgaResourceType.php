@@ -35,6 +35,7 @@ use Illuminate\Support\Collection as IlluminateCollection;
  * @property-read End                              $deleted
  * @property-read OrgaStatusInCustomerResourceType $statusInCustomers
  * @property-read End                              $name
+ * @property-read End                              $technicalName Official name from the identity provider, read-only
  * @property-read MasterToebResourceType           $masterToeb
  * @property-read CustomerResourceType             $customers @deprecated Use {@link OrgaResourceType::$statusInCustomers} instead
  * @property-read End                              $ccEmail2 @deprecated Create attribute with better name instead of using this one
@@ -72,6 +73,7 @@ use Illuminate\Support\Collection as IlluminateCollection;
  * @property-read RoleResourceType                 $allowedRoles
  * @property-read InstitutionTagResourceType       $ownInstitutionTags
  * @property-read End                              $canCreateProcedures
+ * @property-read End                              $twoFactorRequired
  */
 final class OrgaResourceType extends DplanResourceType implements OrgaResourceTypeInterface
 {
@@ -212,6 +214,14 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
             $properties[] = $this->createToOneRelationship($this->masterToeb)->sortable()->filterable()->readable();
         }
 
+        if ($this->currentUser->hasPermission('field_organisation_technical_name')) {
+            $properties[] = $this->createAttribute($this->technicalName)->readable(true);
+        }
+
+        if ($this->currentUser->hasPermission('field_organisation_two_factor_required')) {
+            $properties[] = $this->createAttribute($this->twoFactorRequired)->readable(true)->filterable()->sortable();
+        }
+
         // OrgaStatusInCustomer @organisation-list filtering for orga
         if ($this->currentUser->hasAnyPermissions('area_organisations', 'feature_organisation_user_list')) {
             $statusInCustomers->sortable()->filterable()->readable();
@@ -234,11 +244,16 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
                     ->filter(static fn (OrgaStatusInCustomer $orgaStatus): bool => $orgaStatus->getCustomer() === $currentCustomer)
                     ->map(static fn (OrgaStatusInCustomer $orgaStatus): OrgaType => $orgaStatus->getOrgaType());
 
-                // Get role codes for these organization types
+                // Get role codes for the accepted types that can create procedures
+                $procedureCreationTypes = [
+                    OrgaTypeInterface::MUNICIPALITY,
+                    OrgaTypeInterface::PLANNING_AGENCY,
+                    OrgaTypeInterface::HEARING_AUTHORITY_AGENCY,
+                ];
                 $relevantRoleCodes = [];
                 foreach ($acceptedOrgaTypes as $orgaType) {
                     $orgaTypeName = $orgaType->getName();
-                    if (isset(OrgaTypeInterface::ORGATYPE_ROLE[$orgaTypeName])) {
+                    if (in_array($orgaTypeName, $procedureCreationTypes, true)) {
                         $relevantRoleCodes = array_merge(
                             $relevantRoleCodes,
                             OrgaTypeInterface::ORGATYPE_ROLE[$orgaTypeName]
@@ -246,9 +261,10 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
                     }
                 }
 
-                // If no relevant roles found, permission cannot exist
+                // Nothing accepted yet: report the default that applies once a type gets accepted. The form
+                // diffs against this value, so only a true here lets an opt-out during approval reach the server.
                 if ([] === $relevantRoleCodes) {
-                    return false;
+                    return true;
                 }
 
                 // Check if permission exists for any of the relevant roles

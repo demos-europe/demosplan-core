@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobStatusWriter;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportResponseFileStore;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ExportService;
 use demosplan\DemosPlanCoreBundle\Message\ExportProcedureMessage;
+use demosplan\DemosPlanCoreBundle\Tools\SessionLockReleaser;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -64,6 +65,7 @@ class ExportProcedureMessageHandler
             return;
         }
 
+        $this->logger->info('Procedure export started', ['jobId' => $message->getJobId(), 'procedureIds' => $message->getProcedureIds()]);
         $job->setStatus(ProcedureExportJob::STATUS_PROCESSING);
         $job->setModifiedDate(new DateTime());
         $this->entityManager->flush();
@@ -96,6 +98,7 @@ class ExportProcedureMessageHandler
             $job->setFileHash($storedFile->getFileHash());
             $job->setFileName($storedFile->getFileName());
             $job->setStatus(ProcedureExportJob::STATUS_COMPLETED);
+            $this->logger->info('Procedure export completed', ['jobId' => $message->getJobId(), 'procedureIds' => $message->getProcedureIds()]);
         } catch (Throwable $e) {
             $this->logger->error('Asynchronous procedure export failed', ['jobId' => $message->getJobId(), 'exception' => $e]);
             $job->setStatus(ProcedureExportJob::STATUS_FAILED);
@@ -113,6 +116,7 @@ class ExportProcedureMessageHandler
     {
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
+        SessionLockReleaser::markSynthetic($request);
         $this->requestStack->push($request);
     }
 }

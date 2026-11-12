@@ -247,8 +247,8 @@
 import { dpApi, DpButton, DpMultiselect, hasOwnProp, prefixClassMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import { defineAsyncComponent } from 'vue'
-import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
-import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal.vue'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer.vue'
 import { v4 as uuid } from 'uuid'
 
 export default {

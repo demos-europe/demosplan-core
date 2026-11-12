@@ -1,6 +1,6 @@
-import MultiselectCustomField from '@DpJs/components/customFields/MultiselectCustomField'
-import SingleselectCustomField from '@DpJs/components/customFields/SingleselectCustomField'
-import TextCustomField from '@DpJs/components/customFields/TextCustomField'
+import MultiselectCustomField from '@DpJs/components/customFields/MultiselectCustomField.vue'
+import SingleselectCustomField from '@DpJs/components/customFields/SingleselectCustomField.vue'
+import TextCustomField from '@DpJs/components/customFields/TextCustomField.vue'
 
 function enrichSelectValue (rawValue, options) {
   const optionIds = rawValue ? [rawValue].flat() : []
@@ -48,6 +48,12 @@ const TARGET_ENTITY_DEFAULT_TYPE = {
   STATEMENT: 'multiSelect',
 }
 
+/*
+ * Targets whose fieldType can be chosen in the create form.
+ * Every other target is fixed to its default fieldType.
+ */
+const TARGET_ENTITIES_WITH_SELECTABLE_TYPE = new Set(['SEGMENT', 'STATEMENT'])
+
 function enrichFieldValue (fieldType, rawValue, options) {
   const enrich = FIELD_TYPE_REGISTRY[fieldType]?.enrichValue
 
@@ -86,6 +92,10 @@ function getFieldTypeLabel (fieldType) {
   return translationKey ? Translator.trans(translationKey) : fieldType
 }
 
+function isFieldTypeSelectableForTarget (targetEntity) {
+  return TARGET_ENTITIES_WITH_SELECTABLE_TYPE.has(targetEntity)
+}
+
 export function useCustomFieldTypes () {
   return {
     enrichFieldValue,
@@ -93,5 +103,6 @@ export function useCustomFieldTypes () {
     getComponentForFieldType,
     getDefaultFieldTypeForTarget,
     getFieldTypeLabel,
+    isFieldTypeSelectableForTarget,
   }
 }

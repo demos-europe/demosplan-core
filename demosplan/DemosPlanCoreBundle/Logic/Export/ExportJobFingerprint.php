@@ -39,6 +39,17 @@ final class ExportJobFingerprint
     }
 
     /**
+     * The export type (docx vs. zip) is part of the fingerprint: the same query params requested as
+     * both formats are two different exports, not duplicates of each other.
+     *
+     * @param array<string, mixed> $queryParams the raw request params the sync route reads
+     */
+    public static function forSegmentsExport(string $exportType, array $queryParams): string
+    {
+        return self::hash([$exportType, $queryParams]);
+    }
+
+    /**
      * The selection is sorted so that picking the same procedures in a different order still counts
      * as the same export.
      *
@@ -50,6 +61,18 @@ final class ExportJobFingerprint
         sort($sorted);
 
         return self::hash([$sorted, $useExternalProcedureName]);
+    }
+
+    /**
+     * Hashed directly rather than through {@see hash()}: a scheduled export's parameters are already a
+     * single query string, not a nested array whose key order needs canonicalising. Note this means
+     * two query strings that are semantically identical but ordered differently will not collide -
+     * acceptable for now, since the hash is only used to recognise an exact repeat, not to deduplicate
+     * equivalent filters.
+     */
+    public static function forScheduledExport(string $parameters): string
+    {
+        return hash('sha256', $parameters);
     }
 
     /**

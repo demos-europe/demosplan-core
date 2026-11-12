@@ -535,11 +535,11 @@ class DocxExporter
      * @param array  $item
      * @param bool   $anonymous
      * @param string $exportType
-     * @param array  $renderOptions {
-     *                              Number statements: bool $numberStatements,
-     *                              Statement number: int $statementNumber,
-     *                              Include metadata: bool $includeStatementMetadataRow,
-     *                              }
+     * @param array  $renderOptions   {
+     *                                Number statements: bool $numberStatements,
+     *                                Statement number: int $statementNumber,
+     *                                Include metadata: bool $includeStatementMetadataRow,
+     *                                }
      *
      * @throws Exception
      */
@@ -616,11 +616,12 @@ class DocxExporter
     }
 
     /**
-     * Appends the assigned Potenzialflächen and Schlagworte below the statement text.
+     * Appends the assigned Potenzialflächen and Schlagworte below the given item's text.
      *
-     * Only used by the Verfahrensexport (see $includeStatementMetadataRow in
-     * {@link renderTableItem} and {@link addFragmentRows}); the standalone Abwägungstabelle
-     * export never sets that flag, so this stays out of it.
+     * $item may be a statement or a fragment array — each carries its own
+     * priorityAreaKeys/tagNames. Only used by the Verfahrensexport (see
+     * $includeStatementMetadataRow in {@link renderTableItem} and {@link addFragmentRows});
+     * the standalone Abwägungstabelle export never sets that flag, so this stays out of it.
      */
     private function addStatementMetadataToCell(Cell $cell, array $item, array $styles): void
     {
@@ -792,10 +793,11 @@ class DocxExporter
      * @param int     $recommendationCellWidth
      * @param array   $styles
      * @param bool    $anonymous
-     * @param bool    $includeStatementMetadataRow appends the statement's priority areas/tags
-     *                                             (see {@link addStatementMetadataToCell}) to
-     *                                             the first fragment's text cell, since fragments
-     *                                             have no cell of their own to carry statement-level data
+     * @param bool    $includeStatementMetadataRow appends each fragment's own priority areas/tags
+     *                                             (see {@link addStatementMetadataToCell}) below
+     *                                             its text, since fragments can be assigned
+     *                                             different priority areas/tags than the statement
+     *                                             or each other
      */
     protected function addFragmentRows(
         $item,
@@ -823,8 +825,8 @@ class DocxExporter
                 $fragment['text'] = $this->editorService->handleObscureTags($fragment['text'], $anonymous);
                 $this->addHtml($cell2, $fragment['text'], $styles);
             }
-            if (0 === $index && $includeStatementMetadataRow) {
-                $this->addStatementMetadataToCell($cell2, $item, $styles);
+            if ($includeStatementMetadataRow) {
+                $this->addStatementMetadataToCell($cell2, $fragment, $styles);
             }
 
             $cell3 = $assessmentTable->addCell($recommendationCellWidth, $cellStyle);
@@ -850,6 +852,7 @@ class DocxExporter
         if ('' === $text) {
             return '';
         }
+        $text = $this->stripXmlIllegalChars($text);
         try {
             $text = $this->replaceTags($text);
             // remove STX (start of text) EOT (end of text) special chars
@@ -874,6 +877,30 @@ class DocxExporter
         }
 
         return '';
+    }
+
+    /**
+     * Drops codepoints that XML 1.0 forbids before PhpWord parses the HTML.
+     *
+     * Invalid UTF-8 sequences are first normalized via mb_scrub so the
+     * /u regex below cannot fail with PREG_BAD_UTF8_ERROR (which would
+     * otherwise return null and break the string return type).
+     *
+     * Stripped: C0 controls except \t \n \r (e.g. \x02, the soft-hyphen marker
+     *   produced by PDF copy-paste), unpaired surrogates (U+D800-U+DFFF) and
+     *   the two non-characters U+FFFE / U+FFFF.
+     * Kept:     all printable text, DEL (\x7F — legal in XML 1.0), C1 controls
+     *   (\x80-\x9F — also legal), the full BMP minus the holes above, and the
+     *   astral planes (so emoji and rare CJK survive).
+     *
+     * Without this, PhpWord's HTML parser either dumps raw tags via the catch-
+     * fallback or yields empty cells, depending on the libxml build.
+     */
+    public function stripXmlIllegalChars(string $text): string
+    {
+        $text = mb_scrub($text, 'UTF-8');
+
+        return preg_replace('/[^\x09\x0A\x0D\x20-\x{D7FF}\x{E000}-\x{FFFD}\x{10000}-\x{10FFFF}]/u', '', $text);
     }
 
     private function replaceTags(string $text): string
@@ -1629,12 +1656,13 @@ class DocxExporter
         bool $numberStatements,
         string $templateName,
         int $depth = 0,
-    ) {
+        int $statementNumber = 1,
+    ): int {
         foreach ($groupStructure->getSubgroups() as $subgroup) {
             // show subgroup title only if it has any entries
             if (0 < $subgroup->getTotal()) {
                 $section->addTitle($subgroup->getTitle(), $depth + 2);
-                $this->renderStatementsInGroup(
+                $statementNumber = $this->renderStatementsInGroup(
                     $subgroup,
                     $section,
                     $styles,
@@ -1642,11 +1670,11 @@ class DocxExporter
                     $anonym,
                     $numberStatements,
                     $templateName,
-                    $depth + 1
+                    $depth + 1,
+                    $statementNumber
                 );
             }
         }
-        $statementNumber = 1;
         foreach ($groupStructure->getEntries() as $entry) {
             $assessmentTable = $section->addTable('assessmentTable');
             $assessmentTable->addRow(100, $this->firstRowStyle);
@@ -1668,11 +1696,14 @@ class DocxExporter
                 $statementNumber,
                 $numberStatements
             );
+            ++$statementNumber;
         }
         // add an empty line after the table containing statements
         if (0 !== (is_countable($groupStructure->getEntries()) ? count($groupStructure->getEntries()) : 0)) {
             $section->addTextBreak();
         }
+
+        return $statementNumber;
     }
 
     /**

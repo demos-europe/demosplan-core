@@ -11,7 +11,9 @@
 namespace Tests\Core\User\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\Entity\User\Department;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\ReservedSystemNameException;
 use demosplan\DemosPlanCoreBundle\Logic\ContentService;
@@ -56,6 +58,44 @@ class UserHandlerTest extends FunctionalTestCase
     public function testWipeUser()
     {
         $this->wipeUserDataFields();
+    }
+
+    public function testUpdateOrgaPersistsTwoFactorRequiredFromAttributes(): void
+    {
+        $this->loginTestUser();
+        $this->enablePermissions(['field_organisation_two_factor_required']);
+        $orga = $this->fixtures->getReference('testOrgaFP');
+
+        $updated = $this->sut->updateOrga($orga->getId(), ['attributes' => [Orga::TWO_FACTOR_REQUIRED => true]]);
+
+        static::assertTrue($updated->isTwoFactorRequired());
+    }
+
+    public function testUpdateOrgaIgnoresTwoFactorRequiredWithoutPermission(): void
+    {
+        $this->loginTestUser();
+        $this->disablePermissions([
+            'field_organisation_two_factor_required',
+            'feature_orga_edit_all_fields',
+            'area_manage_orgadata',
+        ]);
+        $orga = $this->fixtures->getReference('testOrgaFP');
+
+        $updated = $this->sut->updateOrga($orga->getId(), ['attributes' => [Orga::TWO_FACTOR_REQUIRED => true]]);
+
+        static::assertFalse($updated->isTwoFactorRequired());
+    }
+
+    public function testWipeUserClearsTagDefaultAssignee(): void
+    {
+        $tag = TagFactory::createOne(['defaultAssignee' => $this->testUser]);
+        $otherTag = TagFactory::createOne();
+
+        $this->sut->wipeUserData($this->testUser->getId());
+
+        $this->getEntityManager()->clear();
+        static::assertNull(TagFactory::find($tag->getId())->getDefaultAssignee());
+        static::assertNotNull(TagFactory::find($otherTag->getId()));
     }
 
     /**

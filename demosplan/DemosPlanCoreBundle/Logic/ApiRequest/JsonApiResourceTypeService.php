@@ -28,6 +28,7 @@ use EDT\Querying\Utilities\Iterables;
 use EDT\Querying\Utilities\Sorter;
 use EDT\Wrapping\Contracts\TypeProviderInterface;
 use EDT\Wrapping\Utilities\SchemaPathProcessor;
+use Symfony\Component\DependencyInjection\Attribute\AsAlias;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -36,6 +37,7 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  *
  * Do not use this class or its method in any non-resource-type class.
  */
+#[AsAlias(JsonApiResourceTypeServiceInterface::class)]
 class JsonApiResourceTypeService implements JsonApiResourceTypeServiceInterface
 {
     public function __construct(

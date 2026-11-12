@@ -342,7 +342,7 @@ export default class BarPieChart {
     // Check if offeset for not fitting Label has to be reseted
     const lastPieceCounter = (d, last) => {
       lastPiece = last
-      let counter = 0
+      let counter
 
       if (d.endAngle - d.startAngle >= minRad || d.startAngle === 0) {
         lastPiece = -1
@@ -455,11 +455,9 @@ export default class BarPieChart {
       return (t) => {
         // Outer point from label-radius ( incl offset calc)
         const d2 = interpol(t)
-        let outerRadiusPoint = labelLineArc.centroid(d2)
         const currentOffset = 1 + (labelOffset * offset)
         const labelOffesetArc = arc().outerRadius(labelRadius * currentOffset).innerRadius(labelRadius * currentOffset)
-
-        outerRadiusPoint = labelOffesetArc.centroid(d2)
+        const outerRadiusPoint = labelOffesetArc.centroid(d2)
 
         // Horizontal line from outer point
         const pos = labelLineArc.centroid(d2)
@@ -562,7 +560,6 @@ export default class BarPieChart {
 
     polyline
       .attr('points', (d) => {
-        let outerRadiusPoint = labelLineArc.centroid(d)
         // Prevent overlapping Labels
         const pos = labelLineArc.centroid(d)
 
@@ -571,8 +568,7 @@ export default class BarPieChart {
         const currentOffset = (1 + ((labelOffset - 0.1) * offset))
 
         const labelOffesetArc = arc().outerRadius(labelRadius * currentOffset).innerRadius(labelRadius * currentOffset)
-
-        outerRadiusPoint = labelOffesetArc.centroid(d)
+        const outerRadiusPoint = labelOffesetArc.centroid(d)
 
         pos[0] = pos[0] * currentOffset
         pos[0] = pieRadius * (midAngle(d) < Math.PI ? 1 : -1)

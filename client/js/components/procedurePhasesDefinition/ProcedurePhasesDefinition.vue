@@ -315,7 +315,7 @@ import {
   DpSelect,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper.vue'
 import loadAddonComponents from '@DpJs/lib/addon/loadAddonComponents'
 
 export default {

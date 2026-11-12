@@ -14,7 +14,9 @@
   >
     <div class="relative">
       <dp-search-field
+        :key="searchFieldKey"
         data-cy="customSearch:currentSearchTerm"
+        :init-search-term="currentSearchTerm"
         :placeholder="Translator.trans('searchterm')"
         @search="term => handleSearch(term)"
         @reset="$emit('reset')"
@@ -163,6 +165,7 @@ export default {
       currentSearchTerm: this.searchTerm,
       fields: [],
       isLoading: true,
+      searchFieldKey: 0,
       explanations: [
         {
           title: Translator.trans('search.options'),
@@ -183,6 +186,15 @@ export default {
   computed: {
     storeSelection () {
       return this.localStorageKey !== ''
+    },
+  },
+
+  watch: {
+    searchTerm (newValue) {
+      if (this.currentSearchTerm !== newValue) {
+        this.currentSearchTerm = newValue
+        this.searchFieldKey++
+      }
     },
   },
 

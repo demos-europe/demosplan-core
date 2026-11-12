@@ -215,7 +215,7 @@ class EntrypointController extends BaseController
         PublicIndexProcedureLister $procedureLister,
         Request $request,
     ) {
-        $templateVars = $procedureLister->getPublicIndexProcedureList($request);
+        $templateVars = $procedureLister->getPublicIndexProcedureList($request, '', true);
         $templateVars = $procedureLister->reformatPhases(
             $this->currentUserService->getUser()->isLoggedIn(),
             $templateVars

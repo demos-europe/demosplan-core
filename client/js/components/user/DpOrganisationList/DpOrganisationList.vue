@@ -8,10 +8,10 @@
 </license>
 
 <template>
-  <div class="u-mt-0_5">
+  <div class="mt-2">
     <!-- Pending organisations list (renders only when the orga-self-registration feature is enabled) -->
     <template v-if="hasPermission('area_organisations_applications_manage')">
-      <h3>
+      <h3 class="u-mt-2">
         {{ Translator.trans('organisations.pending') }}
       </h3>
       <template v-if="pendingOrganisationsLoading">
@@ -23,13 +23,13 @@
           v-for="(idx) in pendingOrgs"
           v-else
           :key="`skeleton:${idx}`"
-          class="u-mb-0_5"
+          class="mb-2"
           height="54px"
         />
       </template>
       <template v-else-if="Object.keys(pendingOrgs).length">
         <ul
-          class="o-list o-list--card u-mb"
+          class="o-list space-y-2 u-mb"
           data-cy="pendingOrganisationList"
         >
           <dp-organisation-list-item
@@ -37,12 +37,13 @@
             :key="`pendingOrganisation:${idx}`"
             :additional-field-options="additionalFieldOptions"
             :available-orga-types="availableOrgaTypes"
-            class="o-list__item"
+            class="o-list__item bg-surface border border-neutral"
             data-cy="pendingOrganisationListBlk"
             module-name="Pending"
             :organisation="item"
             :selectable="false"
             @addon-options:loaded="setAdditionalFieldOptions"
+            @items:get="fetchPendingAndAllOrganisations()"
           />
         </ul>
         <dp-sliding-pagination
@@ -68,67 +69,135 @@
     </template>
 
     <!-- list header -->
-    <div class="flow-root">
-      <dp-search-field
-        class="inline-block u-pv-0_5"
-        @search="handleSearch"
-        @reset="resetSearch"
-      />
+    <div class="flex flex-wrap items-center justify-between gap-2 py-2">
+      <div class="w-full md:w-3/12">
+        <dp-search-field
+          @search="handleSearch"
+          @reset="resetSearch"
+        />
+      </div>
       <dp-checkbox-group
-        class="inline-block u-pv-0_5 float-right"
         data-cy="organisationList:filterItems"
         :label="filterLabel"
         :options="filterItems"
         inline
         @update="handleFilter"
       />
-
-      <div
-        v-if="hasPermission('feature_orga_delete')"
-        class="block u-mb"
-      >
-        <div
-          class="layout__item u-3-of-7 u-mt u-pl-0_5"
-        >
-          <div class="o-form__element--checkbox">
-            <input
-              id="select_all"
-              type="checkbox"
-              data-cy="allSelected"
-              class="o-form__control-input"
-              :checked="allSelected"
-              @change="dpToggleAll(!allSelected, items)"
-            >
-            <label
-              for="select_all"
-              class="o-form__label"
-            >
-              {{ Translator.trans('select.all.on.page') }}
-            </label>
-          </div>
-        </div><!--
-     --><div
-          class="layout__item text-right u-4-of-7 u-mt u-mb-0_5"
-        >
-          <dp-button
-            color="warning"
-            data-cy="deleteSelectedItems"
-            :text="Translator.trans('entities.marked.delete', { entities: Translator.trans('organisations'), sum: selectedItems.length })"
-            @click.prevent="deleteItems(selectedItems)"
-          />
-          <dp-button
-            class="u-ml-0_25"
-            color="secondary"
-            data-cy="resetSelectedItems"
-            :text="Translator.trans('unselect')"
-            @click="dpToggleAll(false, items)"
-          />
-        </div>
-      </div>
     </div>
     <div
+      v-if="canEditTwoFactor"
+      class="flex items-center gap-1 py-2"
+    >
+      <dp-toggle
+        :aria-label="Translator.trans('2fa.required.filter.without')"
+        :model-value="showWithoutTwoFactorOnly"
+        data-cy="organisationList:withoutTwoFactorFilter"
+        @update:model-value="handleTwoFactorFilter"
+      />
+      <span aria-hidden="true">{{ Translator.trans('2fa.required.filter.without') }}</span>
+    </div>
+
+    <template v-if="canBulkEdit">
+      <selection-card
+        v-if="isOrganisationSelected"
+        :count-text="Translator.trans('organisations.selected', { count: selectedCount })"
+        :is-loading-items="isLoadingSelectionList"
+        :items="selectedOrganisationsList"
+        :show-items="showSelectionList"
+        data-cy="organisationList:selectionCard"
+        @remove:item="toggleOne"
+        @reset="resetSelection"
+        @toggle:items="toggleSelectionList"
+      >
+        <template v-slot:actions>
+          <dp-button
+            v-if="hasPermission('feature_orga_delete')"
+            :disabled="isDeleting || isUpdatingTwoFactor || isLoadingSelectionList"
+            :text="Translator.trans('delete') + ` (${selectedCount})`"
+            class="p-1"
+            color="primary"
+            data-cy="deleteSelectedItems"
+            variant="outline"
+            @click.prevent="deleteItems"
+          />
+          <dp-button
+            v-if="canEditTwoFactor"
+            :disabled="isDeleting || isUpdatingTwoFactor || isLoadingSelectionList"
+            :text="Translator.trans('2fa.required.change') + ` (${selectedCount})`"
+            class="p-1"
+            color="primary"
+            data-cy="organisationList:changeTwoFactor"
+            @click="openTwoFactorModal"
+          />
+        </template>
+      </selection-card>
+      <dp-checkbox
+        id="select_all"
+        :checked="isAllSelected"
+        :label="{ text: Translator.trans('select.all') }"
+        class="my-4 ml-2"
+        data-cy="allSelected"
+        @change="toggleAll(!isAllSelected)"
+      />
+    </template>
+
+    <dp-modal
+      v-if="canEditTwoFactor"
+      ref="twoFactorModal"
+      content-classes="w-2/5"
+      data-cy="organisationList:twoFactorModal"
+      @modal:toggled="onTwoFactorModalToggled"
+    >
+      <template v-slot:header>
+        <h2 class="mb-0">
+          {{ Translator.trans('2fa.required.change') }}
+        </h2>
+      </template>
+      <dp-inline-notification
+        v-if="hasMixedTwoFactorValues"
+        :message="Translator.trans('2fa.required.mixed.hint')"
+        class="mb-3"
+        data-cy="organisationList:twoFactorMixedHint"
+        type="info"
+      />
+      <p>
+        {{ Translator.trans('2fa.required.bulk.explanation') }}
+      </p>
+      <dp-radio
+        id="organisationList:twoFactorRequired:mandatory"
+        :checked="twoFactorTarget === true"
+        :label="{ text: Translator.trans('2fa.required.mandatory'), hint: Translator.trans('2fa.required.mandatory.hint') }"
+        data-cy="organisationList:setTwoFactorRequired"
+        name="organisationList:twoFactorRequired"
+        value="1"
+        @change="twoFactorTarget = true"
+      />
+      <dp-radio
+        id="organisationList:twoFactorRequired:optional"
+        :checked="twoFactorTarget === false"
+        :label="{ text: Translator.trans('2fa.required.optional'), hint: Translator.trans('2fa.required.optional.hint') }"
+        class="mt-2"
+        data-cy="organisationList:unsetTwoFactorRequired"
+        name="organisationList:twoFactorRequired"
+        value="0"
+        @change="twoFactorTarget = false"
+      />
+      <template v-slot:footer>
+        <dp-button-row
+          :busy="isUpdatingTwoFactor"
+          :disabled="{ primary: !isTwoFactorChoiceChanged || isUpdatingTwoFactor, secondary: isUpdatingTwoFactor }"
+          data-cy="organisationList:twoFactorButtons"
+          primary
+          secondary
+          secondary-btn-variant="outline"
+          @primary-action="applyTwoFactorRequired"
+          @secondary-action="closeTwoFactorModal"
+        />
+      </template>
+    </dp-modal>
+    <div
       v-if="noResults"
-      v-cleanhtml="Translator.trans('search.no.results', {searchterm: searchTerm})"
+      v-cleanhtml="isFiltered ? Translator.trans('search.results.none') : Translator.trans('search.no.results', {searchterm: searchTerm})"
       class="u-mt-0_75"
     />
 
@@ -154,19 +223,20 @@
         class="layout__item u-1-of-1"
         data-cy="organisationList"
       >
-        <ul class="o-list o-list--card u-mb">
+        <ul class="o-list space-y-2 u-mb">
           <dp-organisation-list-item
             v-for="(item, idx) in items"
             :key="`organisation:${idx}`"
             :additional-field-options="additionalFieldOptions"
             :available-orga-types="availableOrgaTypes"
-            class="o-list__item"
+            class="o-list__item bg-surface border border-neutral"
             data-cy="organisationListBlk"
-            :selected="hasOwnProp(itemSelections, item.id) && itemSelections[item.id] === true"
-            :selectable="hasPermission('feature_orga_delete')"
+            :selected="isSelected(item.id)"
+            :selectable="canBulkEdit"
             :organisation="item"
             @addon-options:loaded="setAdditionalFieldOptions"
-            @item:selected="dpToggleOne"
+            @item:selected="toggleOne"
+            @items:get="fetchPendingAndAllOrganisations()"
           />
         </ul>
 
@@ -185,18 +255,31 @@
 <script>
 import {
   CleanHtml,
+  dpApi,
   DpButton,
+  DpButtonRow,
+  DpCheckbox,
   DpCheckboxGroup,
+  DpInlineNotification,
   DpLoading,
+  DpModal,
+  DpRadio,
+  dpRpc,
   DpSearchField,
-  dpSelectAllMixin,
   DpSkeletonBox,
   DpSlidingPagination,
-  hasOwnProp,
+  DpToggle,
   hasPermission,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import DpOrganisationListItem from './DpOrganisationListItem'
+import DpOrganisationListItem from './DpOrganisationListItem.vue'
+import SelectionCard from '@DpJs/components/shared/SelectionCard.vue'
+
+// Upper limit the API accepts for page[size]
+const ALL_MATCHING_PAGE_SIZE = 1000
+
+// The API answers too many parallel requests with 429
+const DELETE_BATCH_SIZE = 5
 
 const orgaFieldsArrays = {
   Branding: [
@@ -251,6 +334,14 @@ if (hasPermission('feature_manage_procedure_creation_permission')) {
   orgaFieldsArrays.Orga.push('canCreateProcedures')
 }
 
+if (hasPermission('field_organisation_two_factor_required')) {
+  orgaFieldsArrays.Orga.push('twoFactorRequired')
+}
+
+if (hasPermission('field_organisation_technical_name')) {
+  orgaFieldsArrays.Orga.push('technicalName')
+}
+
 const orgaFields = {
   Branding: orgaFieldsArrays.Branding.join(),
   Customer: orgaFieldsArrays.Customer.join(),
@@ -273,19 +364,24 @@ export default {
 
   components: {
     DpButton,
+    DpButtonRow,
+    DpCheckbox,
     DpCheckboxGroup,
+    DpInlineNotification,
     DpLoading,
+    DpModal,
     DpOrganisationListItem,
+    DpRadio,
     DpSearchField,
     DpSkeletonBox,
     DpSlidingPagination,
+    DpToggle,
+    SelectionCard,
   },
 
   directives: {
     cleanhtml: CleanHtml,
   },
-
-  mixins: [dpSelectAllMixin],
 
   /**
    * These are needed in deeply nested components, passing them via props seemed too messy
@@ -361,15 +457,34 @@ export default {
   data () {
     return {
       additionalFieldOptions: [],
+      // Organisations matching the current filter, across all pages
+      allMatchingCount: 0,
+      allMatchingFetched: false,
+      // Organisations unticked after 'select all' is selected; only used while trackDeselected is true
+      deselectedIds: [],
       filterItems: this.availableOrgaTypes.map(el => ({ id: el.value, label: Translator.trans(el.label) })),
       filterLabel: Translator.trans('organisation.kind') + ':',
       isInitialLoad: true,
       isLoading: true,
+      isLoadingSelectionList: false,
+      isDeleting: false,
+      isUpdatingTwoFactor: false,
       noResults: false,
       pendingOrgs: {},
       pendingOrganisationsLoading: true,
       searchTerm: '',
       selectedFilters: {},
+      /**
+       * Keyed by id, holds { id, name, twoFactorRequired } so the selection survives paging, and the
+       * selection list and the mixed-values hint work without the items of other pages
+       */
+      selectedOrganisations: {},
+      showSelectionList: false,
+      showWithoutTwoFactorOnly: false,
+      // If true: everything matching the filter is selected except deselectedIds; selectedOrganisations is loaded on demand
+      trackDeselected: false,
+      // The value chosen in the modal
+      twoFactorTarget: null,
     }
   },
 
@@ -386,12 +501,52 @@ export default {
       pendingOrganisationsTotalPages: 'totalPages',
     }),
 
+    canBulkEdit () {
+      return hasPermission('feature_orga_delete') || this.canEditTwoFactor
+    },
+
+    canEditTwoFactor () {
+      return hasPermission('field_organisation_two_factor_required')
+    },
+
+    hasMixedTwoFactorValues () {
+      return this.selectedTwoFactorValues.size > 1
+    },
+
+    selectedTwoFactorValues () {
+      return new Set(this.selectedOrganisationsList.map(organisation => organisation.twoFactorRequired === true))
+    },
+
+    isAllSelected () {
+      return this.trackDeselected && this.deselectedIds.length === 0
+    },
+
     isFiltered () {
       return Object.keys(this.selectedFilters).length > 0
     },
 
-    selectedItems () {
-      return Object.keys(this.items).filter(id => this.itemSelections[id])
+    isOrganisationSelected () {
+      return this.selectedCount > 0
+    },
+
+    /**
+     * A choice counts as a change when at least one selected organisation holds a different value
+     */
+    isTwoFactorChoiceChanged () {
+      return this.twoFactorTarget !== null &&
+        (this.hasMixedTwoFactorValues || !this.selectedTwoFactorValues.has(this.twoFactorTarget))
+    },
+
+    selectedCount () {
+      if (this.trackDeselected && !this.allMatchingFetched) {
+        return Math.max(this.allMatchingCount - this.deselectedIds.length, 0)
+      }
+
+      return Object.keys(this.selectedOrganisations).length
+    },
+
+    selectedOrganisationsList () {
+      return Object.values(this.selectedOrganisations)
     },
   },
 
@@ -413,69 +568,210 @@ export default {
       roleList: 'list',
     }),
 
-    deleteItems (ids) {
-      if (!this.selectedItems.length || dpconfirm(Translator.trans('check.entries.marked.delete')) === false) {
+    /**
+     * Writes the value chosen in the modal to every selected organisation in one request.
+     * The backend reports which ids it could not administrate; those count as failed.
+     */
+    async applyTwoFactorRequired () {
+      if (!this.isTwoFactorChoiceChanged || !this.isOrganisationSelected || this.isUpdatingTwoFactor) {
         return
       }
 
-      const deleteOrganisations = ids.map(id =>
-        this.deleteOrganisation(id)
-          .then(() => {
-            // Remove deleted item from itemSelections
-            delete this.itemSelections[id]
-            // Confirm notification for organisations is done in BE
-          }),
-      )
+      this.isUpdatingTwoFactor = true
+      let updatedCount = 0
+      let failedCount = this.selectedCount
 
-      Promise.all(deleteOrganisations)
-        .then(() => {
-          this.fetchPendingAndAllOrganisations()
+      try {
+        const response = await dpRpc('organisations.bulk.twoFactorRequired', {
+          organisationIds: await this.resolveSelectedIds(),
+          twoFactorRequired: this.twoFactorTarget,
         })
+        const result = response.data?.[0]?.result
+
+        if (result) {
+          updatedCount = result.updatedIds.length
+          failedCount = result.skippedIds.length
+        }
+      } catch (error) {
+        console.error('Bulk two-factor change failed:', error)
+      }
+
+      if (updatedCount > 0) {
+        dplan.notify.notify('confirm', Translator.trans('2fa.required.updated', { count: updatedCount }))
+      }
+
+      if (failedCount > 0) {
+        dplan.notify.notify('error', Translator.trans('2fa.required.update.failed', { count: failedCount }))
+      }
+
+      this.isUpdatingTwoFactor = false
+      this.closeTwoFactorModal()
+      this.resetSelection()
+      this.fetchPendingAndAllOrganisations()
     },
 
-    fetchFilteredOrganisations (selected, page) {
-      this.isLoading = true
-      const filterObject = {}
+    /**
+     * Search term, orga types and the two-factor toggle combine, so every page request sends all of them
+     */
+    buildListFilter () {
+      const filter = {
+        namefilter: {
+          condition: {
+            path: 'name',
+            operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
+            value: this.searchTerm,
+          },
+        },
+      }
+      const selectedTypes = Object.keys(this.selectedFilters).filter(type => this.selectedFilters[type])
 
-      Object.keys(selected).forEach(filter => {
-        if (selected[filter]) {
-          filterObject[filter] = {
+      if (selectedTypes.length > 0) {
+        filter.orgaType = {
+          group: {
+            conjunction: 'OR',
+          },
+        }
+        filter.orgaStatus = {
+          condition: {
+            path: 'statusInCustomers.status',
+            operator: '<>',
+            value: 'rejected',
+          },
+        }
+        selectedTypes.forEach(type => {
+          filter[type] = {
             condition: {
               path: 'statusInCustomers.orgaType.name',
-              value: filter,
+              value: type,
               memberOf: 'orgaType',
             },
           }
+        })
+      }
 
-          filterObject.orgaStatus = {
-            condition: {
-              path: 'statusInCustomers.status',
-              operator: '<>',
-              value: 'rejected',
-            },
-          }
+      if (this.showWithoutTwoFactorOnly) {
+        filter.withoutTwoFactor = {
+          condition: {
+            path: 'twoFactorRequired',
+            value: false,
+          },
         }
-      })
-      filterObject.orgaType = {
-        group: {
-          conjunction: 'OR',
-        },
       }
 
-      filterObject.namefilter = {
-        condition: {
-          path: 'name',
-          operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-          value: this.searchTerm,
+      return filter
+    },
+
+    buildSelectionFilter () {
+      if (this.trackDeselected) {
+        return this.buildListFilter()
+      }
+
+      return {
+        selectedIds: {
+          condition: {
+            path: 'id',
+            operator: 'IN',
+            value: Object.keys(this.selectedOrganisations),
+          },
         },
       }
+    },
+
+    closeTwoFactorModal () {
+      this.$refs.twoFactorModal?.toggle()
+    },
+
+    async deleteItems () {
+      if (this.isDeleting || !this.isOrganisationSelected || dpconfirm(Translator.trans('check.organisations.delete', { count: this.selectedCount })) === false) {
+        return
+      }
+
+      this.isDeleting = true
+
+      try {
+        const ids = await this.resolveSelectedIds()
+
+        // Delete in batches of 5 requests
+        for (let i = 0; i < ids.length; i += DELETE_BATCH_SIZE) {
+          const currentBatchRequests = ids
+            .slice(i, i + DELETE_BATCH_SIZE)
+            .map(id => this.deleteOrganisation(id))
+
+          await Promise.allSettled(currentBatchRequests)
+        }
+      } catch (error) {
+        console.error('Bulk delete of organisations failed:', error)
+        dplan.notify.notify('error', Translator.trans('error.api.generic'))
+
+        return
+      } finally {
+        this.isDeleting = false
+      }
+
+      this.resetSelection()
+      this.fetchPendingAndAllOrganisations()
+    },
+
+    /**
+     * While all are selected, the selection only holds a count; names and 2FA values are loaded when needed
+     */
+    async ensureSelectionLoaded () {
+      if (this.trackDeselected && !this.allMatchingFetched) {
+        await this.fetchSelectedOrganisations()
+      }
+    },
+
+    /**
+     * Pages through the API directly, as the store would replace the page currently shown
+     */
+    async fetchSelectedOrganisations () {
+      const url = Routing.generate('api_resource_list', { resourceType: 'Orga' })
+      const fields = [
+        'name',
+        ...(this.canEditTwoFactor ? ['twoFactorRequired'] : []),
+      ].join()
+      const organisations = []
+      let page = 1
+      let totalPages = 1
+
+      while (page <= totalPages) {
+        const response = await dpApi.get(url, {
+          fields: {
+            Orga: fields,
+          },
+          filter: this.buildSelectionFilter(),
+          page: {
+            number: page,
+            size: ALL_MATCHING_PAGE_SIZE,
+          },
+          sort: 'name',
+        })
+
+        organisations.push(...(response.data?.data || []))
+        totalPages = response.data?.meta?.pagination?.total_pages ?? 1
+        page++
+      }
+
+      this.selectedOrganisations = organisations.reduce((acc, item) => {
+        if (!this.deselectedIds.includes(item.id)) {
+          acc[item.id] = this.toSelectionEntry(item)
+        }
+
+        return acc
+      }, {})
+      this.allMatchingFetched = this.trackDeselected
+    },
+
+    fetchFilteredOrganisations (page) {
+      this.isLoading = true
+      this.noResults = false
 
       this.list({
         page: {
           number: page,
         },
         sort: 'name',
-        filter: filterObject,
+        filter: this.buildListFilter(),
         fields: {
           Customer: orgaFields.Customer,
           Orga: orgaFields.Orga,
@@ -484,13 +780,16 @@ export default {
         },
         include: includeFields.join(),
       })
-        .then(() => {
+        .then(response => {
+          this.noResults = Object.keys(this.items || {}).length === 0
+          this.allMatchingCount = response?.meta?.pagination?.total ?? 0
           this.isLoading = false
         })
     },
 
     fetchAllOrganisations (page) {
       this.isLoading = true
+      this.noResults = false
 
       this.list({
         page: {
@@ -503,18 +802,11 @@ export default {
           ...(orgaFields.Branding ? { Branding: orgaFields.Branding } : {}),
         },
         sort: 'name',
-        filter: {
-          namefilter: {
-            condition: {
-              path: 'name',
-              operator: 'STRING_CONTAINS_CASE_INSENSITIVE',
-              value: this.searchTerm,
-            },
-          },
-        },
+        filter: this.buildListFilter(),
         include: includeFields.join(),
       })
-        .then(() => {
+        .then(response => {
+          this.allMatchingCount = response?.meta?.pagination?.total ?? 0
           this.noResults = Object.keys(this.items || {}).length === 0
           if (this.isInitialLoad) {
             this.isInitialLoad = false
@@ -543,7 +835,6 @@ export default {
       })
         .then(() => {
           this.pendingOrgs = this.pendingOrganisations || {}
-          this.noResults = Object.keys(this.items || {}).length === 0
         })
         .finally(() => {
           this.pendingOrganisationsLoading = false
@@ -565,7 +856,6 @@ export default {
         })
         .then(() => {
           this.pendingOrgs = this.pendingOrganisations || {}
-          this.noResults = Object.keys(this.items || {}).length === 0
         })
         .finally(() => {
           this.pendingOrganisationsLoading = false
@@ -579,7 +869,7 @@ export default {
         this.fetchPendingOrganisations(page)
       } else {
         if (this.isFiltered) {
-          this.fetchFilteredOrganisations(this.selectedFilters, page)
+          this.fetchFilteredOrganisations(page)
         } else {
           this.fetchAllOrganisations(page)
         }
@@ -587,20 +877,112 @@ export default {
     },
 
     handleFilter (selected) {
+      this.resetSelectAll()
       this.selectedFilters = selected
-      this.fetchFilteredOrganisations(selected, 1)
+      this.fetchFilteredOrganisations(1)
     },
 
     handleSearch (searchTerm) {
+      this.resetSelectAll()
       this.searchTerm = searchTerm
       this.getItemsByPage(1)
     },
 
-    hasOwnProp (obj, prop) {
-      return hasOwnProp(obj, prop)
+    handleTwoFactorFilter (showWithoutTwoFactorOnly) {
+      this.resetSelectAll()
+      this.showWithoutTwoFactorOnly = showWithoutTwoFactorOnly
+      this.getItemsByPage(1)
+    },
+
+    isSelected (id) {
+      if (this.trackDeselected) {
+        return !this.deselectedIds.includes(id)
+      }
+
+      return this.selectedOrganisations[id] !== undefined
+    },
+
+    /**
+     * @param {Boolean} reload  Fetch current values even if already loaded
+     * @return {Promise<Boolean>} false when loading the selected organisations failed
+     */
+    async loadSelection (reload = false) {
+      if (this.isLoadingSelectionList) {
+        return false
+      }
+
+      this.isLoadingSelectionList = true
+
+      try {
+        await (reload ? this.fetchSelectedOrganisations() : this.ensureSelectionLoaded())
+
+        return true
+      } catch (error) {
+        console.error('Failed to load the selected organisations:', error)
+        dplan.notify.notify('error', Translator.trans('error.api.generic'))
+
+        return false
+      } finally {
+        this.isLoadingSelectionList = false
+      }
+    },
+
+    onTwoFactorModalToggled (isOpen) {
+      if (!isOpen) {
+        this.twoFactorTarget = null
+      }
+    },
+
+    /**
+     * Preselects the value all selected organisations share, nothing when they differ
+     */
+    async openTwoFactorModal () {
+      if (!this.isOrganisationSelected) {
+        return
+      }
+
+      // Organisations may have been edited since they were selected
+      if (!await this.loadSelection(true)) {
+        return
+      }
+
+      this.twoFactorTarget = this.hasMixedTwoFactorValues ? null : [...this.selectedTwoFactorValues][0]
+      this.$refs.twoFactorModal?.toggle()
+    },
+
+    removeFromSelection (id) {
+      const rest = { ...this.selectedOrganisations }
+
+      delete rest[id]
+
+      this.selectedOrganisations = rest
+    },
+
+    resetSelection () {
+      this.allMatchingFetched = false
+      this.deselectedIds = []
+      this.selectedOrganisations = {}
+      this.showSelectionList = false
+      this.trackDeselected = false
+    },
+
+    /**
+     * "All" refers to the current filter, so a filter change invalidates it
+     */
+    resetSelectAll () {
+      if (this.trackDeselected) {
+        this.resetSelection()
+      }
+    },
+
+    async resolveSelectedIds () {
+      await this.ensureSelectionLoaded()
+
+      return Object.keys(this.selectedOrganisations)
     },
 
     resetSearch () {
+      this.resetSelectAll()
       this.searchTerm = ''
       this.noResults = false
       this.getItemsByPage()
@@ -609,14 +991,74 @@ export default {
     setAdditionalFieldOptions (options) {
       this.additionalFieldOptions = options
     },
+
+    /**
+     * @param {Boolean} status  Select or deselect every organisation matching the current filter
+     */
+    toggleAll (status) {
+      this.resetSelection()
+      this.trackDeselected = status
+    },
+
+    toggleOne (id) {
+      if (this.trackDeselected) {
+        this.toggleInDeselectMode(id)
+
+        return
+      }
+
+      if (this.isSelected(id)) {
+        this.removeFromSelection(id)
+
+        return
+      }
+
+      const item = this.items[id]
+
+      if (!item) {
+        return
+      }
+
+      this.selectedOrganisations = {
+        ...this.selectedOrganisations,
+        [id]: this.toSelectionEntry(item),
+      }
+    },
+
+    toggleInDeselectMode (id) {
+      if (!this.deselectedIds.includes(id)) {
+        this.deselectedIds = [...this.deselectedIds, id]
+        this.removeFromSelection(id)
+
+        return
+      }
+
+      this.deselectedIds = this.deselectedIds.filter(deselectedId => deselectedId !== id)
+
+      if (this.allMatchingFetched && this.items[id]) {
+        this.selectedOrganisations = { ...this.selectedOrganisations, [id]: this.toSelectionEntry(this.items[id]) }
+      }
+    },
+
+    async toggleSelectionList () {
+      if (!this.showSelectionList && !await this.loadSelection()) {
+        return
+      }
+
+      this.showSelectionList = !this.showSelectionList
+    },
+
+    toSelectionEntry (item) {
+      return {
+        id: item.id,
+        name: item.attributes.name,
+        twoFactorRequired: item.attributes.twoFactorRequired === true,
+      }
+    },
   },
 
   mounted () {
     this.fetchPendingAndAllOrganisations(1)
-
-    this.$root.$on('items:get', () => {
-      this.fetchPendingAndAllOrganisations()
-    })
   },
 }
 </script>

@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\ExportResponseFileStore;
 use demosplan\DemosPlanCoreBundle\Logic\FileResponseGenerator\FileResponseGeneratorStrategy;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\AssessmentTableExporter\AssessmentTableExporterStrategy;
 use demosplan\DemosPlanCoreBundle\Message\ExportAssessmentTableMessage;
+use demosplan\DemosPlanCoreBundle\Tools\SessionLockReleaser;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -64,6 +65,7 @@ class ExportAssessmentTableMessageHandler
             return;
         }
 
+        $this->logger->info('Assessment table export started', ['jobId' => $message->getJobId(), 'format' => $message->getExportFormat(), 'procedureId' => $message->getProcedureId()]);
         $job->setStatus(AssessmentTableExportJob::STATUS_PROCESSING);
         $job->setModifiedDate(new DateTime());
         $this->entityManager->flush();
@@ -95,6 +97,7 @@ class ExportAssessmentTableMessageHandler
             $job->setFileHash($storedFile->getFileHash());
             $job->setFileName($storedFile->getFileName());
             $job->setStatus(AssessmentTableExportJob::STATUS_COMPLETED);
+            $this->logger->info('Assessment table export completed', ['jobId' => $message->getJobId(), 'format' => $message->getExportFormat(), 'procedureId' => $message->getProcedureId()]);
         } catch (Throwable $e) {
             $this->logger->error('Asynchronous assessment table export failed', ['jobId' => $message->getJobId(), 'exception' => $e]);
             $job->setStatus(AssessmentTableExportJob::STATUS_FAILED);
@@ -116,6 +119,7 @@ class ExportAssessmentTableMessageHandler
         }
         $request = new Request();
         $request->setSession($session);
+        SessionLockReleaser::markSynthetic($request);
         $this->requestStack->push($request);
     }
 }

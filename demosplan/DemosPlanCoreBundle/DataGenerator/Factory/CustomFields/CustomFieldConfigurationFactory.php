@@ -59,6 +59,7 @@ final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
         string $description = 'Select a Color',
         array $options = [
             'blue', 'red', 'green', 'yellow', 'black', 'white', 'purple', 'orange'],
+        bool $isRequired = false,
     ): self {
         $customFieldOptions = collect($options)
             ->map(fn (string $label) => CustomFieldOptionFactory::fromLabel($label)->create())
@@ -69,6 +70,7 @@ final class CustomFieldConfigurationFactory extends PersistentProxyObjectFactory
                 'name'              => $name,
                 'description'       => $description,
                 'fieldType'         => 'singleSelect',
+                'required'          => $isRequired,
                 'options'           => $customFieldOptions,
             ]),
         ]);

@@ -226,12 +226,16 @@ export default {
       this.loading = true
       this.$emit('save')
     },
+
+    finishEditing () {
+      this.loading = false
+      this.editingEnabled = false
+    },
   },
 
   mounted () {
     this.$root.$on('saveSuccess', () => {
-      this.loading = false
-      this.editingEnabled = false
+      this.finishEditing()
     })
   },
 }

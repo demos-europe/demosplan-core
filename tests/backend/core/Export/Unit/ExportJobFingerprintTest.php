@@ -104,4 +104,40 @@ class ExportJobFingerprintTest extends TestCase
             ExportJobFingerprint::forProcedureSelection([], false)
         );
     }
+
+    public function testSegmentsExportRepeatedRequestMatches(): void
+    {
+        $queryParams = ['filter' => ['status' => 'open'], 'isObscured' => 'true', 'tagsFilter' => ['tagIds' => ['t1']]];
+
+        self::assertSame(
+            ExportJobFingerprint::forSegmentsExport('docx', $queryParams),
+            ExportJobFingerprint::forSegmentsExport('docx', $queryParams)
+        );
+    }
+
+    public function testSegmentsExportDistinguishesExportType(): void
+    {
+        $queryParams = ['filter' => ['status' => 'open']];
+
+        self::assertNotSame(
+            ExportJobFingerprint::forSegmentsExport('docx', $queryParams),
+            ExportJobFingerprint::forSegmentsExport('zip', $queryParams)
+        );
+    }
+
+    public function testSegmentsExportIgnoresKeyOrder(): void
+    {
+        self::assertSame(
+            ExportJobFingerprint::forSegmentsExport('docx', ['a' => 1, 'b' => 2]),
+            ExportJobFingerprint::forSegmentsExport('docx', ['b' => 2, 'a' => 1])
+        );
+    }
+
+    public function testSegmentsExportAndAssessmentTableFingerprintsDoNotCollide(): void
+    {
+        self::assertNotSame(
+            ExportJobFingerprint::forSegmentsExport('docx', []),
+            ExportJobFingerprint::forAssessmentTable([], [])
+        );
+    }
 }
