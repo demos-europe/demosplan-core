@@ -72,7 +72,7 @@
         />
 
         <dp-checkbox
-          v-if="customField.targetEntity === 'STATEMENT'"
+          v-if="customField.targetEntity === 'STATEMENT' && canSetRequired"
           id="requiredCheckbox"
           v-model="customField.isRequired"
           :label="{
@@ -172,6 +172,10 @@ export default {
   },
 
   computed: {
+    canSetRequired () {
+      return hasPermission('feature_statements_custom_fields_required')
+    },
+
     // The type is fixed once a target is chosen, unless that target allows choosing it
     isTypeSelectDisabled () {
       return !!this.customField.targetEntity && !isFieldTypeSelectableForTarget(this.customField.targetEntity)
