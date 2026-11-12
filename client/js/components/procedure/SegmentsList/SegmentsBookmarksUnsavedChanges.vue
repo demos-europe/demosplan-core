@@ -152,11 +152,13 @@ import type {
   FilterOption,
   RootState,
 } from '@DpJs/types/store'
+import { CUSTOM_FIELD_GROUP_PREFIX } from '@DpJs/composables/useApiPlatformFilters'
 import { useStore } from 'vuex'
 
 /* Props */
 const props = defineProps<{
   currentBookmark: Bookmark | null
+  customFieldDefinitions: Array<{ id: string, attributes: { name: string } }>
   filters: Record<string, { labelTranslationKey: string, rootPath: string, comparisonOperator: string }>
   isOpen: boolean
 }>()
@@ -204,7 +206,7 @@ const storeSearchPhrase: ComputedRef<string> = computed(() => state.Bookmark?.cu
 const storeSorting: ComputedRef<string> = computed(() => state.Bookmark?.currentSorting || '')
 const storeSelectedColumns: ComputedRef<string[]> = computed(() => state.Bookmark?.currentSelectedColumns || [])
 const storeDefaultSelectedColumns: ComputedRef<string[]> = computed(() => state.Bookmark?.defaultSelectedColumns || [])
-const isViewStateInitialized: ComputedRef<boolean> = computed(() => state.Bookmark?.isViewStateInitialized || false)
+const isBookmarkStateInitialized: ComputedRef<boolean> = computed(() => state.Bookmark?.isBookmarkStateInitialized || false)
 
 const detailedChanges: ComputedRef<DetailedChange[]> = computed(() => {
   if (props.currentBookmark) {
@@ -213,7 +215,7 @@ const detailedChanges: ComputedRef<DetailedChange[]> = computed(() => {
 
   return getDetailedDefaultViewChanges()
 })
-const hasChanges: ComputedRef<boolean> = computed(() => isViewStateInitialized.value && detailedChanges.value.length > 0)
+const hasChanges: ComputedRef<boolean> = computed(() => isBookmarkStateInitialized.value && detailedChanges.value.length > 0)
 
 const notificationTitle: ComputedRef<string> = computed(() => {
   if (props.currentBookmark) {
@@ -235,6 +237,7 @@ const notificationMessage: ComputedRef<string> = computed(() => {
 const extractFilterValues = (filters: Record<string, any> = {}) => {
   const filterValues = new Set<string>()
   const filterPaths: Record<string, string> = {}
+  const filterMemberOf: Record<string, string | undefined> = {}
 
   Object.entries(filters || {}).forEach(([key, filter]) => {
     if (filter.condition) {
@@ -242,12 +245,14 @@ const extractFilterValues = (filters: Record<string, any> = {}) => {
 
       filterValues.add(valueKey)
       filterPaths[valueKey] = filter.condition.path
+      filterMemberOf[valueKey] = filter.condition.memberOf
     }
   })
 
   return {
     filterValues,
     filterPaths,
+    filterMemberOf,
   }
 }
 
@@ -299,11 +304,13 @@ const getDetailedFilterChanges = (bookmarkFilters: Record<string, any>, currentF
   const {
     filterValues: bookmarkFilterValues,
     filterPaths: bookmarkFilterPaths,
+    filterMemberOf: bookmarkFilterMemberOf,
   } = extractFilterValues(bookmarkFilters)
 
   const {
     filterValues: currentFilterValues,
     filterPaths: currentFilterPaths,
+    filterMemberOf: currentFilterMemberOf,
   } = extractFilterValues(currentFilters)
 
   const individualFilterChanges: IndividualFilterChange[] = [
@@ -311,12 +318,14 @@ const getDetailedFilterChanges = (bookmarkFilters: Record<string, any>, currentF
       bookmarkFilterValues,
       currentFilterValues,
       bookmarkFilterPaths,
+      bookmarkFilterMemberOf,
       'removed',
     ),
     ...getFilterChanges(
       currentFilterValues,
       bookmarkFilterValues,
       currentFilterPaths,
+      currentFilterMemberOf,
       'added',
     ),
   ]
@@ -394,17 +403,26 @@ const getDetailedSortingChanges = (bookmarkSorting: string = '', currentSorting:
   }
 }
 
-const getFilterChanges = (sourceValues: Set<string>, targetValues: Set<string>, filterPaths: Record<string, string>, action: 'added' | 'removed'): IndividualFilterChange[] => {
+const getFilterChanges = (sourceValues: Set<string>, targetValues: Set<string>, filterPaths: Record<string, string>, filterMemberOf: Record<string, string | undefined>, action: 'added' | 'removed'): IndividualFilterChange[] => {
   return [...sourceValues]
     .filter(valueKey => !targetValues.has(valueKey))
     .map(valueKey => ({
-      filterCategory: getFilterNameByPath(filterPaths[valueKey]),
+      filterCategory: getFilterNameByPath(filterPaths[valueKey], filterMemberOf[valueKey]),
       filterValue: getFilterValueLabel(valueKey),
       action,
     }))
 }
 
 const getColumnLabel = (fieldName: string): string => {
+  if (fieldName.startsWith('customField_')) {
+    const fieldId = fieldName.replace('customField_', '')
+    const customField = props.customFieldDefinitions.find(field => field.id === fieldId)
+
+    if (customField) {
+      return customField.attributes.name
+    }
+  }
+
   const columnTranslations: Record<string, string> = {
     externId: 'id',
     statementStatus: 'statement.status',
@@ -421,7 +439,17 @@ const getColumnLabel = (fieldName: string): string => {
   return Translator.trans(columnTranslations[fieldName] || fieldName)
 }
 
-const getFilterNameByPath = (filterPath: string): string => {
+const getFilterNameByPath = (filterPath: string, memberOf?: string): string => {
+  // Check for custom field - use memberOf to look up the field name
+  if (filterPath === 'customFields' && memberOf?.startsWith(CUSTOM_FIELD_GROUP_PREFIX)) {
+    const fieldId = memberOf.replace(CUSTOM_FIELD_GROUP_PREFIX, '')
+    const customField = props.customFieldDefinitions.find(field => field.id === fieldId)
+
+    if (customField) {
+      return customField.attributes.name
+    }
+  }
+
   const filterConfig = Object.values(props.filters || {}).find(
     filter => filter.rootPath === filterPath,
   )
@@ -476,10 +504,10 @@ watch(
     storeSelectedColumns.value,
     props.currentBookmark,
     currentFilters.value,
-    isViewStateInitialized.value,
+    isBookmarkStateInitialized.value,
   ],
   () => {
-    if (!isViewStateInitialized.value) {
+    if (!isBookmarkStateInitialized.value) {
       return
     }
 

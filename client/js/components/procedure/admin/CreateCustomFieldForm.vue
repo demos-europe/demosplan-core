@@ -60,7 +60,7 @@
         <dp-select
           id="newFieldType"
           v-model="customField.fieldType"
-          :disabled="!!customField.targetEntity"
+          :disabled="isTypeSelectDisabled"
           :label="{
             text: Translator.trans('type'),
             tooltip: Translator.trans('explanation.field.type')
@@ -109,7 +109,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { useCustomFieldTypes } from '@DpJs/composables/useCustomFieldTypes'
 
-const { getDefaultFieldTypeForTarget } = useCustomFieldTypes()
+const { getDefaultFieldTypeForTarget, isFieldTypeSelectableForTarget } = useCustomFieldTypes()
 
 export default {
   name: 'CreateCustomFieldForm',
@@ -172,6 +172,11 @@ export default {
   },
 
   computed: {
+    // The type is fixed once a target is chosen, unless that target allows choosing it
+    isTypeSelectDisabled () {
+      return !!this.customField.targetEntity && !isFieldTypeSelectableForTarget(this.customField.targetEntity)
+    },
+
     targetEntityOptions () {
       return Object.entries(this.targetOptions).map(([value, label]) => ({ value, label }))
     },

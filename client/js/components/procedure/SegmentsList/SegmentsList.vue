@@ -158,16 +158,16 @@
             />
           </div>
           <dp-column-selector
-            v-if="customFieldsReady"
+            v-if="customFieldsReady && (!hasBookmarks || isBookmarkStateInitialized)"
             :key="columnSelectorKey"
             appearance="subtle"
             data-cy="segmentsList:selectableColumns"
             has-reset-option
             has-select-all-option
             :initial-selection="currentSelection"
-            local-storage-key="segmentList"
+            :local-storage-key="hasBookmarks ? null : 'segmentList'"
             :selectable-columns="selectableColumns"
-            use-local-storage
+            :use-local-storage="!hasBookmarks"
             @reset="resetColumnSelection"
             @selection-changed="setCurrentSelection"
           />
@@ -777,6 +777,10 @@ export default {
       tagsObject: 'items',
     }),
 
+    ...mapState('Bookmark', {
+      isBookmarkStateInitialized: 'isBookmarkStateInitialized',
+    }),
+
     assignableUsers () {
       return Object.keys(this.assignableUsersObject).length ?
         Object.values(this.assignableUsersObject).map((user) => ({
@@ -1155,7 +1159,6 @@ export default {
       setStoreSorting: 'setCurrentSorting',
       setStoreSelectedColumns: 'setCurrentSelectedColumns',
       setStoreDefaultSelectedColumns: 'setDefaultSelectedColumns',
-      setViewStateInitialized: 'setViewStateInitialized',
     }),
 
     ...mapActions('Bookmark', {
@@ -1606,18 +1609,6 @@ export default {
       return parts.filter(Boolean).join(', ')
     },
 
-    initializeBookmarkViewState () {
-      // Read columns from localStorage before syncing to store (DpColumnSelector uses localStorage internally)
-      const storedColumns = localStorage.getItem('segmentList')
-
-      this.currentSelection = storedColumns ? JSON.parse(storedColumns) : [...this.defaultColumnSelection]
-
-      this.setStoreDefaultSelectedColumns(this.defaultColumnSelection)
-      this.setStoreSearchPhrase(this.searchTerm)
-      this.setStoreSelectedColumns(this.currentSelection)
-      this.setViewStateInitialized(true)
-    },
-
     initializeFilters () {
       const filters = this.initialFilter
 
@@ -1743,22 +1734,16 @@ export default {
     },
 
     getCustomFieldOptionLabel (customFields, fieldId) {
-      const customFieldOptionId =
-        customFields?.find((el) => el.id === fieldId)?.value || ''
-
-      if (customFieldOptionId === '') {
-        return ''
-      }
-
-      const definition = this.customFieldDefinitions.find(
+      // A singleSelect stores one option id, a multiSelect a list of option ids
+      const optionIds = new Set([customFields?.find((el) => el.id === fieldId)?.value ?? []].flat())
+      const options = this.customFieldDefinitions.find(
         (customField) => customField.id === fieldId,
-      )
+      )?.attributes.options ?? []
 
-      return (
-        definition?.attributes.options.find(
-          (option) => option.id === customFieldOptionId,
-        )?.label || ''
-      )
+      return options
+        .filter((option) => optionIds.has(option.id))
+        .map((option) => option.label)
+        .join(', ')
     },
 
     loadSegmentCustomFields () {
@@ -2292,18 +2277,26 @@ export default {
   },
 
   async mounted () {
+    /*
+     * When bookmarks are enabled, set the default columns in the store immediately.
+     * This ensures SegmentsBookmarks has the correct defaults when initializing view state.
+     */
     if (this.hasBookmarks) {
-      this.initializeBookmarkViewState()
+      this.setStoreDefaultSelectedColumns(this.defaultColumnSelection)
     }
 
-    const savedBookmarkId = lscache.get(`${this.procedureId}:segments:currentBookmarkId`)
-    const hasSavedBookmark = !!savedBookmarkId
-
-    if (!this.hasBookmarks && !hasSavedBookmark) {
+    /*
+     * When bookmarks are enabled, the view state initialization is handled by SegmentsBookmarks.
+     * It will call applyBookmarkSettings() with the saved bookmark (or null for default view),
+     * which then triggers applyQuery(). This ensures we only query once with the correct settings.
+     */
+    if (!this.hasBookmarks) {
       this.initializeFilters()
     }
 
     this.setCurrentQueryHashFromUrl()
+
+    this.initPagination()
 
     const addons = await loadAddonComponents('tag.style.segments.list')
 
@@ -2321,13 +2314,17 @@ export default {
 
     this.restoreSorting()
 
-    this.initPagination()
-
     if (hasPermission('field_segments_custom_fields')) {
       await this.loadSegmentCustomFields()
     }
 
-    this.applyQuery(this.pagination.currentPage)
+    /*
+     * When bookmarks are enabled, applyQuery() is called by applyBookmarkSettings()
+     * after the bookmark/default view is determined by SegmentsBookmarks.
+     */
+    if (!this.hasBookmarks) {
+      this.applyQuery(this.pagination.currentPage)
+    }
 
     await this.fetchPlaces({
       fields: {
