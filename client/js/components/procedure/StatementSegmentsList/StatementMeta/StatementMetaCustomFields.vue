@@ -144,6 +144,13 @@ const save = () => {
     })
 }
 
+// Rejects if edits are still unsaved afterwards, so the guard of StatementMeta cancels the navigation
+const saveForGuard = () => Promise.resolve(save()).then(() => {
+  if (hasChanges.value) {
+    throw new Error('Custom fields still have unsaved changes')
+  }
+})
+
 // Used by the unsaved changes guard of StatementMeta
-defineExpose({ hasUnsavedChanges: hasChanges, reset, save })
+defineExpose({ hasUnsavedChanges: hasChanges, reset, save: saveForGuard })
 </script>
