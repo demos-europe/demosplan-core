@@ -79,7 +79,11 @@ class ExportProcedureMessageHandler
 
             // No procedure id: a procedure export covers a selection, and ExportService sets each
             // procedure (and checks access to it) itself while building the archive.
-            $this->contextRestorer->restore($message->getUserId(), $message->getCustomerId());
+            $this->contextRestorer->restore(
+                $message->getUserId(),
+                $message->getCustomerId(),
+                organisationId: $message->getOrganisationId()
+            );
 
             $response = $this->exportService->generateProcedureExportZip(
                 $message->getProcedureIds(),

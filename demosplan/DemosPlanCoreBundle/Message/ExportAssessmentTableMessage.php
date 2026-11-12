@@ -28,6 +28,7 @@ class ExportAssessmentTableMessage
         private readonly string $procedureId,
         private readonly string $customerId,
         private readonly array $hashList = [],
+        private readonly ?string $organisationId = null,
     ) {
     }
 
@@ -64,5 +65,10 @@ class ExportAssessmentTableMessage
     public function getHashList(): array
     {
         return $this->hashList;
+    }
+
+    public function getOrganisationId(): ?string
+    {
+        return $this->organisationId;
     }
 }
