@@ -94,7 +94,15 @@ const currentValues = ref<CustomFieldValue[]>([])
 const initialValues = ref<CustomFieldValue[]>([])
 const isSaving = ref(false)
 
-const hasChanges = computed(() => JSON.stringify(currentValues.value) !== JSON.stringify(initialValues.value))
+const isEmptyValue = (value: unknown) => value === null || value === undefined || value === '' ||
+  (Array.isArray(value) && value.length === 0)
+
+// A field that was never set has no entry, so empty values and absent entries count as the same
+const normalize = (values: CustomFieldValue[]) => values
+  .filter(entry => !isEmptyValue(entry.value))
+  .sort((a, b) => a.id.localeCompare(b.id))
+
+const hasChanges = computed(() => JSON.stringify(normalize(currentValues.value)) !== JSON.stringify(normalize(initialValues.value)))
 
 const getValue = (fieldId: string) => currentValues.value.find(entry => entry.id === fieldId)?.value ?? null
 
@@ -145,11 +153,18 @@ const save = () => {
 }
 
 // Rejects if edits are still unsaved afterwards, so the guard of StatementMeta cancels the navigation
-const saveForGuard = () => Promise.resolve(save()).then(() => {
-  if (hasChanges.value) {
-    throw new Error('Custom fields still have unsaved changes')
+const saveForGuard = () => {
+  // A second request could finish first and let the navigation happen before the older one overwrites it
+  if (isSaving.value) {
+    return Promise.reject(new Error('Custom fields are being saved'))
   }
-})
+
+  return Promise.resolve(save()).then(() => {
+    if (hasChanges.value) {
+      throw new Error('Custom fields still have unsaved changes')
+    }
+  })
+}
 
 // Used by the unsaved changes guard of StatementMeta
 defineExpose({ hasUnsavedChanges: hasChanges, reset, save: saveForGuard })
