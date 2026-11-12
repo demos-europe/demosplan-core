@@ -374,7 +374,6 @@ fos_elastica:
                 procedureId: {type: keyword, index: true}
                 phaseDefinitionId: {type: keyword, index: true}
                 polygon: {type: text, index: false}
-                locationReference: {type: text, index: false}
                 file: {type: keyword, index: false}
                 files: {type: text, index: true}
                 fileNames: {type: text, index: false}

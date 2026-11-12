@@ -173,7 +173,6 @@ class StatementCopier
         $copiedStatement->setPhaseDefinition($sourceStatement->getPhaseDefinition());
 
         $copiedStatement->setPolygon($sourceStatement->getPolygon());
-        $copiedStatement->setLocationReference($sourceStatement->getLocationReference());
         $copiedStatement->setPublicUseName($sourceStatement->getPublicUseName());
 
         $copiedStatement->setRecommendation('');

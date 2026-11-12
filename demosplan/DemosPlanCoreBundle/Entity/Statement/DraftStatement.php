@@ -160,14 +160,6 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     protected $polygon = '';
 
     /**
-     * GeoJSON FeatureCollection of the location reference (Ortsbezug), stored separately from the drawing.
-     *
-     * @var string
-     */
-    #[ORM\Column(name: '_ds_location_reference', type: 'text', length: 16777215, nullable: false)]
-    protected $locationReference = '';
-
-    /**
      * @var string
      */
     #[ORM\Column(name: '_ds_file', type: 'string', length: 255, nullable: false, options: ['fixed' => true])]
@@ -738,18 +730,6 @@ class DraftStatement extends CoreEntity implements UuidEntityInterface, DraftSta
     public function getPolygon()
     {
         return $this->polygon;
-    }
-
-    public function setLocationReference(string $locationReference): self
-    {
-        $this->locationReference = $locationReference;
-
-        return $this;
-    }
-
-    public function getLocationReference(): string
-    {
-        return $this->locationReference;
     }
 
     /**

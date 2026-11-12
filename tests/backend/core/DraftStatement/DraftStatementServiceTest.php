@@ -23,7 +23,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
-use demosplan\DemosPlanCoreBundle\Repository\DraftStatementRepository;
 use demosplan\DemosPlanCoreBundle\ValueObject\Statement\DraftStatementResult;
 use Exception;
 use Illuminate\Support\Collection as IlluminateCollection;
@@ -43,7 +42,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
 
     protected $draftStatementArrayStructure = [
         'categories', 'createdDate', 'deleted', 'deletedDate', 'department', 'dId', 'dName', 'element', 'elementId',
-        'elementTitle', 'externId', 'feedback', 'file', 'files', 'houseNumber', 'id', 'ident', 'lastModifiedDate', 'locationReference', 'mapFile', 'miscData', 'negativ',
+        'elementTitle', 'externId', 'feedback', 'file', 'files', 'houseNumber', 'id', 'ident', 'lastModifiedDate', 'mapFile', 'miscData', 'negativ',
         'number', 'oGatewayName', 'oId', 'oName', 'organisation', 'phase', 'pId', 'polygon', 'procedure',
         'publicAllowed', 'publicDraftStatement', 'publicUseName', 'rejected', 'rejectedDate', 'rejectedReason',
         'released', 'releasedDate', 'represents', 'showToAll', 'statementAttributes', /* 'statementAttributesObject', */
@@ -94,83 +93,6 @@ class DraftStatementServiceTest extends FunctionalTestCase
         $this->checkDraftStatementStructure($draftStatement);
         $this->checkId($draftStatement['ident']);
         static::assertEquals($this->testDraftStatement->getId(), $draftStatement['ident']);
-    }
-
-    public function testExtractGeoDataStoresDrawingAndLocationReferenceSeparately(): void
-    {
-        // Arrange
-        $drawing = '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[1,2]}}]}';
-        $data = [
-            'r_location'          => 'point',
-            'r_location_geometry' => $drawing,
-            'r_location_point'    => '3.5,4.5',
-        ];
-
-        // Act
-        $result = $this->sut->extractGeoData($data, []);
-
-        // Assert
-        static::assertSame($drawing, $result['polygon']);
-        static::assertSame(
-            '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[3.5,4.5]},"properties":null}]}',
-            $result['locationReference']
-        );
-    }
-
-    public function testExtractGeoDataStoresLocationReferenceWithoutTouchingDrawing(): void
-    {
-        // Arrange
-        $data = ['r_location' => 'point', 'r_location_point' => '3.5,4.5'];
-
-        // Act
-        $result = $this->sut->extractGeoData($data, []);
-
-        // Assert
-        static::assertArrayNotHasKey('polygon', $result);
-        static::assertStringContainsString('"coordinates":[3.5,4.5]', $result['locationReference']);
-    }
-
-    public function testExtractGeoDataNotLocatedClearsDrawingAndLocationReference(): void
-    {
-        // Arrange
-        $data = ['r_location' => 'notLocated'];
-
-        // Act
-        $result = $this->sut->extractGeoData($data, []);
-
-        // Assert
-        static::assertSame('', $result['polygon']);
-        static::assertSame('', $result['locationReference']);
-        static::assertTrue($result['statementAttributes']['noLocation']);
-    }
-
-    public function testRepositoryUpdateStoresDrawingAndLocationReferenceSeparately(): void
-    {
-        // Arrange
-        $repository = self::getContainer()->get(DraftStatementRepository::class);
-        $drawing = '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[1,2]}}]}';
-        $locationReference = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[3,4]},"properties":null}]}';
-
-        // Act
-        $repository->update($this->testDraftStatement->getId(), ['polygon' => $drawing, 'locationReference' => $locationReference]);
-        $this->getEntityManager()->clear();
-        $reloaded = $repository->get($this->testDraftStatement->getId());
-
-        // Assert
-        static::assertSame($drawing, $reloaded->getPolygon());
-        static::assertSame($locationReference, $reloaded->getLocationReference());
-    }
-
-    public function testConvertToLegacyContainsLocationReference(): void
-    {
-        // Arrange
-        $this->testDraftStatement->setLocationReference('{"type":"FeatureCollection","features":[]}');
-
-        // Act
-        $legacy = $this->sut->convertToLegacy($this->testDraftStatement);
-
-        // Assert
-        static::assertSame('{"type":"FeatureCollection","features":[]}', $legacy['locationReference']);
     }
 
     public function testConvertToLegacyContainsCustomFieldsKey(): void

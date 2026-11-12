@@ -30,7 +30,6 @@ use EDT\JsonApi\PropertyConfig\Builder\ToOneRelationshipConfigBuilderInterface;
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $shortText
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $submitDate
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $isSubmittedByCitizen
- * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $locationReference
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $attachmentsDeleted
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $submitterAndAuthorMetaDataAnonymized
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, Statement> $textPassagesAnonymized

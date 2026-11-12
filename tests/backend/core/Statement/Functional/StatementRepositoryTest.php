@@ -18,7 +18,6 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Workflow\PlaceFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\DraftStatement;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\StatementFragment;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Repository\StatementRepository;
@@ -56,42 +55,6 @@ class StatementRepositoryTest extends FunctionalTestCase
         $this->logIn($this->testUser);
         $this->enablePermissions(['feature_statements_fragment_edit']);
         $this->testProcedure = $this->fixtures->getReference('testProcedure');
-    }
-
-    public function testUpdateStoresDrawingAndLocationReferenceSeparately(): void
-    {
-        // Arrange
-        $statement = $this->getStatementReference('testStatement1');
-        $drawing = '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[1,2]}}]}';
-        $locationReference = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[3,4]},"properties":null}]}';
-
-        // Act
-        $this->sut->update($statement->getId(), ['polygon' => $drawing, 'locationReference' => $locationReference]);
-        $this->getEntityManager()->clear();
-        $reloaded = $this->sut->get($statement->getId());
-
-        // Assert
-        static::assertSame($drawing, $reloaded->getPolygon());
-        static::assertSame($locationReference, $reloaded->getLocationReference());
-    }
-
-    public function testSubmitDraftStatementCopiesDrawingAndLocationReference(): void
-    {
-        // Arrange
-        /** @var DraftStatement $draftStatement */
-        $draftStatement = $this->fixtures->getReference('testDraftStatement');
-        $drawing = '{"type":"FeatureCollection","features":[{"type":"Feature","properties":{},"geometry":{"type":"Point","coordinates":[1,2]}}]}';
-        $locationReference = '{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[3,4]},"properties":null}]}';
-        $draftStatement->setPolygon($drawing);
-        $draftStatement->setLocationReference($locationReference);
-        $this->getEntityManager()->flush();
-
-        // Act
-        $submittedStatement = $this->sut->submitDraftStatement($draftStatement, $this->testUser);
-
-        // Assert
-        static::assertSame($drawing, $submittedStatement->getPolygon());
-        static::assertSame($locationReference, $submittedStatement->getLocationReference());
     }
 
     public function testEqualsIdOrEqualsId()

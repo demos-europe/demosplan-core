@@ -266,9 +266,6 @@ class DraftStatementRepository extends CoreRepository implements ArrayInterface
         if (array_key_exists('polygon', $data)) {
             $entity->setPolygon($data['polygon']);
         }
-        if (array_key_exists('locationReference', $data)) {
-            $entity->setLocationReference($data['locationReference']);
-        }
 
         if (array_key_exists('publicDraftStatement', $data)) {
             $entity->setPublicDraftStatement($data['publicDraftStatement']);

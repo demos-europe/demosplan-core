@@ -846,9 +846,6 @@ class StatementRepository extends CoreRepository implements ArrayInterface, Obje
         if (array_key_exists('polygon', $data)) {
             $statement->setPolygon($data['polygon']);
         }
-        if (array_key_exists('locationReference', $data)) {
-            $statement->setLocationReference($data['locationReference']);
-        }
         if (array_key_exists('priority', $data)) {
             $statement->setPriority($data['priority']);
         }

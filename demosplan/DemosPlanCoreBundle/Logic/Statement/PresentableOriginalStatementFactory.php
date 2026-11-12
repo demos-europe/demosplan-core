@@ -144,7 +144,7 @@ class PresentableOriginalStatementFactory
         }
 
         $mapFile = $statement->getMapFile() ?? '';
-        if ('' === $mapFile && ('' !== $statement->getPolygon() || '' !== $statement->getLocationReference())) {
+        if ('' === $mapFile && '' !== $statement->getPolygon()) {
             $mapFile = $this->mapService->createMapScreenshot($statement->getProcedure()->getId(), $statement->getId());
         }
         $fileAbsolutePath = $this->assessmentTableServiceOutput->getScreenshot($mapFile);

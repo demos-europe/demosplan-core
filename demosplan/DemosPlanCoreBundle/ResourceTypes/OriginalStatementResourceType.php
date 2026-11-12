@@ -134,7 +134,6 @@ final class OriginalStatementResourceType extends DplanResourceType implements O
         ->setRelationshipType($this->resourceTypeStore->getParagraphVersionResourceType())
         ->setReadableByPath();
         $originalStatementConfig->polygon->setReadableByPath();
-        $originalStatementConfig->locationReference->setReadableByPath();
         $originalStatementConfig->attachmentsDeleted->setReadableByCallable(
             static fn (Statement $statement): bool => $statement->isAttachmentsDeleted()
         );

@@ -12,7 +12,6 @@ namespace Tests\Core\Statement\Functional;
 
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
-use demosplan\DemosPlanCoreBundle\Entity\Statement\Statement;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementGeoService;
@@ -44,18 +43,6 @@ class StatementGeoServiceTest extends FunctionalTestCase
         $this->statementService = self::getContainer()->get(StatementService::class);
         $this->testUser = $this->fixtures->getReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
         $this->sut = self::getContainer()->get(StatementGeoService::class);
-    }
-
-    public function testGetStatementGeoDataWithoutDrawingAndLocationReferenceReturnsNothing(): void
-    {
-        // Arrange
-        $statement = new Statement();
-
-        // Act
-        $result = $this->sut->getStatementGeoData($statement);
-
-        // Assert
-        static::assertSame([], $result);
     }
 
     public function testAddGeoMultiPointData()
