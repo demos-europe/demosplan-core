@@ -29,6 +29,22 @@
           :src="page.attributes.url"
         >
       </div>
+      <div
+        v-if="recognizedAreasUrl"
+        class="font-size-small mt-2"
+      >
+        <a
+          class="o-link--default"
+          :href="recognizedAreasUrl"
+          rel="noopener"
+          target="_blank"
+          v-text="Translator.trans('import.statements.fromPdf.llm.recognizedAreas.link')"
+        />
+        <p
+          class="color--grey"
+          v-text="Translator.trans('import.statements.fromPdf.llm.recognizedAreas.hint')"
+        />
+      </div>
     </div>
     <div
       class="column column--small"
@@ -138,6 +154,12 @@ export default {
       type: Array,
       required: false,
       default: () => [],
+    },
+
+    recognizedAreasUrl: {
+      type: String,
+      required: false,
+      default: '',
     },
 
     tags: {
