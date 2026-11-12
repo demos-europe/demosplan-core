@@ -89,7 +89,7 @@ const props = defineProps({
 })
 
 const customFieldsForm = ref<HTMLFieldSetElement | null>(null)
-const { validate } = useDpValidate(customFieldsForm)
+const { reset: resetValidation, validate } = useDpValidate(customFieldsForm)
 
 // Values are never mutated in place, so initial and current values can share entries
 const currentValues = ref<CustomFieldValue[]>([])
@@ -128,6 +128,7 @@ const onValueUpdate = (fieldId: string, value: CustomFieldValueType) => {
 
 const reset = () => {
   currentValues.value = initialValues.value
+  resetValidation()
 }
 
 const save = () => {
