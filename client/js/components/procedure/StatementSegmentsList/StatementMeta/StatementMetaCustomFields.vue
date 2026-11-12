@@ -19,10 +19,10 @@ All rights reserved
     <custom-fields-list
       v-slot:default="{ fieldsWithDefinitions }"
       :definition-source-id="procedureId"
-      :mode="editable ? 'editable' : 'readonly'"
       :resource-id="statementId"
       :show-empty="true"
       :show-title="false"
+      mode="editable"
       resource-type="Statement"
       source-entity="PROCEDURE"
       target-entity="STATEMENT"
@@ -33,9 +33,10 @@ All rights reserved
           v-for="{ field, definition } in fieldsWithDefinitions"
           :key="field.id"
           :definition="definition"
+          :disabled="!editable"
           :field-data="{ id: field.id, value: getValue(field.id) }"
-          :mode="editable ? 'editable' : 'readonly'"
           :resource-id="statementId"
+          mode="editable"
           resource-type="Statement"
           @update:value="newValue => onValueUpdate(field.id, newValue)"
         />
@@ -45,8 +46,9 @@ All rights reserved
     <dp-button-row
       v-if="editable"
       :busy="isSaving"
-      class="mt-2 w-full"
       :disabled="!hasChanges || isSaving"
+      class="mt-2 w-full"
+      data-cy="statementMetaCustomFields:buttonRow"
       primary
       secondary
       @primary-action="save"
@@ -56,7 +58,7 @@ All rights reserved
 </template>
 
 <script setup lang="ts">
-import { computed, ref, toRaw } from 'vue'
+import { computed, ref } from 'vue'
 import CustomField from '@DpJs/components/customFields/CustomField.vue'
 import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList.vue'
 import { DpButtonRow } from '@demos-europe/demosplan-ui'
@@ -84,19 +86,18 @@ const props = defineProps({
   },
 })
 
+// Values are never mutated in place, so initial and current values can share entries
 const currentValues = ref<CustomFieldValue[]>([])
 const initialValues = ref<CustomFieldValue[]>([])
 const isSaving = ref(false)
 
 const hasChanges = computed(() => JSON.stringify(currentValues.value) !== JSON.stringify(initialValues.value))
 
-const clone = (values: CustomFieldValue[]): CustomFieldValue[] => structuredClone(toRaw(values))
-
 const getValue = (fieldId: string) => currentValues.value.find(entry => entry.id === fieldId)?.value ?? null
 
 const onLoaded = (values: CustomFieldValue[]) => {
-  initialValues.value = clone(values)
-  currentValues.value = clone(values)
+  initialValues.value = values
+  currentValues.value = values
 }
 
 const onValueUpdate = (fieldId: string, value: unknown) => {
@@ -108,7 +109,7 @@ const onValueUpdate = (fieldId: string, value: unknown) => {
 }
 
 const reset = () => {
-  currentValues.value = clone(initialValues.value)
+  currentValues.value = initialValues.value
 }
 
 const save = () => {
@@ -118,7 +119,7 @@ const save = () => {
 
   return updateCustomFields('Statement', props.statementId, currentValues.value)
     .then(() => {
-      initialValues.value = clone(currentValues.value)
+      initialValues.value = currentValues.value
       dplan.notify.notify('confirm', Translator.trans('confirm.saved'))
     })
     .catch(() => {
