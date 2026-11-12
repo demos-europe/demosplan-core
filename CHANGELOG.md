@@ -22,6 +22,11 @@
 - The boilerplate edit page lists the segments that use the boilerplate in the recommendation text, with assignee, workflow step and the current recommendation text
 - Specific branches of an addon can be installed
 
+## v4.64.2 (2026-11-12)
+
+### Fixed
+- Asynchronous exports now use the organisation that was selected when the export was started
+
 ## v4.64.1 (2026-11-09)
 
 ### Fixed
