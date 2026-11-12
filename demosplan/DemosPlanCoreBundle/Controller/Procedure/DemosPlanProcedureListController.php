@@ -382,7 +382,8 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             $procedureIds,
             $userId,
             $customerService->getCurrentCustomer()->getId(),
-            $useExternalProcedureName
+            $useExternalProcedureName,
+            $currentUserService->getUser()->getCurrentOrganisation()?->getId()
         ));
 
         return new JsonResponse(['jobId' => $job->getId()]);

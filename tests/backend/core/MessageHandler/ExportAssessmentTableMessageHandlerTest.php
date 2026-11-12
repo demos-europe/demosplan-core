@@ -95,13 +95,13 @@ class ExportAssessmentTableMessageHandlerTest extends UnitTestCase
         $this->mockFindReturning($job);
         $this->contextRestorerMock->expects($this->once())
             ->method('restore')
-            ->with('u1', 'c1', 'proc-1');
+            ->with('u1', 'c1', 'proc-1', 'orga-1');
 
         $this->responseGeneratorMock->method('__invoke')->willReturn($this->streamedResponse());
         $this->fileServiceMock->method('saveTemporaryFile')->willReturn($this->fileWithHash('hash-1'));
 
         // Act
-        ($this->sut)(new ExportAssessmentTableMessage('job-1', 'pdf', [], 'u1', 'proc-1', 'c1'));
+        ($this->sut)(new ExportAssessmentTableMessage('job-1', 'pdf', [], 'u1', 'proc-1', 'c1', [], 'orga-1'));
     }
 
     public function testInvokeMarksJobFailedWithGenericReasonWhenContextCannotBeRestored(): void
