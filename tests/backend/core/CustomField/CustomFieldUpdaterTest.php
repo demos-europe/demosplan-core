@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\CustomFields\CustomField
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
@@ -63,6 +64,9 @@ class CustomFieldUpdaterTest extends UnitTestCase
 
     public function testUpdateCustomFieldSetsIsRequiredOnSingleSelect(): void
     {
+        $this->logIn(UserFactory::createOne(['deleted' => false])->_real());
+        $this->enablePermissions(['feature_statements_custom_fields_required']);
+
         // Arrange
         $procedure = ProcedureFactory::createOne();
         $customField = CustomFieldConfigurationFactory::new()

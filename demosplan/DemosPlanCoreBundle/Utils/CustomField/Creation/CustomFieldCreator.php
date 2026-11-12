@@ -14,16 +14,21 @@ namespace demosplan\DemosPlanCoreBundle\Utils\CustomField\Creation;
 
 use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldInterface;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Permission\CustomFieldAttributePermissionGuard;
 
 class CustomFieldCreator
 {
-    public function __construct(private readonly CustomFieldFactory $customFieldFactory, private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository)
-    {
+    public function __construct(
+        private readonly CustomFieldFactory $customFieldFactory,
+        private readonly CustomFieldConfigurationRepository $customFieldConfigurationRepository,
+        private readonly CustomFieldAttributePermissionGuard $attributePermissionGuard,
+    ) {
     }
 
     public function createCustomField($attributes): CustomFieldInterface
     {
         $createdCustomField = $this->customFieldFactory->createCustomField($attributes);
+        $this->attributePermissionGuard->assertCreationAllowed($attributes['targetEntity'], $attributes);
         $customFieldConfiguration = $this->customFieldConfigurationRepository->createCustomFieldConfiguration(
             $attributes['sourceEntity'],
             $attributes['sourceEntityId'],

@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\CustomField\TextField;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Creation\CustomFieldCreator;
 use InvalidArgumentException;
@@ -94,6 +95,12 @@ class CustomFieldCreatorTest extends UnitTestCase
         static::assertNotEmpty($result->getId());
     }
 
+    private function allowRequiredStatementFields(): void
+    {
+        $this->logIn(UserFactory::createOne(['deleted' => false])->_real());
+        $this->enablePermissions(['feature_statements_custom_fields_required']);
+    }
+
     private function verifyAllOptionsHaveUUIDs(array $options): void
     {
         foreach ($options as $option) {
@@ -125,6 +132,7 @@ class CustomFieldCreatorTest extends UnitTestCase
      */
     public function testCreateMultiSelectFieldSuccessfully(): void
     {
+        $this->allowRequiredStatementFields();
         // Arrange: $attributes already populated in contructor
         $this->attributes['fieldType'] = 'multiSelect';
         $this->attributes['isRequired'] = true;
@@ -318,6 +326,7 @@ class CustomFieldCreatorTest extends UnitTestCase
 
     public function testCreateRequiredSingleSelectFieldForStatement(): void
     {
+        $this->allowRequiredStatementFields();
         // Arrange
         $this->attributes['fieldType'] = 'singleSelect';
         $this->attributes['targetEntity'] = 'STATEMENT';
@@ -333,6 +342,7 @@ class CustomFieldCreatorTest extends UnitTestCase
 
     public function testIsRequiredOfSingleSelectFieldIsPersisted(): void
     {
+        $this->allowRequiredStatementFields();
         // Arrange
         $this->attributes['fieldType'] = 'singleSelect';
         $this->attributes['targetEntity'] = 'STATEMENT';
