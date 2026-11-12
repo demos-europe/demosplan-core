@@ -74,9 +74,7 @@
         <fieldset
           v-if="customField.targetEntity === 'STATEMENT' && hasPermission('feature_statements_custom_fields_column_display')"
         >
-          <legend
-            class="text-base font-semibold mb-2"
-          >
+          <legend class="text-base font-semibold mb-2">
             {{ Translator.trans('custom.fields.display') }}
           </legend>
           <dp-radio
