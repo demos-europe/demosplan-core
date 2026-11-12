@@ -10,7 +10,7 @@
 
 namespace Tests\Core\Statement\Functional;
 
-use demosplan\DemosPlanCoreBundle\Logic\Statement\PointCountySplit\PointCountySplitService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\LocationReferenceSplit\LocationReferenceSplitService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use ReflectionMethod;
 use Symfony\Component\Validator\Exception\ValidatorException;
@@ -164,12 +164,12 @@ class StatementHandlerPublicDataTest extends FunctionalTestCase
     public function testPointAndCountyGeometryAreJoinedWithPermission(): void
     {
         $this->loginTestUser();
-        $this->enablePermissions(['feature_diplankarte_split_point_county']);
+        $this->enablePermissions(['feature_diplankarte_split_location_reference']);
 
         $statement = $this->getPublicData([
-            'r_location'                                      => 'point',
-            PointCountySplitService::POINT_FIELD              => $this->featureCollection('Point', [1, 2]),
-            PointCountySplitService::LOCATION_REFERENCE_FIELD => $this->featureCollection('Polygon', [[[0, 0], [4, 0], [4, 4], [0, 0]]]),
+            'r_location'                                            => 'point',
+            LocationReferenceSplitService::POINT_FIELD              => $this->featureCollection('Point', [1, 2]),
+            LocationReferenceSplitService::LOCATION_REFERENCE_FIELD => $this->featureCollection('Polygon', [[[0, 0], [4, 0], [4, 4], [0, 0]]]),
         ]);
 
         $features = json_decode($statement['polygon'], false, 512, JSON_THROW_ON_ERROR)->features;
@@ -182,9 +182,9 @@ class StatementHandlerPublicDataTest extends FunctionalTestCase
         $point = $this->featureCollection('Point', [1, 2]);
 
         $statement = $this->getPublicData([
-            'r_location'                                      => 'point',
-            PointCountySplitService::POINT_FIELD              => $point,
-            PointCountySplitService::LOCATION_REFERENCE_FIELD => $this->featureCollection('Polygon', [[[0, 0], [4, 0], [4, 4], [0, 0]]]),
+            'r_location'                                            => 'point',
+            LocationReferenceSplitService::POINT_FIELD              => $point,
+            LocationReferenceSplitService::LOCATION_REFERENCE_FIELD => $this->featureCollection('Polygon', [[[0, 0], [4, 0], [4, 4], [0, 0]]]),
         ]);
 
         self::assertSame($point, $statement['polygon']);

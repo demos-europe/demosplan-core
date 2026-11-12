@@ -958,9 +958,9 @@ feature_map_oaf:
     label: 'Display oaf map layer'
     expose: true
     loginRequired: false
-feature_diplankarte_split_point_county:
-    description: 'Diplankarte sends the location as two values (point and county): stored together in the polygon column, returned as two separate fields when a draft statement is loaded'
-    label: 'Diplankarte: split statement location into point and county'
+feature_diplankarte_split_location_reference:
+    description: 'Diplankarte sends the location as two values (point and location reference): stored together in the polygon column, returned as two separate fields when a draft statement is loaded'
+    label: 'Diplankarte: split statement location into point and location reference'
     expose: true
     loginRequired: false
 feature_display_customer_names:

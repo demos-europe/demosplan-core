@@ -46,7 +46,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\CountyService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\DraftStatementService;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\PointCountySplit\PointCountySplitService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\LocationReferenceSplit\LocationReferenceSplitService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListHandlerResult;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementListUserFilter;
@@ -1570,7 +1570,7 @@ class DemosPlanStatementController extends BaseController
      */
     #[DplanPermissions('area_statements')]
     #[Route(path: '/rest/draftStatement/get/{procedureId}/{draftStatementId}', name: 'DemosPlan_statement_get_ajax', options: ['expose' => true])]
-    public function getDraftStatementAjax(DocumentHandler $documentHandler, PointCountySplitService $pointCountySplitService, StatementHandler $statementHandler, string $procedureId, $draftStatementId): JsonResponse
+    public function getDraftStatementAjax(DocumentHandler $documentHandler, LocationReferenceSplitService $locationReferenceSplitService, StatementHandler $statementHandler, string $procedureId, $draftStatementId): JsonResponse
     {
         try {
             $draftStatement = $statementHandler->getDraftStatement($draftStatementId);
@@ -1579,7 +1579,7 @@ class DemosPlanStatementController extends BaseController
             $response = [
                 'code'                 => 100,
                 'success'              => true,
-                'draftStatement'       => $pointCountySplitService->appendFields($draftStatement),
+                'draftStatement'       => $locationReferenceSplitService->appendFields($draftStatement),
                 'hasPlanningDocuments' => $documentHandler->hasProcedureElements($procedureId, $this->currentUser->getUser()->getOrganisationId()),
             ];
 
@@ -1741,7 +1741,7 @@ class DemosPlanStatementController extends BaseController
                 'r_county',
                 'r_represents',
                 'r_location_geometry',
-                PointCountySplitService::LOCATION_REFERENCE_FIELD,
+                LocationReferenceSplitService::LOCATION_REFERENCE_FIELD,
                 'r_location',
                 'r_location_point',
                 'r_location_priority_area_key',

@@ -41,7 +41,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Map\MapService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\ReportService;
 use demosplan\DemosPlanCoreBundle\Logic\Report\StatementReportEntryFactory;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\PointCountySplit\PointCountySplitService;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\LocationReferenceSplit\LocationReferenceSplitService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\ProfilerService;
 use demosplan\DemosPlanCoreBundle\Repository\DraftStatementRepository;
@@ -158,7 +158,7 @@ class DraftStatementService
         private readonly ProfilerService $profilerService,
         private readonly CustomFieldValueCreator $customFieldValueCreator,
         private readonly CustomFieldDisplayResolver $customFieldDisplayResolver,
-        private readonly PointCountySplitService $pointCountySplitService,
+        private readonly LocationReferenceSplitService $locationReferenceSplitService,
     ) {
         $this->currentUser = $currentUser;
         $this->elementsService = $elementsService;
@@ -2043,7 +2043,7 @@ class DraftStatementService
         // in 3 Fällen wird r_location == point übergeben: Ortsbezug, Vorranggebietsauswahl und Ortseinzeichung
         if (array_key_exists('r_location', $data) && 'point' === $data['r_location']) {
             // Punkteinzeichnung
-            $polygon = $this->pointCountySplitService->extractGeometry($data);
+            $polygon = $this->locationReferenceSplitService->extractGeometry($data);
             if ('' !== $polygon) {
                 $statement['polygon'] = $polygon;
             }

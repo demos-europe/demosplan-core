@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Logic\Statement\PointCountySplit;
+namespace demosplan\DemosPlanCoreBundle\Logic\Statement\LocationReferenceSplit;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
@@ -22,7 +22,7 @@ use stdClass;
  * The statement has only one polygon column, so both are joined into ONE FeatureCollection when saving
  * and separated again when a draft statement is loaded.
  */
-class PointCountySplitService
+class LocationReferenceSplitService
 {
     /*
      * Names of the two request fields (FE -> BE). The same names are used to return
@@ -40,7 +40,7 @@ class PointCountySplitService
     private const TYPE_LOCATION_REFERENCE = 'locationReference';
 
     // Permission that switches the point/location reference handling on
-    private const PERMISSION = 'feature_diplankarte_split_point_county';
+    private const PERMISSION = 'feature_diplankarte_split_location_reference';
 
     public function __construct(private readonly CurrentUserInterface $currentUser)
     {
