@@ -40,6 +40,10 @@
 - new generic page `/addon/page/{hookName}` (`DemosPlan_addon_page`) that shows the components an addon provides for a hook, for users who may see that hook
 - addons can cancel saving an organisation, e.g. to ask for a confirmation first
 
+## v4.67.0 (2026-11-06)
+
+## v4.66.0 (2026-11-05)
+
 ## v4.65.0 (2026-10-22)
 
 ### Added
