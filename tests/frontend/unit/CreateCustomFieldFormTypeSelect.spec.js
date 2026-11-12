@@ -16,7 +16,11 @@ describe('useCustomFieldTypes.isFieldTypeSelectableForTarget', () => {
     expect(isFieldTypeSelectableForTarget('SEGMENT')).toBe(true)
   })
 
-  it.each(['STATEMENT', 'ORGA', 'UNKNOWN'])('keeps the type fixed for %s', (targetEntity) => {
+  it('allows choosing the type for statements', () => {
+    expect(isFieldTypeSelectableForTarget('STATEMENT')).toBe(true)
+  })
+
+  it.each(['ORGA', 'UNKNOWN'])('keeps the type fixed for %s', (targetEntity) => {
     expect(isFieldTypeSelectableForTarget(targetEntity)).toBe(false)
   })
 })
@@ -33,7 +37,11 @@ describe('CreateCustomFieldForm.isTypeSelectDisabled', () => {
     expect(isDisabled('SEGMENT')).toBe(false)
   })
 
-  it.each(['STATEMENT', 'ORGA'])('is disabled for %s', (targetEntity) => {
-    expect(isDisabled(targetEntity)).toBe(true)
+  it('is enabled for statements', () => {
+    expect(isDisabled('STATEMENT')).toBe(false)
+  })
+
+  it('is disabled for orga', () => {
+    expect(isDisabled('ORGA')).toBe(true)
   })
 })
