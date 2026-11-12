@@ -32,6 +32,10 @@ class SingleSelectFieldValueValidationStrategy implements CustomFieldValueValida
     {
         Assert::isInstanceOf($field, RadioButtonField::class);
 
+        if ($field->getRequired() && null === $customFieldValue->getValue()) {
+            throw new InvalidArgumentException('Required fields must have a selection');
+        }
+
         // Null is always valid (no selection)
         if (null === $customFieldValue->getValue()) {
             return;

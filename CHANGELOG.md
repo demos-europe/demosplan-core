@@ -24,6 +24,7 @@
 - Setting up a second factor is recorded in the report (DPLAN-17433)
 - While an organisation requires two-factor authentication, the last second factor of a user cannot be disabled on the
   profile page (DPLAN-17433)
+
 - Node.js 24.22.1 for the image build, CI and `engines` (October 2026 security release)
 - `MailService` implements the new `MailServiceInterface` of the contract layer, so addons can queue mails
 - composer.json declares every PHP extension the application needs (adds apcu, exif, pcntl, pdo_mysql; drops soap, posix), so a missing extension fails the image build
@@ -52,6 +53,11 @@
 - Custom fields are added to the segments' list filter side panel (version without filter count)
 - The boilerplate edit page lists the segments that use the boilerplate in the recommendation text, with assignee, workflow step and the current recommendation text
 - Specific branches of an addon can be installed
+
+## v4.64.2 (2026-11-12)
+
+### Fixed
+- Asynchronous exports now use the organisation that was selected when the export was started
 
 ## v4.64.1 (2026-11-09)
 

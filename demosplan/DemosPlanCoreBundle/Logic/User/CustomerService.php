@@ -51,6 +51,9 @@ class CustomerService implements CustomerServiceInterface, ResetInterface
         $this->customerIdsBySubdomain = [];
     }
 
+    /**
+     * @throws CustomerNotFoundException
+     */
     public function findCustomerById(string $id): CustomerInterface
     {
         return $this->customerRepository->findCustomerById($id);

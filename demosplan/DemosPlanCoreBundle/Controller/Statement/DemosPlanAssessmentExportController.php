@@ -139,6 +139,7 @@ class DemosPlanAssessmentExportController extends BaseController
         $hashList = $session->has('hashList') ? $session->get('hashList') : [];
 
         $userId = $currentUserService->getUser()->getId();
+        $organisationId = $currentUserService->getUser()->getCurrentOrganisation()?->getId();
         $jobId = $exportJobService->start(
             $userId,
             $procedureId,
@@ -150,7 +151,8 @@ class DemosPlanAssessmentExportController extends BaseController
                 $userId,
                 $procedureId,
                 $customerService->getCurrentCustomer()->getId(),
-                $hashList
+                $hashList,
+                $organisationId
             )
         );
 
