@@ -6,6 +6,8 @@
 
 ## UNRELEASED
 
+## v4.68.0 (2026-11-12)
+
 ## v4.66.0 (2026-11-05)
 - Node.js 24.22.1 for the image build, CI and `engines` (October 2026 security release)
 - `MailService` implements the new `MailServiceInterface` of the contract layer, so addons can queue mails
