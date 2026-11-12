@@ -546,11 +546,13 @@ export default {
           colClass: 'u-7-of-12',
         })
 
-        fields.push({
-          field: 'isSeparateColumn',
-          label: Translator.trans('custom.fields.display'),
-          colClass: 'u-7-of-12',
-        })
+        if (this.hasPermission('feature_statements_custom_fields_column_display')) {
+          fields.push({
+            field: 'isSeparateColumn',
+            label: Translator.trans('custom.fields.display'),
+            colClass: 'u-7-of-12',
+          })
+        }
       }
 
       return fields
