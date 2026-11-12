@@ -60,6 +60,14 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     #[ORM\Column(name: '_t_title', type: 'string', length: 255, nullable: false)]
     protected $title = '';
 
+    #[Assert\Length(
+        max: 1000,
+        maxMessage: 'Tag description may not be longer than {{ limit }} characters.',
+        groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, 'segments_import']
+    )]
+    #[ORM\Column(name: 'description', type: 'string', length: 1000, nullable: true)]
+    protected ?string $description = null;
+
     /**
      * @var DateTime
      */
@@ -177,6 +185,20 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     public function setTitle($title)
     {
         $this->title = $title;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): void
+    {
+        if (null !== $description && '' === trim($description)) {
+            $description = null;
+        }
+
+        $this->description = $description;
     }
 
     /**
