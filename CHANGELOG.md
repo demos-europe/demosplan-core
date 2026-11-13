@@ -25,6 +25,8 @@
 - While an organisation requires two-factor authentication, the last second factor of a user cannot be disabled on the
   profile page (DPLAN-17433)
 
+- Large file uploads are sent in chunks of `UPLOAD_CHUNK_SIZE` bytes (default 100 MiB) instead of a single request: the planning document zip import, statement attachments and every upload using the Twig `fileupload()` helper
+- The file reference of a planning document can hold up to 1024 characters (was 256); a document that is still too long is reported as not importable instead of aborting the import with a technical error (ado-58855)
 - Node.js 24.22.1 for the image build, CI and `engines` (October 2026 security release)
 - `MailService` implements the new `MailServiceInterface` of the contract layer, so addons can queue mails
 - composer.json declares every PHP extension the application needs (adds apcu, exif, pcntl, pdo_mysql; drops soap, posix), so a missing extension fails the image build

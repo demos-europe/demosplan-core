@@ -12,6 +12,7 @@ namespace demosplan\DemosPlanCoreBundle\Twig\Extension;
 
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use Psr\Container\ContainerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
@@ -26,8 +27,13 @@ class FileExtension extends ExtensionBase
      */
     protected $fileService;
 
-    public function __construct(ContainerInterface $container, private readonly Environment $twig, FileService $fileService)
-    {
+    public function __construct(
+        ContainerInterface $container,
+        private readonly Environment $twig,
+        FileService $fileService,
+        #[Autowire('%upload_chunk_size%')]
+        private readonly int|string $uploadChunkSize = 'Infinity',
+    ) {
         parent::__construct($container);
         $this->fileService = $fileService;
     }
@@ -130,7 +136,7 @@ class FileExtension extends ExtensionBase
      * @param string $fieldHint
      * @param bool   $required
      * @param string $callback
-     * @param string $chunksize
+     * @param string|int|null $chunksize defaults to the configured upload chunk size
      * @param int    $maxFileSize
      * @param bool   $omitCssClassPrefix
      *
@@ -150,7 +156,7 @@ class FileExtension extends ExtensionBase
         $fieldHint = '',
         $required = false,
         $callback = '',
-        $chunksize = 'Infinity',
+        $chunksize = null,
         $maxFileSize = 0,
         $omitCssClassPrefix = true,
     ) {
@@ -173,7 +179,7 @@ class FileExtension extends ExtensionBase
             'label'                   => $label,
             'maxfiles'                => $maxfiles,
             'type'                    => $type,
-            'chunksize'               => $chunksize,
+            'chunksize'               => $chunksize ?? $this->uploadChunkSize,
             'maxfilesize'             => $maxFileSize,
             'omit_css_class_prefix'   => $omitCssClassPrefix,
         ];

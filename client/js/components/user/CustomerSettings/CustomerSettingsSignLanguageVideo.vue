@@ -53,6 +53,7 @@
         id="videoSrc"
         :allowed-file-types="['video/*']"
         :get-file-by-hash="hash => Routing.generate('core_file', { hash: hash })"
+        :chunk-size="dplan.settings.uploadChunkSize"
         :max-file-size="400 * 1024 * 1024/* 400 MiB */"
         :max-number-of-files="1"
         name="videoSrc"
