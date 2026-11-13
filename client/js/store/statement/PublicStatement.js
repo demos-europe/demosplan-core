@@ -33,6 +33,7 @@ const statementStructure = {
   r_location_priority_area_type: '',
   r_location_point: '',
   r_location_geometry: '',
+  r_location_reference_geometry: '',
   r_makePublic: 'off',
   r_paragraph_id: '',
   r_paragraph_title: '',
