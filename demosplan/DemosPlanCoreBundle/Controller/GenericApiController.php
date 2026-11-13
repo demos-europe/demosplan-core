@@ -172,9 +172,14 @@ class GenericApiController extends APIController
         methods: ['POST']
     )]
     public function create(
-        CreationRequest $creationRequest,
+        EventDispatcherInterface $eventDispatcher,
+        Request $request,
+        ValidatorInterface $validator,
+        RequestConstraintFactory $requestConstraintFactory,
         string $resourceType,
     ): Response {
+        $creationRequest = new CreationRequest($eventDispatcher, $request, $validator, $requestConstraintFactory, 512);
+
         // fetch resource type instance
         $type = $this->resourceTypeProvider->getTypeByIdentifier($resourceType);
 
