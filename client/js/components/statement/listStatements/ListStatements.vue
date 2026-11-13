@@ -133,17 +133,17 @@
           />
         </div>
         <dp-column-selector
-          v-if="customFieldsReady"
+          v-if="customFieldsReady || customFieldsFailed"
           :key="columnSelectorKey"
           :initial-selection="currentSelection"
           :local-storage-key="storageKeyColumns"
           :selectable-columns="selectableColumns"
+          :use-local-storage="customFieldsReady"
           appearance="subtle"
           class="ml-2"
           data-cy="statementList:selectableColumns"
           has-reset-option
           has-select-all-option
-          use-local-storage
           @reset="resetColumnSelection"
           @selection-changed="setCurrentSelection"
         />
@@ -691,6 +691,7 @@ export default {
       customFieldDefinitions: [],
       // The column selector is rendered once the definitions are known, so a stored selection of custom field columns is kept
       customFieldsReady: !hasPermission('field_statements_custom_fields'),
+      customFieldsFailed: false,
       defaultColumnSelection,
       defaultPagination: {
         currentPage: 1,
@@ -1118,6 +1119,20 @@ export default {
       return resolveCustomFieldLabels(definition, storedValue)
     },
 
+    /*
+     * Without the definitions, the custom field columns are unknown. The selector is shown with the stored selection
+     * but does not save, which would drop the stored custom field columns.
+     */
+    showColumnSelectorWithoutCustomFields () {
+      const storedSelection = localStorage.getItem(this.storageKeyColumns)
+
+      if (storedSelection) {
+        this.currentSelection = JSON.parse(storedSelection)
+      }
+
+      this.customFieldsFailed = true
+    },
+
     loadStatementCustomFields () {
       if (!hasPermission('field_statements_custom_fields')) {
         return
@@ -1136,6 +1151,7 @@ export default {
         })
         .catch(() => {
           // The notification is already shown by useCustomFieldDefinitions
+          this.showColumnSelectorWithoutCustomFields()
         })
     },
 
