@@ -3358,6 +3358,14 @@ field_submit_anonymous_statements:
     label: 'Allow anonymous statements'
     loginRequired: true
     expose: true
+field_tag_description:
+    description: |-
+        Allows viewing and editing the optional description of a tag in the tag administration.
+        The description provides context about the tag's meaning for AI-assisted tagging.
+    expose: true
+    label: 'Show and edit tag description'
+    loginRequired: true
+    parent: area_admin_statements_tag
 field_vote_advice_docx:
     description: 'Show Abwägungsvorschlag (vote advice) in all docx exports'
     label: 'Show the vote advice (the short, predefined text, not the editable one) in the Docx exports'
