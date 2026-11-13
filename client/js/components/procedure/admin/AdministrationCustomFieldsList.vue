@@ -549,14 +549,14 @@ export default {
           label: Translator.trans('field.required'),
           colClass: 'u-7-of-12',
         })
+      }
 
-        if (this.hasPermission('feature_statements_custom_fields_column_display')) {
-          fields.push({
-            field: 'isSeparateColumn',
-            label: Translator.trans('custom.fields.display'),
-            colClass: 'u-7-of-12',
-          })
-        }
+      if (this.isActiveTabStatementContext && hasPermission('feature_statements_custom_fields_column_display')) {
+        fields.push({
+          field: 'isSeparateColumn',
+          label: Translator.trans('custom.fields.display'),
+          colClass: 'u-7-of-12',
+        })
       }
 
       return fields
@@ -934,7 +934,10 @@ export default {
         fieldType,
         name,
         options,
-        ...(targetEntity === 'STATEMENT' && this.canSetRequired && { isRequired, isSeparateColumn }),
+        ...(targetEntity === 'STATEMENT' && {
+          ...(this.canSetRequired && { isRequired }),
+          isSeparateColumn,
+        }),
         sourceEntity: this.resolvedSourceEntity,
         /*
          * For CUSTOMER source the BE derives sourceEntityId from the current
