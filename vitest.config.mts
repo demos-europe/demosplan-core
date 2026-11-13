@@ -84,6 +84,10 @@ export default defineConfig({
       vue: '@vue/compat',
     },
     conditions: ['import', 'module', 'browser', 'default'],
+      /*
+       * A linked demosplan-ui would load its own Vue copy, whose render state stays empty while core's copy renders,
+       * so its slots and child components fail
+       */
     dedupe: ['vue', '@vue/compat'],
     extensions: ['.js', '.ts', '.vue', '.json'],
   },
