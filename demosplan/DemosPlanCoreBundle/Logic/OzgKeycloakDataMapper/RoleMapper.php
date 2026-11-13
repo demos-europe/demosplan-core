@@ -24,12 +24,13 @@ class RoleMapper
      * Maps technical role codes from resource_access to readable role names.
      */
     private const TECHNICAL_ROLE_TO_READABLE = [
-        'FP-A'  => 'Fachplanung Administration',
-        'FP-PB' => 'Fachplanung Planungsbüro',
-        'FP-SB' => 'Fachplanung Sachbearbeitung',
-        'I-K'   => 'Institutions Koordination',
-        'I-SB'  => 'Institutions Sachbearbeitung',
-        'M-A'   => 'Mandanten Administration',
+        'FP-A'           => 'Fachplanung Administration',
+        'FP-PB'          => 'Fachplanung Planungsbüro',
+        'FP-SB'          => 'Fachplanung Sachbearbeitung',
+        'I-K'            => 'Institutions Koordination',
+        'I-SB'           => 'Institutions Sachbearbeitung',
+        'M-A'            => 'Mandanten Administration',
+        'Datenerfassung' => 'Datenerfassung',
     ];
 
     public function __construct(
