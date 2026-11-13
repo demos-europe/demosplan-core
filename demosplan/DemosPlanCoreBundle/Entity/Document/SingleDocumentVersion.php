@@ -111,7 +111,7 @@ class SingleDocumentVersion extends CoreEntity implements UuidEntityInterface, S
     /**
      * @var string
      */
-    #[ORM\Column(name: '_sd_document', type: 'string', length: 256, nullable: false)]
+    #[ORM\Column(name: '_sd_document', type: 'string', length: 1024, nullable: false)]
     protected $document = '';
 
     /**

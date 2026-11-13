@@ -418,6 +418,7 @@
                   :disabled="formData.r_isNegativeReport !== '0'"
                   allowed-file-types="pdf-img-zip"
                   :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
+                  :chunk-size="dplan.settings.uploadChunkSize"
                   :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
                   :max-number-of-files="20"
                   :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"

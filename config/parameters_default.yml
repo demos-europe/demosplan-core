@@ -337,6 +337,9 @@ parameters:
     # TUS resumable upload cache TTL in seconds (how long incomplete uploads are remembered)
     tus_cache_ttl: 604800  # 1 week
 
+    # Chunk size in bytes for large file uploads in the browser
+    upload_chunk_size: '%env(int:UPLOAD_CHUNK_SIZE)%'
+
     # Karten
 
     # Maximale Boundingbox für das Projekt. Standard ist deutschlandweit
