@@ -35,6 +35,7 @@ use Illuminate\Support\Collection as IlluminateCollection;
  * @property-read End                              $deleted
  * @property-read OrgaStatusInCustomerResourceType $statusInCustomers
  * @property-read End                              $name
+ * @property-read End                              $technicalName Official name from the identity provider, read-only
  * @property-read MasterToebResourceType           $masterToeb
  * @property-read CustomerResourceType             $customers @deprecated Use {@link OrgaResourceType::$statusInCustomers} instead
  * @property-read End                              $ccEmail2 @deprecated Create attribute with better name instead of using this one
@@ -211,6 +212,10 @@ final class OrgaResourceType extends DplanResourceType implements OrgaResourceTy
 
         if ($this->currentUser->hasPermission('feature_mastertoeblist')) {
             $properties[] = $this->createToOneRelationship($this->masterToeb)->sortable()->filterable()->readable();
+        }
+
+        if ($this->currentUser->hasPermission('field_organisation_technical_name')) {
+            $properties[] = $this->createAttribute($this->technicalName)->readable(true);
         }
 
         if ($this->currentUser->hasPermission('field_organisation_two_factor_required')) {

@@ -59,6 +59,7 @@ All rights reserved
     <dp-multiselect
       :id="`custom-field-${field.id}`"
       :data-dp-validate-error-fieldname="field.attributes.name"
+      :disabled="disabled"
       :options="(field.attributes?.options || []).filter(opt => opt != null)"
       :placeholder="Translator.trans('choose')"
       :required="field.attributes.isRequired"
@@ -86,6 +87,12 @@ export default {
   mixins: [prefixClassMixin],
 
   props: {
+    disabled: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+
     // Complete field object: { id, attributes: {...}, value: {...} }
     field: {
       type: Object,

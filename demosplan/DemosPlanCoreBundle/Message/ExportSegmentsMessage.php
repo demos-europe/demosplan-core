@@ -30,6 +30,7 @@ class ExportSegmentsMessage
         private readonly string $userId,
         private readonly string $customerId,
         private readonly array $queryParams,
+        private readonly ?string $organisationId = null,
     ) {
     }
 
@@ -64,5 +65,10 @@ class ExportSegmentsMessage
     public function getQueryParams(): array
     {
         return $this->queryParams;
+    }
+
+    public function getOrganisationId(): ?string
+    {
+        return $this->organisationId;
     }
 }

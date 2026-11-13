@@ -456,6 +456,10 @@ export default {
       return Object.keys(this.createTargetOptions).length > 0
     },
 
+    canSetRequired () {
+      return hasPermission('feature_statements_custom_fields_required')
+    },
+
     /*
      * Filters out targets that cannot receive new fields.
      * STATEMENT fields cannot be created once statements have been submitted
@@ -539,7 +543,7 @@ export default {
         },
       )
 
-      if (this.isActiveTabStatementContext) {
+      if (this.isActiveTabStatementContext && this.canSetRequired) {
         fields.push({
           field: 'isRequired',
           label: Translator.trans('field.required'),
@@ -879,7 +883,11 @@ export default {
                 name,
                 options,
                 // The display mode can only be chosen when the field is created
-              }).filter(([key]) => key !== 'fieldType' && key !== 'isSeparateColumn' && (key !== 'options' || isOptionsSupported)),
+              }).filter(
+                ([key]) => key !== 'fieldType' &&
+                  key !== 'isSeparateColumn' &&
+                  (key !== 'options' || isOptionsSupported) &&
+                  (key !== 'isRequired' || this.canSetRequired)),
             ),
           }
 
@@ -926,7 +934,7 @@ export default {
         fieldType,
         name,
         options,
-        ...(targetEntity === 'STATEMENT' && { isRequired, isSeparateColumn }),
+        ...(targetEntity === 'STATEMENT' && this.canSetRequired && { isRequired, isSeparateColumn }),
         sourceEntity: this.resolvedSourceEntity,
         /*
          * For CUSTOMER source the BE derives sourceEntityId from the current

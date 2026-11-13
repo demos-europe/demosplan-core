@@ -28,6 +28,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Repository\FileContainerRepository;
 use demosplan\DemosPlanCoreBundle\Repository\FileRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SingleDocumentRepository;
+use demosplan\DemosPlanCoreBundle\Tools\SessionLockReleaser;
 use demosplan\DemosPlanCoreBundle\Tools\VirusCheckInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use demosplan\DemosPlanCoreBundle\ValueObject\FileInfo;
@@ -49,7 +50,6 @@ use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Throwable;
@@ -1290,10 +1290,7 @@ class FileService implements FileServiceInterface
             // Without this, concurrent requests from the same browser will hit a
             // "Lock wait timeout exceeded" error if the scan takes longer than
             // innodb_lock_wait_timeout (default 50s).
-            // In CLI/async contexts (e.g. message consumer) there is no HTTP session to save.
-            if ($this->requestStack->getCurrentRequest() instanceof Request) {
-                $this->requestStack->getSession()->save();
-            }
+            SessionLockReleaser::release($this->requestStack);
             $this->virusCheck($symfonyFile);
         }
 

@@ -23,6 +23,7 @@ use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\SegmentRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldUpdater;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Base\UnitTestCase;
@@ -58,6 +59,22 @@ class CustomFieldUpdaterTest extends UnitTestCase
         // Assert
         static::assertInstanceOf(CustomFieldInterface::class, $result);
         static::assertEquals('Updated Field Name', $result->getName());
+    }
+
+    public function testUpdateCustomFieldSetsIsRequiredOnSingleSelect(): void
+    {
+        // Arrange
+        $procedure = ProcedureFactory::createOne();
+        $customField = CustomFieldConfigurationFactory::new()
+            ->withRelatedProcedure($procedure->_real())
+            ->withRelatedTargetEntity(CustomFieldSupportedEntity::statement->value)
+            ->asRadioButton('Decision', options: ['Yes', 'No'])->create();
+
+        // Act
+        $result = $this->sut->updateCustomField($customField->getId(), ['isRequired' => true]);
+
+        // Assert
+        static::assertTrue($result->getRequired());
     }
 
     public function testUpdateCustomFieldDoesNotChangeIsSeparateColumn(): void

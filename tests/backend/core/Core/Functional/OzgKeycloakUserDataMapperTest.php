@@ -1091,10 +1091,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
     }
 
     /**
-     * Test automigration: org with base gwId gets BOTH gwId and name updated
-     * when user first logs in with piped format (gwId|Fachbezug).
+     * Test automigration: org with base gwId gets gwId and technical name updated
+     * when user first logs in with piped format (gwId|Fachbezug). The display name stays untouched.
      */
-    public function testAutomigrationUpdatesBothGwIdAndNameOnFirstPipedLogin(): void
+    public function testAutomigrationUpdatesGwIdAndTechnicalNameButNotDisplayNameOnFirstPipedLogin(): void
     {
         $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
 
@@ -1140,9 +1140,10 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         $user2 = $this->mapResourceOwnerToUser($resourceOwner2);
         $orga2 = $user2->getOrganisations()->first();
 
-        // Assert: BOTH gwId AND name should be updated during automigration
+        // Assert: gwId and technical name are updated, the (user-editable) display name is not
         self::assertSame(self::GWID_PIPED_141_UMWELT, $orga2->getGwId(), 'GwId should be updated to piped format');
-        self::assertSame(self::ORG_NAME_AMT_NORDWEST.' - Umweltverwaltung', $orga2->getName(), 'Name should be updated during automigration');
+        self::assertSame('Old Org Name', $orga2->getName(), 'Display name must not be overwritten during automigration');
+        self::assertSame(self::ORG_NAME_AMT_NORDWEST.' - Umweltverwaltung', $orga2->getTechnicalName(), 'Technical name should be updated during automigration');
     }
 
     /**
@@ -1205,5 +1206,113 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         self::assertSame(self::GWID_PIPED_141_UMWELT, $orga2->getGwId(), 'GwId should remain unchanged');
         self::assertSame('User-Modified Organisation Name', $orga2->getName(),
             'Org name must NOT be overwritten after automigration - user modifications should be preserved');
+        self::assertSame('Different Token Name - Different Fachbezug Name', $orga2->getTechnicalName(),
+            'Technical name follows the token on every login');
+    }
+
+    public function testFirstLoginSetsDisplayNameAndTechnicalNameToKeycloakName(): void
+    {
+        $user = $this->sut->mapUserData($this->createUserData($this->getBaseOrgaAttributes()));
+
+        self::assertSame('Amt Nordwest', $user->getOrga()->getName());
+        self::assertSame('Amt Nordwest', $user->getOrga()->getTechnicalName());
+    }
+
+    public function testLaterLoginWithRenamedKeycloakOrgaUpdatesOnlyTechnicalName(): void
+    {
+        $attributes = $this->getBaseOrgaAttributes();
+        $orga = $this->sut->mapUserData($this->createUserData($attributes))->getOrga();
+
+        // A user edits the display name in the UI
+        $orga->setName('Edited display name');
+        $this->getEntityManager()->persist($orga);
+        $this->getEntityManager()->flush();
+
+        // Keycloak delivers a new official name
+        $attributes['organisationName'] = 'Amt Nordwest (renamed)';
+        $orga2 = $this->sut->mapUserData($this->createUserData($attributes))->getOrga();
+
+        self::assertSame($orga->getId(), $orga2->getId());
+        self::assertSame('Edited display name', $orga2->getName());
+        self::assertSame('Amt Nordwest (renamed)', $orga2->getTechnicalName());
+    }
+
+    public function testLoginFillsMissingTechnicalNameWithoutTouchingDisplayName(): void
+    {
+        $attributes = $this->getBaseOrgaAttributes();
+        $orga = $this->sut->mapUserData($this->createUserData($attributes))->getOrga();
+
+        // State of an orga that existed before the technical name was introduced
+        $orga->setName('Edited display name');
+        $orga->setTechnicalName(null);
+        $this->getEntityManager()->persist($orga);
+        $this->getEntityManager()->flush();
+
+        $orga2 = $this->sut->mapUserData($this->createUserData($attributes))->getOrga();
+
+        self::assertSame('Edited display name', $orga2->getName());
+        self::assertSame('Amt Nordwest', $orga2->getTechnicalName());
+    }
+
+    public function testLoginWithEmptyKeycloakOrganisationNameLeavesBothNamesUntouched(): void
+    {
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+        $token = fn (string $keycloakName): ResourceOwnerInterface => $this->createResourceAccessResourceOwner([
+            'email'              => 'techname.empty@example.com',
+            'sub'                => 'test-techname-empty-001',
+            'preferred_username' => 'techname.empty',
+            'organisationId'     => '',
+            'organisationName'   => '',
+            'organisation'       => [
+                ['id' => 'TECHNAME-EMPTY', 'name' => $keycloakName],
+            ],
+            'fachbezug'          => [],
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'],
+                ],
+            ],
+        ]);
+
+        $orga = $this->mapResourceOwnerToUser($token('Official name'))->getOrganisations()->first();
+        $orga2 = $this->mapResourceOwnerToUser($token(''))->getOrganisations()->first();
+
+        self::assertSame($orga->getId(), $orga2->getId());
+        self::assertSame('Official name', $orga2->getName());
+        self::assertSame('Official name', $orga2->getTechnicalName());
+    }
+
+    public function testAffiliationLoginUpdatesOnlyTechnicalNameOfExistingOrga(): void
+    {
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+        $token = fn (string $keycloakName): ResourceOwnerInterface => $this->createResourceAccessResourceOwner([
+            'email'              => 'techname.aff@example.com',
+            'sub'                => 'test-techname-aff-001',
+            'preferred_username' => 'techname.aff',
+            'organisationId'     => '',
+            'organisationName'   => '',
+            'organisation'       => [
+                ['id' => 'TECHNAME-AFF', 'name' => $keycloakName],
+            ],
+            'fachbezug'          => [],
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['FP-A'],
+                ],
+            ],
+        ]);
+
+        $orga = $this->mapResourceOwnerToUser($token('Official v1'))->getOrganisations()->first();
+        self::assertSame('Official v1', $orga->getName());
+        self::assertSame('Official v1', $orga->getTechnicalName());
+
+        $orga->setName('Edited display name');
+        $this->getEntityManager()->persist($orga);
+        $this->getEntityManager()->flush();
+
+        $orga2 = $this->mapResourceOwnerToUser($token('Official v2'))->getOrganisations()->first();
+
+        self::assertSame('Edited display name', $orga2->getName());
+        self::assertSame('Official v2', $orga2->getTechnicalName());
     }
 }

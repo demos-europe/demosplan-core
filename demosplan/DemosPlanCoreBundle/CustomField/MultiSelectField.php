@@ -27,8 +27,6 @@ class MultiSelectField extends AbstractCustomField
 
     protected string $description = '';
 
-    protected bool $isRequired = false;
-
     public function getFieldType(): string
     {
         return 'multiSelect';
@@ -73,16 +71,6 @@ class MultiSelectField extends AbstractCustomField
     public function setOptions(array $options): void
     {
         $this->options = $options;
-    }
-
-    public function setRequired(bool $isRequired): void
-    {
-        $this->isRequired = $isRequired;
-    }
-
-    public function getRequired(): bool
-    {
-        return $this->isRequired;
     }
 
     public function getCustomOptionValueById(string $customFieldOptionValueId): ?CustomFieldOption
