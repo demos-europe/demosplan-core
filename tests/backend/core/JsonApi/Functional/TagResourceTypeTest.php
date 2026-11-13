@@ -19,7 +19,6 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
-use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\AssignableUserResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -245,21 +244,6 @@ class TagResourceTypeTest extends JsonApiTest
         }
 
         return $permissions;
-    }
-
-    private function createApiUser(): User
-    {
-        return UserFactory::new([
-            'deleted'              => false,
-            'login'                => 'tag-description-test-'.uniqid('', true).'@example.com',
-            'totpEnabled'          => false,
-            'authCodeEmailEnabled' => false,
-        ])
-            ->afterInstantiate(static function (User $user): void {
-                $user->setProfileCompleted(true);
-            })
-            ->create()
-            ->_real();
     }
 
     private function buildTagCreationBody(string $topicId, array $attributes): array

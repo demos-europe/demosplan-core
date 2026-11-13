@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace Tests\Core\JsonApi;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
-use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
@@ -56,7 +55,7 @@ class TagResourceApiTest extends AbstractApiTest
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
         $topic = TagTopicFactory::createOne(['procedure' => $procedure]);
         $tag = TagFactory::createOne(['topic' => $topic, 'title' => 'Laermschutz']);
-        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $user = $this->createApiUser();
         $this->enablePermissions(['area_statement_segmentation']);
         $this->loginUserForApiPlatform($user);
 
@@ -75,9 +74,9 @@ class TagResourceApiTest extends AbstractApiTest
     {
         $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
         $topic = TagTopicFactory::createOne(['procedure' => $procedure]);
-        $assignee = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $assignee = $this->createApiUser(['firstname' => 'Erika']);
         $tag = TagFactory::createOne(['topic' => $topic, 'defaultAssignee' => $assignee]);
-        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $user = $this->createApiUser();
         $this->enablePermissions(['area_statement_segmentation']);
         $this->loginUserForApiPlatform($user);
 
@@ -107,7 +106,7 @@ class TagResourceApiTest extends AbstractApiTest
         $tagC = TagFactory::createOne(['topic' => $topic, 'title' => 'C', 'sortIndex' => 30]);
         $tagA = TagFactory::createOne(['topic' => $topic, 'title' => 'A', 'sortIndex' => 10]);
         $tagB = TagFactory::createOne(['topic' => $topic, 'title' => 'B', 'sortIndex' => 20]);
-        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $user = $this->createApiUser();
         $this->enablePermissions(['area_statement_segmentation']);
         $this->loginUserForApiPlatform($user);
 
@@ -136,7 +135,7 @@ class TagResourceApiTest extends AbstractApiTest
         $tagZ = TagFactory::createOne(['topic' => $topic, 'title' => 'Zaun']);
         $tagA = TagFactory::createOne(['topic' => $topic, 'title' => 'Abwasser']);
         $tagM = TagFactory::createOne(['topic' => $topic, 'title' => 'Muelltrennung']);
-        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $user = $this->createApiUser();
         $this->enablePermissions(['area_statement_segmentation']);
         $this->loginUserForApiPlatform($user);
 
@@ -165,7 +164,7 @@ class TagResourceApiTest extends AbstractApiTest
         $tagA = TagFactory::createOne(['topic' => $topic, 'title' => 'A', 'sortIndex' => 10]);
         $tagB = TagFactory::createOne(['topic' => $topic, 'title' => 'B', 'sortIndex' => 20]);
         TagFactory::createOne(['topic' => $topic, 'title' => 'C', 'sortIndex' => 30]);
-        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $user = $this->createApiUser();
         $this->enablePermissions(['area_statement_segmentation']);
         $this->loginUserForApiPlatform($user);
 
@@ -195,7 +194,7 @@ class TagResourceApiTest extends AbstractApiTest
         $tagA = TagFactory::createOne(['topic' => $topic, 'title' => 'A', 'sortIndex' => 10]);
         $tagB = TagFactory::createOne(['topic' => $topic, 'title' => 'B', 'sortIndex' => 20]);
         $tagC = TagFactory::createOne(['topic' => $topic, 'title' => 'C', 'sortIndex' => 30]);
-        $user = $this->getUserReference(LoadUserData::TEST_USER_FP_ONLY);
+        $user = $this->createApiUser();
         $this->enablePermissions(['area_statement_segmentation']);
         $this->loginUserForApiPlatform($user);
 
