@@ -127,18 +127,18 @@ class FileExtension extends ExtensionBase
     }
 
     /**
-     * @param string $fieldName
-     * @param null   $fieldLabel
-     * @param string $type
-     * @param string $label
-     * @param int    $maxfiles
-     * @param bool   $multiInstance
-     * @param string $fieldHint
-     * @param bool   $required
-     * @param string $callback
-     * @param string|int|null $chunksize defaults to the configured upload chunk size
-     * @param int    $maxFileSize
-     * @param bool   $omitCssClassPrefix
+     * @param string          $fieldName
+     * @param null            $fieldLabel
+     * @param string          $type
+     * @param string          $label
+     * @param int             $maxfiles
+     * @param bool            $multiInstance
+     * @param string          $fieldHint
+     * @param bool            $required
+     * @param string          $callback
+     * @param string|int|null $chunksize          defaults to the configured upload chunk size
+     * @param int             $maxFileSize
+     * @param bool            $omitCssClassPrefix
      *
      * @return string
      *
