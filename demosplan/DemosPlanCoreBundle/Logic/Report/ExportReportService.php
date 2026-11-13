@@ -116,6 +116,7 @@ class ExportReportService
             $this->translator->trans('protocol'),
         );
 
+        $phpWord->getDocInfo()->setTitle($docTitle);
         $section->addTitle($docTitle, 1);
 
         $dateText = $this->translator->trans('exported.on', ['date' => $reportMeta['exportDate'], 'time' => $reportMeta['exportTime']]);

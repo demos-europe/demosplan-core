@@ -21,7 +21,8 @@
         font-weight: $bold-font-weight;
     }
 
-    fieldset:not(:last-child, fieldset fieldset) {
+    // Divider below every section except the last (some sections are wrapped in a div)
+    form > *:not(:last-child) {
         border-bottom: 1px solid $dp-color-neutral-light-2 !important;
         margin-bottom: 32px !important;
     }
