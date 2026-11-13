@@ -133,16 +133,17 @@
           />
         </div>
         <dp-column-selector
+          v-if="customFieldsReady || customFieldsFailed"
           :key="columnSelectorKey"
           :initial-selection="currentSelection"
+          :local-storage-key="storageKeyColumns"
           :selectable-columns="selectableColumns"
+          :use-local-storage="customFieldsReady"
           appearance="subtle"
           class="ml-2"
           data-cy="statementList:selectableColumns"
           has-reset-option
           has-select-all-option
-          local-storage-key="statementsList"
-          use-local-storage
           @reset="resetColumnSelection"
           @selection-changed="setCurrentSelection"
         />
@@ -179,6 +180,7 @@
             ref="dataTable"
             :key="columnSelectorKey"
             :class="{ 'px-2': isFullscreen, 'scrollbar-none': !isFullscreen }"
+            :column-storage-key="storageKeyColumns"
             :header-fields="headerFields"
             :is-selectable="(isSourceAndCoupledProcedure && hasPermission('feature_statements_sync_to_procedure')) || hasPermission('feature_statement_cluster')"
             :items="items"
@@ -188,7 +190,6 @@
             :should-be-selected-items="currentlySelectedItems"
             :translations="{ lockedForSelection: Translator.trans('item.lockedForSelection') }"
             class="min-h-12"
-            column-storage-key="statementsList"
             column-width-storage-key="statementsListColumnWidths"
             data-cy="listStatements"
             density="spacious"
@@ -427,6 +428,28 @@
                 </button>
               </dp-flyout>
             </template>
+            <template v-slot:customFieldsCollection="{ customFields, externId }">
+              <statement-custom-field-chips
+                :custom-fields="customFields"
+                :definitions="customFieldDefinitions"
+                :extern-id="externId"
+              />
+            </template>
+            <template
+              v-for="customField in selectedSeparateCustomFields"
+              :key="customField.field"
+              v-slot:[customField.field]="{ customFields }"
+            >
+              <div class="flex flex-wrap gap-1">
+                <dp-badge
+                  v-for="label in getCustomFieldLabels(customFields, customField.definition)"
+                  :key="label"
+                  :text="label"
+                  color="default"
+                  size="small"
+                />
+              </div>
+            </template>
             <template v-slot:expandedContent="{ id }">
               <!-- Statement meta data -->
               <statement-meta-data
@@ -544,6 +567,7 @@
 import {
   CleanHtml,
   dpApi,
+  DpBadge,
   DpBulkEditHeader,
   DpButton,
   DpColumnSelector,
@@ -571,11 +595,14 @@ import DpClaim from '@DpJs/components/statement/DpClaim.vue'
 import lscache from 'lscache'
 import paginationMixin from '@DpJs/components/shared/mixins/paginationMixin'
 import { pollExportJob } from '@DpJs/lib/shared/persistentExportPoll'
+import { resolveCustomFieldLabels } from '@DpJs/lib/shared/resolveCustomFieldLabels'
+import StatementCustomFieldChips from './StatementCustomFieldChips.vue'
 import StatementExportModal from '@DpJs/components/statement/statementExportModal/StatementExportModal.vue'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData.vue'
 import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge.vue'
 import TableScrollbar from '@DpJs/components/shared/TableScrollbar.vue'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
+import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import VersionHistory from '@DpJs/components/statement/statement/VersionHistory.vue'
 
 // The initial width of a column is also its minimum width
@@ -594,6 +621,7 @@ export default {
     AssignEntityModal,
     CopyStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "copy-statement-modal" */ '@DpJs/components/statement/assessmentTable/CopyStatementModal.vue')),
     CustomSearchStatements,
+    DpBadge,
     DpBulkEditHeader,
     DpButton,
     DpClaim,
@@ -608,6 +636,7 @@ export default {
     DpSlidebar,
     DpStickyElement,
     DpMoveStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal.vue')),
+    StatementCustomFieldChips,
     StatementExportModal,
     StatementMetaData,
     StatusBadge,
@@ -686,6 +715,10 @@ export default {
       columnSelectorKey: 0,
       // Prefilled so the column selector starts with the defaults when localStorage is empty
       currentSelection: [...defaultColumnSelection],
+      customFieldDefinitions: [],
+      // The column selector is rendered once the definitions are known, so a stored selection of custom field columns is kept
+      customFieldsReady: !hasPermission('field_statements_custom_fields'),
+      customFieldsFailed: false,
       defaultColumnSelection,
       defaultPagination: {
         currentPage: 1,
@@ -701,6 +734,7 @@ export default {
         createHeaderField('meta', Translator.trans('submitter.invitable_institution'), 180),
         createHeaderField('text', Translator.trans('text'), 270),
         createHeaderField('segmentsCount', Translator.trans('segments'), 150),
+        createHeaderField('customFieldsCollection', Translator.trans('custom.fields.collection'), 220),
       ],
       isFullscreen: false,
       lsKey: {
@@ -832,9 +866,20 @@ export default {
       return !this.isLoading && this.items.length > 0
     },
 
+    // All columns the user can choose from: the static ones plus one per custom field shown in its own column
+    allHeaderFieldsAvailable () {
+      const hasCustomFields = hasPermission('field_statements_custom_fields')
+      const staticHeaderFields = this.headerFieldsAvailable
+        .filter(headerField => hasCustomFields || headerField.field !== 'customFieldsCollection')
+      const customFieldHeaderFields = this.separateCustomFields
+        .map(({ field, definition }) => createHeaderField(field, definition.attributes.name, 180))
+
+      return [...staticHeaderFields, ...customFieldHeaderFields]
+    },
+
     headerFields () {
-      const externIdField = this.headerFieldsAvailable.find(headerField => headerField.field === 'externId')
-      const userHeaderFields = this.headerFieldsAvailable.filter(headerField =>
+      const externIdField = this.allHeaderFieldsAvailable.find(headerField => headerField.field === 'externId')
+      const userHeaderFields = this.allHeaderFieldsAvailable.filter(headerField =>
         headerField.field !== 'externId' && this.currentSelection.includes(headerField.field),
       )
 
@@ -864,9 +909,24 @@ export default {
 
     selectableColumns () {
       // ExternId is always displayed, so it is not selectable
-      return this.headerFieldsAvailable
+      return this.allHeaderFieldsAvailable
         .filter(headerField => headerField.field !== 'externId')
         .map(headerField => [headerField.field, headerField.label])
+    },
+
+    selectedSeparateCustomFields () {
+      return this.separateCustomFields.filter(({ field }) => this.currentSelection.includes(field))
+    },
+
+    separateCustomFields () {
+      return this.customFieldDefinitions
+        .filter(definition => definition.attributes.isSeparateColumn)
+        .map(definition => ({ field: `customField_${definition.id}`, definition }))
+    },
+
+    // Custom field columns exist only in their procedure, so the selection and order of columns are stored per procedure
+    storageKeyColumns () {
+      return `statementsList:${this.procedureId}`
     },
 
     storageKeyPagination () {
@@ -1073,8 +1133,8 @@ export default {
     },
 
     resetColumnSelection () {
-      localStorage.removeItem('statementsList')
-      localStorage.removeItem('dpDataTable:columnOrder:statementsList')
+      localStorage.removeItem(this.storageKeyColumns)
+      localStorage.removeItem(`dpDataTable:columnOrder:${this.storageKeyColumns}`)
       this.setCurrentSelection([...this.defaultColumnSelection])
 
       // Clear persisted column widths
@@ -1089,6 +1149,48 @@ export default {
 
     setCurrentSelection (selection) {
       this.currentSelection = selection
+    },
+
+    getCustomFieldLabels (customFields, definition) {
+      const storedValue = customFields?.find(customField => customField.id === definition.id)?.value
+
+      return resolveCustomFieldLabels(definition, storedValue)
+    },
+
+    /*
+     * Without the definitions, the custom field columns are unknown. The selector is shown with the stored selection
+     * but does not save, which would drop the stored custom field columns.
+     */
+    showColumnSelectorWithoutCustomFields () {
+      const storedSelection = localStorage.getItem(this.storageKeyColumns)
+
+      if (storedSelection) {
+        this.currentSelection = JSON.parse(storedSelection)
+      }
+
+      this.customFieldsFailed = true
+    },
+
+    loadStatementCustomFields () {
+      if (!hasPermission('field_statements_custom_fields')) {
+        return
+      }
+
+      const { fetchCustomFields } = useCustomFields()
+
+      fetchCustomFields(this.procedureId, {
+        sourceEntity: 'PROCEDURE',
+        targetEntity: 'STATEMENT',
+      })
+        .then(definitions => {
+          this.customFieldDefinitions = definitions
+          // The column selector filters the saved selection by the available columns, so it must not mount before they are known
+          this.customFieldsReady = true
+        })
+        .catch(() => {
+          // The notification is already shown by useCustomFieldDefinitions
+          this.showColumnSelectorWithoutCustomFields()
+        })
     },
 
     applySearch (term) {
@@ -1316,6 +1418,10 @@ export default {
 
       if (hasPermission('area_statement_segmentation')) {
         statementFields.push('segmentDraftList')
+      }
+
+      if (hasPermission('field_statements_custom_fields')) {
+        statementFields.push('customFields')
       }
 
       this.fetchStatements({
@@ -1699,6 +1805,7 @@ export default {
         orga: 'name',
       },
     })
+    this.loadStatementCustomFields()
     this.initPagination()
     /*
      * After grouping, the statement count shrinks, so the persisted page may no longer exist.
