@@ -29,6 +29,28 @@
           :src="page.attributes.url"
         >
       </div>
+      <div
+        v-if="recognizedAreasUrl"
+        class="font-size-small mt-2"
+      >
+        <a
+          class="o-link--default inline-flex items-center gap-1"
+          :href="recognizedAreasUrl"
+          rel="noopener"
+          target="_blank"
+        >
+          {{ Translator.trans('import.statements.fromPdf.llm.recognizedAreas.link') }}
+          <dp-icon
+            aria-hidden="true"
+            icon="arrow-square-out"
+            size="small"
+          />
+        </a>
+        <p
+          class="color--grey"
+          v-text="Translator.trans('import.statements.fromPdf.llm.recognizedAreas.hint')"
+        />
+      </div>
     </div>
     <div
       class="column column--small"
@@ -85,7 +107,7 @@
 </template>
 
 <script>
-import { dpApi, DpButton, DpLoading } from '@demos-europe/demosplan-ui'
+import { dpApi, DpButton, DpIcon, DpLoading } from '@demos-europe/demosplan-ui'
 import DpSendBeacon from './DpSendBeacon.vue'
 import DpSimplifiedNewStatementForm from '@DpJs/components/procedure/DpSimplifiedNewStatementForm.vue'
 import { inlineImageAnchorsForEditing } from '@DpJs/lib/shared/inlineImageAnchors'
@@ -95,6 +117,7 @@ export default {
 
   components: {
     DpButton,
+    DpIcon,
     DpLoading,
     DpSendBeacon,
     DpSimplifiedNewStatementForm,
@@ -138,6 +161,12 @@ export default {
       type: Array,
       required: false,
       default: () => [],
+    },
+
+    recognizedAreasUrl: {
+      type: String,
+      required: false,
+      default: '',
     },
 
     tags: {

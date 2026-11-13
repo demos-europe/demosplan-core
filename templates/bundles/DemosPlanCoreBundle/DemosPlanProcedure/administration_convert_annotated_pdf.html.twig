@@ -22,7 +22,14 @@
         {{ 'statements.uploaded.confirm.hint'|trans }}
     </p>
 
-    {% if templateVars.isAutoMode|default(false) %}
+    {% if templateVars.isLlmMode|default(false) %}
+        <dp-inline-notification
+            class="mb-6"
+            message="{{ 'import.statements.fromPdf.llm.warning.text'|trans }}"
+            title="{{ 'import.statements.fromPdf.llm.warning.title'|trans }}"
+            type="warning">
+        </dp-inline-notification>
+    {% elseif templateVars.isAutoMode|default(false) %}
         <dp-inline-notification
             class="mb-6"
             message="{{ 'import.statements.fromPdf.auto.warning.text.confirmed'|trans }}"
@@ -39,6 +46,7 @@
         :init-submitter="{{ templateVars.submitter|default({}) }}"
         newest-intern-id="{{ templateVars.newestInternalId }}"
         procedure-id="{{ procedure }}"
+        recognized-areas-url="{{ templateVars.recognizedAreasUrl|default('') }}"
         :submit-type-options="JSON.parse('{{ submitTypesOptions|json_encode|e('js', 'utf-8') }}')"
         :tags="JSON.parse('{{ allTags|json_encode|e('js', 'utf-8') }}')"
         :used-intern-ids="JSON.parse('{{ templateVars.usedInternIds|json_encode|e('js', 'utf-8') }}')">
