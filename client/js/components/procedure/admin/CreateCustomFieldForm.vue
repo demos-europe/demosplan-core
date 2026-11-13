@@ -71,6 +71,37 @@
           required
         />
 
+        <fieldset
+          v-if="customField.targetEntity === 'STATEMENT' && hasPermission('feature_statements_custom_fields_column_display')"
+        >
+          <legend class="text-base font-semibold mb-2">
+            {{ Translator.trans('custom.fields.display') }}
+          </legend>
+          <dp-radio
+            id="columnSelectionSeparate"
+            :checked="customField.isSeparateColumn"
+            :label="{
+              text: Translator.trans('custom.fields.display.separate'),
+              hint: Translator.trans('custom.fields.display.separate.explanation')
+            }"
+            name="columnSelection"
+            value="separate"
+            @change="customField.isSeparateColumn = true"
+          />
+          <dp-radio
+            id="columnSelectionCollection"
+            :checked="!customField.isSeparateColumn"
+            :label="{
+              text: Translator.trans('custom.fields.display.collection'),
+              hint: Translator.trans('custom.fields.display.collection.explanation')
+            }"
+            class="mb-1"
+            name="columnSelection"
+            value="collection"
+            @change="customField.isSeparateColumn = false"
+          />
+        </fieldset>
+
         <dp-checkbox
           v-if="customField.targetEntity === 'STATEMENT' && canSetRequired"
           id="requiredCheckbox"
@@ -78,7 +109,7 @@
           :label="{
             text: Translator.trans('statements.fields.configurable.required')
           }"
-          class="mb-2"
+          class="mt-0 mb-2"
           data-cy="customFields:isRequired"
         />
 
@@ -104,6 +135,7 @@ import {
   DpCheckbox,
   DpInput,
   DpLoading,
+  DpRadio,
   DpSelect,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
@@ -120,6 +152,7 @@ export default {
     DpCheckbox,
     DpInput,
     DpLoading,
+    DpRadio,
     DpSelect,
   },
 
@@ -164,6 +197,7 @@ export default {
         description: '',
         fieldType: '',
         isRequired: false,
+        isSeparateColumn: true,
         name: '',
         targetEntity: '',
       },
@@ -229,6 +263,7 @@ export default {
       this.customField.description = ''
       this.customField.fieldType = ''
       this.customField.isRequired = false
+      this.customField.isSeparateColumn = true
       this.customField.name = ''
       this.customField.targetEntity = ''
     },
