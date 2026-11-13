@@ -2,7 +2,7 @@ export {}
 
 declare global {
   interface DplanTranslator {
-    trans(key: string, params?: Record<string, string>, domain?: string): string
+    trans(key: string, params?: Record<string, string | number>, domain?: string): string
   }
 
   interface DplanRouting {
