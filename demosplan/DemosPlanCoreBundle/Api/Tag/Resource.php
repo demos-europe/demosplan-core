@@ -51,6 +51,9 @@ class Resource
     public string $title = '';
 
     #[ApiProperty(readable: true, writable: false)]
+    public ?string $description = null;
+
+    #[ApiProperty(readable: true, writable: false)]
     public int $sortIndex = 0;
 
     #[ApiProperty(readable: true, writable: false)]
@@ -67,6 +70,7 @@ class Resource
         $resource = new self();
         $resource->id = $tag->getId();
         $resource->title = $tag->getTitle();
+        $resource->description = $tag->getDescription();
         $resource->sortIndex = $tag->getSortIndex();
         $resource->topic = TagTopicResource::fromEntity($tag->getTopic());
         $resource->boilerplateId = $tag->getBoilerplate()?->getId();
