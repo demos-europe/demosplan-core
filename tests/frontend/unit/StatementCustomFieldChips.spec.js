@@ -63,5 +63,7 @@ describe('StatementCustomFieldChips', () => {
     })
 
     expect(wrapper.findComponent({ name: 'DpPopover' }).exists()).toBe(true)
+    // The accessible name has to contain the visible trigger text "+2"
+    expect(Translator.trans).toHaveBeenCalledWith('custom.fields.chips.show.more', { count: 2 })
   })
 })

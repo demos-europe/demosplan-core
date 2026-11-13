@@ -34,7 +34,7 @@
     </span>
     <dp-popover
       v-if="hiddenCount > 0"
-      :aria-label="Translator.trans('custom.fields.chips.show.all')"
+      :aria-label="Translator.trans('custom.fields.chips.show.more', { count: hiddenCount })"
       :panel-label="Translator.trans('custom.fields.collection')"
       class="[.is-expanded-row_&]:hidden"
     >
