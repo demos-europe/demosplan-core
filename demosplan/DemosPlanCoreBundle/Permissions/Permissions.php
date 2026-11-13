@@ -597,6 +597,11 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         return $this->procedure instanceof Procedure && $this->procedure->isReadOnly();
     }
 
+    protected function isBlueprintProcedure(): bool
+    {
+        return $this->procedure instanceof Procedure && $this->procedure->getMaster();
+    }
+
     /**
      * Read permissions granted inside a read-only procedure, core set plus whatever a project
      * adds in {@link self::projectReadOnlyProcedurePermissions()}.
