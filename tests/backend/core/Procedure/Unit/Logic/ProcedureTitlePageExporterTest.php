@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace Tests\Core\Procedure\Unit\Logic;
 
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureTitlePageExporter;
-use Tests\Base\FunctionalTestCase;
 use PhpOffice\PhpWord\Settings;
+use Tests\Base\FunctionalTestCase;
 
 class ProcedureTitlePageExporterTest extends FunctionalTestCase
 {

@@ -12,8 +12,11 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Procedure;
 
+use DateTimeImmutable;
+use DateTimeInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Export\PhpWordConfigurator;
+use IntlDateFormatter;
 use PhpOffice\PhpWord\Shared\Converter;
 use PhpOffice\PhpWord\SimpleType\Jc;
 use PhpOffice\PhpWord\Writer\PDF;
@@ -114,11 +117,11 @@ class ProcedureTitlePageExporter
 
     private function formatPrintDate(): string
     {
-        return (new \IntlDateFormatter('de_DE', \IntlDateFormatter::NONE, \IntlDateFormatter::NONE, null, null, 'd. MMMM y, HH:mm'))
-            ->format(new \DateTimeImmutable());
+        return (new IntlDateFormatter('de_DE', IntlDateFormatter::NONE, IntlDateFormatter::NONE, null, null, 'd. MMMM y, HH:mm'))
+            ->format(new DateTimeImmutable());
     }
 
-    private function formatPeriod(\DateTimeInterface $start, \DateTimeInterface $end): string
+    private function formatPeriod(DateTimeInterface $start, DateTimeInterface $end): string
     {
         return $start->format('d.m.Y').' - '.$end->format('d.m.Y');
     }
