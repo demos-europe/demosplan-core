@@ -84,6 +84,7 @@ export default defineConfig({
       vue: '@vue/compat',
     },
     conditions: ['import', 'module', 'browser', 'default'],
+    dedupe: ['vue', '@vue/compat'],
     extensions: ['.js', '.ts', '.vue', '.json'],
   },
   /*

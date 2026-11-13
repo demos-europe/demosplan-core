@@ -62,6 +62,7 @@ describe('OrganisationDataForm', () => {
 
       expect(input.element.value).toBe('Display name')
       expect(input.attributes('name')).toBe('orga-1:name')
+      expect(wrapper.find('label[for="orga_name"]').text()).toContain('name.legal')
     })
 
     it('is disabled without the permission to edit the name', () => {
@@ -81,6 +82,7 @@ describe('OrganisationDataForm', () => {
       expect(input.element.value).toBe('Official name')
       expect(input.attributes('readonly')).toBeDefined()
       expect(input.attributes('name')).toBeUndefined()
+      expect(wrapper.find('label[for="orga_technical_name"]').text()).toContain('name.technical')
     })
 
     it.each([

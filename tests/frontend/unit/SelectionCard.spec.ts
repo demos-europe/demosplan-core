@@ -24,20 +24,6 @@ const mountCard = (props = {}, slots = {}) => mount(SelectionCard, {
   slots,
   global: {
     stubs: {
-      DpButton: {
-        template: `
-          <button @click="$emit('click')">
-            <slot />
-          </button>
-        `,
-      },
-      DpLoading: {
-        template: `
-          <div data-testid="loading">
-            Loading...
-          </div>
-        `,
-      },
       DpTransitionExpand: { template: '<div><slot /></div>' },
     },
   },
@@ -81,7 +67,7 @@ describe('SelectionCard', () => {
   it('shows a spinner instead of the rows while loading', () => {
     const wrapper = mountCard({ isLoadingItems: true })
 
-    expect(wrapper.find('[data-testid="loading"]').exists()).toBe(true)
+    expect(wrapper.findComponent({ name: 'DpLoading' }).exists()).toBe(true)
     expect(wrapper.text()).not.toContain('First Item')
   })
 })
