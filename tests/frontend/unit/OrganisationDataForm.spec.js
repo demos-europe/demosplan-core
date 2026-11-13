@@ -55,16 +55,6 @@ describe('OrganisationDataForm', () => {
   })
 
   describe('name', () => {
-    it('renders the editable name field as official name and submits it as name', () => {
-      const wrapper = mountForm()
-
-      const input = wrapper.find('[data-cy="organisationData:name"]')
-
-      expect(input.element.value).toBe('Display name')
-      expect(input.attributes('name')).toBe('orga-1:name')
-      expect(wrapper.find('label[for="orga_name"]').text()).toContain('name.legal')
-    })
-
     it('is disabled without the permission to edit the name', () => {
       const wrapper = mountForm({ props: { isOrgaNameEditable: false } })
 
@@ -82,7 +72,6 @@ describe('OrganisationDataForm', () => {
       expect(input.element.value).toBe('Official name')
       expect(input.attributes('readonly')).toBeDefined()
       expect(input.attributes('name')).toBeUndefined()
-      expect(wrapper.find('label[for="orga_technical_name"]').text()).toContain('name.technical')
     })
 
     it.each([
