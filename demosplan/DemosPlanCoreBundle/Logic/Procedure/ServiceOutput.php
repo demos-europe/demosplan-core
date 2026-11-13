@@ -440,38 +440,6 @@ class ServiceOutput
     }
 
     /**
-     * @param string $procedureId
-     * @param string $title
-     *
-     * @return bool|string
-     *
-     * @throws Exception
-     */
-    public function generatePdfForTitlePage($procedureId, $title)
-    {
-        $templateVars = [];
-        $templateVars['procedure'] = $this->service->getSingleProcedure(
-            $procedureId
-        );
-        $content = $this->twig->render(
-            '@DemosPlanCore/DemosPlanProcedure/title_page_export.tex.twig',
-            [
-                'procedure'    => $templateVars['procedure'],
-                'templateVars' => $templateVars,
-                'title'        => $title,
-            ]
-        );
-
-        // Schicke das Tex-Dokument zum PDF-Consumer und bekomme das pdf
-        $response = $this->serviceImporter->exportPdfWithRabbitMQ(base64_encode($content));
-        $pdf = base64_decode($response);
-
-        $this->logger->debug('Got Response: '.DemosPlanTools::varExport($pdf, true));
-
-        return $pdf;
-    }
-
-    /**
      * May add a variety of fields to the given array, depending on circumstances like the current user.
      *
      * @param array<string, mixed> $templateVars
