@@ -127,7 +127,14 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
                 )
             );
         if ($this->currentUser->hasPermission('field_tag_description')) {
-            $configBuilder->description->addPathCreationBehavior(OptionalField::YES)->addPathUpdateBehavior();
+            $setDescription = static function (Tag $tag, ?string $description): array {
+                $tag->setDescription($description);
+
+                return [];
+            };
+            $configBuilder->description
+                ->addCreationBehavior(new CallbackAttributeSetBehaviorFactory([], $setDescription, OptionalField::YES))
+                ->addUpdateBehavior(new CallbackAttributeSetBehaviorFactory([], $setDescription, OptionalField::YES));
         }
         $configBuilder->addConstructorBehavior(
             new FixedConstructorBehavior(
