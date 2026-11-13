@@ -18,11 +18,14 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\AbstractApiTest;
 
 class TagResourceApiTest extends AbstractApiTest
 {
+    private const TAG_DESCRIPTION = 'Fachliche Beschreibung';
+
     /**
      * /api/3.0/* routes sit behind the `api_platform` firewall (context: main, form-login
      * authenticator), not the stateless JWT `api` firewall AbstractApiTest::sendRequest() targets —
@@ -215,6 +218,90 @@ class TagResourceApiTest extends AbstractApiTest
             [$tagA->getId(), $tagB->getId(), $tagC->getId()],
             array_column($decoded['data'], 'id')
         );
+    }
+
+    /**
+     * @param list<string> $additionalPermissions
+     */
+    #[DataProvider('descriptionPermissions')]
+    public function testGetReturnsDescription(array $additionalPermissions): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $topic = TagTopicFactory::createOne(['procedure' => $procedure]);
+        $tag = TagFactory::createOne(['topic' => $topic, 'description' => self::TAG_DESCRIPTION]);
+
+        $decoded = $this->getJson('/api/3.0/Tag/'.$tag->getId(), $procedure, $additionalPermissions);
+
+        self::assertSame(self::TAG_DESCRIPTION, $decoded['data']['attributes']['description']);
+    }
+
+    public static function descriptionPermissions(): iterable
+    {
+        yield 'without description permission' => [[]];
+        yield 'with description permission' => [['field_tag_description']];
+    }
+
+    public function testGetOmitsDescriptionForTagWithoutDescription(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $topic = TagTopicFactory::createOne(['procedure' => $procedure]);
+        $tag = TagFactory::createOne(['topic' => $topic]);
+
+        $decoded = $this->getJson('/api/3.0/Tag/'.$tag->getId(), $procedure);
+
+        self::assertArrayNotHasKey('description', $decoded['data']['attributes']);
+    }
+
+    public function testGetCollectionReturnsDescriptions(): void
+    {
+        $procedure = ProcedureFactory::new()->withDefaultSettings()->create();
+        $topic = TagTopicFactory::createOne(['procedure' => $procedure]);
+        $tagWithDescription = TagFactory::createOne([
+            'topic'       => $topic,
+            'description' => self::TAG_DESCRIPTION,
+            'sortIndex'   => 10,
+        ]);
+        $tagWithoutDescription = TagFactory::createOne(['topic' => $topic, 'sortIndex' => 20]);
+
+        $decoded = $this->getJson('/api/3.0/Tag?sort=sortIndex', $procedure);
+
+        self::assertSame(
+            [$tagWithDescription->getId() => self::TAG_DESCRIPTION, $tagWithoutDescription->getId() => null],
+            $this->descriptionsByTagId($decoded['data'])
+        );
+    }
+
+    /**
+     * @param list<string> $additionalPermissions
+     */
+    private function getJson(string $url, Procedure $procedure, array $additionalPermissions = []): array
+    {
+        $user = $this->createApiUser();
+        $this->enablePermissions(array_merge(['area_statement_segmentation'], $additionalPermissions));
+        $this->loginUserForApiPlatform($user);
+
+        $response = $this->sendRequest($url, 'GET', $user, $procedure);
+
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $content = $response->getContent();
+        self::assertIsString($content);
+
+        return Json::decodeToArray($content);
+    }
+
+    /**
+     * @param list<array{id: string, attributes: array<string, mixed>}> $resources
+     *
+     * @return array<string, mixed>
+     */
+    private function descriptionsByTagId(array $resources): array
+    {
+        $descriptions = [];
+        foreach ($resources as $resource) {
+            $descriptions[$resource['id']] = $resource['attributes']['description'] ?? null;
+        }
+
+        return $descriptions;
     }
 
     protected function getServerParameters(): array
