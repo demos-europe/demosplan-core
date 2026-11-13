@@ -36,7 +36,7 @@ const mountCard = (props = {}, slots = {}) => mount(SelectionCard, {
           <div data-testid="loading">
             Loading...
           </div>
-        `
+        `,
       },
       DpTransitionExpand: { template: '<div><slot /></div>' },
     },
