@@ -126,6 +126,9 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
                     OptionalField::NO
                 )
             );
+        if ($this->currentUser->hasPermission('field_tag_description')) {
+            $configBuilder->description->addPathCreationBehavior(OptionalField::YES)->addPathUpdateBehavior();
+        }
         $configBuilder->addConstructorBehavior(
             new FixedConstructorBehavior(
                 Paths::tag()->title->getAsNamesInDotNotation(),
