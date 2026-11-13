@@ -5,6 +5,8 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+
+## v4.69.0 (2026-11-13)
 - Organisations get a read-only technical name from the identity provider, stored as `Orga::$technicalName` (JSON:API 2.0
   attribute `Orga.technicalName`) next to the editable name (`Orga::$name`). Only the Keycloak OZG login
   (`/connect/keycloak_ozg`) writes it: it sets both names when it creates the organisation, updates only the technical
