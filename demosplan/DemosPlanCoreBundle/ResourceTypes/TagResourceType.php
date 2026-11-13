@@ -19,8 +19,6 @@ use demosplan\DemosPlanCoreBundle\Api\Tag\AccessChecker;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
-use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\TagResourceConfigBuilder;
@@ -47,10 +45,8 @@ use InvalidArgumentException;
 final class TagResourceType extends DplanResourceType implements TagResourceTypeInterface
 {
     public function __construct(
-        private readonly TagService $tagService,
         private readonly TagRepository $tagRepository,
         private readonly TagTopicRepository $tagTopicRepository,
-        private readonly StatementHandler $statementHandler,
         private readonly AccessChecker $accessChecker,
     ) {
     }
