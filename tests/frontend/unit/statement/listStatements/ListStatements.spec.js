@@ -1,7 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
+import { flushPromises, shallowMount } from '@vue/test-utils'
 import { createStore } from 'vuex'
 import ListStatements from '@DpJs/components/statement/listStatements/ListStatements.vue'
-import { shallowMount } from '@vue/test-utils'
+import VersionHistorySlidebarStore from '@DpJs/store/statement/VersionHistorySlidebar'
 
 const extendedStatement = {
   attributes: {
@@ -35,6 +36,24 @@ describe('ListStatements planning-document rendering', () => {
   })
 })
 
+const mockStatement = {
+  id: 'stmt-123',
+  type: 'Statement',
+  attributes: {
+    externId: 'EXT-123',
+    text: 'Test statement text',
+    submitDate: '2024-01-01',
+    submitName: 'Test User',
+  },
+  relationships: {
+    assignee: { data: { id: '' } },
+    orga: { data: { id: 'orga-1' } },
+  },
+  hasRelationship (name) {
+    return !!this.relationships[name]
+  },
+}
+
 function mountComponent (hasPermissionReturnValue) {
   const store = createStore({
     modules: {
@@ -52,7 +71,7 @@ function mountComponent (hasPermissionReturnValue) {
       Statement: {
         namespaced: true,
         state: () => ({
-          items: {},
+          items: { 'stmt-123': mockStatement },
           currentPage: 1,
           totalFiles: 0,
           loading: false,
@@ -66,12 +85,13 @@ function mountComponent (hasPermissionReturnValue) {
           setItem: vi.fn(),
         },
       },
+      VersionHistorySlidebar: VersionHistorySlidebarStore,
     },
   })
 
   global.hasPermission = () => hasPermissionReturnValue
 
-  return shallowMount(ListStatements, {
+  return { wrapper: shallowMount(ListStatements, {
     props: {
       currentUserId: 'user-id',
       procedureId: 'procedure-id',
@@ -85,12 +105,12 @@ function mountComponent (hasPermissionReturnValue) {
         lscache: { get: vi.fn(), set: vi.fn(), remove: vi.fn() },
       },
     },
-  })
+  }), store }
 }
 
 describe('ListStatements search whitelist & sortOptions permission gating', () => {
   it('always contains planDocument in the search whitelist', () => {
-    const wrapper = mountComponent(true)
+    const { wrapper } = mountComponent(true)
     const searchFields = wrapper.vm.searchFields
 
     expect(searchFields).toContain('planDocument')
@@ -98,7 +118,7 @@ describe('ListStatements search whitelist & sortOptions permission gating', () =
   })
 
   it('hides planning-document sort options when field_procedure_elements is off', () => {
-    const wrapper = mountComponent(false)
+    const { wrapper } = mountComponent(false)
     const values = wrapper.vm.sortOptions.map(option => option.value)
 
     expect(values).not.toContain('elementTitle,documentTitle,paragraphTitle')
@@ -108,7 +128,7 @@ describe('ListStatements search whitelist & sortOptions permission gating', () =
 
   it('exposes planning-document sort options when field_procedure_elements is on', () => {
     global.hasPermission = permission => permission === 'field_procedure_elements'
-    const wrapper = mountComponent(true)
+    const { wrapper } = mountComponent(true)
 
     const values = wrapper.vm.sortOptions.map(option => option.value)
 
@@ -118,7 +138,7 @@ describe('ListStatements search whitelist & sortOptions permission gating', () =
   })
 
   it('includes planning-document attributes in the statement fields list', () => {
-    const wrapper = mountComponent(false)
+    const { wrapper } = mountComponent(false)
     const fetchStatements = vi.fn().mockReturnValue(Promise.resolve({ meta: { pagination: { currentPage: 1, count: 0, perPage: 10, total: 0, totalPages: 0 } } }))
 
     wrapper.vm.fetchStatements = fetchStatements
@@ -140,6 +160,94 @@ describe('ListStatements search whitelist & sortOptions permission gating', () =
     expect(fieldsCsv).toContain('elementTitle')
     expect(fieldsCsv).toContain('paragraphTitle')
     expect(fieldsCsv).toContain('documentTitle')
+
+    wrapper.unmount()
+  })
+})
+
+describe('ListStatements VersionHistorySlidebar integration', () => {
+  it('showHistory mutation sets entity and opens slidebar', () => {
+    const { wrapper, store } = mountComponent(() => true)
+
+    wrapper.vm.showHistory({ externId: 'EXT-123', id: 'stmt-123', type: 'statement' })
+
+    expect(store.state.VersionHistorySlidebar.isOpen).toBe(true)
+    expect(store.state.VersionHistorySlidebar.entity).toEqual({
+      externId: 'EXT-123',
+      id: 'stmt-123',
+      type: 'statement',
+    })
+    expect(store.state.VersionHistorySlidebar.reloadKey).toBe(1)
+
+    wrapper.unmount()
+  })
+
+  it('setIsOpen(false) closes the slidebar without clearing entity', () => {
+    const { wrapper, store } = mountComponent(() => true)
+
+    wrapper.vm.showHistory({ externId: 'EXT-123', id: 'stmt-123', type: 'statement' })
+    expect(store.state.VersionHistorySlidebar.isOpen).toBe(true)
+
+    wrapper.vm.setIsOpen(false)
+    expect(store.state.VersionHistorySlidebar.isOpen).toBe(false)
+    expect(store.state.VersionHistorySlidebar.entity).toEqual({
+      externId: 'EXT-123',
+      id: 'stmt-123',
+      type: 'statement',
+    })
+
+    wrapper.unmount()
+  })
+
+  it('reopening the same entity increments reloadKey', () => {
+    const { wrapper, store } = mountComponent(() => true)
+
+    wrapper.vm.showHistory({ externId: 'EXT-123', id: 'stmt-123', type: 'statement' })
+    expect(store.state.VersionHistorySlidebar.reloadKey).toBe(1)
+
+    wrapper.vm.setIsOpen(false)
+    wrapper.vm.showHistory({ externId: 'EXT-123', id: 'stmt-123', type: 'statement' })
+    expect(store.state.VersionHistorySlidebar.reloadKey).toBe(2)
+
+    wrapper.unmount()
+  })
+
+  it('passes correct props to version-history component', async () => {
+    const { wrapper } = mountComponent(() => true)
+
+    wrapper.vm.showHistory({ externId: 'EXT-456', id: 'stmt-456', type: 'statement' })
+    await flushPromises()
+
+    expect(wrapper.vm.isSlidebarOpen).toBe(true)
+    expect(wrapper.vm.versionHistoryEntity).toEqual({
+      externId: 'EXT-456',
+      id: 'stmt-456',
+      type: 'statement',
+    })
+    expect(wrapper.vm.versionHistoryReloadKey).toBe(1)
+
+    wrapper.unmount()
+  })
+
+  it('exposes showHistory and setIsOpen mutations', () => {
+    const { wrapper } = mountComponent(() => true)
+
+    expect(typeof wrapper.vm.showHistory).toBe('function')
+    expect(typeof wrapper.vm.setIsOpen).toBe('function')
+
+    wrapper.unmount()
+  })
+
+  it('switching entities updates entity and increments reloadKey', () => {
+    const { wrapper, store } = mountComponent(() => true)
+
+    wrapper.vm.showHistory({ externId: 'EXT-123', id: 'stmt-123', type: 'statement' })
+    expect(store.state.VersionHistorySlidebar.entity.id).toBe('stmt-123')
+    expect(store.state.VersionHistorySlidebar.reloadKey).toBe(1)
+
+    wrapper.vm.showHistory({ externId: 'EXT-456', id: 'stmt-456', type: 'statement' })
+    expect(store.state.VersionHistorySlidebar.entity.id).toBe('stmt-456')
+    expect(store.state.VersionHistorySlidebar.reloadKey).toBe(2)
 
     wrapper.unmount()
   })
