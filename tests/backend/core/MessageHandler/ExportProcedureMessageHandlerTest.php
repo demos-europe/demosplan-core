@@ -94,14 +94,14 @@ class ExportProcedureMessageHandlerTest extends UnitTestCase
         // acting user and their customer - not the worker's default subdomain.
         $this->contextRestorerMock->expects($this->once())
             ->method('restore')
-            ->with('u1', 'c1');
+            ->with('u1', 'c1', null, 'orga-1');
 
         $this->exportServiceMock->method('generateProcedureExportZip')
             ->willReturn($this->streamedZipResponse());
         $this->fileServiceMock->method('saveTemporaryFile')->willReturn($this->fileWithHash('hash-1'));
 
         // Act
-        ($this->sut)(new ExportProcedureMessage('job-1', ['p1'], 'u1', 'c1'));
+        ($this->sut)(new ExportProcedureMessage('job-1', ['p1'], 'u1', 'c1', false, 'orga-1'));
     }
 
     public function testInvokeMarksJobFailedWithGenericReasonWhenContextCannotBeRestored(): void

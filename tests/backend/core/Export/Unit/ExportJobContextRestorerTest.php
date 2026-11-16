@@ -13,9 +13,11 @@ declare(strict_types=1);
 namespace Tests\Core\Export\Unit;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonOrgaNotFoundException;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
@@ -39,6 +41,7 @@ class ExportJobContextRestorerTest extends UnitTestCase
     private ?PermissionsInterface $permissionsMock = null;
     private ?ProcedureService $procedureServiceMock = null;
     private ?User $user = null;
+    private ?Orga $orga = null;
 
     protected function setUp(): void
     {
@@ -54,7 +57,11 @@ class ExportJobContextRestorerTest extends UnitTestCase
 
         $this->user = new User();
         $this->entityManagerMock->method('find')->willReturnCallback(
-            fn (string $class) => User::class === $class ? $this->user : null
+            fn (string $class) => match ($class) {
+                User::class => $this->user,
+                Orga::class => $this->orga,
+                default     => null,
+            }
         );
 
         $this->sut = new ExportJobContextRestorer(
@@ -143,6 +150,46 @@ class ExportJobContextRestorerTest extends UnitTestCase
 
         // Act
         $this->sut->restore('u1', 'c1');
+    }
+
+    public function testRestoreAssignsTheSelectedOrganisationToTheUser(): void
+    {
+        // Arrange - a multi-responsibility user picks one organisation per session; without it the
+        // user falls back to their first organisation and fails the procedure access checks
+        $this->givenCustomer('subdomain-a');
+        $this->orga = new Orga();
+
+        // Act
+        $this->sut->restore('u1', 'c1', null, 'orga-1');
+
+        // Assert
+        self::assertSame($this->orga, $this->user->getCurrentOrganisation());
+    }
+
+    public function testRestoreClearsTheOrganisationWhenNoneIsGiven(): void
+    {
+        // Arrange - the user entity may still carry an organisation from an earlier message
+        $this->givenCustomer('subdomain-a');
+        $this->user->setCurrentOrganisation(new Orga());
+
+        // Act
+        $this->sut->restore('u1', 'c1');
+
+        // Assert
+        self::assertNull($this->user->getCurrentOrganisation());
+    }
+
+    public function testRestoreFailsWhenOrganisationCannotBeResolved(): void
+    {
+        // Arrange
+        $this->givenCustomer('subdomain-a');
+        $this->orga = null;
+
+        // Assert
+        $this->expectException(AddonOrgaNotFoundException::class);
+
+        // Act
+        $this->sut->restore('u1', 'c1', null, 'orga-gone');
     }
 
     public function testRestoreFailsWhenUserCannotBeResolved(): void

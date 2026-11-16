@@ -28,6 +28,7 @@ class ExportProcedureMessage
         private readonly string $userId,
         private readonly string $customerId,
         private readonly bool $useExternalProcedureName = false,
+        private readonly ?string $organisationId = null,
     ) {
     }
 
@@ -57,5 +58,10 @@ class ExportProcedureMessage
     public function useExternalProcedureName(): bool
     {
         return $this->useExternalProcedureName;
+    }
+
+    public function getOrganisationId(): ?string
+    {
+        return $this->organisationId;
     }
 }

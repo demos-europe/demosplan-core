@@ -30,6 +30,8 @@ abstract class AbstractCustomField implements CustomFieldInterface
 
     protected string $description = '';
 
+    protected bool $isRequired = false;
+
     protected bool $isSeparateColumn = true;
 
     abstract protected function validateFieldSpecific(array $options): void;
@@ -138,7 +140,12 @@ abstract class AbstractCustomField implements CustomFieldInterface
 
     public function getRequired(): bool
     {
-        return false;
+        return $this->isRequired;
+    }
+
+    public function setRequired(bool $isRequired): void
+    {
+        $this->isRequired = $isRequired;
     }
 
     public function isSeparateColumn(): bool

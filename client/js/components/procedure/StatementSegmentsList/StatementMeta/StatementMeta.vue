@@ -73,6 +73,14 @@
           />
         </statement-meta-group>
 
+        <statement-meta-custom-fields
+          v-if="hasPermission('field_statements_custom_fields')"
+          ref="statementMetaCustomFields"
+          :editable="editable"
+          :procedure-id="procedure.id"
+          :statement-id="statement.id"
+        />
+
         <statement-publication-and-voting
           v-if="hasPermission('feature_statements_vote') || hasPermission('feature_statements_publication')"
           :editable="editable"
@@ -155,6 +163,7 @@ import {
 import { mapActions, mapMutations, mapState } from 'vuex'
 import StatementEntry from './StatementEntry.vue'
 import StatementMetaAttachments from './StatementMetaAttachments.vue'
+import StatementMetaCustomFields from './StatementMetaCustomFields.vue'
 import StatementMetaFinalEmail from './StatementMetaFinalEmail.vue'
 import StatementMetaGroup from './StatementMetaGroup.vue'
 import StatementMetaLocationAndDocumentReference from './StatementMetaLocationAndDocumentReference.vue'
@@ -170,6 +179,7 @@ export default {
     DpIcon,
     StatementEntry,
     StatementMetaAttachments,
+    StatementMetaCustomFields,
     StatementMetaFinalEmail,
     StatementMetaGroup,
     StatementMetaLocationAndDocumentReference,
@@ -310,8 +320,9 @@ export default {
       const entryHasChanges = this.$refs.statementEntry?.hasUnsavedChanges || false
       const submitterHasChanges = this.$refs.statementSubmitter?.hasUnsavedChanges || false
       const attachmentsHaveChanges = this.$refs.statementMetaAttachments?.hasUnsavedChanges || false
+      const customFieldsHaveChanges = this.$refs.statementMetaCustomFields?.hasUnsavedChanges || false
 
-      return attachmentsHaveChanges || entryHasChanges || submitterHasChanges
+      return attachmentsHaveChanges || customFieldsHaveChanges || entryHasChanges || submitterHasChanges
     },
 
     isCurrentUserAssigned () {
@@ -403,6 +414,10 @@ export default {
         this.$refs.statementMetaAttachments.handleResetGenericAttachments()
       }
 
+      if (this.$refs.statementMetaCustomFields?.hasUnsavedChanges) {
+        this.$refs.statementMetaCustomFields.reset()
+      }
+
       return Promise.resolve()
     },
 
@@ -430,6 +445,10 @@ export default {
 
       if (this.$refs.statementMetaAttachments?.hasUnsavedChanges) {
         promises.push(this.$refs.statementMetaAttachments.saveGenericAttachments())
+      }
+
+      if (this.$refs.statementMetaCustomFields?.hasUnsavedChanges) {
+        promises.push(this.$refs.statementMetaCustomFields.save())
       }
 
       return Promise.all(promises)

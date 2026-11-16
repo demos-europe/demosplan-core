@@ -10,8 +10,8 @@ import { mount } from '@vue/test-utils'
 import SelectionCard from '@DpJs/components/shared/SelectionCard.vue'
 
 const items = [
-  { id: 'a', name: 'Alpha' },
-  { id: 'b', name: 'Beta' },
+  { id: 'item-1', name: 'First Item' },
+  { id: 'item-2', name: 'Second Item' },
 ]
 
 const mountCard = (props = {}, slots = {}) => mount(SelectionCard, {
@@ -34,8 +34,8 @@ describe('SelectionCard', () => {
     const wrapper = mountCard()
 
     expect(wrapper.find('[data-cy="selectionCard:count"]').text()).toBe('2 selected')
-    expect(wrapper.text()).toContain('Alpha')
-    expect(wrapper.text()).toContain('Beta')
+    expect(wrapper.text()).toContain('First Item')
+    expect(wrapper.text()).toContain('Second Item')
   })
 
   it('lets the parent render the rows via the item slot', () => {
@@ -43,7 +43,7 @@ describe('SelectionCard', () => {
       item: '<template #item="{ item }"><em>{{ item.id }}</em></template>',
     })
 
-    expect(wrapper.findAll('em').map(el => el.text())).toEqual(['a', 'b'])
+    expect(wrapper.findAll('em').map(el => el.text())).toEqual(['item-1', 'item-2'])
   })
 
   it('emits the id of a removed item', async () => {
@@ -51,7 +51,7 @@ describe('SelectionCard', () => {
 
     await wrapper.findAll('[data-cy="selectionCard:removeItem"]')[1].trigger('click')
 
-    expect(wrapper.emitted('remove:item')).toEqual([['b']])
+    expect(wrapper.emitted('remove:item')).toEqual([['item-2']])
   })
 
   it('emits reset and toggle events', async () => {
@@ -68,6 +68,6 @@ describe('SelectionCard', () => {
     const wrapper = mountCard({ isLoadingItems: true })
 
     expect(wrapper.findComponent({ name: 'DpLoading' }).exists()).toBe(true)
-    expect(wrapper.text()).not.toContain('Alpha')
+    expect(wrapper.text()).not.toContain('First Item')
   })
 })

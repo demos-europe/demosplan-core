@@ -53,6 +53,8 @@ interface CustomFieldInterface
 
     public function getRequired(): bool;
 
+    public function setRequired(bool $isRequired): void;
+
     public function isSeparateColumn(): bool;
 
     public function setSeparateColumn(bool $isSeparateColumn): void;

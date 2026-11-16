@@ -52,7 +52,7 @@ const TARGET_ENTITY_DEFAULT_TYPE = {
  * Targets whose fieldType can be chosen in the create form.
  * Every other target is fixed to its default fieldType.
  */
-const TARGET_ENTITIES_WITH_SELECTABLE_TYPE = new Set(['SEGMENT'])
+const TARGET_ENTITIES_WITH_SELECTABLE_TYPE = new Set(['SEGMENT', 'STATEMENT'])
 
 function enrichFieldValue (fieldType, rawValue, options) {
   const enrich = FIELD_TYPE_REGISTRY[fieldType]?.enrichValue

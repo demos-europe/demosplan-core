@@ -51,7 +51,11 @@ class MoveFilesCommand extends CoreCommand
         $dryRun = $input->getOption('dry-run');
         $noDelete = $input->getOption('no-delete');
 
-        $output->note('Moving files from '.$source.' to '.$target);
+        $verb = $noDelete ? 'Copy' : 'Move';
+        $verbLower = $noDelete ? 'copy' : 'move';
+        $verbPast = $noDelete ? 'copied' : 'moved';
+
+        $output->note(($noDelete ? 'Copying' : 'Moving').' files from '.$source.' to '.$target);
         // keep this simple as long as we only have two storage options
         $sourceStorage = 'local' === $source ? $this->localStorage : $this->s3Storage;
         $targetStorage = 'local' === $target ? $this->localStorage : $this->s3Storage;
@@ -67,7 +71,7 @@ class MoveFilesCommand extends CoreCommand
                 }
 
                 if ($dryRun) {
-                    $output->writeln(sprintf('Would move %s %s ', $file->type(), $file->path()));
+                    $output->writeln(sprintf('Would %s %s %s ', $verbLower, $file->type(), $file->path()));
                     continue;
                 }
 
@@ -87,7 +91,7 @@ class MoveFilesCommand extends CoreCommand
                     }
 
                     if (!$fileExistsInTarget) {
-                        $output->writeln(sprintf('Move %s %s ', $file->type(), $file->path()));
+                        $output->writeln(sprintf('%s %s %s ', $verb, $file->type(), $file->path()));
                         $targetStorage->writeStream($file->path(), $sourceStream);
                         if (!$noDelete) {
                             $sourceStorage->delete($file->path());
@@ -98,7 +102,7 @@ class MoveFilesCommand extends CoreCommand
                     }
                     ++$filesTotal;
                 } catch (FilesystemException $e) {
-                    $output->error('Could not move file '.$file->path().' '.$e->getMessage());
+                    $output->error('Could not '.$verbLower.' file '.$file->path().' '.$e->getMessage());
                 }
             }
         } catch (FilesystemException $e) {
@@ -108,7 +112,7 @@ class MoveFilesCommand extends CoreCommand
         }
 
         $output->info(sprintf('Number of files: %d', $filesTotal));
-        $output->info(sprintf('Successfully moved %d files from %s to %s', $filesMoved, $source, $target));
+        $output->info(sprintf('Successfully %s %d files from %s to %s', $verbPast, $filesMoved, $source, $target));
 
         return Command::SUCCESS;
     }
