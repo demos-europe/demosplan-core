@@ -6,6 +6,12 @@
 
 ## UNRELEASED
 
+## v4.70.0 (2026-11-16)
+- Custom fields are displayed in the statement list
+- Uploading large planning documents is more reliable, and documents with very long file names can be imported
+- The procedure protocol PDF has a proper document title
+- The Keycloak role Datenerfassung is mapped to the data input role
+
 ## v4.69.0 (2026-11-13)
 - Organisations get a read-only technical name from the identity provider, stored as `Orga::$technicalName` (JSON:API 2.0
   attribute `Orga.technicalName`) next to the editable name (`Orga::$name`). Only the Keycloak OZG login
