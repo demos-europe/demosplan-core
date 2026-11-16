@@ -1684,7 +1684,7 @@ class DraftStatementServiceTest extends FunctionalTestCase
         static::assertSame($point, $statement['polygon']);
     }
 
-    public function testExtractGeoDataJoinsPointAndCountyWithPermission(): void
+    public function testExtractGeoDataJoinsPointAndLocationReferenceWithPermission(): void
     {
         $this->loginTestUser();
         $this->enablePermissions(['feature_diplankarte_split_location_reference']);

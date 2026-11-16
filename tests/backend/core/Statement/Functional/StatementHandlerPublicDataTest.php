@@ -161,7 +161,7 @@ class StatementHandlerPublicDataTest extends FunctionalTestCase
         ], JSON_THROW_ON_ERROR);
     }
 
-    public function testPointAndCountyGeometryAreJoinedWithPermission(): void
+    public function testPointAndLocationReferenceGeometryAreJoinedWithPermission(): void
     {
         $this->loginTestUser();
         $this->enablePermissions(['feature_diplankarte_split_location_reference']);
@@ -176,7 +176,7 @@ class StatementHandlerPublicDataTest extends FunctionalTestCase
         self::assertSame(['point', 'locationReference'], array_map(static fn (object $feature): string => $feature->properties->locationType, $features));
     }
 
-    public function testCountyGeometryIsIgnoredWithoutPermission(): void
+    public function testLocationReferenceGeometryIsIgnoredWithoutPermission(): void
     {
         $this->loginTestUser();
         $point = $this->featureCollection('Point', [1, 2]);
