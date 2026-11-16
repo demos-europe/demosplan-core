@@ -24,6 +24,7 @@ use demosplan\DemosPlanCoreBundle\Event\Tag\UpdateTagEvent;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Repository\BoilerplateRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagRepository;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
@@ -34,6 +35,7 @@ use EDT\Querying\Contracts\PathException;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AsAlias;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 #[AsAlias(TagServiceInterface::class)]
@@ -46,6 +48,7 @@ class TagService implements TagServiceInterface
         private readonly TagTopicRepository $tagTopicRepository,
         private readonly EventDispatcherInterface $eventDispatcher,
         private readonly LoggerInterface $logger,
+        private readonly ValidatorInterface $validator,
     ) {
     }
 
@@ -210,6 +213,25 @@ class TagService implements TagServiceInterface
     public function setDefaultAssignee(Tag $tag, ?UserInterface $defaultAssignee): void
     {
         $tag->setDefaultAssignee($defaultAssignee);
+        $this->tagRepository->updateObject($tag);
+    }
+
+    /**
+     * Sets or removes the description of a tag. An empty description removes it.
+     *
+     * @throws ViolationsException if the description violates the constraints of the tag
+     */
+    public function setDescription(Tag $tag, ?string $description): void
+    {
+        $previousDescription = $tag->getDescription();
+        $tag->setDescription($description);
+        $violations = $this->validator->validateProperty($tag, 'description');
+        if (0 < $violations->count()) {
+            $tag->setDescription($previousDescription);
+
+            throw ViolationsException::fromConstraintViolationList($violations);
+        }
+
         $this->tagRepository->updateObject($tag);
     }
 

@@ -1645,6 +1645,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         if ($procedureId !== $tag->getTopic()->getProcedure()->getId()) {
             throw new TagNotFoundException("No tag with the ID '$tagId' found in the procedure with the ID '$procedureId'");
         }
+        if (null !== ($data['description'] ?? null)) {
+            $this->tagService->setDescription($tag, $data['description']);
+        }
         switch ($data['action']) {
             case 'none':
                 $boilerplate = $tag->getBoilerplate();
