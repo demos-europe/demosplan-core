@@ -214,7 +214,7 @@ class DocumentHandler extends CoreHandler
                 // speichere die Datei im Fileservice ab
                 try {
                     // Viruscheck has been done for complete zip, so no check needed any more
-                    $entry['path'] = $this->fileService->ensureLocalFile($entry['path'], $entry['title']);
+                    $entry['path'] = $this->fileService->ensureLocalFile($entry['path'], $this->fileService->createHash());
                     $this->fileService->saveTemporaryLocalFile($entry['path'], $fileName, $this->currentUser->getUser()->getId(), $procedure, FileService::VIRUSCHECK_NONE);
 
                     $singleDocument = new SingleDocument();
@@ -248,6 +248,7 @@ class DocumentHandler extends CoreHandler
                 } catch (Exception $e) {
                     // Wennn eine einzelne Datei nicht hochgeladen werden darf oder ein sonstiger Fehler auftritt
                     // fahre trotzdem mit dem Import fort
+                    $this->getLogger()->warning('Planning document could not be imported', ['fileName' => $fileName, 'exception' => $e]);
                     $errorReport[] = 'Die Datei '.$fileName.' konnte nicht importiert werden.';
                 }
 
