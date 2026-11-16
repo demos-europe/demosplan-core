@@ -110,6 +110,7 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
             return $this->redirectToRoute('DemosPlan_statement_administration_tags', ['procedure' => $procedure]);
         }
         $templateVars['tag'] = $tagEntity;
+        $templateVars['procedureTemplate'] = $tagEntity->getTopic()->getProcedure()->getMaster();
         $templateVars['boilerplates'] = $procedureService->getBoilerplateList($procedure);
         if ($permissions->hasPermission('feature_tag_default_assignee')) {
             $templateVars['authorizedUsers'] = $procedureService->getAuthorizedUsers($procedure)

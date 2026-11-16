@@ -14,13 +14,17 @@ namespace Tests\Core\Statement\Functional;
 
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Controller\Statement\DemosPlanStatementTagController;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
+use demosplan\DemosPlanCoreBundle\Event\PreRenderEvent;
 use demosplan\DemosPlanCoreBundle\Logic\MessageBag;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementHandler;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -88,10 +92,40 @@ class DemosPlanStatementTagControllerEditTest extends FunctionalTestCase
         self::assertSame(self::TAG_DESCRIPTION, $this->reloadTag($tag)->getDescription());
     }
 
-    private function createTag(): Tag
+    #[DataProvider('procedureKindProvider')]
+    public function testEditPageKnowsWhetherProcedureIsBlueprint(bool $isBlueprint): void
     {
+        $tag = $this->createTag($isBlueprint);
+        $renderedParameters = [];
+        self::getContainer()->get(EventDispatcherInterface::class)->addListener(
+            PreRenderEvent::class,
+            static function (PreRenderEvent $event) use (&$renderedParameters): void {
+                $renderedParameters = $event->getParameters();
+            }
+        );
+
+        $this->callTagView($tag, false, [], false);
+
+        self::assertSame($isBlueprint, $renderedParameters['templateVars']['procedureTemplate']);
+    }
+
+    /**
+     * @return array<string, array{bool}>
+     */
+    public static function procedureKindProvider(): array
+    {
+        return [
+            'blueprint'        => [true],
+            'normal procedure' => [false],
+        ];
+    }
+
+    private function createTag(bool $isBlueprint = false): Tag
+    {
+        $procedure = ProcedureFactory::createOne(['master' => $isBlueprint]);
+
         return TagFactory::createOne([
-            'topic'       => TagTopicFactory::createOne(),
+            'topic'       => TagTopicFactory::createOne(['procedure' => $procedure]),
             'description' => self::TAG_DESCRIPTION,
         ])->_real();
     }
@@ -99,15 +133,22 @@ class DemosPlanStatementTagControllerEditTest extends FunctionalTestCase
     /**
      * @param array<string, string> $postData
      */
-    private function callTagView(Tag $tag, bool $hasDescriptionPermission, array $postData): Response
-    {
+    private function callTagView(
+        Tag $tag,
+        bool $hasDescriptionPermission,
+        array $postData,
+        bool $submitAttachMode = true,
+    ): Response {
         $permissions = $this->createMock(PermissionsInterface::class);
         $permissions->method('hasPermission')->willReturnCallback(
             static fn (string $permission): bool => $hasDescriptionPermission
                 && self::PERMISSION_TAG_DESCRIPTION === $permission
         );
 
-        $request = Request::create('/', 'POST', array_merge(['r_attachmode' => self::ATTACH_MODE_NONE], $postData));
+        if ($submitAttachMode) {
+            $postData['r_attachmode'] = self::ATTACH_MODE_NONE;
+        }
+        $request = Request::create('/', 'POST', $postData);
         $request->setSession(new Session(new MockArraySessionStorage()));
         self::getContainer()->get(RequestStack::class)->push($request);
 
