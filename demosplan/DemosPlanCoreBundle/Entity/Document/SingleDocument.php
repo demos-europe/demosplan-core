@@ -111,7 +111,8 @@ class SingleDocument extends CoreEntity implements SingleDocumentInterface, Uuid
      * @var string
      */
     #[Assert\NotBlank(message: 'error.mandatoryfield.file', allowNull: false, normalizer: 'trim', groups: [SingleDocument::IMPORT_CREATION])]
-    #[ORM\Column(name: '_sd_document', type: 'string', length: 256, nullable: false)]
+    #[Assert\Length(max: 1024)]
+    #[ORM\Column(name: '_sd_document', type: 'string', length: 1024, nullable: false)]
     protected $document = '';
 
     /**
