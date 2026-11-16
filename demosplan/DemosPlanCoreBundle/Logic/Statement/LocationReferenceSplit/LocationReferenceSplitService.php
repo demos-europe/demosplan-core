@@ -15,6 +15,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Statement\LocationReferenceSplit;
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Exception\JsonException;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use Psr\Log\LoggerInterface;
 use stdClass;
 
 /**
@@ -42,15 +43,18 @@ class LocationReferenceSplitService
     // Permission that switches the point/location reference handling on
     private const PERMISSION = 'feature_diplankarte_split_location_reference';
 
-    public function __construct(private readonly CurrentUserInterface $currentUser)
-    {
+    public function __construct(
+        private readonly CurrentUserInterface $currentUser,
+        private readonly LoggerInterface $logger,
+    ) {
     }
 
     /**
      * Polygon to store for the location 'point': the point geometry or, if the permission is set,
      * point and location reference joined into one FeatureCollection.
      *
-     * @throws JsonException
+     * Lenient on purpose, like the code before: if one of the values is not a valid FeatureCollection,
+     * the point geometry is returned as it was sent and the problem is logged, instead of failing the request.
      */
     public function extractGeometry(array $data): string
     {
@@ -59,7 +63,24 @@ class LocationReferenceSplitService
             return $pointGeometry;
         }
 
-        return $this->merge($pointGeometry, (string) ($data[self::LOCATION_REFERENCE_FIELD] ?? ''));
+        $locationReferenceGeometry = (string) ($data[self::LOCATION_REFERENCE_FIELD] ?? '');
+
+        try {
+            return $this->merge($pointGeometry, $locationReferenceGeometry);
+        } catch (JsonException $exception) {
+            $this->logger->error(
+                'Location geometry from the FE could not be merged: it is not a valid GeoJSON FeatureCollection. '
+                .'The point geometry was stored as sent and the location reference was dropped. '
+                .'Please check what the FE sends in '.self::POINT_FIELD.' and '.self::LOCATION_REFERENCE_FIELD.'.',
+                [
+                    'exception'                 => $exception->getMessage(),
+                    'pointGeometry'             => mb_substr($pointGeometry, 0, 200),
+                    'locationReferenceGeometry' => mb_substr($locationReferenceGeometry, 0, 200),
+                ]
+            );
+
+            return $pointGeometry;
+        }
     }
 
     /**
@@ -145,8 +166,13 @@ class LocationReferenceSplitService
             return [];
         }
 
+        $decoded = Json::decodeToMatchingType($featureCollection);
+        if (!$decoded instanceof stdClass || !is_array($decoded->features ?? null)) {
+            throw new JsonException('The value is not a GeoJSON FeatureCollection');
+        }
+
         $taggedFeatures = [];
-        foreach (Json::decodeToMatchingType($featureCollection)->features ?? [] as $feature) {
+        foreach ($decoded->features as $feature) {
             // geoPHP (map image) cannot handle a feature without geometry
             if (null === ($feature->geometry ?? null)) {
                 continue;

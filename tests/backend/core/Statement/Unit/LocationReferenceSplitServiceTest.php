@@ -13,8 +13,12 @@ declare(strict_types=1);
 namespace Tests\Core\Statement\Unit;
 
 use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
+use DemosEurope\DemosplanAddon\Exception\JsonException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\LocationReferenceSplit\LocationReferenceSplitService;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class LocationReferenceSplitServiceTest extends TestCase
 {
@@ -27,13 +31,82 @@ class LocationReferenceSplitServiceTest extends TestCase
         $this->sut = $this->createSut(true);
     }
 
-    private function createSut(bool $hasPermission): LocationReferenceSplitService
+    private function createSut(bool $hasPermission, ?LoggerInterface $logger = null): LocationReferenceSplitService
     {
-        // The user is only a dependency of the service under test, not the service itself
+        // User and logger are only dependencies of the service under test, not the service itself
         $currentUser = $this->createStub(CurrentUserInterface::class);
         $currentUser->method('hasPermission')->willReturn($hasPermission);
 
-        return new LocationReferenceSplitService($currentUser);
+        return new LocationReferenceSplitService($currentUser, $logger ?? $this->createStub(LoggerInterface::class));
+    }
+
+    private function createLoggerExpectingErrors(int $times): LoggerInterface&MockObject
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects(self::exactly($times))->method('error');
+
+        return $logger;
+    }
+
+    public static function invalidGeometryProvider(): array
+    {
+        return [
+            'invalid json'            => ['not json at all'],
+            'bare feature'            => ['{"type":"Feature","geometry":{"type":"Point","coordinates":[1,2]},"properties":{}}'],
+            'bare geometry'           => ['{"type":"Point","coordinates":[1,2]}'],
+            'features is not a list'  => ['{"type":"FeatureCollection","features":"x"}'],
+        ];
+    }
+
+    #[DataProvider('invalidGeometryProvider')]
+    public function testExtractGeometryKeepsPointUnchangedAndLogsWhenLocationReferenceIsInvalid(string $invalid): void
+    {
+        $point = $this->featureCollection('Point');
+        $sut = $this->createSut(true, $this->createLoggerExpectingErrors(1));
+
+        $polygon = $sut->extractGeometry([
+            LocationReferenceSplitService::POINT_FIELD              => $point,
+            LocationReferenceSplitService::LOCATION_REFERENCE_FIELD => $invalid,
+        ]);
+
+        self::assertSame($point, $polygon);
+    }
+
+    #[DataProvider('invalidGeometryProvider')]
+    public function testExtractGeometryStoresInvalidPointUnchangedAndLogs(string $invalid): void
+    {
+        $sut = $this->createSut(true, $this->createLoggerExpectingErrors(1));
+
+        $polygon = $sut->extractGeometry([
+            LocationReferenceSplitService::POINT_FIELD              => $invalid,
+            LocationReferenceSplitService::LOCATION_REFERENCE_FIELD => $this->featureCollection('Point'),
+        ]);
+
+        self::assertSame($invalid, $polygon);
+    }
+
+    public function testExtractGeometryDoesNotLogForValidInput(): void
+    {
+        $sut = $this->createSut(true, $this->createLoggerExpectingErrors(0));
+
+        $sut->extractGeometry([
+            LocationReferenceSplitService::POINT_FIELD              => $this->featureCollection('Point'),
+            LocationReferenceSplitService::LOCATION_REFERENCE_FIELD => $this->featureCollection('Point'),
+        ]);
+    }
+
+    public function testExtractGeometryDoesNotParseOrLogWithoutPermission(): void
+    {
+        $sut = $this->createSut(false, $this->createLoggerExpectingErrors(0));
+
+        self::assertSame('not json', $sut->extractGeometry([LocationReferenceSplitService::POINT_FIELD => 'not json']));
+    }
+
+    public function testMergeThrowsForValueThatIsNotAFeatureCollection(): void
+    {
+        $this->expectException(JsonException::class);
+
+        $this->sut->merge('{"type":"Point","coordinates":[1,2]}', '');
     }
 
     private function featureCollection(string ...$geometryTypes): string
