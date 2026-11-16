@@ -21,10 +21,11 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Symfony\Component\Routing\Generator\UrlGenerator;
+use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
-use Symfony\Component\Routing\RequestContext;
 use Symfony\Component\Routing\RouterInterface;
+use Throwable;
 
 class CustomerUrlGeneratorTest extends TestCase
 {
@@ -54,7 +55,7 @@ class CustomerUrlGeneratorTest extends TestCase
     public static function contextHostProvider(): array
     {
         return [
-            'customer label is replaced' => ['hh.example.org', 'http://nw.example.org/p/1'],
+            'customer label is replaced'   => ['hh.example.org', 'http://nw.example.org/p/1'],
             'deeper host keeps its domain' => ['hh.stage.example.org', 'http://nw.stage.example.org/p/1'],
         ];
     }
@@ -129,7 +130,7 @@ class CustomerUrlGeneratorTest extends TestCase
             static function (string $route, array $parameters, int $referenceType) use ($urlGenerator): string {
                 try {
                     return $urlGenerator->generate($route, $parameters, $referenceType);
-                } catch (\Throwable $exception) {
+                } catch (Throwable $exception) {
                     throw new RuntimeException($exception->getMessage(), 0, $exception);
                 }
             }
