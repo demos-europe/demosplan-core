@@ -16,6 +16,7 @@ type CompatConfig = Parameters<typeof configureCompat>[0]
  * so both run against the same runtime
  */
 export const compatConfig: CompatConfig = {
+  COMPONENT_ASYNC: false,
   CONFIG_DEVTOOLS: false,
   CONFIG_IGNORED_ELEMENTS: false,
   CONFIG_KEY_CODES: false,

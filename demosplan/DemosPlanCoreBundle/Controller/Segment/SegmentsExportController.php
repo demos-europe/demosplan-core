@@ -258,6 +258,7 @@ class SegmentsExportController extends BaseController
         $queryParams = $this->requestStack->getCurrentRequest()->query->all();
 
         $userId = $currentUserService->getUser()->getId();
+        $organisationId = $currentUserService->getUser()->getCurrentOrganisation()?->getId();
         $jobId = $exportJobService->start(
             $userId,
             $procedureId,
@@ -268,7 +269,8 @@ class SegmentsExportController extends BaseController
                 $procedureId,
                 $userId,
                 $customerService->getCurrentCustomer()->getId(),
-                $queryParams
+                $queryParams,
+                $organisationId
             )
         );
 

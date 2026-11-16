@@ -25,7 +25,7 @@ const BookmarkStore = {
     currentSelectedColumns: [],
     defaultSelectedColumns: [],
     isBookmarkLoading: false,
-    isViewStateInitialized: false,
+    isBookmarkStateInitialized: false,
   },
 
   mutations: {
@@ -81,8 +81,8 @@ const BookmarkStore = {
       state.defaultSelectedColumns = columns
     },
 
-    setViewStateInitialized (state, value) {
-      state.isViewStateInitialized = value
+    setBookmarkStateInitialized (state, value) {
+      state.isBookmarkStateInitialized = value
     },
   },
 
@@ -260,7 +260,7 @@ const BookmarkStore = {
     currentSorting: (state) => state.currentSorting,
     defaultSelectedColumns: (state) => state.defaultSelectedColumns,
     isBookmarkLoading: (state) => state.isBookmarkLoading,
-    isViewStateInitialized: (state) => state.isViewStateInitialized,
+    isBookmarkStateInitialized: (state) => state.isBookmarkStateInitialized,
   },
 }
 

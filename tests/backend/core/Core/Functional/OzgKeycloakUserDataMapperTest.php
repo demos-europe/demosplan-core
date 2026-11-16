@@ -500,6 +500,26 @@ class OzgKeycloakUserDataMapperTest extends FunctionalTestCase
         self::assertContains(RoleInterface::PUBLIC_AGENCY_WORKER, $userRoles);
     }
 
+    public function testDatenerfassungRoleIsMappedFromResourceAccess(): void
+    {
+        $customerSubdomain = $this->getContainer()->get(CustomerService::class)->getCurrentCustomer()->getSubdomain();
+
+        $resourceOwner = $this->createResourceAccessResourceOwner([
+            'email'              => 'data.input@example.com',
+            'sub'                => 'test-data-input-001',
+            'preferred_username' => 'data.input',
+            'resource_access'    => [
+                "diplan-develop-beteiligung-{$customerSubdomain}" => [
+                    'roles' => ['Datenerfassung'],
+                ],
+            ],
+        ]);
+        $user = $this->mapResourceOwnerToUser($resourceOwner);
+
+        $userRoles = array_map(static fn ($role) => $role->getCode(), $user->getDplanroles()->toArray());
+        self::assertContains(RoleInterface::PROCEDURE_DATA_INPUT, $userRoles);
+    }
+
     /**
      * Test that unknown technical roles in resource_access are logged but don't break authentication.
      */

@@ -7,6 +7,7 @@ twig:
         alternative_login_use_testuser: '%alternative_login_use_testuser%'
         alternative_login_testuser_defaultpass: '%alternative_login_testuser_defaultpass%'
         tracking_enabled: '%piwik_enable%'
+        upload_chunk_size: '%upload_chunk_size%'
         sentry_dsn: '%sentry_dsn%'
         sentry_traces_sample_rate_frontend: '%sentry_traces_sample_rate_frontend%'
     form_themes:

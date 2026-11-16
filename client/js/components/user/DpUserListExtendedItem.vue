@@ -104,6 +104,7 @@
 
 <script>
 import { mapActions, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import { dpApi } from '@demos-europe/demosplan-ui'
 import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard.vue'
 
@@ -111,7 +112,7 @@ export default {
   name: 'DpUserListExtendedItem',
 
   components: {
-    DpEditFieldSingleSelect: () => import(/* webpackChunkName: "dp-edit-field-single-select" */ '@DpJs/components/statement/assessmentTable/DpEditFieldSingleSelect.vue'),
+    DpEditFieldSingleSelect: defineAsyncComponent(() => import(/* webpackChunkName: "dp-edit-field-single-select" */ '@DpJs/components/statement/assessmentTable/DpEditFieldSingleSelect.vue')),
     DpTableCard,
   },
 

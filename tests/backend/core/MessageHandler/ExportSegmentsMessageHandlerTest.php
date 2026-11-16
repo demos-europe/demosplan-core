@@ -95,13 +95,13 @@ class ExportSegmentsMessageHandlerTest extends UnitTestCase
         $this->mockFindReturning($job);
         $this->contextRestorerMock->expects($this->once())
             ->method('restore')
-            ->with('u1', 'c1', 'proc-1');
+            ->with('u1', 'c1', 'proc-1', 'orga-1');
 
         $this->responseBuilderMock->method('build')->willReturn($this->streamedResponse());
         $this->fileServiceMock->method('saveTemporaryFile')->willReturn($this->fileWithHash('hash-1'));
 
         // Act
-        ($this->sut)(new ExportSegmentsMessage('job-1', SegmentsExportResponseBuilder::TYPE_DOCX, 'proc-1', 'u1', 'c1', []));
+        ($this->sut)(new ExportSegmentsMessage('job-1', SegmentsExportResponseBuilder::TYPE_DOCX, 'proc-1', 'u1', 'c1', [], 'orga-1'));
     }
 
     public function testInvokePassesExportTypeAndQueryParamsToBuilder(): void

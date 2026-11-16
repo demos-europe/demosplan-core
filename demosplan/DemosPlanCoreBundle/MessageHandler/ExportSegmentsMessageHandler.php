@@ -65,7 +65,8 @@ class ExportSegmentsMessageHandler
             $this->contextRestorer->restore(
                 $message->getUserId(),
                 $message->getCustomerId(),
-                $message->getProcedureId()
+                $message->getProcedureId(),
+                $message->getOrganisationId()
             );
 
             $response = $this->responseBuilder->build(

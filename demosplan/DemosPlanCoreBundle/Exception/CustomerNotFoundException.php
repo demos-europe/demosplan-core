@@ -19,4 +19,9 @@ class CustomerNotFoundException extends ResourceNotFoundException
     {
         return new self("No customer with the subdomain {$subdomain} was found.");
     }
+
+    public static function noId(string $id): self
+    {
+        return new self("No customer with the id {$id} was found.");
+    }
 }

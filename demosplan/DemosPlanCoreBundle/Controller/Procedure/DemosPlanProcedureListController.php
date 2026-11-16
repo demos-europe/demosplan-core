@@ -382,7 +382,8 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             $procedureIds,
             $userId,
             $customerService->getCurrentCustomer()->getId(),
-            $useExternalProcedureName
+            $useExternalProcedureName,
+            $currentUserService->getUser()->getCurrentOrganisation()?->getId()
         ));
 
         return new JsonResponse(['jobId' => $job->getId()]);
@@ -650,6 +651,10 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
 
         try {
             $requestGet = $request->query->all();
+            $query = $requestGet['query'] ?? '';
+            if (!is_string($query) || '' === trim($query)) {
+                return $this->renderJson(['suggestions' => []]);
+            }
             $limit = $requestGet['maxResults'] ?? 50;
 
             $maxExtent = null;
@@ -663,7 +668,7 @@ class DemosPlanProcedureListController extends DemosPlanProcedureController
             }
 
             $this->profilerStart('searchCity');
-            $result = $locationService->searchLocation($requestGet['query'], $limit, $maxExtent);
+            $result = $locationService->searchLocation($query, $limit, $maxExtent);
             $this->profilerStop('searchCity');
 
             $maxSuggestions = (int) ($requestGet['maxResults'] ?? (is_countable($result) ? count($result) : 0));
