@@ -93,9 +93,9 @@ class DemosPlanStatementTagControllerEditTest extends FunctionalTestCase
     }
 
     #[DataProvider('procedureKindProvider')]
-    public function testEditPageKnowsWhetherProcedureIsBlueprint(bool $isBlueprint): void
+    public function testEditPageKnowsWhetherProcedureIsTemplate(bool $isProcedureTemplate): void
     {
-        $tag = $this->createTag($isBlueprint);
+        $tag = $this->createTag($isProcedureTemplate);
         $renderedParameters = [];
         self::getContainer()->get(EventDispatcherInterface::class)->addListener(
             PreRenderEvent::class,
@@ -106,7 +106,7 @@ class DemosPlanStatementTagControllerEditTest extends FunctionalTestCase
 
         $this->callTagView($tag, false, [], false);
 
-        self::assertSame($isBlueprint, $renderedParameters['templateVars']['procedureTemplate']);
+        self::assertSame($isProcedureTemplate, $renderedParameters['templateVars']['procedureTemplate']);
     }
 
     /**
@@ -115,14 +115,14 @@ class DemosPlanStatementTagControllerEditTest extends FunctionalTestCase
     public static function procedureKindProvider(): array
     {
         return [
-            'blueprint'        => [true],
-            'normal procedure' => [false],
+            'procedure template' => [true],
+            'normal procedure'   => [false],
         ];
     }
 
-    private function createTag(bool $isBlueprint = false): Tag
+    private function createTag(bool $isProcedureTemplate = false): Tag
     {
-        $procedure = ProcedureFactory::createOne(['master' => $isBlueprint]);
+        $procedure = ProcedureFactory::createOne(['master' => $isProcedureTemplate]);
 
         return TagFactory::createOne([
             'topic'       => TagTopicFactory::createOne(['procedure' => $procedure]),

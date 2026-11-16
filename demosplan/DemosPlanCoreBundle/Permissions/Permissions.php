@@ -597,7 +597,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         return $this->procedure instanceof Procedure && $this->procedure->isReadOnly();
     }
 
-    protected function isBlueprintProcedure(): bool
+    protected function isProcedureTemplate(): bool
     {
         return $this->procedure instanceof Procedure && $this->procedure->getMaster();
     }

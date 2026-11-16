@@ -35,8 +35,8 @@ class TagTopicRepositoryTest extends FunctionalTestCase
 
     public function testCopyKeepsTagDescriptions(): void
     {
-        $blueprint = ProcedureFactory::new()->withDefaultSettings()->create();
-        $topic = TagTopicFactory::createOne(['procedure' => $blueprint]);
+        $procedureTemplate = ProcedureFactory::new()->withDefaultSettings()->create();
+        $topic = TagTopicFactory::createOne(['procedure' => $procedureTemplate]);
         TagFactory::createOne([
             'topic'       => $topic,
             'title'       => self::TAG_TITLE_WITH_DESCRIPTION,
@@ -45,7 +45,7 @@ class TagTopicRepositoryTest extends FunctionalTestCase
         TagFactory::createOne(['topic' => $topic, 'title' => self::TAG_TITLE_WITHOUT_DESCRIPTION]);
         $newProcedure = ProcedureFactory::new()->withDefaultSettings()->create();
 
-        $this->sut->copy($blueprint->getId(), $newProcedure->_real());
+        $this->sut->copy($procedureTemplate->getId(), $newProcedure->_real());
 
         $descriptionsByTitle = [];
         foreach ($newProcedure->_real()->getTags() as $copiedTag) {
