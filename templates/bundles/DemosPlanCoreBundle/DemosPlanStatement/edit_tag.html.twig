@@ -27,7 +27,8 @@
             :selected-assignee="JSON.parse('{{ currentAssignee|json_encode|e('js', 'utf-8') }}')"
             :selected-attachmode="'{{ currentAttachmode }}'"
             :selected-boilerplate="JSON.parse('{{ currentBoilerplate|json_encode|e('js', 'utf-8') }}')"
-            v-slot="{ assignee, attachmode, boilerplate, setAssignee, setAttachmode, setBoilerplate }"
+            :selected-description="JSON.parse('{{ (templateVars.tag.description|default(''))|json_encode|e('js', 'utf-8') }}')"
+            v-slot="{ assignee, attachmode, boilerplate, description, setAssignee, setAttachmode, setBoilerplate, setDescription }"
         >
         {{ uiComponent('form.row', {
             elements: [
@@ -41,6 +42,19 @@
                 }
             ]
         }) }}
+
+        {% if permissions.field_tag_description is defined and permissions.field_tag_description.enabled == true %}
+            <dp-text-area
+                id="r_tagDescription"
+                :hint="Translator.trans('tag.description.hint')"
+                :label="Translator.trans('description')"
+                :maxlength="1000"
+                :value="description"
+                class="mb-4"
+                name="r_tagDescription"
+                @input="val => setDescription(val)"
+            ></dp-text-area>
+        {% endif %}
 
         {% if permissions.feature_tag_default_assignee is defined and permissions.feature_tag_default_assignee.enabled == true %}
             {% set assigneeOptions = [{ id: '', label: 'not.assigned'|trans }] %}

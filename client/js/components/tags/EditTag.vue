@@ -12,9 +12,11 @@
     :assignee="assignee"
     :attachmode="attachmode"
     :boilerplate="boilerplate"
+    :description="description"
     :set-assignee="setAssignee"
     :set-attachmode="setAttachmode"
     :set-boilerplate="setBoilerplate"
+    :set-description="setDescription"
   />
 </template>
 
@@ -40,6 +42,12 @@ export default {
       type: Object,
       default: () => ({ id: '', label: '' }),
     },
+
+    selectedDescription: {
+      required: false,
+      type: String,
+      default: '',
+    },
   },
 
   data () {
@@ -47,6 +55,7 @@ export default {
       assignee: this.selectedAssignee,
       attachmode: this.selectedAttachmode,
       boilerplate: this.selectedBoilerplate,
+      description: this.selectedDescription,
     }
   },
 
@@ -63,6 +72,10 @@ export default {
       this.boilerplate = val
       // Choosing a boilerplate implies the "existing" mode.
       this.attachmode = 'existing'
+    },
+
+    setDescription (val) {
+      this.description = val
     },
   },
 }
