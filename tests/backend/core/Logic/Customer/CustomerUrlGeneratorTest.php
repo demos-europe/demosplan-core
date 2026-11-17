@@ -60,16 +60,29 @@ class CustomerUrlGeneratorTest extends TestCase
         ];
     }
 
-    public function testUsesProjectDomainIfContextHostHasNoCustomerLabel(): void
+    #[DataProvider('projectDomainContextHostProvider')]
+    public function testPrefersProjectDomainOverContextHost(string $contextHost): void
     {
         $this->globalConfig = $this->createMock(GlobalConfigInterface::class);
-        $this->globalConfig->method('getProjectDomain')->willReturn('example.org');
-        $this->createSut('localhost');
+        $this->globalConfig->method('getProjectDomain')->willReturn('project-dev.example.org');
+        $this->createSut($contextHost);
 
         self::assertSame(
-            'http://nw.example.org/p/1',
+            'http://nw.project-dev.example.org/p/1',
             $this->sut->generate($this->createCustomer('nw'), self::ROUTE, ['id' => '1'])
         );
+    }
+
+    /**
+     * @return array<string, array{string}>
+     */
+    public static function projectDomainContextHostProvider(): array
+    {
+        return [
+            'context host without customer label' => ['localhost'],
+            'context host is the bare project host' => ['project-dev.example.org'],
+            'context host is another customer host' => ['hh.project-dev.example.org'],
+        ];
     }
 
     public function testPrefixesContextHostIfNoProjectDomainIsSet(): void
@@ -90,6 +103,18 @@ class CustomerUrlGeneratorTest extends TestCase
         self::assertSame(
             'http://hh.example.org/p/1',
             $this->sut->generate($this->createCustomer(''), self::ROUTE, ['id' => '1'])
+        );
+    }
+
+    public function testKeepsContextHostIfConfigured(): void
+    {
+        $this->globalConfig = $this->createMock(GlobalConfigInterface::class);
+        $this->globalConfig->method('getProjectDomain')->willReturn('example.org');
+        $this->createSut('stage.example.org', true);
+
+        self::assertSame(
+            'http://stage.example.org/p/1',
+            $this->sut->generate($this->createCustomer('nw'), self::ROUTE, ['id' => '1'])
         );
     }
 
@@ -116,7 +141,7 @@ class CustomerUrlGeneratorTest extends TestCase
         self::assertSame('hh.example.org', $this->context->getHost());
     }
 
-    private function createSut(string $contextHost): void
+    private function createSut(string $contextHost, bool $keepContextHost = false): void
     {
         $this->context = new RequestContext();
         $this->context->setHost($contextHost);
@@ -136,7 +161,7 @@ class CustomerUrlGeneratorTest extends TestCase
             }
         );
 
-        $this->sut = new CustomerUrlGenerator($this->globalConfig, $this->createMock(LoggerInterface::class), $router);
+        $this->sut = new CustomerUrlGenerator($this->globalConfig, $this->createMock(LoggerInterface::class), $router, $keepContextHost);
     }
 
     private function createCustomer(string $subdomain): CustomerInterface
