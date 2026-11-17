@@ -203,8 +203,8 @@
                                 min-date="{{ 'now'|date('d.m.Y') }}"
                                 name="r_designatedSwitchDate"
                                 :required="designatedToSwitchState"
-                                :value="changeDatetime"
-                                @input="updateChangeDatetime">
+                                :model-value="changeDatetime"
+                                @update:model-value="updateChangeDatetime">
                             </dp-datetime-picker>
                         </div>
                     </div>
