@@ -79,7 +79,7 @@ class CustomerUrlGeneratorTest extends TestCase
     public static function projectDomainContextHostProvider(): array
     {
         return [
-            'context host without customer label' => ['localhost'],
+            'context host without customer label'   => ['localhost'],
             'context host is the bare project host' => ['project-dev.example.org'],
             'context host is another customer host' => ['hh.project-dev.example.org'],
         ];
