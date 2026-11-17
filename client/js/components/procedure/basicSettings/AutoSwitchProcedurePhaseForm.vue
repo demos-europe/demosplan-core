@@ -19,6 +19,11 @@
       }"
       :name="checkboxId" />
 
+    <dp-inline-notification
+      class="u-mt-0_5"
+      :message="Translator.trans('procedure.phase.autoswitch.enddate.hint')"
+      type="warning" />
+
     <transition
       name="slide-fade"
       mode="out-in">
