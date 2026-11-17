@@ -34,10 +34,10 @@
         <div class="segment-list-col--l weight--bold">
           {{ Translator.trans('segment') }}
         </div>
-        <div class="segment-list-col--s">
+        <div class="segment-list-col--s flex items-center justify-center">
           <button
             v-tooltip="Translator.trans(isAllCollapsed ? 'aria.expand.all' : 'aria.collapse.all')"
-            class="segment-list-toggle-button btn--blank u-mh-auto"
+            class="segment-list-toggle-button btn--blank"
             :class="{'reverse': isAllCollapsed === false}"
             @click="toggleAll"
           >
@@ -48,7 +48,7 @@
         <div class="segment-list-col--l weight--bold text-right">
           {{ Translator.trans('segment.recommendation') }}
         </div>
-        <div class="segment-list-col--m w-10" />
+        <div class="segment-list-col--m" />
       </div>
 
       <!-- info that statement has not been segmented yet -->
