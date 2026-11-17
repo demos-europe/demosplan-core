@@ -1843,6 +1843,15 @@ feature_procedure_planning_area_match:
     expose: true
     label: 'Check, if statement and map reference belong to the same planning area'
     loginRequired: false
+feature_procedure_read_only_filter:
+    description: |-
+        Shows the "only active procedures" switch in the admin procedure list, which hides or
+        reveals read-only (archived) procedures. Does not allow archiving or reactivating, that
+        requires feature_procedure_read_only_toggle.
+    expose: true
+    label: 'Filter read-only procedures in the procedure list'
+    loginRequired: true
+    parent: area_admin_procedures
 feature_procedure_read_only_toggle:
     description: |-
         Allows to switch a procedure into a read-only (archived) state and back, from the
