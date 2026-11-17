@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Fix guests landing on the default start page instead of the requested page (e.g. a scheduled export link) after logging in (DPLAN-18555)
 
 ## v4.69.0 (2026-11-13)
 - Organisations get a read-only technical name from the identity provider, stored as `Orga::$technicalName` (JSON:API 2.0
