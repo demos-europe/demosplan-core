@@ -24,11 +24,12 @@
         {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         <edit-tag
+            :is-procedure-template="Boolean({{ templateVars.procedureTemplate ? 'true' : 'false' }})"
             :selected-assignee="JSON.parse('{{ currentAssignee|json_encode|e('js', 'utf-8') }}')"
             :selected-attachmode="'{{ currentAttachmode }}'"
             :selected-boilerplate="JSON.parse('{{ currentBoilerplate|json_encode|e('js', 'utf-8') }}')"
             :selected-description="JSON.parse('{{ (templateVars.tag.description|default(''))|json_encode|e('js', 'utf-8') }}')"
-            v-slot="{ assignee, attachmode, boilerplate, description, setAssignee, setAttachmode, setBoilerplate, setDescription }"
+            v-slot="{ assignee, attachmode, boilerplate, description, handleSubmit, setAssignee, setAttachmode, setBoilerplate, setDescription }"
         >
         {{ uiComponent('form.row', {
             elements: [
@@ -172,7 +173,7 @@
         {% endif %}
 
         <div class="text-right u-mt-0_5 space-inline-s">
-            <button type="submit" class="btn btn--primary">{{ "save" |trans }}</button>
+            <button type="button" class="btn btn--primary" @click="handleSubmit">{{ "save" |trans }}</button>
             <a class="btn btn--secondary" href="{{ path('DemosPlan_statement_administration_tags', {'procedure': procedure}) }}#{{ tag }}">
                 {{ "abort"|trans }}
             </a>

@@ -16,15 +16,38 @@
     :set-assignee="setAssignee"
     :set-attachmode="setAttachmode"
     :set-boilerplate="setBoilerplate"
+    :handle-submit="handleSubmit"
     :set-description="setDescription"
+  />
+
+  <dp-confirm-dialog
+    ref="confirmDialog"
+    :confirm-button-text="Translator.trans('tag.description.change.confirm.button')"
+    content-header-classes="text-h2"
+    :decline-button-text="Translator.trans('abort')"
+    :header="Translator.trans('tag.description.change.confirm.header')"
+    icon="warning"
+    :message="Translator.trans('tag.description.change.confirm.message')"
   />
 </template>
 
 <script>
+import { DpConfirmDialog } from '@demos-europe/demosplan-ui'
+
 export default {
   name: 'EditTag',
 
+  components: {
+    DpConfirmDialog,
+  },
+
   props: {
+    isProcedureTemplate: {
+      required: false,
+      type: Boolean,
+      default: false,
+    },
+
     selectedAssignee: {
       required: false,
       type: Object,
@@ -59,7 +82,30 @@ export default {
     }
   },
 
+  computed: {
+    // Changing or deleting an existing description needs confirmation, except in the procedure template
+    needsConfirmation () {
+      if (this.isProcedureTemplate || this.selectedDescription === '') {
+        return false
+      }
+
+      return this.description !== this.selectedDescription
+    },
+  },
+
   methods: {
+    async handleSubmit (event) {
+      // The event target is gone after the await, so the form has to be read first
+      const form = event.currentTarget.closest('form')
+
+      if (this.needsConfirmation && !(await this.$refs.confirmDialog.open())) {
+        return
+      }
+
+      // Unlike submit(), requestSubmit() still runs the form validation
+      form.requestSubmit()
+    },
+
     setAssignee (val) {
       this.assignee = val
     },
