@@ -1209,7 +1209,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             // handle guest Exceptions differently as redirects
             // may be different
             if ($this->user->hasRole(Role::GUEST)) {
-                throw AccessDeniedGuestException::missingPermissions($this->user);
+                throw new AccessDeniedGuestException(
+                    AccessDeniedException::missingPermissions($this->user)->getMessage()
+                );
             }
 
             throw AccessDeniedException::missingPermission($permission, $this->user);
