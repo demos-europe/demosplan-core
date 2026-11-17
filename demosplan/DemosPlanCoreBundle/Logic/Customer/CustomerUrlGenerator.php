@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Customer;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\CustomerUrlGeneratorInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -29,7 +30,7 @@ use Symfony\Component\Routing\RouterInterface;
  * domain does not have to be configured. The parameter project_domain is only used if the
  * context host has no customer label (e.g. localhost).
  */
-class CustomerUrlGenerator
+class CustomerUrlGenerator implements CustomerUrlGeneratorInterface
 {
     public function __construct(
         private readonly GlobalConfigInterface $globalConfig,
