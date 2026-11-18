@@ -47,6 +47,7 @@
                 :filters="JSON.parse('{{ filterNames|json_encode|e('js', 'utf-8') }}')"
                 @apply-bookmark="$refs.segmentsList.applyBookmarkSettings($event); $refs.segmentsListFilter.syncFromBookmark($event.attributes.filter)"
                 @has-unsaved-changes="$refs.bookmarksButton.setHasUnsavedChanges($event)"
+                @no-bookmark="$refs.segmentsList.applyInitialView()"
                 @reset-view="$refs.segmentsList.applyBookmarkSettings(null)"
                 @update-button-text="$refs.bookmarksButton.updateButtonText($event)">
             </segments-bookmarks>

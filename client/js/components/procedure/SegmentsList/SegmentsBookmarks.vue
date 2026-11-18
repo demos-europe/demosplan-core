@@ -177,6 +177,7 @@ const setBookmarkStateInitialized = (value: boolean): void => store.commit('Book
 interface SegmentsBookmarksEmits {
   (e: 'applyBookmark', bookmark: Bookmark): void
   (e: 'hasUnsavedChanges', value: boolean): void
+  (e: 'noBookmark'): void
   (e: 'resetView'): void
   (e: 'updateButtonText', text: string): void
 }
@@ -297,11 +298,8 @@ const findBookmarkToRestore = (): Bookmark | undefined => {
     }
 
     // URL hash matches different bookmark → use URL match for shared links
-    const bookmarkFromUrl = findBookmarkByQueryHash(urlQueryHash)
-
-    if (bookmarkFromUrl) {
-      return bookmarkFromUrl
-    }
+    // A hash that matches no bookmark (e.g. dashboard link) must not be overridden by the saved bookmark
+    return findBookmarkByQueryHash(urlQueryHash)
   }
 
   return savedBookmark
@@ -389,7 +387,8 @@ const restoreSavedBookmark = async (): Promise<void> => {
 
   if (!bookmarkToApply) {
     setBookmarkStateInitialized(true)
-    emit('resetView')
+    // Initial load without a matching bookmark: keep the URL filter and the user's columns, do not reset
+    emit('noBookmark')
 
     return
   }

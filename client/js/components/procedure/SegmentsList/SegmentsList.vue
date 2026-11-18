@@ -1165,6 +1165,22 @@ export default {
       resetToDefaultView: 'resetToDefaultView',
     }),
 
+    /*
+     * Initial load when no bookmark matches the URL. Unlike applyBookmarkSettings(null), this keeps the filter
+     * from the URL hash and the user's stored column selection instead of resetting to the default view.
+     */
+    applyInitialView () {
+      this.initializeFilters()
+
+      this.currentSelection = this.getStoredColumnSelection() ?? [...this.defaultColumnSelection]
+      this.setStoreSelectedColumns(this.currentSelection)
+      this.setStoreSearchPhrase(this.searchTerm)
+      this.restoreSorting()
+      this.columnSelectorKey++
+
+      this.applyQuery(this.pagination.currentPage)
+    },
+
     async applyBookmarkSettings (bookmark) {
       if (!bookmark) {
         await this.resetQuery()
@@ -1625,6 +1641,17 @@ export default {
       }
 
       this.commitFilterQuery()
+    },
+
+    // Returns the column selection persisted in localStorage, or null if missing or invalid
+    getStoredColumnSelection () {
+      try {
+        const stored = JSON.parse(localStorage.getItem('segmentList'))
+
+        return Array.isArray(stored) && stored.length > 0 ? stored : null
+      } catch {
+        return null
+      }
     },
 
     // Effective order of the list and its export: the user-selected sort, or the default order
@@ -2108,6 +2135,8 @@ export default {
       this.currentSelection = selection
 
       if (this.hasBookmarks) {
+        // The selector's own localStorage is off with bookmarks, so persist the choice here for the next visit
+        localStorage.setItem('segmentList', JSON.stringify(selection))
         this.setStoreSelectedColumns(selection)
         this.updateQueryHash()
       }
