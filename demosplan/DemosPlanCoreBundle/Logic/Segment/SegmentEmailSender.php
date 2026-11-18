@@ -51,6 +51,9 @@ class SegmentEmailSender
         ?string $body,
         ?string $sendEmailCC,
         ?string $replyTo,
+        ?string $messageText = null,
+        ?string $segmentText = null,
+        ?string $recommendationText = null,
     ): bool {
         try {
             $segmentIds = array_values(array_unique($segmentIds));
@@ -76,9 +79,20 @@ class SegmentEmailSender
             // (RpcSegmentEmailSender::execute) wraps this in a transaction so a queued mail can
             // never end up without its GDPR audit entry. No attachments as of now.
             $this->sendSegment($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, [], $replyTo);
-            $loggedMessage = trim((string) preg_replace('/\s+/', ' ', strip_tags((string) $obscuredBody)));
+            // The separate parts allow labelling them in the version history. Without them the whole body is logged as the message.
+            $hasParts = null !== $messageText;
+            $loggedMessage = $this->toLogText($hasParts ? $messageText : $body);
+            $loggedSegmentText = $hasParts ? $this->toLogText($segmentText) : null;
+            $loggedRecommendation = $hasParts ? $this->toLogText($recommendationText) : null;
             foreach ($segments as $segment) {
-                $this->entityContentChangeService->createSegmentSentByMailChangeEntry($segment, $sendMailTo, $loggedMessage, new DateTime());
+                $this->entityContentChangeService->createSegmentSentByMailChangeEntry(
+                    $segment,
+                    $sendMailTo,
+                    $loggedMessage,
+                    new DateTime(),
+                    $loggedSegmentText,
+                    $loggedRecommendation,
+                );
             }
         } catch (InvalidDataException) {
             $this->messageBag->add('error', 'error.segment.queued');
@@ -88,6 +102,18 @@ class SegmentEmailSender
         $this->messageBag->add('confirm', 'confirm.segment.queued');
 
         return true;
+    }
+
+    /**
+     * Obscures the text like the mail body and flattens it to a single line for the version history.
+     */
+    private function toLogText(?string $text): string
+    {
+        if (null === $text || '' === $text) {
+            return '';
+        }
+
+        return trim((string) preg_replace('/\s+/', ' ', strip_tags($this->editorService->obscureString($text))));
     }
 
     /**

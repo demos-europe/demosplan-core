@@ -267,9 +267,13 @@ const onSendEmail = () => {
    */
   return dpRpc('segment.email.sender', {
     body: emailBody.value,
+    // Sent separately so the version history can label each part
+    messageText: message.value,
     recipientMail: recipient.value,
+    recommendationText: attachRecommendation.value ? recommendationTextToSend.value : '',
     replyTo: replyToEmail.value,
     segmentIds: [segmentId.value],
+    segmentText: attachSegmentText.value ? segmentTextToSend.value : '',
     sendEmailCC: emailCC.value,
     subject: subject.value,
   })
