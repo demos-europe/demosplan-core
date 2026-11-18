@@ -297,8 +297,10 @@ const findBookmarkToRestore = (): Bookmark | undefined => {
       return savedBookmark
     }
 
-    // URL hash matches different bookmark → use URL match for shared links
-    // A hash that matches no bookmark (e.g. dashboard link) must not be overridden by the saved bookmark
+    /*
+     * URL hash matches different bookmark → use URL match for shared links
+     * A hash that matches no bookmark (e.g. dashboard link) must not be overridden by the saved bookmark
+     */
     return findBookmarkByQueryHash(urlQueryHash)
   }
 
