@@ -1675,6 +1675,7 @@ export default {
         dataToSend.r_location_priority_area_key = ''
         dataToSend.r_location_priority_area_type = ''
         dataToSend.r_location_geometry = ''
+        dataToSend.r_location_reference_geometry = ''
       }
 
       /*
@@ -2023,6 +2024,7 @@ export default {
     },
 
     setDraftData (data, priorityAreaKey, priorityAreaType) {
+      const isLocationReferenceSplit = hasPermission('feature_diplankarte_split_location_reference')
       const draft = {
         r_text: data.draftStatement.text,
         r_files_initial: data.draftStatement.files ? JSON.stringify(data.draftStatement.files) : [],
@@ -2036,10 +2038,11 @@ export default {
         r_document_title: data.draftStatement.document?.title ?? '',
         r_represents: data.draftStatement.represents ?? '',
         r_location: Object.keys(data.draftStatement.statementAttributes).pop() ?? 'mapLocation',
-        r_location_geometry: data.draftStatement.polygon,
+        r_location_geometry: isLocationReferenceSplit ? data.draftStatement.r_location_geometry : data.draftStatement.polygon,
         r_location_priority_area_key: priorityAreaKey,
         r_location_priority_area_type: priorityAreaType,
         r_location_point: '',
+        r_location_reference_geometry: isLocationReferenceSplit ? data.draftStatement.r_location_reference_geometry : '',
         location_is_set: priorityAreaKey.length > 0 ? 'priority_area' : 'geometry',
         r_county: data.draftStatement.statementAttributes.county ?? '',
         r_makePublic: data.draftStatement.publicAllowed ? 'on' : 'off',
@@ -2159,7 +2162,7 @@ export default {
     },
 
     validateStatementStep () {
-      if (this.formData.r_location === 'point' && (this.formData.r_location_geometry === '' && this.formData.r_location_point === '' && this.formData.r_location_priority_area_key === '')) {
+      if (this.formData.r_location === 'point' && (this.formData.r_location_geometry === '' && this.formData.r_location_point === '' && this.formData.r_location_priority_area_key === '' && this.formData.r_location_reference_geometry === '')) {
         this.setStatementData({ r_location: '' })
         document.getElementById('locationPoint').checked = false
       }

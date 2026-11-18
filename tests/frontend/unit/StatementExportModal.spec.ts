@@ -479,6 +479,82 @@ describe('StatementExportModal', () => {
     expect(wrapper.findComponent({ name: 'DpInlineNotification' }).exists()).toBe(true)
   })
 
+  describe('buildOptionsFromResult', () => {
+    const buildItem = (id: string, count: number, selected: boolean) => ({
+      id,
+      type: 'AggregationFilterItem',
+      attributes: { count, description: null, label: id, selected },
+    })
+
+    const buildTopic = (id: string, itemIds: string[]) => ({
+      id,
+      type: 'AggregationFilterGroup',
+      attributes: { label: id },
+      relationships: { aggregationFilterItems: { data: itemIds.map(itemId => ({ id: itemId })) } },
+    })
+
+    const buildFilter = (groupIds: string[], itemIds: string[]) => ({
+      relationships: {
+        aggregationFilterGroups: { data: groupIds.map(id => ({ id })) },
+        aggregationFilterItems: { data: itemIds.map(id => ({ id })) },
+      },
+    })
+
+    const buildResult = (included: any[]) => ({
+      data: [{ attributes: { path: 'tags' } }],
+      included,
+      meta: {},
+    })
+
+    it('hides ungrouped options with count 0 that are not selected', () => {
+      const filter = buildFilter([], ['unused'])
+      const result = buildResult([buildItem('unused', 0, false)])
+
+      const { ungroupedOptions } = wrapper.vm.buildOptionsFromResult(result, filter)
+
+      expect(ungroupedOptions).toEqual([])
+    })
+
+    it('keeps options with count 0 when they are selected and options with a positive count', () => {
+      const filter = buildFilter([], ['selectedUnused', 'used'])
+      const result = buildResult([
+        buildItem('selectedUnused', 0, true),
+        buildItem('used', 3, false),
+      ])
+
+      const { ungroupedOptions } = wrapper.vm.buildOptionsFromResult(result, filter)
+
+      expect(ungroupedOptions.map((option: { id: string }) => option.id)).toEqual(['selectedUnused', 'used'])
+    })
+
+    it('hides unused options within a topic but keeps the topic while it has visible options', () => {
+      const filter = buildFilter(['topic'], [])
+      const result = buildResult([
+        buildTopic('topic', ['unused', 'used']),
+        buildItem('unused', 0, false),
+        buildItem('used', 2, false),
+      ])
+
+      const { groupedOptions } = wrapper.vm.buildOptionsFromResult(result, filter)
+
+      expect(groupedOptions).toHaveLength(1)
+      expect(groupedOptions[0].options.map((option: { id: string }) => option.id)).toEqual(['used'])
+    })
+
+    it('removes a topic when all of its options are hidden', () => {
+      const filter = buildFilter(['topic'], [])
+      const result = buildResult([
+        buildTopic('topic', ['unusedA', 'unusedB']),
+        buildItem('unusedA', 0, false),
+        buildItem('unusedB', 0, false),
+      ])
+
+      const { groupedOptions } = wrapper.vm.buildOptionsFromResult(result, filter)
+
+      expect(groupedOptions).toEqual([])
+    })
+  })
+
   describe('isExportDisabled', () => {
     const findOpenExportButton = () => wrapper.findComponent('[data-cy="exportModal:open"]') as VueWrapper<any>
 

@@ -14,7 +14,10 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Customer;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use DemosEurope\DemosplanAddon\Contracts\Services\CustomerUrlGeneratorInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Routing\RouterInterface;
 
 /**
@@ -25,16 +28,19 @@ use Symfony\Component\Routing\RouterInterface;
  * to the wrong customer. Use this class whenever an absolute url has to be generated for a
  * specific customer outside of a request.
  *
- * The customer host is built from the context host by replacing its customer label, so the base
- * domain does not have to be configured. The parameter project_domain is only used if the
- * context host has no customer label (e.g. localhost).
+ * The customer host is the customer subdomain prefixed to the parameter project_domain. Without
+ * project_domain the customer label of the context host is replaced, which only works if the
+ * context host itself is a customer host. Instances that serve all customers on one host set
+ * customer_url_keep_context_host, their urls keep the context host.
  */
-class CustomerUrlGenerator
+readonly class CustomerUrlGenerator implements CustomerUrlGeneratorInterface
 {
     public function __construct(
-        private readonly GlobalConfigInterface $globalConfig,
-        private readonly LoggerInterface $logger,
-        private readonly RouterInterface $router,
+        private GlobalConfigInterface $globalConfig,
+        private LoggerInterface $logger,
+        private RouterInterface $router,
+        #[Autowire(param: 'customer_url_keep_context_host')]
+        private bool $keepContextHost = false,
     ) {
     }
 
@@ -47,12 +53,12 @@ class CustomerUrlGenerator
         $originalHost = $context->getHost();
         $customerHost = $this->getCustomerHost($customer, $originalHost);
         if (null === $customerHost) {
-            return $this->router->generate($route, $parameters, RouterInterface::ABSOLUTE_URL);
+            return $this->router->generate($route, $parameters, UrlGeneratorInterface::ABSOLUTE_URL);
         }
 
         $context->setHost($customerHost);
         try {
-            return $this->router->generate($route, $parameters, RouterInterface::ABSOLUTE_URL);
+            return $this->router->generate($route, $parameters, UrlGeneratorInterface::ABSOLUTE_URL);
         } finally {
             // the context is shared, do not leak the customer host into later url generation
             $context->setHost($originalHost);
@@ -62,8 +68,13 @@ class CustomerUrlGenerator
     private function getCustomerHost(?CustomerInterface $customer, string $contextHost): ?string
     {
         $subdomain = $customer?->getSubdomain() ?? '';
-        if ('' === $subdomain) {
+        if ('' === $subdomain || $this->keepContextHost) {
             return null;
+        }
+
+        $projectDomain = $this->globalConfig->getProjectDomain();
+        if ('' !== $projectDomain) {
+            return $subdomain.'.'.$projectDomain;
         }
 
         // Same rule as SubdomainHandler: a host with more than two labels carries the customer as
@@ -75,13 +86,8 @@ class CustomerUrlGenerator
             return $subdomain.'.'.implode('.', $labels);
         }
 
-        $projectDomain = $this->globalConfig->getProjectDomain();
-        if ('' !== $projectDomain) {
-            return $subdomain.'.'.$projectDomain;
-        }
-
         $this->logger->warning(
-            'The context host has no customer part and project_domain is not set, prefixing the customer to the context host',
+            'project_domain is not set and the context host has no customer part, prefixing the customer to the context host',
             ['customer' => $subdomain, 'contextHost' => $contextHost]
         );
 

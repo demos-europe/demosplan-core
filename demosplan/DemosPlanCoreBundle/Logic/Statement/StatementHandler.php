@@ -89,6 +89,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureHandler;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedurePhaseDefinitionService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ServiceOutput;
+use demosplan\DemosPlanCoreBundle\Logic\Statement\LocationReferenceSplit\LocationReferenceSplitService;
 use demosplan\DemosPlanCoreBundle\Logic\User\OrgaService;
 use demosplan\DemosPlanCoreBundle\Logic\User\UserService;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
@@ -255,6 +256,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         private readonly TagRepository $tagRepository,
         private readonly TagTopicRepository $tagTopicRepository,
         private readonly ManagerRegistry $doctrine,
+        private readonly LocationReferenceSplitService $locationReferenceSplitService,
     ) {
         parent::__construct($messageBag);
         $this->assignService = $assignService;
@@ -941,8 +943,9 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
         // in 3 Fällen wird r_location == point übergeben: Ortsbezug, Vorranggebietsauswahl und Ortseinzeichung
         if (array_key_exists('r_location', $data) && 'point' === $data['r_location']) {
             // Punkteinzeichnung
-            if (array_key_exists('r_location_geometry', $data) && '' !== (string) $data['r_location_geometry']) {
-                $statement['polygon'] = $data['r_location_geometry'];
+            $polygon = $this->locationReferenceSplitService->extractGeometry($data);
+            if ('' !== $polygon) {
+                $statement['polygon'] = $polygon;
             }
 
             // Vorranggebiet
@@ -2017,6 +2020,7 @@ class StatementHandler extends CoreHandler implements StatementHandlerInterface
                 'r_location_priority_area_type',
                 'r_location_point',
                 'r_location_geometry',
+                LocationReferenceSplitService::LOCATION_REFERENCE_FIELD,
                 'r_userGroup',
                 'r_userOrganisation',
                 'r_userPosition',

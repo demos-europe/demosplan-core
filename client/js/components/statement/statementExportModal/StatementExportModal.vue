@@ -734,6 +734,11 @@ export default {
       const { attributes, id } = option
       const { count, description, label, selected } = attributes
 
+      // Hide tags that are not assigned to any segment (same rule as in SegmentsList)
+      if (count === 0 && !selected) {
+        return null
+      }
+
       return { id, count, description, label, selected }
     },
 

@@ -16,6 +16,7 @@ use demosplan\DemosPlanCoreBundle\Exception\CustomerNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\PrefilledResourceTypeProvider;
+use demosplan\DemosPlanCoreBundle\Logic\Customer\CustomerUrlGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\EntityWrapperFactory;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
@@ -47,6 +48,7 @@ class DemosPlanCustomerController extends BaseController
         PrefilledResourceTypeProvider $resourceTypeProvider,
         TranslatorInterface $translator,
         RouterInterface $router,
+        CustomerUrlGenerator $customerUrlGenerator,
     ): Response {
         try {
             // Using a resource instead of the unrestricted entity is done here to easily notice
@@ -62,7 +64,7 @@ class DemosPlanCustomerController extends BaseController
 
             $templateVars = [
                 'customer'      => $customerResource,
-                'projectDomain' => $this->getGlobalConfig()->getProjectDomain(),
+                'customerHost'  => parse_url($customerUrlGenerator->generate($currentCustomer, 'core_home'), PHP_URL_HOST),
                 'imprintUrl'    => $router->generate('DemosPlan_misccontent_static_imprint', [], RouterInterface::ABSOLUTE_URL),
             ];
 
