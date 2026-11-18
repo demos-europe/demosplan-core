@@ -32,6 +32,7 @@ use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\UnitTestCase;
 
@@ -102,7 +103,11 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
             $this->twig,
             $this->translator,
             $this->globalConfig,
-            $this->createMock(CustomerUrlGenerator::class)
+            new CustomerUrlGenerator(
+                $this->globalConfig,
+                $this->logger,
+                $this->createMock(RouterInterface::class)
+            )
         );
     }
 
