@@ -55,21 +55,26 @@
             for="procedurePhasePeriod"
             :text="Translator.trans('period.new')"
             required />
-          <dp-date-range-picker
-            id="procedurePhasePeriod"
-            :end-disabled="!autoSwitchPhase"
-            :end-id="endDateId"
-            :end-name="endDateId"
-            :end-value="endDate"
-            enforce-plausible-dates
-            :min-date="startDate"
-            required
-            :data-cy="dataCyPhasePeriod"
-            start-disabled
-            :start-id="startDateId"
-            :start-name="startDateId"
-            :start-value="startDate"
-            @input:end-date="handleInputEndDate" />
+          <div class="flex items-center gap-1">
+            <dp-date-range-picker
+              id="procedurePhasePeriod"
+              :end-disabled="!autoSwitchPhase"
+              :end-id="endDateId"
+              :end-name="endDateId"
+              :end-value="endDate"
+              enforce-plausible-dates
+              :min-date="startDate"
+              required
+              :data-cy="dataCyPhasePeriod"
+              start-disabled
+              :start-id="startDateId"
+              :start-name="startDateId"
+              :start-value="startDate"
+              @input:end-date="handleInputEndDate" />
+            <span class="color--grey whitespace-nowrap">
+              23:59 {{ Translator.trans('clock') }}
+            </span>
+          </div>
         </div>
 
         <transition
