@@ -378,6 +378,7 @@
           :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
           name="r_attachment_original"
           allowed-file-types="all"
+          :chunk-size="dplan.settings.uploadChunkSize"
           :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
           :max-number-of-files="1"
           needs-hidden-input
@@ -396,6 +397,7 @@
         name="r_upload"
         allowed-file-types="all"
         :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
+        :chunk-size="dplan.settings.uploadChunkSize"
         :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
         :max-number-of-files="1000"
         needs-hidden-input
