@@ -2648,7 +2648,6 @@ procedure.testmail.submitters.help: "Bitte schicken Sie vor dem Versenden der Na
 procedure.notifyCountry.setEmails.invalidEmail: "Bitte geben Sie nur gültige E-Mail-Adressen ein."
 procedure.notifyCountry.setEmails.invalidEmail.notSaved: "E-Mail-Adresse ungültig, wurde beim Speichern ausgelassen."
 procedure.phase.autoswitch.enddate: "Neues Enddatum:"
-procedure.phase.autoswitch.enddate.hint: "Hinweis: Der neue Zeitraum endet am gewählten Ende-Datum um 23:59 Uhr."
 procedure.phase.autoswitch.targetphase: "Neuer Verfahrensschritt"
 procedure.phase.institutions: "Verfahrensschritt für Institutionen"
 procedure.phase.phasecounter: "Durchgangsnummer"
