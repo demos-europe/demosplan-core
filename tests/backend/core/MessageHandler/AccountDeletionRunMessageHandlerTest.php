@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\User\AccountDeletionTracking;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logger\PiiAwareLogger;
+use demosplan\DemosPlanCoreBundle\Logic\Customer\CustomerUrlGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\User\AccountDeletionStep;
 use demosplan\DemosPlanCoreBundle\Logic\User\LastLoginActivityChecker;
@@ -100,7 +101,8 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
             $this->piiLogger,
             $this->twig,
             $this->translator,
-            $this->globalConfig
+            $this->globalConfig,
+            $this->createMock(CustomerUrlGenerator::class)
         );
     }
 
