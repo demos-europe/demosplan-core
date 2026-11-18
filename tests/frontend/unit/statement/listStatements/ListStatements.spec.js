@@ -167,7 +167,7 @@ describe('ListStatements search whitelist & sortOptions permission gating', () =
 
 describe('ListStatements VersionHistorySlidebar integration', () => {
   it('showHistory mutation sets entity and opens slidebar', () => {
-    const { wrapper, store } = mountComponent(() => true)
+    const { wrapper, store } = mountComponent(true)
 
     wrapper.vm.showHistory({ externId: 'EXT-123', id: 'stmt-123', type: 'statement' })
 
@@ -183,7 +183,7 @@ describe('ListStatements VersionHistorySlidebar integration', () => {
   })
 
   it('setIsOpen(false) closes the slidebar without clearing entity', () => {
-    const { wrapper, store } = mountComponent(() => true)
+    const { wrapper, store } = mountComponent(true)
 
     wrapper.vm.showHistory({ externId: 'EXT-123', id: 'stmt-123', type: 'statement' })
     expect(store.state.VersionHistorySlidebar.isOpen).toBe(true)
@@ -200,7 +200,7 @@ describe('ListStatements VersionHistorySlidebar integration', () => {
   })
 
   it('reopening the same entity increments reloadKey', () => {
-    const { wrapper, store } = mountComponent(() => true)
+    const { wrapper, store } = mountComponent(true)
 
     wrapper.vm.showHistory({ externId: 'EXT-123', id: 'stmt-123', type: 'statement' })
     expect(store.state.VersionHistorySlidebar.reloadKey).toBe(1)
@@ -213,7 +213,7 @@ describe('ListStatements VersionHistorySlidebar integration', () => {
   })
 
   it('passes correct props to version-history component', async () => {
-    const { wrapper } = mountComponent(() => true)
+    const { wrapper } = mountComponent(true)
 
     wrapper.vm.showHistory({ externId: 'EXT-456', id: 'stmt-456', type: 'statement' })
     await flushPromises()
@@ -230,7 +230,7 @@ describe('ListStatements VersionHistorySlidebar integration', () => {
   })
 
   it('exposes showHistory and setIsOpen mutations', () => {
-    const { wrapper } = mountComponent(() => true)
+    const { wrapper } = mountComponent(true)
 
     expect(typeof wrapper.vm.showHistory).toBe('function')
     expect(typeof wrapper.vm.setIsOpen).toBe('function')
@@ -239,7 +239,7 @@ describe('ListStatements VersionHistorySlidebar integration', () => {
   })
 
   it('switching entities updates entity and increments reloadKey', () => {
-    const { wrapper, store } = mountComponent(() => true)
+    const { wrapper, store } = mountComponent(true)
 
     wrapper.vm.showHistory({ externId: 'EXT-123', id: 'stmt-123', type: 'statement' })
     expect(store.state.VersionHistorySlidebar.entity.id).toBe('stmt-123')
