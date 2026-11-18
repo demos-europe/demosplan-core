@@ -813,22 +813,27 @@
                                             showPlainHint: true
                                         } %}
 
-                                        <dp-date-range-picker
-                                            class="u-2-of-4"
-                                            data-cy="procedurePeriod"
-                                            data-dp-validate-error-fieldname="{{ "period.institutions"|trans }}"
-                                            end-label="{{ 'end'|trans }}"
-                                            start-id="r_startdate"
-                                            start-label="{{ 'start'|trans }}"
-                                            start-name="r_startdate"
-                                            start-value="{{ proceduresettings.startDate|default|dplanDate }}"
-                                            end-id="r_enddate"
-                                            end-name="r_enddate"
-                                            end-value="{{ proceduresettings.endDate|default|dplanDate }}"
-                                            :required="true"
-                                            :calendars-after="2"
-                                            enforce-plausible-dates>
-                                        </dp-date-range-picker>
+                                        <div class="flex items-center gap-1">
+                                            <dp-date-range-picker
+                                                class="u-2-of-4"
+                                                data-cy="procedurePeriod"
+                                                data-dp-validate-error-fieldname="{{ "period.institutions"|trans }}"
+                                                end-label="{{ 'end'|trans }}"
+                                                start-id="r_startdate"
+                                                start-label="{{ 'start'|trans }}"
+                                                start-name="r_startdate"
+                                                start-value="{{ proceduresettings.startDate|default|dplanDate }}"
+                                                end-id="r_enddate"
+                                                end-name="r_enddate"
+                                                end-value="{{ proceduresettings.endDate|default|dplanDate }}"
+                                                :required="true"
+                                                :calendars-after="2"
+                                                enforce-plausible-dates>
+                                            </dp-date-range-picker>
+                                            <span class="color--grey whitespace-nowrap">
+                                                23:59 {{ "clock"|trans }}
+                                            </span>
+                                        </div>
                                     </fieldset>
                                 </div>
 
@@ -956,22 +961,27 @@
                                             cssClasses:'mb-1',
                                             showPlainHint: true
                                         } %}
-                                        <dp-date-range-picker
-                                            class="u-2-of-4"
-                                            data-cy="publicParticipationPeriod"
-                                            data-dp-validate-error-fieldname="{{ "period.public"|trans }}"
-                                            start-id="r_publicParticipationStartDate"
-                                            start-label="{{ 'start'|trans }}"
-                                            start-name="r_publicParticipationStartDate"
-                                            start-value="{{  proceduresettings.publicParticipationStartDate|default|dplanDate }}"
-                                            end-id="r_publicParticipationEndDate"
-                                            end-label="{{ 'end'|trans }}"
-                                            end-name="r_publicParticipationEndDate"
-                                            end-value="{{ proceduresettings.publicParticipationEndDate|default|dplanDate }}"
-                                            :required="true"
-                                            :calendars-after="2"
-                                            enforce-plausible-dates>
-                                        </dp-date-range-picker>
+                                        <div class="flex items-center gap-1">
+                                            <dp-date-range-picker
+                                                class="u-2-of-4"
+                                                data-cy="publicParticipationPeriod"
+                                                data-dp-validate-error-fieldname="{{ "period.public"|trans }}"
+                                                start-id="r_publicParticipationStartDate"
+                                                start-label="{{ 'start'|trans }}"
+                                                start-name="r_publicParticipationStartDate"
+                                                start-value="{{  proceduresettings.publicParticipationStartDate|default|dplanDate }}"
+                                                end-id="r_publicParticipationEndDate"
+                                                end-label="{{ 'end'|trans }}"
+                                                end-name="r_publicParticipationEndDate"
+                                                end-value="{{ proceduresettings.publicParticipationEndDate|default|dplanDate }}"
+                                                :required="true"
+                                                :calendars-after="2"
+                                                enforce-plausible-dates>
+                                            </dp-date-range-picker>
+                                            <span class="color--grey whitespace-nowrap">
+                                                23:59 {{ "clock"|trans }}
+                                            </span>
+                                        </div>
                                     </fieldset>
                                 </div>
 
