@@ -4292,7 +4292,7 @@ tags.assigned: "Zugewiesene Schlagworte"
 tags.create: "Schlagworte anlegen"
 tags.import: "Schlagworte importieren"
 tags.import.conflict.tag.exists.in.different.topic: "Das Schlagwort \"{tagTitle}\" existiert bereits im Thema \"{existingTopic}\" und wurde daher nicht dem Thema \"{targetTopic}\" hinzugefügt. Bitte überprüfen bzw. verschieben Sie es manuell."
-tags.import.help: "Importieren Sie Schlagworte aus einer Liste im Format CSV (Trennzeichen-getrennt)."
+tags.import.help: "Importieren Sie Schlagworte und Textbausteine aus einer Liste im Format CSV."
 tags.import.hint: "Bitte beachten Sie, dass die Datei UTF-8 kodiert sein muss."
 tags.noentries: "Für dieses Verfahren sind noch keine Schlagworte vorhanden. Um Schlagworte hinzuzufügen erstellen Sie bitte zunächst unten ein neues Thema."
 tags.none.yet: "Es sind noch keine Schlagworte vorhanden."
@@ -4311,6 +4311,7 @@ terms.of.use: "Nutzungsbedingungen"
 terms.of.use.notes: "Hinweise zu den Nutzungsbedingungen"
 text: "Text"
 text.adjustments: "Text-Anpassungen"
+text.boilerplates.administration: "Legen Sie hier Textbausteine an, um wiederkehrende Formulierungen zentral zu verwalten. Sie können Textbausteine an Schlagworte knüpfen, um sie passend zum jeweiligen Thema vorzuschlagen. Textbausteine können in der Schlagwort Übersicht importiert werden."
 text.customer.settings: |
     Alle hier vorgenommenen Einstellungen sind innerhalb der Domain <strong>{domain}</strong> und ihrer Unterseiten wirksam.
     Wenn für Organisationen eigene Anpassungen des Erscheinungsbildes hinterlegt sind, werden diese auf Verfahrens-Seiten der Organisation angezeigt.
