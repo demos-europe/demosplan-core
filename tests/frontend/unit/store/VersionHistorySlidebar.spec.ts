@@ -29,6 +29,16 @@ describe('VersionHistorySlidebar store', () => {
     expect(state().isOpen).toBe(true)
   })
 
+  it('closes the slidebar without clearing the entity', () => {
+    const entity = { externId: 'M1', id: 'statement-1', type: 'statement' }
+
+    store.commit('VersionHistorySlidebar/showHistory', entity)
+    store.commit('VersionHistorySlidebar/setIsOpen', false)
+
+    expect(state().isOpen).toBe(false)
+    expect(state().entity).toEqual(entity)
+  })
+
   it('bumps the reload key when the same entity is requested again', () => {
     const entity = { externId: 'M1', id: 'statement-1', type: 'statement' }
 

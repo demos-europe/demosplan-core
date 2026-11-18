@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import { flushPromises, shallowMount } from '@vue/test-utils'
 import { createStore } from 'vuex'
+import { DpSlidebar } from '@demos-europe/demosplan-ui'
 import ListStatements from '@DpJs/components/statement/listStatements/ListStatements.vue'
+import { shallowMount } from '@vue/test-utils'
+import VersionHistory from '@DpJs/components/statement/statement/VersionHistory.vue'
 import VersionHistorySlidebarStore from '@DpJs/store/statement/VersionHistorySlidebar'
 
 const extendedStatement = {
@@ -54,6 +56,9 @@ const mockStatement = {
   },
 }
 
+/**
+ * Without an argument, the permissions currently set on global.hasPermission are kept
+ */
 function mountComponent (hasPermissionReturnValue) {
   const store = createStore({
     modules: {
@@ -89,7 +94,9 @@ function mountComponent (hasPermissionReturnValue) {
     },
   })
 
-  global.hasPermission = () => hasPermissionReturnValue
+  if (hasPermissionReturnValue !== undefined) {
+    global.hasPermission = () => hasPermissionReturnValue
+  }
 
   return { wrapper: shallowMount(ListStatements, {
     props: {
@@ -98,10 +105,17 @@ function mountComponent (hasPermissionReturnValue) {
     },
     global: {
       plugins: [store],
+      stubs: {
+        DpDataTable: false,
+        DpFlyout: false,
+        DpSlidebar: false,
+        DpTableRow: false,
+      },
       mocks: {
         $route: { name: 'x' },
         $router: { replace: vi.fn(), push: vi.fn() },
         CleanHtml: true,
+        hasPermission: permission => global.hasPermission(permission),
         lscache: { get: vi.fn(), set: vi.fn(), remove: vi.fn() },
       },
     },
@@ -165,11 +179,27 @@ describe('ListStatements search whitelist & sortOptions permission gating', () =
   })
 })
 
-describe('ListStatements VersionHistorySlidebar integration', () => {
-  it('showHistory mutation sets entity and opens slidebar', () => {
+describe('ListStatements version history integration', () => {
+  const historyButton = wrapper => wrapper.find('[data-cy="listStatements:statementVersionHistory"]')
+
+  it('shows the history menu item only with feature_statement_content_changes_view', () => {
+    global.hasPermission = permission => permission !== 'feature_statement_content_changes_view'
+    const { wrapper: wrapperWithout } = mountComponent()
+
+    expect(historyButton(wrapperWithout).exists()).toBe(false)
+    wrapperWithout.unmount()
+
+    global.hasPermission = permission => permission === 'feature_statement_content_changes_view'
+    const { wrapper: wrapperWith } = mountComponent()
+
+    expect(historyButton(wrapperWith).exists()).toBe(true)
+    wrapperWith.unmount()
+  })
+
+  it('opens the slidebar for the clicked statement', async () => {
     const { wrapper, store } = mountComponent(true)
 
-    wrapper.vm.showHistory({ externId: 'EXT-123', id: 'stmt-123', type: 'statement' })
+    await historyButton(wrapper).trigger('click')
 
     expect(store.state.VersionHistorySlidebar.isOpen).toBe(true)
     expect(store.state.VersionHistorySlidebar.entity).toEqual({
@@ -177,78 +207,32 @@ describe('ListStatements VersionHistorySlidebar integration', () => {
       id: 'stmt-123',
       type: 'statement',
     })
-    expect(store.state.VersionHistorySlidebar.reloadKey).toBe(1)
-
+    expect(wrapper.findComponent(DpSlidebar).props('open')).toBe(true)
     wrapper.unmount()
   })
 
-  it('setIsOpen(false) closes the slidebar without clearing entity', () => {
+  it('passes the shown statement to the version history', async () => {
+    const { wrapper } = mountComponent(true)
+
+    await historyButton(wrapper).trigger('click')
+
+    expect(wrapper.findComponent(VersionHistory).props()).toMatchObject({
+      entityId: 'stmt-123',
+      entityType: 'statement',
+      externId: 'EXT-123',
+      procedureId: 'procedure-id',
+      reloadKey: 1,
+    })
+    wrapper.unmount()
+  })
+
+  it('closes the slidebar when the slidebar emits close', async () => {
     const { wrapper, store } = mountComponent(true)
 
-    wrapper.vm.showHistory({ externId: 'EXT-123', id: 'stmt-123', type: 'statement' })
-    expect(store.state.VersionHistorySlidebar.isOpen).toBe(true)
+    await historyButton(wrapper).trigger('click')
+    await wrapper.findComponent(DpSlidebar).vm.$emit('close')
 
-    wrapper.vm.setIsOpen(false)
     expect(store.state.VersionHistorySlidebar.isOpen).toBe(false)
-    expect(store.state.VersionHistorySlidebar.entity).toEqual({
-      externId: 'EXT-123',
-      id: 'stmt-123',
-      type: 'statement',
-    })
-
-    wrapper.unmount()
-  })
-
-  it('reopening the same entity increments reloadKey', () => {
-    const { wrapper, store } = mountComponent(true)
-
-    wrapper.vm.showHistory({ externId: 'EXT-123', id: 'stmt-123', type: 'statement' })
-    expect(store.state.VersionHistorySlidebar.reloadKey).toBe(1)
-
-    wrapper.vm.setIsOpen(false)
-    wrapper.vm.showHistory({ externId: 'EXT-123', id: 'stmt-123', type: 'statement' })
-    expect(store.state.VersionHistorySlidebar.reloadKey).toBe(2)
-
-    wrapper.unmount()
-  })
-
-  it('passes correct props to version-history component', async () => {
-    const { wrapper } = mountComponent(true)
-
-    wrapper.vm.showHistory({ externId: 'EXT-456', id: 'stmt-456', type: 'statement' })
-    await flushPromises()
-
-    expect(wrapper.vm.isSlidebarOpen).toBe(true)
-    expect(wrapper.vm.versionHistoryEntity).toEqual({
-      externId: 'EXT-456',
-      id: 'stmt-456',
-      type: 'statement',
-    })
-    expect(wrapper.vm.versionHistoryReloadKey).toBe(1)
-
-    wrapper.unmount()
-  })
-
-  it('exposes showHistory and setIsOpen mutations', () => {
-    const { wrapper } = mountComponent(true)
-
-    expect(typeof wrapper.vm.showHistory).toBe('function')
-    expect(typeof wrapper.vm.setIsOpen).toBe('function')
-
-    wrapper.unmount()
-  })
-
-  it('switching entities updates entity and increments reloadKey', () => {
-    const { wrapper, store } = mountComponent(true)
-
-    wrapper.vm.showHistory({ externId: 'EXT-123', id: 'stmt-123', type: 'statement' })
-    expect(store.state.VersionHistorySlidebar.entity.id).toBe('stmt-123')
-    expect(store.state.VersionHistorySlidebar.reloadKey).toBe(1)
-
-    wrapper.vm.showHistory({ externId: 'EXT-456', id: 'stmt-456', type: 'statement' })
-    expect(store.state.VersionHistorySlidebar.entity.id).toBe('stmt-456')
-    expect(store.state.VersionHistorySlidebar.reloadKey).toBe(2)
-
     wrapper.unmount()
   })
 })
