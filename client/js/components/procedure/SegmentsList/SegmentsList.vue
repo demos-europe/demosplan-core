@@ -474,7 +474,7 @@
             </template>
           </dp-data-table>
         </div>
-        <table-scrollbar
+        <dp-table-scrollbar
           v-show="scrollbarVisible"
           ref="scrollBar"
           :is-fullscreen="isFullscreen"
@@ -522,6 +522,7 @@ import {
   dpRpc,
   DpSelect,
   DpStickyElement,
+  DpTableScrollbar,
   formatDate,
   hasOwnProp,
   tableSelectAllItems,
@@ -541,7 +542,6 @@ import SegmentsExportModal from './SegmentsExportModal.vue'
 import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal.vue'
 import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip.vue'
 import StatusBadge from '../Shared/StatusBadge.vue'
-import TableScrollbar from '@DpJs/components/shared/TableScrollbar.vue'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer.vue'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
@@ -572,12 +572,12 @@ export default {
     DpPager,
     DpSelect,
     DpStickyElement,
+    DpTableScrollbar,
     ImageModal,
     SegmentsExportModal,
     SegmentUnlockModal,
     StatementMetaTooltip,
     StatusBadge,
-    TableScrollbar,
     TextContentRenderer,
     VPopover,
   },
