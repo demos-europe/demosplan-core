@@ -18,6 +18,7 @@ use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Logic\Rpc\RpcErrorGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\RpcSegmentEmailSender;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentEmailSender;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentMailContent;
 use demosplan\DemosPlanCoreBundle\Logic\TransactionService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -73,8 +74,7 @@ class RpcSegmentEmailSenderTest extends TestCase
                 ['segment-1', 'segment-2'],
                 'procedure-id',
                 'recipient@test.de',
-                'Subject',
-                'Body',
+                new SegmentMailContent('Subject', 'Body'),
                 'cc@test.de',
                 'reply@test.de',
             )
@@ -109,8 +109,7 @@ class RpcSegmentEmailSenderTest extends TestCase
                 ['segment-1'],
                 'procedure-id',
                 'recipient@test.de',
-                'Subject',
-                'Body',
+                new SegmentMailContent('Subject', 'Body'),
                 'cc@test.de',
                 null,
             )
