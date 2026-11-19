@@ -60,6 +60,9 @@
 - addons can cancel saving an organisation, e.g. to ask for a confirmation first
 - The statement details page shows the custom fields of a statement in a new section, where they can be viewed and edited (DPLAN-17933)
 
+## v4.68.1 (2026-11-19)
+- production image: PHP 8.4.28 and nginx 1.30.7 (November 2026 security releases)
+
 ## v4.68.0 (2026-11-12)
 
 ## v4.67.0 (2026-11-06)
