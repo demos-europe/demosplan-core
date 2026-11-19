@@ -13,6 +13,7 @@
         data-cy="dashboardTaskCard:tasksView"
         :href="userFilteredSegmentUrl"
         :text="Translator.trans('tasks.view')"
+        @click="resetSegmentsListPage"
       />
     </div>
   </dp-card>
@@ -54,6 +55,23 @@ export default {
   computed: {
     userFilteredSegmentUrl () {
       return Routing.generate('dplan_segments_list', { procedureId: this.procedureId }) + '/' + this.userHash
+    },
+  },
+
+  methods: {
+    // The segments list restores its last page, which may not exist for the assignee filter
+    resetSegmentsListPage () {
+      const key = `${this.currentUserId}:${this.procedureId}:paginationSegmentsList`
+
+      try {
+        const stored = JSON.parse(localStorage.getItem(key))
+
+        if (stored) {
+          localStorage.setItem(key, JSON.stringify({ ...stored, currentPage: 1 }))
+        }
+      } catch {
+        localStorage.removeItem(key)
+      }
     },
   },
 
