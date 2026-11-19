@@ -9,11 +9,7 @@
                 <p>{{ '2fa.totp.enable.explanation'|trans }}</p>
                 <a class="dropdown-item" href="{{ path('DemosPlan_user_2fa_enable') }}">{{ '2fa.totp.enable'|trans }}</a>
             {% elseif not user.totpEnabled %}
-                <p>
-                    {{ '2fa.totp.activate.explanation.scanQrCode'|trans }}
-                    <span class="font-semibold">{{ 'or'|trans }}</span>
-                    {{ '2fa.totp.activate.explanation.manualSetup'|trans }}
-                </p>
+                <p>{{ '2fa.totp.activate.explanation.setupInstructions'|trans|wysiwyg }}</p>
 
                 <div class="ml-1">
                     <p class="mb-0 ml-4">{{ '2fa.qr.code'|trans }}:</p>
