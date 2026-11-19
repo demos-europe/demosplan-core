@@ -18,7 +18,11 @@ use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
+use demosplan\DemosPlanCoreBundle\Api\InstitutionLocationContact\Resource as InstitutionLocationContactResource;
+use demosplan\DemosPlanCoreBundle\Api\InstitutionTag\Resource as InstitutionTagResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
+use demosplan\DemosPlanCoreBundle\Entity\User\Address;
+use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 
 /**
@@ -64,13 +68,33 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public bool $hasActiveUsers = false;
 
-    public static function fromEntity(Orga $orga): self
+    /** @var list<InstitutionLocationContactResource> */
+    #[ApiProperty(readable: true, writable: false)]
+    public array $locationContacts = [];
+
+    /** @var list<InstitutionTagResource> */
+    #[ApiProperty(readable: true, writable: false)]
+    public array $assignedTags = [];
+
+    /**
+     * @param list<InstitutionTag> $visibleTags  only the tags the current user may read
+     * @param bool                 $canReadPhone whether the phone number of the location contacts is exposed
+     */
+    public static function fromEntity(Orga $orga, array $visibleTags, bool $canReadPhone): self
     {
         $resource = new self();
         $resource->id = $orga->getId();
         $resource->legalName = $orga->getName() ?? '';
         $resource->participationFeedbackEmailAddress = $orga->getParticipationEmail();
         $resource->hasActiveUsers = $orga->hasActiveInstitutionUsers();
+        $resource->locationContacts = array_map(
+            static fn (Address $address): InstitutionLocationContactResource => InstitutionLocationContactResource::fromEntity($address, $canReadPhone),
+            $orga->getAddresses()->getValues()
+        );
+        $resource->assignedTags = array_map(
+            static fn (InstitutionTag $tag): InstitutionTagResource => InstitutionTagResource::fromEntity($tag),
+            $visibleTags
+        );
 
         return $resource;
     }

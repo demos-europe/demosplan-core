@@ -21,11 +21,15 @@ use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\InstitutionTagCategoryFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\InstitutionTagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaStatusInCustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\OrgaTypeFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\User\Address;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
@@ -41,6 +45,7 @@ use Tests\Base\AbstractApiTest;
 class InvitableToebResourceApiTest extends AbstractApiTest
 {
     private const ROUTE = '/api/3.0/InvitableToeb';
+    private const PHONE_QUERY = '?include=locationContacts&fields[InvitableToeb]=locationContacts&fields[locationContacts]=street,phone';
 
     private ?User $user = null;
     private ?Customer $currentCustomer = null;
@@ -96,9 +101,12 @@ class InvitableToebResourceApiTest extends AbstractApiTest
         return ['HTTP_ACCEPT' => 'application/vnd.api+json'];
     }
 
-    private function enableInvitablePermissions(): void
+    /**
+     * @param list<string> $additionalPermissions
+     */
+    private function enableInvitablePermissions(array $additionalPermissions = []): void
     {
-        $this->enablePermissions(['area_main_procedures', 'area_admin_invitable_institution']);
+        $this->enablePermissions(['area_main_procedures', 'area_admin_invitable_institution', ...$additionalPermissions]);
         $this->loginForApiPlatform();
     }
 
@@ -274,6 +282,121 @@ class InvitableToebResourceApiTest extends AbstractApiTest
     }
 
     /**
+     * The request OrganisationTable.vue sends: sparse fieldsets for the main resource by type and for the included
+     * resources by relationship path.
+     */
+    public function testListIncludesOwnCustomerTagsAndLocationContactsWithSparseFieldsets(): void
+    {
+        // Arrange
+        $orga = $this->createInvitableOrga(name: 'Amt mit Adresse');
+        $ownTag = $this->assignTag($orga, 'own-tag', $this->currentCustomer);
+        $this->assignTag($orga, 'foreign-tag', CustomerFactory::createOne(['subdomain' => 'other-'.uniqid()])->_real());
+        $address = $this->addAddress($orga);
+        $this->getApiEntityManager()->clear();
+        $this->enableInvitablePermissions(['feature_institution_tag_read']);
+
+        // Act
+        $response = $this->sendRequest(
+            self::ROUTE.'?include=assignedTags,locationContacts&fields[InvitableToeb]=legalName,assignedTags,locationContacts'
+            .'&fields[assignedTags]=name&fields[locationContacts]=street,postalcode,city',
+            'GET',
+            $this->user,
+            $this->procedure
+        );
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $content = Json::decodeToArray($response->getContent());
+        self::assertCount(1, $content['data']);
+        $relationships = $content['data'][0]['relationships'];
+        self::assertSame([$ownTag->getId()], array_column($relationships['assignedTags']['data'], 'id'));
+        self::assertSame([$address->getId()], array_column($relationships['locationContacts']['data'], 'id'));
+        $included = [];
+        foreach ($content['included'] as $resource) {
+            $included[$resource['type']][$resource['id']] = $resource['attributes'];
+        }
+        self::assertSame([$ownTag->getId() => ['name' => 'own-tag']], $included['InstitutionTag']);
+        self::assertSame(
+            [$address->getId() => ['street' => 'Teststrasse 1', 'postalcode' => '20095', 'city' => 'Hamburg']],
+            $included['InstitutionLocationContact']
+        );
+    }
+
+    public function testListExposesThePhoneOfTheLocationContactWithPermission(): void
+    {
+        // Arrange
+        $orga = $this->createInvitableOrga();
+        $this->addAddress($orga);
+        $this->getApiEntityManager()->clear();
+        $this->enableInvitablePermissions(['field_organisation_phone']);
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.self::PHONE_QUERY, 'GET', $this->user, $this->procedure);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $included = Json::decodeToArray($response->getContent())['included'];
+        self::assertSame(['street' => 'Teststrasse 1', 'phone' => '040 123456'], $included[0]['attributes']);
+    }
+
+    /**
+     * API Platform leaves null values out of the response, so the phone is not part of the contact at all.
+     */
+    public function testListOmitsThePhoneOfTheLocationContactWithoutPermission(): void
+    {
+        // Arrange
+        $orga = $this->createInvitableOrga();
+        $this->addAddress($orga);
+        $this->getApiEntityManager()->clear();
+        $this->enableInvitablePermissions();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.self::PHONE_QUERY, 'GET', $this->user, $this->procedure);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $included = Json::decodeToArray($response->getContent())['included'];
+        self::assertSame(['street' => 'Teststrasse 1'], $included[0]['attributes']);
+    }
+
+    public function testListReturnsNoTagsWithoutTagPermission(): void
+    {
+        // Arrange
+        $orga = $this->createInvitableOrga();
+        $this->assignTag($orga, 'own-tag', $this->currentCustomer);
+        $this->getApiEntityManager()->clear();
+        $this->enableInvitablePermissions();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.'?include=assignedTags', 'GET', $this->user, $this->procedure);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $content = Json::decodeToArray($response->getContent());
+        self::assertSame([], $content['data'][0]['relationships']['assignedTags']['data']);
+        self::assertEmpty($content['included'] ?? []);
+    }
+
+    public function testGetReturnsTagsAndLocationContacts(): void
+    {
+        // Arrange
+        $orga = $this->createInvitableOrga();
+        $tag = $this->assignTag($orga, 'own-tag', $this->currentCustomer);
+        $address = $this->addAddress($orga);
+        $this->getApiEntityManager()->clear();
+        $this->enableInvitablePermissions(['feature_institution_tag_read']);
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.'/'.$orga->getId(), 'GET', $this->user, $this->procedure);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $relationships = Json::decodeToArray($response->getContent())['data']['relationships'];
+        self::assertSame([$tag->getId()], array_column($relationships['assignedTags']['data'], 'id'));
+        self::assertSame([$address->getId()], array_column($relationships['locationContacts']['data'], 'id'));
+    }
+
+    /**
      * @return list<string> the ids of the listed institutions, in the order of the response
      */
     private function getIds(Response $response): array
@@ -320,6 +443,36 @@ class InvitableToebResourceApiTest extends AbstractApiTest
         $this->getApiEntityManager()->flush();
 
         return $orga;
+    }
+
+    /**
+     * Assigns a new tag, which belongs to a category of the given customer, to the institution.
+     */
+    private function assignTag(Orga $orga, string $label, Customer $customer): InstitutionTag
+    {
+        $tag = InstitutionTagFactory::createOne([
+            'label'    => $label,
+            'category' => InstitutionTagCategoryFactory::new(['customer' => $customer]),
+        ])->_real();
+        $orga->addAssignedTag($tag);
+        $this->getApiEntityManager()->flush();
+
+        return $tag;
+    }
+
+    private function addAddress(Orga $orga): Address
+    {
+        $address = new Address();
+        $address->setStreet('Teststrasse 1');
+        $address->setPostalcode('20095');
+        $address->setCity('Hamburg');
+        $address->setPhone('040 123456');
+        $entityManager = $this->getApiEntityManager();
+        $entityManager->persist($address);
+        $orga->addAddress($address);
+        $entityManager->flush();
+
+        return $address;
     }
 
     /**

@@ -47,6 +47,14 @@ class AccessChecker
     }
 
     /**
+     * Whether the phone number of the location contacts of an institution is exposed.
+     */
+    public function canReadPhone(): bool
+    {
+        return $this->currentUser->hasPermission('field_organisation_phone');
+    }
+
+    /**
      * Accepted public agencies of the current customer that are listed and not invited to the current procedure
      * yet. Without a current procedure nothing is accessible.
      *

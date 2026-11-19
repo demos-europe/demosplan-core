@@ -19,7 +19,9 @@ use ApiPlatform\Metadata\Operation;
 use ApiPlatform\State\Pagination\PaginatorInterface;
 use ApiPlatform\State\ProviderInterface;
 use demosplan\DemosPlanCoreBundle\Api\Common\MappingPaginator;
+use demosplan\DemosPlanCoreBundle\Api\InstitutionTag\AccessChecker as InstitutionTagAccessChecker;
 use demosplan\DemosPlanCoreBundle\Api\InvitableToeb\Resource as InvitableToebResource;
+use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Repository\OrgaRepository;
 use InvalidArgumentException;
@@ -30,6 +32,7 @@ class Provider implements ProviderInterface
 {
     public function __construct(
         private readonly AccessChecker $accessChecker,
+        private readonly InstitutionTagAccessChecker $tagAccessChecker,
         private readonly OrgaRepository $orgaRepository,
         private readonly DoctrineCollectionProvider $doctrineCollectionProvider,
     ) {
@@ -66,7 +69,7 @@ class Provider implements ProviderInterface
             return null;
         }
 
-        return InvitableToebResource::fromEntity($orga);
+        return $this->toResource($orga);
     }
 
     /**
@@ -85,7 +88,7 @@ class Provider implements ProviderInterface
         ));
 
         $result = $this->doctrineCollectionProvider->provide($operation, $uriVariables, $context);
-        $map = static fn (Orga $orga): InvitableToebResource => InvitableToebResource::fromEntity($orga);
+        $map = fn (Orga $orga): InvitableToebResource => $this->toResource($orga);
 
         if ($result instanceof PaginatorInterface) {
             return new MappingPaginator($result, $map);
@@ -94,5 +97,14 @@ class Provider implements ProviderInterface
         Assert::isArray($result);
 
         return array_map($map, $result);
+    }
+
+    private function toResource(Orga $orga): InvitableToebResource
+    {
+        $visibleTags = $orga->getAssignedTags()
+            ->filter(fn (InstitutionTag $tag): bool => $this->tagAccessChecker->canRead($tag))
+            ->getValues();
+
+        return InvitableToebResource::fromEntity($orga, $visibleTags, $this->accessChecker->canReadPhone());
     }
 }
