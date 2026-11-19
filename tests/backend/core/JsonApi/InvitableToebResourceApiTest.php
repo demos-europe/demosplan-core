@@ -35,6 +35,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\OrgaType;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Symfony\Component\HttpFoundation\Response;
 use Tests\Base\AbstractApiTest;
 
@@ -394,6 +395,84 @@ class InvitableToebResourceApiTest extends AbstractApiTest
         $relationships = Json::decodeToArray($response->getContent())['data']['relationships'];
         self::assertSame([$tag->getId()], array_column($relationships['assignedTags']['data'], 'id'));
         self::assertSame([$address->getId()], array_column($relationships['locationContacts']['data'], 'id'));
+    }
+
+    /**
+     * @return array<string, array{string, string, string}> attribute, permission, entity setter
+     */
+    public static function permissionBasedAttributeProvider(): array
+    {
+        return [
+            'competence'     => ['competenceDescription', 'field_organisation_competence', 'setCompetence'],
+            'cc emails'      => ['ccEmailAddresses', 'field_organisation_email2_cc', 'setCcEmail2'],
+            'contact person' => ['contactPerson', 'field_organisation_contact_person', 'setContactPerson'],
+        ];
+    }
+
+    #[DataProvider('permissionBasedAttributeProvider')]
+    public function testListExposesPermissionBasedAttributeWithPermission(string $attribute, string $permission, string $setter): void
+    {
+        // Arrange
+        $orga = $this->createInvitableOrga();
+        $orga->$setter('some value');
+        $this->getApiEntityManager()->flush();
+        $this->getApiEntityManager()->clear();
+        $this->enableInvitablePermissions([$permission]);
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE, 'GET', $this->user, $this->procedure);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        self::assertSame('some value', $this->getAttributes($response, $orga)[$attribute]);
+    }
+
+    /**
+     * API Platform leaves null values out of the response, so the attribute is not part of it at all.
+     */
+    #[DataProvider('permissionBasedAttributeProvider')]
+    public function testListOmitsPermissionBasedAttributeWithoutPermission(string $attribute, string $permission, string $setter): void
+    {
+        // Arrange
+        $orga = $this->createInvitableOrga();
+        $orga->$setter('some value');
+        $this->getApiEntityManager()->flush();
+        $this->getApiEntityManager()->clear();
+        $this->enableInvitablePermissions();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE, 'GET', $this->user, $this->procedure);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        self::assertArrayNotHasKey($attribute, $this->getAttributes($response, $orga));
+    }
+
+    public function testGetExposesPermissionBasedAttribute(): void
+    {
+        // Arrange
+        $orga = $this->createInvitableOrga();
+        $orga->setCompetence('some value');
+        $this->getApiEntityManager()->flush();
+        $this->getApiEntityManager()->clear();
+        $this->enableInvitablePermissions(['field_organisation_competence']);
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.'/'.$orga->getId(), 'GET', $this->user, $this->procedure);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        self::assertSame('some value', Json::decodeToArray($response->getContent())['data']['attributes']['competenceDescription']);
+    }
+
+    /**
+     * @return array<string, mixed> the attributes of the given institution in a list response
+     */
+    private function getAttributes(Response $response, Orga $orga): array
+    {
+        $rows = array_column(Json::decodeToArray($response->getContent())['data'], 'attributes', 'id');
+
+        return $rows[$orga->getId()];
     }
 
     /**

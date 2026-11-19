@@ -55,6 +55,26 @@ class AccessChecker
     }
 
     /**
+     * Attributes that are only exposed with a permission, like in the legacy resource type. Without the permission the
+     * attribute stays null.
+     *
+     * @return list<string> the names of the attributes the current user may read
+     */
+    public function getReadableOptionalAttributes(): array
+    {
+        $permissionByAttribute = [
+            'competenceDescription' => 'field_organisation_competence',
+            'ccEmailAddresses'      => 'field_organisation_email2_cc',
+            'contactPerson'         => 'field_organisation_contact_person',
+        ];
+
+        return array_keys(array_filter(
+            $permissionByAttribute,
+            fn (string $permission): bool => $this->currentUser->hasPermission($permission)
+        ));
+    }
+
+    /**
      * Accepted public agencies of the current customer that are listed and not invited to the current procedure
      * yet. Without a current procedure nothing is accessible.
      *

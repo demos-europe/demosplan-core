@@ -105,6 +105,11 @@ class Provider implements ProviderInterface
             ->filter(fn (InstitutionTag $tag): bool => $this->tagAccessChecker->canRead($tag))
             ->getValues();
 
-        return InvitableToebResource::fromEntity($orga, $visibleTags, $this->accessChecker->canReadPhone());
+        return InvitableToebResource::fromEntity(
+            $orga,
+            $visibleTags,
+            $this->accessChecker->canReadPhone(),
+            $this->accessChecker->getReadableOptionalAttributes()
+        );
     }
 }

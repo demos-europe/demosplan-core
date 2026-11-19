@@ -68,6 +68,24 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public bool $hasActiveUsers = false;
 
+    /**
+     * Only filled with the permission `field_organisation_competence`.
+     */
+    #[ApiProperty(readable: true, writable: false)]
+    public ?string $competenceDescription = null;
+
+    /**
+     * Only filled with the permission `field_organisation_email2_cc`.
+     */
+    #[ApiProperty(readable: true, writable: false)]
+    public ?string $ccEmailAddresses = null;
+
+    /**
+     * Only filled with the permission `field_organisation_contact_person`.
+     */
+    #[ApiProperty(readable: true, writable: false)]
+    public ?string $contactPerson = null;
+
     /** @var list<InstitutionLocationContactResource> */
     #[ApiProperty(readable: true, writable: false)]
     public array $locationContacts = [];
@@ -77,16 +95,26 @@ class Resource
     public array $assignedTags = [];
 
     /**
-     * @param list<InstitutionTag> $visibleTags  only the tags the current user may read
-     * @param bool                 $canReadPhone whether the phone number of the location contacts is exposed
+     * @param list<InstitutionTag> $visibleTags                only the tags the current user may read
+     * @param bool                 $canReadPhone               whether the phone number of the location contacts is exposed
+     * @param list<string>         $readableOptionalAttributes names of the permission based attributes to fill
      */
-    public static function fromEntity(Orga $orga, array $visibleTags, bool $canReadPhone): self
+    public static function fromEntity(Orga $orga, array $visibleTags, bool $canReadPhone, array $readableOptionalAttributes = []): self
     {
         $resource = new self();
         $resource->id = $orga->getId();
         $resource->legalName = $orga->getName() ?? '';
         $resource->participationFeedbackEmailAddress = $orga->getParticipationEmail();
         $resource->hasActiveUsers = $orga->hasActiveInstitutionUsers();
+        if (in_array('competenceDescription', $readableOptionalAttributes, true)) {
+            $resource->competenceDescription = $orga->getCompetence();
+        }
+        if (in_array('ccEmailAddresses', $readableOptionalAttributes, true)) {
+            $resource->ccEmailAddresses = $orga->getCcEmail2();
+        }
+        if (in_array('contactPerson', $readableOptionalAttributes, true)) {
+            $resource->contactPerson = $orga->getContactPerson();
+        }
         $resource->locationContacts = array_map(
             static fn (Address $address): InstitutionLocationContactResource => InstitutionLocationContactResource::fromEntity($address, $canReadPhone),
             $orga->getAddresses()->getValues()
