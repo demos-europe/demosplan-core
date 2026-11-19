@@ -735,6 +735,8 @@ export default {
       },
       // SessionStorage keys
       tabKey: {
+        // Query hash the stored page belongs to
+        pageQueryHash: `${this.procedureId}:segmentsListPageQueryHash`,
         selectedColumns: 'segmentList',
         selectedSort: `${this.procedureId}:segmentsListSelectedSort`,
       },
@@ -1202,7 +1204,10 @@ export default {
 
       this.columnSelectorKey++
 
-      this.applyQuery(this.pagination.currentPage)
+      // The stored page may not exist for another filter, e.g. from the dashboard or a shared link
+      const isSameList = this.getTabValue(this.tabKey.pageQueryHash) === this.currentQueryHash
+
+      this.applyQuery(isSameList ? this.pagination.currentPage : 1)
     },
 
     async applyBookmarkSettings (bookmark) {
@@ -1335,6 +1340,7 @@ export default {
            * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
            */
           this.setLocalStorage(data.meta)
+          this.setTabValue(this.tabKey.pageQueryHash, this.currentQueryHash)
 
           // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
           this.allItemsCount = data.meta.totalItems
