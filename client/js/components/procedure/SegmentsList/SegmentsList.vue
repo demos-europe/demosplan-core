@@ -1199,8 +1199,16 @@ export default {
         this.currentSelection = Array.isArray(selectedColumns) ? [...selectedColumns] : []
         this.selectedSort = sorting ?? ''
       } else {
-        this.currentSelection = this.getTabColumnSelection() ?? [...this.defaultColumnSelection]
-        this.selectedSort = this.getTabValue(this.tabKey.selectedSort) ?? ''
+        const tabColumns = this.getTabColumnSelection()
+        const tabSort = this.getTabValue(this.tabKey.selectedSort)
+
+        this.currentSelection = tabColumns ?? [...this.defaultColumnSelection]
+        this.selectedSort = tabSort ?? ''
+
+        // Bookmark saves and outgoing links use the query hash, so it has to hold the view shown
+        if (tabColumns !== null || tabSort !== null) {
+          this.updateQueryHash({ replace: true })
+        }
       }
 
       this.setStoreSelectedColumns(this.currentSelection)
@@ -1245,9 +1253,7 @@ export default {
       this.selectedSort = sorting || ''
       this.setStoreSorting(this.selectedSort)
 
-      if (isRestore) {
-        this.applyTabChangesOnBookmark(bookmark.id)
-      }
+      const hasTabChanges = isRestore && this.applyTabChangesOnBookmark(bookmark.id)
 
       // Selecting a bookmark replaces unsaved changes; links without view settings reuse what was last shown
       this.setTabValue(this.tabKey.selectedColumns, this.currentSelection)
@@ -1263,24 +1269,34 @@ export default {
         this.setCurrentQueryHash(queryHash)
       }
 
+      // The bookmark's hash lacks the restored changes, but saving the bookmark uses the hash
+      if (hasTabChanges) {
+        this.updateQueryHash({ replace: true })
+      }
+
       this.resetSelection()
       this.applyQuery(1)
     },
 
-    // Unsaved column and sorting changes made on this bookmark in this tab; shown as unsaved changes
+    // Unsaved column and sorting changes made on this bookmark in this tab; true if they differ from the bookmark
     applyTabChangesOnBookmark (bookmarkId) {
       const tabColumns = this.getTabColumnSelection(bookmarkId)
       const tabSort = this.getTabValue(this.tabKey.selectedSort, bookmarkId)
+      const hasColumnChanges = tabColumns !== null &&
+        JSON.stringify([...tabColumns].sort()) !== JSON.stringify([...this.currentSelection].sort())
+      const hasSortChange = tabSort !== null && tabSort !== this.selectedSort
 
-      if (tabColumns) {
+      if (hasColumnChanges) {
         this.currentSelection = tabColumns
         this.setStoreSelectedColumns(tabColumns)
       }
 
-      if (tabSort !== null) {
+      if (hasSortChange) {
         this.selectedSort = tabSort
         this.setStoreSorting(tabSort)
       }
+
+      return hasColumnChanges || hasSortChange
     },
 
     applySort (sortValue) {
@@ -2328,7 +2344,8 @@ export default {
       this.setSlidebarContent({ externId: '', isOpen: !closing, segmentId: '', showTab: 'bookmarks' })
     },
 
-    updateQueryHash () {
+    // With replace, no back button entry is added, e.g. for state restored on page load
+    updateQueryHash ({ replace = false } = {}) {
       const hrefParts = globalThis.location.href.split('/')
       const oldQueryHash = hrefParts[hrefParts.length - 1]
       const url = Routing.generate('dplan_rpc_segment_list_query_update', {
@@ -2355,7 +2372,7 @@ export default {
         .patch(url, {}, data)
         .then(({ data }) => {
           if (data) {
-            this.updateQueryHashInURL(oldQueryHash, data)
+            this.updateQueryHashInURL(oldQueryHash, data, replace)
             this.currentQueryHash = data
             this.setCurrentQueryHash(data)
           }
@@ -2363,13 +2380,13 @@ export default {
         .catch((err) => console.log(err))
     },
 
-    updateQueryHashInURL (oldQueryHash, newQueryHash) {
+    updateQueryHashInURL (oldQueryHash, newQueryHash, replace = false) {
       const newHref = globalThis.location.href.replace(
         oldQueryHash,
         newQueryHash,
       )
 
-      globalThis.history.pushState(
+      globalThis.history[replace ? 'replaceState' : 'pushState'](
         { html: newHref, pageTitle: document.title },
         document.title,
         newHref,
