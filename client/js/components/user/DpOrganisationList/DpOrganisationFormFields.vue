@@ -474,7 +474,7 @@
           :hint="Translator.trans('branding.styling.hint')"
           :label="Translator.trans('branding.styling.input')"
           reduced-height
-          @input="emitOrganisationUpdate"
+          @update:model-value="emitOrganisationUpdate"
         />
         <dp-details
           data-cy="organisationFormFields:brandingStyling"
@@ -1349,7 +1349,10 @@ export default {
     setInitialOrganisation () {
       this.localOrganisation = JSON.parse(JSON.stringify(this.organisation))
 
-      if (this.organisation && typeof this.organisation.hasRelationship === 'function' && this.organisation.hasRelationship('branding')) {
+      // Once edited, cssvars lives on the orga item; the branding relationship still holds the saved value
+      const hasEditedCssvars = typeof this.organisation?.attributes?.cssvars !== 'undefined'
+
+      if (!hasEditedCssvars && this.organisation && typeof this.organisation.hasRelationship === 'function' && this.organisation.hasRelationship('branding')) {
         this.localOrganisation.attributes.cssvars = this.organisation.rel('branding').attributes.cssvars
       }
     },
