@@ -6,6 +6,10 @@
 
 ## UNRELEASED
 
+## v4.63.2 (2026-11-19)
+- production image: PHP 8.4.28 and nginx 1.30.7 (November 2026 security releases)
+- session upload progress disabled as RCE mitigation
+
 ## v4.63.1 (2026-10-22)
 - PHP runtime updated to 8.4.27 (security fix)
 
