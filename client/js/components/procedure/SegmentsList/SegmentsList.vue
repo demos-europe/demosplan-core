@@ -1282,8 +1282,11 @@ export default {
     applyTabChangesOnBookmark (bookmarkId) {
       const tabColumns = this.getTabColumnSelection(bookmarkId)
       const tabSort = this.getTabValue(this.tabKey.selectedSort, bookmarkId)
-      const hasColumnChanges = tabColumns !== null &&
-        JSON.stringify([...tabColumns].sort()) !== JSON.stringify([...this.currentSelection].sort())
+      // Order does not count, the backend sorts selected columns as well
+      const hasColumnChanges = tabColumns !== null && (
+        tabColumns.length !== this.currentSelection.length ||
+        tabColumns.some(column => !this.currentSelection.includes(column))
+      )
       const hasSortChange = tabSort !== null && tabSort !== this.selectedSort
 
       if (hasColumnChanges) {

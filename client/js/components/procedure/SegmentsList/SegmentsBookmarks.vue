@@ -420,7 +420,7 @@ const initializeViewState = (bookmark: Bookmark | null): void => {
 
 // The bookmark the URL hash was changed from in this tab, e.g. when coming back via the back button
 const findChangedBookmark = (): Bookmark | undefined => {
-  if (!storedTabView || storedTabView.queryHash !== getQueryHashFromUrl()) {
+  if (storedTabView?.queryHash !== getQueryHashFromUrl()) {
     return undefined
   }
 
