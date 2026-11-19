@@ -217,6 +217,15 @@
 
 ## v4.53.0 (2026-07-30)
 
+## v4.52.3 (2026-11-19)
+
+### Changed
+- PHP updated to version 8.4.28
+- Container image: nginx updated to version 1.30.7 (official image, runs unprivileged)
+
+### Security
+- Disable PHP `session.upload_progress` in the production image (mitigation for PHP session handling vulnerabilities)
+
 ## v4.52.2 (2026-09-15)
 
 ### Added
