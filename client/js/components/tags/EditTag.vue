@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import { DpConfirmDialog } from '@demos-europe/demosplan-ui'
+import { DpConfirmDialog, validateForm } from '@demos-europe/demosplan-ui'
 
 export default {
   name: 'EditTag',
@@ -79,6 +79,7 @@ export default {
       attachmode: this.selectedAttachmode,
       boilerplate: this.selectedBoilerplate,
       description: this.selectedDescription,
+      isConfirmed: false,
     }
   },
 
@@ -95,15 +96,35 @@ export default {
 
   methods: {
     async handleSubmit (event) {
-      // The event target is gone after the await, so the form has to be read first
-      const form = event.currentTarget.closest('form')
+      // Second click, triggered below after the user confirmed
+      if (this.isConfirmed) {
+        this.isConfirmed = false
 
-      if (this.needsConfirmation && !(await this.$refs.confirmDialog.open())) {
         return
       }
 
-      // Unlike submit(), requestSubmit() still runs the form validation
-      form.requestSubmit()
+      // Without confirmation, dpValidate validates and submits on its own
+      if (!this.needsConfirmation) {
+        return
+      }
+
+      const button = event.currentTarget
+      const form = button.closest('form')
+
+      // Invalid form: let dpValidate show the errors, no dialog
+      if (!validateForm(form).valid) {
+        return
+      }
+
+      // Stop dpValidate until the user has answered the dialog
+      event.preventDefault()
+      event.stopImmediatePropagation()
+
+      if (await this.$refs.confirmDialog.open()) {
+        // Click again so dpValidate validates and submits as usual
+        this.isConfirmed = true
+        button.click()
+      }
     },
 
     setAssignee (val) {
