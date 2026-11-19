@@ -12,8 +12,8 @@
         data-cy="organisationData:paperCopy:competence"
         :hint="Translator.trans('explanation.organisation.competence')"
         :label="Translator.trans('competence.explanation')"
+        :model-value="organisation.competence"
         :name="`${organisation.id}:competence`"
-        :value="organisation.competence"
       />
     </div>
   </fieldset>

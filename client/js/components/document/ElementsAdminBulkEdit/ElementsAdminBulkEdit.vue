@@ -43,7 +43,7 @@
           <dp-datetime-picker
             id="autoSwitchActionEnabledDatetime"
             v-model="actions.setEnabled.datetime"
-            :label="Translator.trans('phase.autoswitch.datetime')"
+            :label="Translator.trans('element.autoswitch.datetime')"
             :min-date="now"
             required
           />
