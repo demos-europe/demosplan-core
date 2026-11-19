@@ -16,6 +16,7 @@ use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
 use demosplan\DemosPlanCoreBundle\Api\InstitutionTagCategory\Resource as InstitutionTagCategoryResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
@@ -24,6 +25,11 @@ use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 #[ApiResource(
     shortName: 'InstitutionTag',
     operations: [
+        new GetCollection(
+            uriTemplate: '/InstitutionTag',
+            paginationEnabled: false,
+            order: ['creationDate' => 'ASC', 'label' => 'ASC'],
+        ),
         new Get(uriTemplate: '/InstitutionTag/{id}'),
     ],
     formats: ['jsonapi'],

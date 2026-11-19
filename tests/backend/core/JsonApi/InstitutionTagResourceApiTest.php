@@ -16,6 +16,7 @@ use DateTime;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\InstitutionTagCategoryFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\InstitutionTagFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -122,6 +123,105 @@ class InstitutionTagResourceApiTest extends AbstractApiTest
             ['name', 'creationDate', 'isUsed'],
             array_keys(Json::decodeToArray($response->getContent())['data']['attributes'])
         );
+    }
+
+    public function testListReturnsTagsOldestFirst(): void
+    {
+        // Arrange: created in a different order than their creation dates
+        $newest = $this->createTag('newest', new DateTime('2024-01-03 10:00:00'));
+        $oldest = $this->createTag('oldest', new DateTime('2024-01-01 10:00:00'));
+        $middle = $this->createTag('middle', new DateTime('2024-01-02 10:00:00'));
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE, 'GET', $this->user, null);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $ids = array_column(Json::decodeToArray($response->getContent())['data'], 'id');
+        $created = [$oldest->getId(), $middle->getId(), $newest->getId()];
+        self::assertSame($created, array_values(array_intersect($ids, $created)));
+    }
+
+    public function testListOrdersTagsWithTheSameCreationDateByLabel(): void
+    {
+        // Arrange
+        $sameDate = new DateTime('2024-01-01 10:00:00');
+        $b = $this->createTag('b', $sameDate);
+        $c = $this->createTag('c', $sameDate);
+        $a = $this->createTag('a', $sameDate);
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE, 'GET', $this->user, null);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $ids = array_column(Json::decodeToArray($response->getContent())['data'], 'id');
+        $expected = [$a->getId(), $b->getId(), $c->getId()];
+        self::assertSame($expected, array_values(array_intersect($ids, $expected)));
+    }
+
+    public function testListReturnsOnlyTagsOfTheCurrentCustomer(): void
+    {
+        // Arrange
+        $own = $this->createTag('own', new DateTime('2024-01-01 10:00:00'));
+        $foreign = InstitutionTagFactory::createOne([
+            'category' => InstitutionTagCategoryFactory::new([
+                'customer' => CustomerFactory::new(['subdomain' => 'other-customer-'.uniqid()]),
+            ]),
+        ])->_real();
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE, 'GET', $this->user, null);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $ids = array_column(Json::decodeToArray($response->getContent())['data'], 'id');
+        self::assertContains($own->getId(), $ids);
+        self::assertNotContains($foreign->getId(), $ids);
+    }
+
+    /**
+     * The request the frontend sends: the category is included, with sparse fieldsets keyed by
+     * relationship path for the included resource.
+     */
+    public function testListIncludesTheCategoryWithSparseFieldsets(): void
+    {
+        // Arrange
+        $tag = $this->createTag('tag', new DateTime('2024-01-01 10:00:00'));
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $response = $this->sendRequest(
+            self::ROUTE.'?include=category&fields[InstitutionTag]=name,category&fields[category]=name',
+            'GET',
+            $this->user,
+            null
+        );
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $content = Json::decodeToArray($response->getContent());
+        $row = current(array_filter($content['data'], static fn (array $d): bool => $d['id'] === $tag->getId()));
+        self::assertSame(['name'], array_keys($row['attributes']));
+        self::assertSame($tag->getCategory()->getId(), $row['relationships']['category']['data']['id']);
+        $included = array_column($content['included'], 'attributes', 'id');
+        self::assertSame(['name' => $tag->getCategory()->getName()], $included[$tag->getCategory()->getId()]);
+    }
+
+    public function testListIsDeniedWithoutTagPermission(): void
+    {
+        $this->loginForApiPlatform();
+
+        $response = $this->sendRequest(self::ROUTE, 'GET', $this->user, null);
+
+        self::assertSame(Response::HTTP_FORBIDDEN, $response->getStatusCode());
     }
 
     private function createTag(string $label, DateTime $creationDate): InstitutionTag

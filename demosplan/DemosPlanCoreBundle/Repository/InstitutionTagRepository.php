@@ -15,6 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\Repository;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Repository\IRepository\ObjectInterface;
+use Doctrine\ORM\QueryBuilder;
+use EDT\DqlQuerying\Contracts\ClauseFunctionInterface;
 use Exception;
 
 /**
@@ -92,5 +94,17 @@ class InstitutionTagRepository extends CoreRepository implements ObjectInterface
         }
 
         return false;
+    }
+
+    /**
+     * Builds a QueryBuilder matching the given EDT conditions without executing it, so
+     * callers can embed it as a subquery (e.g. `id IN (...)`) instead of running it as
+     * its own round-trip.
+     *
+     * @param list<ClauseFunctionInterface<bool>> $conditions
+     */
+    public function generateAccessConditionQueryBuilder(array $conditions): QueryBuilder
+    {
+        return $this->objectProvider->generateQueryBuilder($conditions, []);
     }
 }
