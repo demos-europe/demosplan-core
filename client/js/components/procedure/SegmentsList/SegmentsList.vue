@@ -1183,23 +1183,28 @@ export default {
 
     /*
      * Initial load when no bookmark matches the URL. Unlike applyBookmarkSettings(null), this keeps the state
-     * of the URL hash; columns and sorting missing from it come from this browser tab.
+     * of the URL hash; without view settings in it, columns and sorting come from this browser tab.
      */
     applyInitialView () {
       this.initializeFilters()
 
-      const isInitialViewSettingsEmpty = Array.isArray(this.initialViewSettings)
-      const { selectedColumns, sorting } = isInitialViewSettingsEmpty ? {} : this.initialViewSettings
-
       this.isInitialViewApplied = true
 
-      this.currentSelection = selectedColumns?.length ?
-        [...selectedColumns] :
-        this.getTabColumnSelection() ?? [...this.defaultColumnSelection]
+      // The backend drops empty columns and default sorting from view settings, so missing keys mean empty
+      const hasUrlViewSettings = !Array.isArray(this.initialViewSettings) && Object.keys(this.initialViewSettings).length > 0
+
+      if (hasUrlViewSettings) {
+        const { selectedColumns, sorting } = this.initialViewSettings
+
+        this.currentSelection = Array.isArray(selectedColumns) ? [...selectedColumns] : []
+        this.selectedSort = sorting ?? ''
+      } else {
+        this.currentSelection = this.getTabColumnSelection() ?? [...this.defaultColumnSelection]
+        this.selectedSort = this.getTabValue(this.tabKey.selectedSort) ?? ''
+      }
+
       this.setStoreSelectedColumns(this.currentSelection)
       this.setStoreSearchPhrase(this.searchTerm)
-
-      this.selectedSort = sorting ?? this.getTabValue(this.tabKey.selectedSort) ?? ''
       this.setStoreSorting(this.selectedSort)
 
       this.columnSelectorKey++
@@ -1717,7 +1722,8 @@ export default {
     getTabColumnSelection (bookmarkId) {
       const stored = this.getTabValue(this.tabKey.selectedColumns, bookmarkId)
 
-      return Array.isArray(stored) && stored.length > 0 ? stored : null
+      // An empty selection is valid, externId is always shown
+      return Array.isArray(stored) ? stored : null
     },
 
     // Effective order of the list and its export: the user-selected sort, or the default order
