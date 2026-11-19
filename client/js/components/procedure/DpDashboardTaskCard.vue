@@ -59,13 +59,16 @@ export default {
 
   mounted () {
     // Filter by current user as assignee and current procedure
-    const filterQuery = {
+    const assigneeFilter = {
       [this.currentUserId]: {
         condition: {
           path: 'assignee',
           value: this.currentUserId,
         },
       },
+    }
+    const filterQuery = {
+      ...assigneeFilter,
       sameProcedure: {
         condition: {
           path: 'parentStatement.procedure.id',
@@ -95,9 +98,10 @@ export default {
         const redirectUrl = response.url
         const splitUrl = redirectUrl.split('/')
         const queryHash = splitUrl[splitUrl.length - 1]
+        // The segments list scopes by procedure itself; a procedure condition in the hash would show up as a filter
         const filterData = {
           filter: {
-            ...filterQuery,
+            ...assigneeFilter,
           },
           searchPhrase: '',
         }
