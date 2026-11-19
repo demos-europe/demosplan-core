@@ -8,14 +8,6 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 .segment-list {
-    &-infobox {
-        border: 1px solid $dp-color-neutral-light-2 !important;
-        border-radius: 4px;
-        display: flex;
-        justify-content: space-between;
-        padding: 12px;
-    }
-
     &-row {
         // Shared column template for header and rows: id | text | toggle | recommendation | toolbar.
         // minmax(0, 1fr) keeps cell content from resizing the columns.
