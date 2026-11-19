@@ -641,7 +641,6 @@ export default {
     StatementExportModal,
     StatementMetaData,
     StatusBadge,
-    TableScrollbar,
     VersionHistory,
   },
 
