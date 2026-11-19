@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+## v4.66.1 (2026-11-19)
+- production image: PHP 8.4.28 and nginx 1.30.7 (November 2026 security releases)
+
 ## v4.66.0 (2026-11-05)
 - Node.js 24.22.1 for the image build, CI and `engines` (October 2026 security release)
 - `MailService` implements the new `MailServiceInterface` of the contract layer, so addons can queue mails
