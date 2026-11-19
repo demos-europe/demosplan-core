@@ -30,11 +30,11 @@
       </div>
 
       <div class="segment-list-row">
-        <div class="segment-list-col--m" />
-        <div class="segment-list-col--l weight--bold">
+        <div />
+        <div class="py-2 weight--bold">
           {{ Translator.trans('segment') }}
         </div>
-        <div class="segment-list-col--s flex items-center justify-center">
+        <div class="py-2 flex items-center justify-center">
           <button
             v-tooltip="Translator.trans(isAllCollapsed ? 'aria.expand.all' : 'aria.collapse.all')"
             class="segment-list-toggle-button btn--blank"
@@ -45,10 +45,10 @@
             <i class="fa fa-arrow-down" />
           </button>
         </div>
-        <div class="segment-list-col--l weight--bold text-right">
+        <div class="py-2 weight--bold text-right">
           {{ Translator.trans('segment.recommendation') }}
         </div>
-        <div class="segment-list-col--m" />
+        <div />
       </div>
 
       <!-- info that statement has not been segmented yet -->

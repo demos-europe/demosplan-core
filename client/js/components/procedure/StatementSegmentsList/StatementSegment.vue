@@ -117,10 +117,10 @@
       />
     </div>
     <text-content-renderer
-      class="segment-list-col--l overflow-word-break c-styled-html"
+      class="py-2 overflow-word-break c-styled-html"
       :text="visibleSegmentText"
     />
-    <div class="segment-list-col--s flex items-center justify-center">
+    <div class="py-2 flex items-center justify-center">
       <button
         v-if="!isFullscreen"
         class="segment-list-toggle-button btn--blank"
@@ -138,7 +138,7 @@
         />
       </button>
     </div>
-    <div class="segment-list-col--l overflow-word-break">
+    <div class="py-2 overflow-word-break">
       <image-modal
         ref="imageModal"
         data-cy="recommendation:imgModal"
@@ -397,7 +397,7 @@
         @secondary-action="abort"
       />
     </div>
-    <div class="segment-list-col--m text-right px-2">
+    <div class="py-2 text-right px-2">
       <div
         class="segment-list-toolbar"
         :class="isAssignedToMe && !isLocked ? '' : 'segment-list-toolbar--dark'"
