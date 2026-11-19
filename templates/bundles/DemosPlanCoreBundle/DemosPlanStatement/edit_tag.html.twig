@@ -50,10 +50,10 @@
                 :hint="Translator.trans('tag.description.hint')"
                 :label="Translator.trans('description')"
                 :maxlength="1000"
-                :model-value="description"
+                :value="description"
                 class="mb-4"
                 name="r_tagDescription"
-                @update:model-value="val => setDescription(val)"
+                @input="val => setDescription(val)"
             ></dp-text-area>
         {% endif %}
 
