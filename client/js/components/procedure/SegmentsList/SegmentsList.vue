@@ -1240,12 +1240,6 @@ export default {
       this.selectedSort = sorting || ''
       this.setStoreSorting(this.selectedSort)
 
-      if (this.selectedSort) {
-        lscache.set(this.lsKey.selectedSort, this.selectedSort)
-      } else {
-        lscache.remove(this.lsKey.selectedSort)
-      }
-
       if (isRestore) {
         this.applyTabChangesOnBookmark(bookmark.id)
       }
@@ -1286,13 +1280,14 @@ export default {
 
     applySort (sortValue) {
       this.selectedSort = sortValue
-      lscache.set(this.lsKey.selectedSort, sortValue)
 
       if (this.hasBookmarks) {
         // Unsaved sorting only lasts for this browser tab
         this.setTabValue(this.tabKey.selectedSort, sortValue)
         this.setStoreSorting(sortValue)
         this.updateQueryHash()
+      } else {
+        lscache.set(this.lsKey.selectedSort, sortValue)
       }
 
       this.applyQuery(1)
