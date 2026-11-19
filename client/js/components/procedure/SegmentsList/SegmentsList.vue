@@ -1284,7 +1284,7 @@ export default {
       lscache.set(this.lsKey.selectedSort, sortValue)
 
       if (this.hasBookmarks) {
-        // Without a saved bookmark, the sorting only lasts for this browser tab
+        // Unsaved sorting only lasts for this browser tab
         this.setTabValue(this.tabKey.selectedSort, sortValue)
         this.setStoreSorting(sortValue)
         this.updateQueryHash()
@@ -2200,14 +2200,14 @@ export default {
       this.currentSelection = selection
 
       if (this.hasBookmarks) {
-        // Without a saved bookmark, the column choice only lasts for this browser tab
+        // Unsaved column changes only last for this browser tab
         this.setTabValue(this.tabKey.selectedColumns, selection)
         this.setStoreSelectedColumns(selection)
         this.updateQueryHash()
       }
     },
 
-    // Stored together with the selected bookmark, so it is only restored on that bookmark; null drops it
+    // Stored with the selected bookmark, so a restored bookmark only gets its own changes; null drops it
     setTabValue (key, value) {
       try {
         if (value === null) {
