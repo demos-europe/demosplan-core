@@ -1,0 +1,144 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * This file is part of the package demosplan.
+ *
+ * (c) 2010-present DEMOS plan GmbH, for more information see the license file.
+ *
+ * All rights reserved
+ */
+
+namespace Tests\Core\JsonApi;
+
+use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
+use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\InstitutionTagCategoryFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\InstitutionTagFactory;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
+use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
+use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Tests\Base\AbstractApiTest;
+
+class InstitutionTagResourceApiTest extends AbstractApiTest
+{
+    private const ROUTE = '/api/3.0/InstitutionTag';
+
+    private ?User $user = null;
+    private ?Customer $currentCustomer = null;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
+        $institution = $this->getReference(LoadUserData::TEST_ORGA_PUBLIC_AGENCY);
+        $this->currentCustomer = $institution->getStatusInCustomers()->first()->getCustomer();
+        $this->getContainer()->get(GlobalConfigInterface::class)->setSubdomain($this->currentCustomer->getSubdomain());
+    }
+
+    /**
+     * /api/3.0/* routes sit behind the session based `main` firewall, see TagResourceApiTest.
+     */
+    private function loginForApiPlatform(): void
+    {
+        $this->client->loginUser($this->user, 'main');
+    }
+
+    protected function getAdditionalHeaders(string $jwtToken, ?Procedure $procedure): array
+    {
+        return [];
+    }
+
+    protected function getServerParameters(): array
+    {
+        return ['HTTP_ACCEPT' => 'application/vnd.api+json'];
+    }
+
+    public function testGetReturnsCreationDateAndIsUsedFalseForUnassignedTag(): void
+    {
+        // Arrange
+        $creationDate = new DateTime('2024-01-02 10:00:00');
+        $tag = $this->createTag('unassigned', $creationDate);
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.'/'.$tag->getId(), 'GET', $this->user, null);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $attributes = Json::decodeToArray($response->getContent())['data']['attributes'];
+        self::assertSame($creationDate->format(DATE_ATOM), $attributes['creationDate']);
+        self::assertFalse($attributes['isUsed']);
+    }
+
+    public function testGetReturnsIsUsedTrueForTagAssignedToAnInstitution(): void
+    {
+        // Arrange
+        $tag = $this->createTag('assigned', new DateTime('2024-01-02 10:00:00'));
+        $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
+        $institution = $entityManager->find(Orga::class, $this->getReference(LoadUserData::TEST_ORGA_PUBLIC_AGENCY)->getId());
+        $institution->addAssignedTag($entityManager->find(InstitutionTag::class, $tag->getId()));
+        $entityManager->flush();
+        // A real request starts with an empty identity map, so the relations are loaded from the database.
+        $entityManager->clear();
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.'/'.$tag->getId(), 'GET', $this->user, null);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        self::assertTrue(Json::decodeToArray($response->getContent())['data']['attributes']['isUsed']);
+    }
+
+    public function testGetRestrictsAttributesToTheRequestedFields(): void
+    {
+        // Arrange
+        $tag = $this->createTag('sparse', new DateTime('2024-01-02 10:00:00'));
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $response = $this->sendRequest(
+            self::ROUTE.'/'.$tag->getId().'?fields[InstitutionTag]=name,creationDate,isUsed',
+            'GET',
+            $this->user,
+            null
+        );
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        self::assertSame(
+            ['name', 'creationDate', 'isUsed'],
+            array_keys(Json::decodeToArray($response->getContent())['data']['attributes'])
+        );
+    }
+
+    private function createTag(string $label, DateTime $creationDate): InstitutionTag
+    {
+        $tag = InstitutionTagFactory::createOne([
+            'label'    => $label,
+            'category' => InstitutionTagCategoryFactory::new(['customer' => $this->currentCustomer]),
+        ])->_real();
+        // The entity has no creationDate setter, so the date is written directly to the database.
+        $entityManager = $this->getContainer()->get(EntityManagerInterface::class);
+        $entityManager->createQuery('UPDATE '.InstitutionTag::class.' t SET t.creationDate = :date WHERE t.id = :id')
+            ->setParameter('date', $creationDate)
+            ->setParameter('id', $tag->getId())
+            ->execute();
+        // A real request starts with an empty identity map, so the tag is loaded from the database with this date.
+        $entityManager->clear();
+
+        return $tag;
+    }
+}
