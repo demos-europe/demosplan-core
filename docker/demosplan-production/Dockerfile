@@ -2,7 +2,7 @@
 #
 # Shared base for the build and fpm stages. Do not source PHP from packages.sury.org: its php-fpm
 # has DNS telemetry compiled in (telemetry.sury.org:53) with no opt-out.
-FROM php:8.4.27-fpm-bookworm AS php-base
+FROM php:8.4.28-fpm-bookworm AS php-base
 
 # Extensions that are not already compiled into the base image.
 COPY --link --from=mlocati/php-extension-installer:2.11.17 /usr/bin/install-php-extensions /usr/local/bin/
@@ -284,7 +284,16 @@ LABEL de.demos.project.revision=$COMMIT_SHA_PROJECT
 USER www-data
 CMD ["php-fpm", "-F"]
 
-FROM nginxinc/nginx-unprivileged:alpine3.24-slim AS nginx
+FROM nginx:1.30.7-alpine3.24-slim AS nginx
+
+# Same adjustments as nginxinc/nginx-unprivileged: port 8080, no user directive,
+# pid and temp paths in /tmp, run as uid 101.
+RUN sed -i 's,listen       80;,listen       8080;,' /etc/nginx/conf.d/default.conf \
+ && sed -i '/user  nginx;/d' /etc/nginx/nginx.conf \
+ && sed -i 's,/run/nginx.pid,/tmp/nginx.pid,' /etc/nginx/nginx.conf \
+ && sed -i "/^http {/a \    proxy_temp_path /tmp/proxy_temp;\n    client_body_temp_path /tmp/client_temp;\n    fastcgi_temp_path /tmp/fastcgi_temp;\n    uwsgi_temp_path /tmp/uwsgi_temp;\n    scgi_temp_path /tmp/scgi_temp;\n" /etc/nginx/nginx.conf \
+ && chown -R 101:0 /var/cache/nginx /etc/nginx \
+ && chmod -R g+w /var/cache/nginx /etc/nginx
 
 ARG PROJECT_NAME
 ARG BUILD_MODE=prod
@@ -321,3 +330,5 @@ ARG COMMIT_SHA_CORE=""
 ARG COMMIT_SHA_PROJECT=""
 LABEL de.demos.core.revision=$COMMIT_SHA_CORE
 LABEL de.demos.project.revision=$COMMIT_SHA_PROJECT
+
+USER 101
