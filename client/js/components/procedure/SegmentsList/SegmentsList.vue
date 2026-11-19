@@ -1193,11 +1193,11 @@ export default {
 
       this.currentSelection = selectedColumns?.length ?
         [...selectedColumns] :
-        this.getTabColumnSelection(null) ?? [...this.defaultColumnSelection]
+        this.getTabColumnSelection() ?? [...this.defaultColumnSelection]
       this.setStoreSelectedColumns(this.currentSelection)
       this.setStoreSearchPhrase(this.searchTerm)
 
-      this.selectedSort = sorting ?? this.getTabValue(this.tabKey.selectedSort, null) ?? ''
+      this.selectedSort = sorting ?? this.getTabValue(this.tabKey.selectedSort) ?? ''
       this.setStoreSorting(this.selectedSort)
 
       this.columnSelectorKey++
@@ -1243,11 +1243,11 @@ export default {
 
       if (isRestore) {
         this.applyTabChangesOnBookmark(bookmark.id)
-      } else {
-        // Selecting a bookmark discards unsaved column and sorting changes
-        this.setTabValue(this.tabKey.selectedColumns, null)
-        this.setTabValue(this.tabKey.selectedSort, null)
       }
+
+      // Selecting a bookmark replaces unsaved changes; links without view settings reuse what was last shown
+      this.setTabValue(this.tabKey.selectedColumns, this.currentSelection)
+      this.setTabValue(this.tabKey.selectedSort, this.selectedSort)
 
       // Apply filters
       this.appliedFilterQuery = filter
@@ -1699,14 +1699,15 @@ export default {
     },
 
     /*
-     * Value kept for this browser tab if it was changed on the given bookmark (null: no bookmark),
-     * otherwise null
+     * Value kept for this browser tab, or null. With a bookmarkId, only if it was set on that bookmark
+     * (null: no bookmark); without one, regardless of the bookmark.
      */
     getTabValue (key, bookmarkId) {
       try {
         const stored = JSON.parse(sessionStorage.getItem(key))
+        const isMatch = bookmarkId === undefined || stored?.bookmarkId === bookmarkId
 
-        return stored?.bookmarkId === bookmarkId ? stored.value ?? null : null
+        return isMatch ? stored?.value ?? null : null
       } catch {
         return null
       }
