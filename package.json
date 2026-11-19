@@ -128,7 +128,7 @@
     "@fullhuman/postcss-purgecss": "^8.0.0",
     "@vitejs/plugin-vue": "^6.0.9",
     "@vitest/coverage-v8": "^5.0.5",
-    "@vitest/eslint-plugin": "^1.6.24",
+    "@vitest/eslint-plugin": "^1.6.28",
     "@vitest/ui": "^5.0.5",
     "@vue/test-utils": "^2.4.6",
     "assets-webpack-plugin": "^7.1.1",
