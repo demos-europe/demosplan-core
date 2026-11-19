@@ -131,11 +131,14 @@ import { useStore } from 'vuex'
 /* Props */
 const props = withDefaults(defineProps<{
   customFieldDefinitions?: Array<{ id: string, attributes: { name: string } }>
+  // True if the URL hash stores a filter, search phrase or view settings; false for an empty hash (e.g. menu link)
+  hasQueryState?: boolean
   procedureId: string
   totalColumnCount?: number
   filters?: Record<string, { labelTranslationKey: string, rootPath: string, comparisonOperator: string }>
 }>(), {
   customFieldDefinitions: () => [],
+  hasQueryState: false,
   totalColumnCount: 0,
   filters: () => ({}),
 })
@@ -297,11 +300,13 @@ const findBookmarkToRestore = (): Bookmark | undefined => {
       return savedBookmark
     }
 
-    /*
-     * URL hash matches different bookmark → use URL match for shared links
-     * A hash that matches no bookmark (e.g. dashboard link) must not be overridden by the saved bookmark
-     */
-    return findBookmarkByQueryHash(urlQueryHash)
+    // URL hash matches different bookmark → use URL match for shared links
+    const bookmarkFromUrl = findBookmarkByQueryHash(urlQueryHash)
+
+    // A stateful hash without a bookmark (e.g. dashboard link) must not be overridden by the saved bookmark
+    if (bookmarkFromUrl || props.hasQueryState) {
+      return bookmarkFromUrl
+    }
   }
 
   return savedBookmark
