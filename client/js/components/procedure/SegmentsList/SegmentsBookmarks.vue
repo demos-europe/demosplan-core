@@ -152,6 +152,19 @@ const lsKey = `${props.procedureId}:segments:currentBookmarkId`
 const newBookmarkName: Ref<string> = ref('')
 const showNewBookmarkForm: Ref<boolean> = ref(false)
 const showUnsavedChanges: Ref<boolean> = ref(false)
+// URL hash of this tab's last view and the bookmark it was changed from (sessionStorage)
+const tabViewKey = `${props.procedureId}:segments:tabView`
+
+const readTabView = (): { queryHash: string, bookmarkId: string } | null => {
+  try {
+    return JSON.parse(sessionStorage.getItem(tabViewKey) || 'null')
+  } catch {
+    return null
+  }
+}
+
+// Read before the watcher below can overwrite it with the state of this page load
+const storedTabView = readTabView()
 
 /* Computed */
 const bookmarks: ComputedRef<Bookmark[]> = computed(() => state.Bookmark.allBookmarks)
@@ -195,6 +208,22 @@ watch(hasUnsavedChanges, (newValue: boolean): void => {
 watch(isVisible, (visible: boolean): void => {
   if (visible) {
     emit('hasUnsavedChanges', hasUnsavedChanges.value)
+  }
+})
+
+watch([currentQueryHash, currentBookmarkId], ([queryHash, bookmarkId]): void => {
+  if (!state.Bookmark.isBookmarkStateInitialized) {
+    return
+  }
+
+  try {
+    if (queryHash && bookmarkId) {
+      sessionStorage.setItem(tabViewKey, JSON.stringify({ queryHash, bookmarkId }))
+    } else {
+      sessionStorage.removeItem(tabViewKey)
+    }
+  } catch {
+    // Storage blocked: a changed bookmark is not recognized when coming back
   }
 })
 
@@ -389,8 +418,34 @@ const initializeViewState = (bookmark: Bookmark | null): void => {
   setBookmarkStateInitialized(true)
 }
 
+// The bookmark the URL hash was changed from in this tab, e.g. when coming back via the back button
+const findChangedBookmark = (): Bookmark | undefined => {
+  if (!storedTabView || storedTabView.queryHash !== getQueryHashFromUrl()) {
+    return undefined
+  }
+
+  return bookmarks.value.find(bookmark => bookmark.id === storedTabView.bookmarkId)
+}
+
+// Selects the bookmark without applying it, so the URL's state shows as unsaved changes to it
+const restoreChangedBookmark = (bookmark: Bookmark): void => {
+  store.commit('Bookmark/setCurrentBookmarkId', bookmark.id)
+  store.commit('Bookmark/setCurrentBookmark', bookmark)
+  lscache.set(lsKey, bookmark.id)
+  updateBookmarkButtonText(bookmark)
+  setBookmarkStateInitialized(true)
+  emit('noBookmark')
+}
+
 const restoreSavedBookmark = async (): Promise<void> => {
   const bookmarkToApply = findBookmarkToRestore()
+  const changedBookmark = bookmarkToApply ? undefined : findChangedBookmark()
+
+  if (changedBookmark) {
+    restoreChangedBookmark(changedBookmark)
+
+    return
+  }
 
   if (!bookmarkToApply) {
     setBookmarkStateInitialized(true)
