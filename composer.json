@@ -86,7 +86,7 @@
     "league/fractal": "^0.20",
     "league/html-to-markdown": "^5.0",
     "lexik/jwt-authentication-bundle": "^2.8",
-    "maennchen/zipstream-php": "3.1.1",
+    "maennchen/zipstream-php": "3.2.2",
     "masterminds/html5": "^2.2",
     "nelmio/cors-bundle": "^2.6",
     "nelmio/security-bundle": "^3.1",
