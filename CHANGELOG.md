@@ -6,6 +6,17 @@
 
 ## UNRELEASED
 
+## v4.70.1 (2026-11-19)
+- Security update: PHP 8.4.28 and nginx 1.30.7
+- The statement list has a version history that also shows changes to custom fields
+- The PDF import no longer shows the box review step; a notice asks to check the recognized text, and a link opens the document with the recognized text areas
+
+## v4.70.0 (2026-11-16)
+- Custom fields are displayed in the statement list
+- Uploading large planning documents is more reliable, and documents with very long file names can be imported
+- The procedure protocol PDF has a proper document title
+- The Keycloak role Datenerfassung is mapped to the data input role
+
 ## v4.69.1 (2026-11-19)
 - Security update: PHP 8.4.28 and nginx 1.30.7
 

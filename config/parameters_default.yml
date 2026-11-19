@@ -274,6 +274,9 @@ parameters:
 
     # caching. When apcu is not available use "filesystem"
     cache_doctrine: "filesystem"
+    # backend of cache.app: "filesystem" or "redis" (needs CACHE_REDIS_DSN)
+    cache_app: "filesystem"
+    env(CACHE_REDIS_DSN): "redis://localhost:6379"
 
     # Logging
     symfony_loglevel: "info"
