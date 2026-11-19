@@ -542,7 +542,7 @@
             </template>
           </dp-data-table>
         </div>
-        <dp-table-scrollbar
+        <table-scrollbar
           v-show="scrollbarVisible"
           ref="scrollBar"
           :is-fullscreen="isFullscreen"
@@ -581,7 +581,6 @@ import {
   DpSelect,
   DpSlidebar,
   DpStickyElement,
-  DpTableScrollbar,
   formatDate,
   hasOwnProp,
   sessionStorageMixin,
