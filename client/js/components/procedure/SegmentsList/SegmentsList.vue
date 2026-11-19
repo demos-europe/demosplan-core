@@ -617,6 +617,13 @@ export default {
       default: '',
     },
 
+    // An empty value arrives as [] from twig
+    initialViewSettings: {
+      type: [Object, Array],
+      required: false,
+      default: () => ({}),
+    },
+
     isReadOnly: {
       type: Boolean,
       required: false,
@@ -717,6 +724,7 @@ export default {
         },
       ],
       isCopyingToClipboard: false,
+      isInitialViewApplied: false,
       isLoading: true,
       lsKey: {
         // LocalStorage keys
@@ -724,6 +732,11 @@ export default {
         currentQueryHash: `${this.procedureId}:segments:currentQueryHash`,
         selectedSort: `${this.procedureId}:segmentsListSelectedSort`,
         toggledSegments: `${this.procedureId}:toggledSegments`,
+      },
+      // SessionStorage keys
+      tabKey: {
+        selectedColumns: 'segmentList',
+        selectedSort: `${this.procedureId}:segmentsListSelectedSort`,
       },
       pagination: {},
       searchTerm: this.initialSearchTerm,
@@ -778,6 +791,7 @@ export default {
     }),
 
     ...mapState('Bookmark', {
+      currentBookmarkId: 'currentBookmarkId',
       isBookmarkStateInitialized: 'isBookmarkStateInitialized',
     }),
 
@@ -1166,22 +1180,37 @@ export default {
     }),
 
     /*
-     * Initial load when no bookmark matches the URL. Unlike applyBookmarkSettings(null), this keeps the filter
-     * from the URL hash and the user's stored column selection instead of resetting to the default view.
+     * Initial load when no bookmark matches the URL. Unlike applyBookmarkSettings(null), this keeps the state
+     * of the URL hash; columns and sorting missing from it come from this browser tab.
      */
     applyInitialView () {
       this.initializeFilters()
 
-      this.currentSelection = this.getStoredColumnSelection() ?? [...this.defaultColumnSelection]
+      const isInitialViewSettingsEmpty = Array.isArray(this.initialViewSettings)
+      const { selectedColumns, sorting } = isInitialViewSettingsEmpty ? {} : this.initialViewSettings
+
+      this.isInitialViewApplied = true
+
+      this.currentSelection = selectedColumns?.length ?
+        [...selectedColumns] :
+        this.getTabColumnSelection(null) ?? [...this.defaultColumnSelection]
       this.setStoreSelectedColumns(this.currentSelection)
       this.setStoreSearchPhrase(this.searchTerm)
-      this.restoreSorting()
+
+      this.selectedSort = sorting ?? this.getTabValue(this.tabKey.selectedSort, null) ?? ''
+      this.setStoreSorting(this.selectedSort)
+
       this.columnSelectorKey++
 
       this.applyQuery(this.pagination.currentPage)
     },
 
     async applyBookmarkSettings (bookmark) {
+      // Only the first call restores a bookmark on page load; later ones are explicit selections
+      const isRestore = !this.isInitialViewApplied
+
+      this.isInitialViewApplied = true
+
       if (!bookmark) {
         await this.resetQuery()
         this.setDefaultView()
@@ -1212,6 +1241,14 @@ export default {
         lscache.remove(this.lsKey.selectedSort)
       }
 
+      if (isRestore) {
+        this.applyTabChangesOnBookmark(bookmark.id)
+      } else {
+        // Selecting a bookmark discards unsaved column and sorting changes
+        this.setTabValue(this.tabKey.selectedColumns, null)
+        this.setTabValue(this.tabKey.selectedSort, null)
+      }
+
       // Apply filters
       this.appliedFilterQuery = filter
 
@@ -1226,11 +1263,29 @@ export default {
       this.applyQuery(1)
     },
 
+    // Unsaved column and sorting changes made on this bookmark in this tab; shown as unsaved changes
+    applyTabChangesOnBookmark (bookmarkId) {
+      const tabColumns = this.getTabColumnSelection(bookmarkId)
+      const tabSort = this.getTabValue(this.tabKey.selectedSort, bookmarkId)
+
+      if (tabColumns) {
+        this.currentSelection = tabColumns
+        this.setStoreSelectedColumns(tabColumns)
+      }
+
+      if (tabSort !== null) {
+        this.selectedSort = tabSort
+        this.setStoreSorting(tabSort)
+      }
+    },
+
     applySort (sortValue) {
       this.selectedSort = sortValue
       lscache.set(this.lsKey.selectedSort, sortValue)
 
       if (this.hasBookmarks) {
+        // Without a saved bookmark, the sorting only lasts for this browser tab
+        this.setTabValue(this.tabKey.selectedSort, sortValue)
         this.setStoreSorting(sortValue)
         this.updateQueryHash()
       }
@@ -1643,15 +1698,24 @@ export default {
       this.commitFilterQuery()
     },
 
-    // Returns the column selection persisted in localStorage, or null if missing or invalid
-    getStoredColumnSelection () {
+    /*
+     * Value kept for this browser tab if it was changed on the given bookmark (null: no bookmark),
+     * otherwise null
+     */
+    getTabValue (key, bookmarkId) {
       try {
-        const stored = JSON.parse(localStorage.getItem('segmentList'))
+        const stored = JSON.parse(sessionStorage.getItem(key))
 
-        return Array.isArray(stored) && stored.length > 0 ? stored : null
+        return stored?.bookmarkId === bookmarkId ? stored.value ?? null : null
       } catch {
         return null
       }
+    },
+
+    getTabColumnSelection (bookmarkId) {
+      const stored = this.getTabValue(this.tabKey.selectedColumns, bookmarkId)
+
+      return Array.isArray(stored) && stored.length > 0 ? stored : null
     },
 
     // Effective order of the list and its export: the user-selected sort, or the default order
@@ -2135,10 +2199,23 @@ export default {
       this.currentSelection = selection
 
       if (this.hasBookmarks) {
-        // The selector's own localStorage is off with bookmarks, so persist the choice here for the next visit
-        localStorage.setItem('segmentList', JSON.stringify(selection))
+        // Without a saved bookmark, the column choice only lasts for this browser tab
+        this.setTabValue(this.tabKey.selectedColumns, selection)
         this.setStoreSelectedColumns(selection)
         this.updateQueryHash()
+      }
+    },
+
+    // Stored together with the selected bookmark, so it is only restored on that bookmark; null drops it
+    setTabValue (key, value) {
+      try {
+        if (value === null) {
+          sessionStorage.removeItem(key)
+        } else {
+          sessionStorage.setItem(key, JSON.stringify({ bookmarkId: this.currentBookmarkId ?? null, value }))
+        }
+      } catch {
+        // Storage blocked: the value only lasts until the page is left
       }
     },
 
@@ -2201,6 +2278,9 @@ export default {
       this.currentSelection = [...this.defaultColumnSelection]
       this.setStoreSelectedColumns(this.currentSelection)
       localStorage.setItem('segmentList', JSON.stringify(this.defaultColumnSelection))
+      // The default view also replaces the tab's own columns and sorting on the next visit
+      this.setTabValue(this.tabKey.selectedColumns, null)
+      this.setTabValue(this.tabKey.selectedSort, null)
       this.columnSelectorKey++
 
       this.selectedSort = ''
@@ -2341,7 +2421,10 @@ export default {
 
     lscache.remove(navigationSourceKey)
 
-    this.restoreSorting()
+    // With bookmarks, sorting comes from the bookmark or the URL hash only
+    if (!this.hasBookmarks) {
+      this.restoreSorting()
+    }
 
     if (hasPermission('field_segments_custom_fields')) {
       await this.loadSegmentCustomFields()
