@@ -678,7 +678,6 @@ export default {
   data () {
     const defaultColumnSelection = [
       'status',
-      'internId',
       'meta',
       'segmentsCount',
     ]
