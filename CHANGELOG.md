@@ -6,6 +6,8 @@
 
 ## UNRELEASED
 
+## v4.52.3 (2026-11-19)
+
 ### Changed
 - PHP updated to version 8.4.28
 - Container image: nginx updated to version 1.30.7 (official image, runs unprivileged)
