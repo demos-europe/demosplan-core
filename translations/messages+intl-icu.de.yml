@@ -6,7 +6,7 @@
 2fa.email.activated: 'Die Zwei-Faktor-Authentifizierung per Email ist <strong>aktiviert</strong>. Um sie zu deaktivieren geben Sie bitte einen aktuellen Code ein und speichern Sie das Formular. <a href="{link}">Neuen Code an Ihre Email-Adresse senden</a>'
 2fa.email.enable.explanation: 'Um die Zwei-Faktor-Authentifizierung per Email zu nutzen, müssen Sie diese zunächst aktivieren.'
 2fa.email.enable: 'Zwei-Faktor-Authentifizierung per Email aktivieren'
-2fa.totp.activate.explanation.setupInstructions: 'Scannen Sie den folgenden QR-Code mit einer Authenticator-App wie dem Google Authenticator oder FreeOTP <strong>or</strong> geben Sie den unten stehenden TOTP-Code in Ihrer App bzw. in einem Passwortmanager wie KeePassXC ein. Sie benötigen nur einen der beiden Wege.'
+2fa.totp.activate.explanation.setupInstructions: 'Scannen Sie den folgenden QR-Code mit einer Authenticator-App wie dem Google Authenticator oder FreeOTP <strong>oder</strong> geben Sie den unten stehenden TOTP-Code in Ihrer App bzw. in einem Passwortmanager wie KeePassXC ein. Sie benötigen nur einen der beiden Wege.'
 2fa.totp.activate: "Ihre App zeigt anschließend einen 6-stelligen Code an. Geben Sie diesen Code in das folgende Feld ein und speichern Sie das Formular, um die Zwei-Faktor-Authentifizierung zu aktivieren."
 2fa.totp.activated: "Die Zwei-Faktor-Authentifizierung ist <strong>aktiviert</strong>. Um sie zu deaktivieren, geben Sie bitte einen aktuellen Code ein und speichern Sie das Formular"
 2fa.totp.code: "TOTP Code"
