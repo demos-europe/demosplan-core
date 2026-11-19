@@ -519,7 +519,7 @@
             </template>
           </dp-data-table>
         </div>
-        <table-scrollbar
+        <dp-table-scrollbar
           v-show="scrollbarVisible"
           ref="scrollBar"
           :is-fullscreen="isFullscreen"
@@ -557,6 +557,7 @@ import {
   dpRpc,
   DpSelect,
   DpStickyElement,
+  DpTableScrollbar,
   formatDate,
   hasOwnProp,
   sessionStorageMixin,
@@ -576,7 +577,6 @@ import StatementCustomFieldChips from './StatementCustomFieldChips.vue'
 import StatementExportModal from '@DpJs/components/statement/statementExportModal/StatementExportModal.vue'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData.vue'
 import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge.vue'
-import TableScrollbar from '@DpJs/components/shared/TableScrollbar.vue'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
@@ -609,12 +609,12 @@ export default {
     DpPager,
     DpSelect,
     DpStickyElement,
+    DpTableScrollbar,
     DpMoveStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal.vue')),
     StatementCustomFieldChips,
     StatementExportModal,
     StatementMetaData,
     StatusBadge,
-    TableScrollbar,
   },
 
   directives: {
