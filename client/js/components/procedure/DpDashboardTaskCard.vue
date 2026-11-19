@@ -53,7 +53,8 @@ export default {
 
   computed: {
     userFilteredSegmentUrl () {
-      return Routing.generate('dplan_segments_list', { procedureId: this.procedureId }) + '/' + this.userHash
+      // The hash is the same on every visit, so the segments list would restore the last page without page=1
+      return Routing.generate('dplan_segments_list', { procedureId: this.procedureId }) + '/' + this.userHash + '?page=1'
     },
   },
 

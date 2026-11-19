@@ -725,6 +725,7 @@ export default {
       ],
       isCopyingToClipboard: false,
       isInitialViewApplied: false,
+      isPageResetRequested: false,
       isLoading: true,
       lsKey: {
         // LocalStorage keys
@@ -1218,7 +1219,7 @@ export default {
       this.columnSelectorKey++
 
       // The stored page may not exist for another filter, e.g. from the dashboard or a shared link
-      const isSameList = this.getTabValue(this.tabKey.pageQueryHash) === this.currentQueryHash
+      const isSameList = !this.isPageResetRequested && this.getTabValue(this.tabKey.pageQueryHash) === this.currentQueryHash
 
       this.applyQuery(isSameList ? this.pagination.currentPage : 1)
     },
@@ -1949,6 +1950,22 @@ export default {
       this.setSlidebarState({ prop: 'slidebar', val })
     },
 
+    /*
+     * Links ask for page 1 with ?page=1. Removed right away: the query hash is read from the end of the URL,
+     * and reload or back should restore the page again.
+     */
+    readPageResetFromUrl () {
+      const url = new URL(globalThis.location.href)
+
+      if (!url.searchParams.has('page')) {
+        return
+      }
+
+      this.isPageResetRequested = url.searchParams.get('page') === '1'
+      url.searchParams.delete('page')
+      globalThis.history.replaceState(globalThis.history.state, document.title, url.href)
+    },
+
     recommendationHasHtmlTags (recommendation) {
       const div = document.createElement('div')
 
@@ -2411,6 +2428,11 @@ export default {
       this.resetSelection()
       this.applyQuery(1)
     },
+  },
+
+  created () {
+    // Before anything reads the query hash from the URL
+    this.readPageResetFromUrl()
   },
 
   async mounted () {
