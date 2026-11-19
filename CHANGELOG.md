@@ -6,6 +6,9 @@
 
 ## UNRELEASED
 
+## v4.69.1 (2026-11-19)
+- Security update: PHP 8.4.28 and nginx 1.30.7
+
 ## v4.69.0 (2026-11-13)
 - Organisations get a read-only technical name from the identity provider, stored as `Orga::$technicalName` (JSON:API 2.0
   attribute `Orga.technicalName`) next to the editable name (`Orga::$name`). Only the Keycloak OZG login
