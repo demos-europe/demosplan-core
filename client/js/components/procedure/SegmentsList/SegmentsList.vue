@@ -230,34 +230,39 @@
               </span>
             </template>
             <template v-slot:externId="rowData">
-              <v-popover trigger="hover focus">
-                <div class="whitespace-nowrap">
-                  {{ rowData.attributes.externId }}
-                </div>
-                <template v-slot:popover>
+              <!-- Negative margins offset the button paddings, so the id aligns with the column header and the other cells -->
+              <div class="flex items-center whitespace-nowrap">
+                <dp-popover
+                  v-if="statementsObject[rowData.relationships?.parentStatement?.data?.id]"
+                  :aria-label="`#${rowData.attributes.externId} ${Translator.trans('details.show')}`"
+                  :panel-label="`${Translator.trans('segment')} ${rowData.attributes.externId}`"
+                  class="-my-[4px] -ml-[10px] text-base!"
+                  variant="subtle"
+                >
+                  <template v-slot:trigger>
+                    #{{ rowData.attributes.externId }}
+                  </template>
                   <statement-meta-tooltip
-                    v-if="statementsObject[rowData.relationships?.parentStatement?.data?.id]"
                     :assignable-users="assignableUsers"
-                    :statement="
-                      statementsObject[
-                        rowData.relationships?.parentStatement?.data?.id
-                      ]
-                    "
+                    :statement="statementsObject[rowData.relationships.parentStatement.data.id]"
                     :segment="rowData"
                     :places="places"
                   />
-                </template>
-              </v-popover>
-              <dp-button
-                v-if="canUnlock && rowData.isPlaceLocked"
-                :text="Translator.trans('segment.unlock.click.hint')"
-                class="text-interactive bg-transparent! border-transparent! hover:bg-interactive-subtle-hover!"
-                icon="prohibit"
-                icon-weight="fill"
-                variant="subtle"
-                hide-text
-                @click="openUnlockModal(rowData)"
-              />
+                </dp-popover>
+                <span v-else>
+                  #{{ rowData.attributes.externId }}
+                </span>
+                <dp-button
+                  v-if="canUnlock && rowData.isPlaceLocked"
+                  :text="Translator.trans('segment.unlock.click.hint')"
+                  class="-my-1 text-interactive bg-transparent! border-transparent! hover:bg-interactive-subtle-hover!"
+                  icon="prohibit"
+                  icon-weight="fill"
+                  variant="subtle"
+                  hide-text
+                  @click="openUnlockModal(rowData)"
+                />
+              </div>
             </template>
             <template v-slot:statementStatus="rowData">
               <status-badge
@@ -388,7 +393,23 @@
               </div>
             </template>
             <template v-slot:flyout="rowData">
-              <dp-flyout data-cy="segmentsList:flyoutEditMenu">
+              <!-- The padding sits on the trigger content, so its tooltip covers the whole button but not the open menu -->
+              <dp-flyout
+                :aria-label="Translator.trans('segment.actions', { id: rowData.attributes.externId })"
+                button-classes="p-0"
+                data-cy="segmentsList:flyoutEditMenu"
+              >
+                <template v-slot:trigger>
+                  <span
+                    v-tooltip="Translator.trans('segment.actions', { id: rowData.attributes.externId })"
+                    class="block px-1 py-0.5"
+                  >
+                    <i
+                      class="fa fa-ellipsis-h"
+                      aria-hidden="true"
+                    />
+                  </span>
+                </template>
                 <a
                   v-if="hasPermission('feature_segment_recommendation_edit')"
                   class="block leading-[2] whitespace-nowrap"
@@ -519,6 +540,7 @@ import {
   DpLabel,
   DpLoading,
   DpPager,
+  DpPopover,
   dpRpc,
   DpSelect,
   DpStickyElement,
@@ -526,7 +548,6 @@ import {
   formatDate,
   hasOwnProp,
   tableSelectAllItems,
-  VPopover,
 } from '@demos-europe/demosplan-ui'
 import { CUSTOM_FIELD_GROUP_PREFIX, useApiPlatformFilters } from '@DpJs/composables/useApiPlatformFilters'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
@@ -570,6 +591,7 @@ export default {
     DpLabel,
     DpLoading,
     DpPager,
+    DpPopover,
     DpSelect,
     DpStickyElement,
     DpTableScrollbar,
@@ -579,7 +601,6 @@ export default {
     StatementMetaTooltip,
     StatusBadge,
     TextContentRenderer,
-    VPopover,
   },
 
   directives: {

@@ -35,10 +35,9 @@
           @click="updateClaim"
         />
 
-        <v-popover
+        <div
+          v-tooltip="fragmentTooltip"
           class="inline-block u-mr"
-          placement="top"
-          trigger="hover focus"
         >
           <div>
             <span
@@ -72,15 +71,7 @@
               ID {{ Translator.trans(missKeyValue(fragment.displayId, 'notspecified')) }} ({{ Translator.trans(missKeyValue(fragment.statement.externId, 'notspecified')) }})
             </label>
           </div>
-
-          <template v-slot:popover>
-            <div>
-              {{ Translator.trans('fragment.created') }} {{ createdDateFragment }}<br>
-              {{ Translator.trans('fragment.id') }}: {{ Translator.trans(missKeyValue(fragment.displayId, 'notspecified')) }}<br>
-              {{ Translator.trans('statement.id') }}: {{ Translator.trans(missKeyValue(fragment.statement.externId, 'notspecified')) }}
-            </div>
-          </template>
-        </v-popover>
+        </div>
       </div>
 
       <!-- voteAdvice badge -->
@@ -158,20 +149,14 @@
       >
         <template v-if="fragment.tags.length">
           <ul class="o-list o-list--csv">
-            <v-popover
+            <li
               v-for="tag in fragment.tags"
               :key="tag.id"
-              placement="top"
+              v-tooltip="tagTooltip(tag)"
               class="o-list__item"
             >
-              <li>{{ tag.title }}</li>
-              <template v-slot:popover>
-                <div>
-                  <strong class="block">{{ tag.topicTitle }}</strong>
-                  {{ tag.title }}
-                </div>
-              </template>
-            </v-popover>
+              {{ tag.title }}
+            </li>
           </ul>
         </template>
         <p
@@ -395,20 +380,14 @@
             class="o-list o-list--csv inline-block u-pb-0_25"
             style="max-width: 95%"
           >
-            <v-popover
+            <li
               v-for="(tag, idx) in fragment.statement.tags"
               :key="idx"
-              placement="top"
+              v-tooltip="tagTooltip(tag)"
               class="o-list__item inline"
             >
-              <li>{{ tag.title }}</li>
-              <template v-slot:popover>
-                <div>
-                  <strong class="block">{{ tag.topicTitle }}</strong>
-                  {{ tag.title }}
-                </div>
-              </template>
-            </v-popover>
+              {{ tag.title }}
+            </li>
           </ul>
         </template>
         <p
@@ -560,7 +539,6 @@ import {
   formatDate,
   getFileInfo,
   hasOwnProp,
-  VPopover,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import DpClaim from '../DpClaim.vue'
@@ -568,6 +546,7 @@ import DpFragmentEdit from '../fragment/Edit.vue'
 import DpFragmentStatus from '../fragment/Status.vue'
 import DpFragmentVersions from '../fragment/Version.vue'
 import DpItemRow from '../assessmentTable/ItemRow.vue'
+import { escapeHtml } from '@DpJs/lib/shared/escapeHtml'
 import HeightLimit from '@DpJs/components/statement/HeightLimit.vue'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer.vue'
 
@@ -582,7 +561,6 @@ export default {
     HeightLimit,
     DpItemRow,
     TextContentRenderer,
-    VPopover,
   },
 
   directives: {
@@ -685,6 +663,15 @@ export default {
       return this.fragmentById(this.statementId, this.fragmentId)
     },
 
+    fragmentTooltip () {
+      const fragmentId = Translator.trans(this.missKeyValue(this.fragment.displayId, 'notspecified'))
+      const statementId = Translator.trans(this.missKeyValue(this.fragment.statement.externId, 'notspecified'))
+
+      return `${Translator.trans('fragment.created')} ${escapeHtml(this.createdDateFragment)}<br>` +
+        `${Translator.trans('fragment.id')}: ${escapeHtml(fragmentId)}<br>` +
+        `${Translator.trans('statement.id')}: ${escapeHtml(statementId)}`
+    },
+
     statementFiles () {
       const files = []
 
@@ -714,6 +701,11 @@ export default {
       }
 
       return value
+    },
+
+    // The tooltip inserts its content as HTML, and tag titles are plain text
+    tagTooltip (tag) {
+      return `<strong class="block">${escapeHtml(tag.topicTitle)}</strong>${escapeHtml(tag.title)}`
     },
 
     toggleEditing () {

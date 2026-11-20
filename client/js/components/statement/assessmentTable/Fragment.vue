@@ -42,19 +42,12 @@ useful info about the component:
           :disabled="Object.keys(selectedElements).length > 0"
           :title="Object.keys(selectedElements).length > 0 ? Translator.trans('unselect.entity.first', {entity: Translator.trans('fragment')}) : false"
         >
-        <v-popover
+        <span
+          v-tooltip="`${Translator.trans('fragment.created')} ${fragmentCreatedDate}<br>${Translator.trans('fragment.id')}: ${fragment.displayId}`"
           class="inline-block u-ml-0_125 weight--bold"
-          placement="top"
-          trigger="hover focus"
         >
           {{ fragment.displayId }}
-          <template v-slot:popover>
-            <div>
-              {{ Translator.trans('fragment.created') }} {{ fragmentCreatedDate }}<br>
-              {{ Translator.trans('fragment.id') }}: {{ fragment.displayId }}<br>
-            </div>
-          </template>
-        </v-popover>
+        </span>
 
         <!-- Navigation for fragment history, delete, assign to other user -->
         <table-card-flyout-menu
@@ -422,7 +415,7 @@ useful info about the component:
 </template>
 
 <script>
-import { dpApi, formatDate, hasOwnProp, VPopover } from '@demos-europe/demosplan-ui'
+import { dpApi, formatDate, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
 import DpClaim from '../DpClaim.vue'
@@ -440,7 +433,6 @@ export default {
     DpEditFieldSingleSelect,
     EditableText,
     TableCardFlyoutMenu,
-    VPopover,
   },
 
   props: {
