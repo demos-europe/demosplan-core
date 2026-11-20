@@ -53,7 +53,11 @@ class ProcedureTitlePageExporter
         $headerStyle = ['size' => 9];
         $headerCell = $section->addTable($this->tableStyle())->addRow()->addCell(null, $this->ruleStyle());
         $headerCell->addText($procedure->getOrgaName().' - '.$name, $headerStyle, ['spaceAfter' => 0]);
-        $headerCell->addText('Ausgedruckt am '.$this->formatPrintDate(), $headerStyle, ['spaceAfter' => 0]);
+        $headerCell->addText(
+            $this->translator->trans('procedure.titlepage.printed', ['date' => $this->formatPrintDate()]),
+            $headerStyle,
+            ['spaceAfter' => 0]
+        );
 
         $section->addTextBreak(4);
 
