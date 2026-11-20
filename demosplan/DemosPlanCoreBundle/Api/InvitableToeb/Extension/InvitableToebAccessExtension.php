@@ -54,5 +54,22 @@ final class InvitableToebAccessExtension implements QueryCollectionExtensionInte
         foreach ($subQueryBuilder->getParameters() as $parameter) {
             $queryBuilder->setParameter($parameter->getName(), $parameter->getValue(), $parameter->getType());
         }
+
+        $this->joinTagsForSearch($queryBuilder, $queryNameGenerator, $operation);
+    }
+
+    /**
+     * The `search` parameter also looks at the tag names. API Platform joins the tags with an INNER JOIN, which would
+     * hide every institution without a tag. This extension runs before the filters and its LEFT JOIN is reused by them.
+     */
+    private function joinTagsForSearch(QueryBuilder $queryBuilder, QueryNameGeneratorInterface $queryNameGenerator, Operation $operation): void
+    {
+        $search = $operation->getParameters()?->get('search')?->getValue();
+        if (!is_string($search) || '' === trim($search)) {
+            return;
+        }
+
+        $rootAlias = $queryBuilder->getRootAliases()[0];
+        $queryBuilder->leftJoin("$rootAlias.assignedTags", $queryNameGenerator->generateJoinAlias('assignedTags'));
     }
 }

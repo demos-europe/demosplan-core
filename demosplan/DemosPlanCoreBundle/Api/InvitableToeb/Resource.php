@@ -12,11 +12,16 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\InvitableToeb;
 
+use ApiPlatform\Doctrine\Orm\Filter\FreeTextQueryFilter;
+use ApiPlatform\Doctrine\Orm\Filter\OrFilter;
+use ApiPlatform\Doctrine\Orm\Filter\PartialSearchFilter;
+use ApiPlatform\Doctrine\Orm\State\Options as DoctrineOptions;
 use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
 use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\QueryParameter;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
 use demosplan\DemosPlanCoreBundle\Api\InstitutionLocationContact\Resource as InstitutionLocationContactResource;
 use demosplan\DemosPlanCoreBundle\Api\InstitutionTag\Resource as InstitutionTagResource;
@@ -42,6 +47,13 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
             paginationClientEnabled: true,
             paginationClientItemsPerPage: true,
             order: ['name' => 'ASC'],
+            stateOptions: new DoctrineOptions(entityClass: Orga::class),
+            parameters: [
+                'search' => new QueryParameter(
+                    filter: new FreeTextQueryFilter(new OrFilter(new PartialSearchFilter())),
+                    properties: ['name', 'competence', 'assignedTags.label'],
+                ),
+            ],
         ),
         new Get(uriTemplate: '/InvitableToeb/{id}'),
     ],

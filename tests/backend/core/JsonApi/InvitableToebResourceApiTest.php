@@ -465,6 +465,110 @@ class InvitableToebResourceApiTest extends AbstractApiTest
         self::assertSame('some value', Json::decodeToArray($response->getContent())['data']['attributes']['competenceDescription']);
     }
 
+    public function testSearchMatchesTheNameCaseInsensitively(): void
+    {
+        // Arrange
+        $match = $this->createInvitableOrga('Amt fuer Wasser');
+        $other = $this->createInvitableOrga('Amt fuer Luft');
+        $this->getApiEntityManager()->clear();
+        $this->enableInvitablePermissions();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.'?search=WASSER', 'GET', $this->user, $this->procedure);
+
+        // Assert
+        $ids = $this->getIds($response);
+        self::assertContains($match->getId(), $ids);
+        self::assertNotContains($other->getId(), $ids);
+    }
+
+    public function testSearchTreatsWildcardsAsPlainCharacters(): void
+    {
+        // Arrange
+        $other = $this->createInvitableOrga('Amt fuer Luft');
+        $this->getApiEntityManager()->clear();
+        $this->enableInvitablePermissions();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.'?search=%25', 'GET', $this->user, $this->procedure);
+
+        // Assert
+        self::assertNotContains($other->getId(), $this->getIds($response));
+    }
+
+    public function testSearchStillHidesInvitedInstitutions(): void
+    {
+        // Arrange
+        $invited = $this->createInvitableOrga('Amt fuer Wasser');
+        $this->procedure->addOrganisation($invited);
+        $this->getApiEntityManager()->flush();
+        $this->getApiEntityManager()->clear();
+        $this->enableInvitablePermissions();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.'?search=Wasser', 'GET', $this->user, $this->procedure);
+
+        // Assert
+        self::assertNotContains($invited->getId(), $this->getIds($response));
+    }
+
+    public function testSearchMatchesTheCompetence(): void
+    {
+        // Arrange
+        $match = $this->createInvitableOrga('Amt A');
+        $match->setCompetence('Gewaesserschutz');
+        $other = $this->createInvitableOrga('Amt B');
+        $this->getApiEntityManager()->flush();
+        $this->getApiEntityManager()->clear();
+        $this->enableInvitablePermissions();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.'?search=gewaesser', 'GET', $this->user, $this->procedure);
+
+        // Assert
+        $ids = $this->getIds($response);
+        self::assertContains($match->getId(), $ids);
+        self::assertNotContains($other->getId(), $ids);
+    }
+
+    public function testSearchMatchesATagNameAndReturnsTheInstitutionOnce(): void
+    {
+        // Arrange: two matching tags must not return the institution twice
+        $match = $this->createInvitableOrga('Amt A');
+        $this->assignTag($match, 'Umwelt-1', $this->currentCustomer);
+        $this->assignTag($match, 'Umwelt-2', $this->currentCustomer);
+        $other = $this->createInvitableOrga('Amt B');
+        $this->assignTag($other, 'Verkehr', $this->currentCustomer);
+        $this->getApiEntityManager()->clear();
+        $this->enableInvitablePermissions();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.'?search=umwelt&pagination=true', 'GET', $this->user, $this->procedure);
+
+        // Assert
+        self::assertSame([$match->getId()], $this->getIds($response));
+        self::assertSame(1, Json::decodeToArray($response->getContent())['meta']['totalItems']);
+    }
+
+    /**
+     * An institution without any tag must still be found by its name or competence.
+     */
+    public function testSearchFindsInstitutionsWithoutTagsNextToTaggedOnes(): void
+    {
+        // Arrange
+        $untagged = $this->createInvitableOrga('Amt Wasser');
+        $tagged = $this->createInvitableOrga('Amt A');
+        $this->assignTag($tagged, 'Wasser', $this->currentCustomer);
+        $this->getApiEntityManager()->clear();
+        $this->enableInvitablePermissions();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.'?search=wasser', 'GET', $this->user, $this->procedure);
+
+        // Assert
+        self::assertEqualsCanonicalizing([$untagged->getId(), $tagged->getId()], $this->getIds($response));
+    }
+
     /**
      * @return array<string, mixed> the attributes of the given institution in a list response
      */
