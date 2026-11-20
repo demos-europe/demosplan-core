@@ -236,7 +236,8 @@
                   v-if="statementsObject[rowData.relationships?.parentStatement?.data?.id]"
                   :aria-label="`#${rowData.attributes.externId} ${Translator.trans('details.show')}`"
                   :panel-label="`${Translator.trans('segment')} ${rowData.attributes.externId}`"
-                  class="-my-[4px] -ml-[10px] text-base! border-transparent!"
+                  class="-my-[4px] -ml-[10px] text-base!"
+                  variant="subtle"
                 >
                   <template v-slot:trigger>
                     #{{ rowData.attributes.externId }}

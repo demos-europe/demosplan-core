@@ -19,7 +19,8 @@
       <dp-popover
         :aria-label="`#${segment.attributes.externId} ${Translator.trans('details.show')}`"
         :panel-label="`${Translator.trans('segment')} ${segment.attributes.externId}`"
-        class="-my-[4px] -ml-[6px] self-start whitespace-nowrap text-base! border-transparent!"
+        class="-my-[4px] -ml-[6px] self-start whitespace-nowrap text-base!"
+        variant="subtle"
         @focus="prefetchCustomFields"
         @pointerenter="prefetchCustomFields"
       >
