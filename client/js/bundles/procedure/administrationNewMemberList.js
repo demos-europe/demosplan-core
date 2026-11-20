@@ -29,4 +29,14 @@ const stores = {
   FilterFlyout: FilterFlyoutStore,
 }
 
-initialize(components, stores, apiStores)
+/**
+ * Use API Platform 3.0 for reading the data of this page. Adding institutions to the procedure stays on its
+ * current endpoint.
+ */
+const pageSpecificApi3Modules = {
+  InvitableToeb: ['list'],
+  InstitutionTag: ['list'],
+  InstitutionTagCategory: ['list'],
+}
+
+initialize(components, stores, apiStores, {}, () => {}, pageSpecificApi3Modules)

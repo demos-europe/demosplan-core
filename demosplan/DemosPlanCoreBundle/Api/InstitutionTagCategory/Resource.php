@@ -16,6 +16,7 @@ use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
 use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory;
@@ -23,6 +24,11 @@ use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTagCategory;
 #[ApiResource(
     shortName: 'InstitutionTagCategory',
     operations: [
+        new GetCollection(
+            uriTemplate: '/InstitutionTagCategory',
+            paginationEnabled: false,
+            order: ['creationDate' => 'ASC', 'name' => 'ASC'],
+        ),
         new Get(uriTemplate: '/InstitutionTagCategory/{id}'),
     ],
     formats: ['jsonapi'],
@@ -38,11 +44,15 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public string $name = '';
 
+    #[ApiProperty(readable: true, writable: false)]
+    public string $creationDate = '';
+
     public static function fromEntity(InstitutionTagCategory $category): self
     {
         $resource = new self();
         $resource->id = $category->getId();
         $resource->name = $category->getName();
+        $resource->creationDate = $category->getCreationDate()->format(DATE_ATOM);
 
         return $resource;
     }

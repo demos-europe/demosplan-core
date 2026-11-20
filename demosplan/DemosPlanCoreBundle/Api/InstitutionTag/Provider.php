@@ -12,9 +12,15 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Api\InstitutionTag;
 
+use ApiPlatform\Doctrine\Orm\State\CollectionProvider as DoctrineCollectionProvider;
+use ApiPlatform\Doctrine\Orm\State\Options as DoctrineOptions;
+use ApiPlatform\Metadata\CollectionOperationInterface;
 use ApiPlatform\Metadata\Operation;
+use ApiPlatform\State\Pagination\PaginatorInterface;
 use ApiPlatform\State\ProviderInterface;
+use demosplan\DemosPlanCoreBundle\Api\Common\MappingPaginator;
 use demosplan\DemosPlanCoreBundle\Api\InstitutionTag\Resource as InstitutionTagResource;
+use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 use demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -25,6 +31,7 @@ class Provider implements ProviderInterface
     public function __construct(
         private readonly AccessChecker $accessChecker,
         private readonly InstitutionTagRepository $tagRepository,
+        private readonly DoctrineCollectionProvider $doctrineCollectionProvider,
     ) {
     }
 
@@ -36,13 +43,22 @@ class Provider implements ProviderInterface
             throw new AccessDeniedHttpException(sprintf('Access denied: insufficient permissions to access %s', $operation->getShortName()));
         }
 
+        if ($operation instanceof CollectionOperationInterface) {
+            return $this->provideCollection($operation, $uriVariables, $context);
+        }
+
         if (!isset($uriVariables['id'])) {
             return null;
         }
 
+        return $this->provideSingle($uriVariables['id']);
+    }
+
+    private function provideSingle(string $id): ?InstitutionTagResource
+    {
         try {
             $tag = $this->tagRepository->getEntityByIdentifier(
-                $uriVariables['id'],
+                $id,
                 $this->accessChecker->getTagAccessConditions(),
                 ['id']
             );
@@ -51,5 +67,32 @@ class Provider implements ProviderInterface
         }
 
         return InstitutionTagResource::fromEntity($tag);
+    }
+
+    /**
+     * Access control (see {@see Extension\InstitutionTagAccessExtension}) and the default order
+     * (oldest first) are applied by API Platform's Doctrine provider.
+     *
+     * @return PaginatorInterface<InstitutionTagResource>|list<InstitutionTagResource>
+     */
+    private function provideCollection(Operation $operation, array $uriVariables, array $context): PaginatorInterface|array
+    {
+        $operation = $operation->withStateOptions(new DoctrineOptions(
+            entityClass: InstitutionTag::class,
+            handleLinks: static function (): void {
+                // handleLinks has to be set or API Platform throws an error, but we don't need it to do anything here.
+            }
+        ));
+
+        $result = $this->doctrineCollectionProvider->provide($operation, $uriVariables, $context);
+        $map = static fn (InstitutionTag $tag): InstitutionTagResource => InstitutionTagResource::fromEntity($tag);
+
+        if ($result instanceof PaginatorInterface) {
+            return new MappingPaginator($result, $map);
+        }
+
+        Assert::isArray($result);
+
+        return array_map($map, $result);
     }
 }
