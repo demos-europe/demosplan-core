@@ -31,6 +31,7 @@ All rights reserved
         <client-side-tag-filter
           v-if="hasPermission('feature_institution_tag_read')"
           :filter-categories="allFilterCategories"
+          :load-tags-separately="isApiPlatform"
           :raw-items="rowItems"
           :search-applied="isSearchApplied"
           @items-filtered="filteredItems = $event"
@@ -355,6 +356,11 @@ export default {
       }, {})
     },
 
+    // The institutions that can be invited are read from API Platform 3.0, the invited ones from EDT 2.0
+    isApiPlatform () {
+      return this.resourceType === 'InvitableToeb'
+    },
+
     isSearchApplied () {
       return this.searchTerm !== ''
     },
@@ -432,7 +438,8 @@ export default {
     },
 
     totalPages () {
-      return this.pagination.totalPages || 0
+      // API Platform 3.0 only returns the number of items
+      return this.pagination.totalPages || Math.ceil(this.totalItems / this.itemsPerPage)
     },
   },
 
@@ -459,6 +466,16 @@ export default {
     getInstitutionTagCategories (isInitial = false) {
       if (!hasPermission('feature_institution_tag_read')) {
         return
+      }
+
+      // API Platform 3.0: the categories do not contain their tags
+      if (this.isApiPlatform) {
+        return this.fetchInstitutionTagCategories({ fields: { InstitutionTagCategory: 'creationDate,name' } })
+          .catch(err => {
+            console.error('Error loading tag categories:', err)
+
+            return {}
+          })
       }
 
       return this.fetchInstitutionTagCategories({
@@ -566,18 +583,23 @@ export default {
 
         requestParams.filter = filters
 
-        return this.$store.dispatch(`${this.storeModule}/list`, requestParams)
+        return this.$store.dispatch(`${this.storeModule}/list`, this.toApiRequestParams(requestParams))
           .then(data => {
-            this.setLocalStorage(data.meta.pagination)
-            this.updatePagination(data.meta.pagination)
+            this.setLocalStorage(this.getPagination(data))
+            this.updatePagination(this.getPagination(data))
           })
       }
 
-      return this.$store.dispatch(`${this.storeModule}/list`, requestParams)
+      return this.$store.dispatch(`${this.storeModule}/list`, this.toApiRequestParams(requestParams))
         .then(data => {
-          this.setLocalStorage(data.meta.pagination)
-          this.updatePagination(data.meta.pagination)
+          this.setLocalStorage(this.getPagination(data))
+          this.updatePagination(this.getPagination(data))
         })
+    },
+
+    // EDT 2.0 nests the pagination, API Platform 3.0 returns it directly in the meta data
+    getPagination (response) {
+      return this.isApiPlatform ? response.meta : response.meta.pagination
     },
 
     getLocationContactById (id) {
@@ -646,6 +668,33 @@ export default {
 
     setSelectedItems (items) {
       this.$emit('selectedItems', items)
+    },
+
+    /**
+     * Translates the request that is built in EDT 2.0 format to API Platform 3.0: the pagination and the search are
+     * plain parameters and the `fields` of included resources are keyed by their relationship path.
+     */
+    toApiRequestParams (requestParams) {
+      if (!this.isApiPlatform) {
+        return requestParams
+      }
+
+      const { filter, page, fields, ...params } = requestParams
+      const { InstitutionLocationContact, InstitutionTag, ...institutionFields } = fields
+      const apiFields = { ...institutionFields, locationContacts: InstitutionLocationContact }
+
+      if (InstitutionTag) {
+        apiFields.assignedTags = InstitutionTag
+      }
+
+      return {
+        ...params,
+        page: page.number,
+        itemsPerPage: page.size,
+        pagination: true,
+        fields: apiFields,
+        ...(filter ? { search: this.searchTerm.trim() } : {}),
+      }
     },
 
     sortFields (fields) {
