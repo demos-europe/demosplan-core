@@ -30,62 +30,29 @@
     </div>
 
     <!-- If component is used without specifying `tooltip` prop (which defaults to true)... -->
-    <v-popover
+    <div
       v-else
-      placement="top"
-      trigger="hover focus"
+      v-tooltip="tooltipContent"
     >
-      <!-- Target/Trigger (for the events and position) -->
-      <div>
-        <slot name="title" />
-        <i
-          class="fa color--grey"
-          :class="{
-            'fa-hourglass-half': hasPermission('feature_statements_fragment_add_reviewer') && voteAdvicePending,
-            'fa-question': status === '',
-            'fa-check': status !== ''
-          }"
-          aria-hidden="true"
-        />
-      </div>
-
-      <!-- Content -->
-      <template v-slot:popover>
-        <div>
-          <!-- fragment is assigned to reviewer, planners see this -->
-          <div
-            v-if="hasPermission('feature_statements_fragment_add_reviewer') && voteAdvicePending"
-            v-cleanhtml="voteAdvicePending"
-          />
-          <!-- no process until now -->
-          <div
-            v-else-if="status === ''"
-            v-cleanhtml="Translator.trans(transNone)"
-          />
-          <!-- show state -->
-          <div
-            v-else
-            v-cleanhtml="voteSentence"
-          />
-        </div>
-      </template>
-    </v-popover>
+      <slot name="title" />
+      <i
+        class="fa color--grey"
+        :class="{
+          'fa-hourglass-half': hasPermission('feature_statements_fragment_add_reviewer') && voteAdvicePending,
+          'fa-question': status === '',
+          'fa-check': status !== ''
+        }"
+        aria-hidden="true"
+      />
+    </div>
   </div>
 </template>
 
 <script>
-import { CleanHtml, VPopover } from '@demos-europe/demosplan-ui'
+import DOMPurify from 'dompurify'
 
 export default {
   name: 'DpFragmentStatus',
-
-  components: {
-    VPopover,
-  },
-
-  directives: {
-    cleanhtml: CleanHtml,
-  },
 
   props: {
     status: {
@@ -168,6 +135,15 @@ export default {
       const currentStatus = this.status !== '' ? this.adviceValues.find(val => val.id === this.status).title : 'fragment.vote.none'
 
       return Translator.trans(currentStatus)
+    },
+
+    // The tooltip inserts its content as HTML, and the reviewer and orga names are user input
+    tooltipContent () {
+      if (hasPermission('feature_statements_fragment_add_reviewer') && this.voteAdvicePending) {
+        return DOMPurify.sanitize(this.voteAdvicePending)
+      }
+
+      return DOMPurify.sanitize(this.status === '' ? Translator.trans(this.transNone) : this.voteSentence)
     },
 
     voteSentence () {

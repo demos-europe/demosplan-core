@@ -96,14 +96,6 @@ $tooltip-width: 400px;
     }
 }
 
-//  Since the trigger classes applied to v-popover are not configurable,
-//  this hack is needed to make `o-hellip` also work with firefox and v-popover.
-.v-popover.o-hellip--nowrap {
-    & .trigger {
-        max-width: 100%;
-    }
-}
-
 //  Nojs fallback
 //  Template: DemosPlanCoreBundle/Resources/views/Extension/contextual_help.html.twig
 .o-tooltip {
