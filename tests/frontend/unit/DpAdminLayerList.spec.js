@@ -64,6 +64,10 @@ describe('AdminLayerList', () => {
         procedureId: 'some-id',
       },
       global: {
+        // The tooltip directive sets random ids, which would change the snapshot on every run
+        directives: {
+          tooltip: {},
+        },
         plugins: [store],
       },
     })

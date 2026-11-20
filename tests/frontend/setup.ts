@@ -45,8 +45,7 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
   }))
 }
 
-const { DpMultiselect, DpObscure } = await import('@demos-europe/demosplan-ui')
-const { VTooltip } = await import('v-tooltip')
+const { DpMultiselect, DpObscure, Tooltip } = await import('@demos-europe/demosplan-ui')
 
 const Translator = { trans: vi.fn((key: string) => key) }
 const Routing = { generate: vi.fn((key: string) => key) }
@@ -96,7 +95,7 @@ config.global.components = {
   DpMultiselect,
 }
 config.global.directives = {
-  tooltip: VTooltip,
+  tooltip: Tooltip,
 }
 config.global.config = {
   globalProperties: {
