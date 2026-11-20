@@ -215,6 +215,33 @@ class InstitutionTagResourceApiTest extends AbstractApiTest
         self::assertSame(['name' => $tag->getCategory()->getName()], $included[$tag->getCategory()->getId()]);
     }
 
+    /**
+     * The add-institution page lists the tags without `include` and groups them by the id of their category.
+     */
+    public function testListReturnsTheCategoryIdOfTheTagsWithoutInclude(): void
+    {
+        // Arrange
+        $tag = $this->createTag('tag', new DateTime('2024-01-01 10:00:00'));
+        $this->enablePermissions(['feature_institution_tag_read']);
+        $this->loginForApiPlatform();
+
+        // Act
+        $response = $this->sendRequest(
+            self::ROUTE.'?fields[InstitutionTag]=name,creationDate,category',
+            'GET',
+            $this->user,
+            null
+        );
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        $content = Json::decodeToArray($response->getContent());
+        $row = current(array_filter($content['data'], static fn (array $d): bool => $d['id'] === $tag->getId()));
+        self::assertSame($tag->getCategory()->getId(), $row['relationships']['category']['data']['id']);
+        self::assertSame('tag', $row['attributes']['name']);
+        self::assertEmpty($content['included'] ?? []);
+    }
+
     public function testListIsDeniedWithoutTagPermission(): void
     {
         $this->loginForApiPlatform();
