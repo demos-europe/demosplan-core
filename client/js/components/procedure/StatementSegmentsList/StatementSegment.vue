@@ -16,7 +16,7 @@
     @mouseenter="isHover = true"
     @mouseleave="isHover = false"
   >
-    <div class="flex flex-col justify-start basis-1/5 pt-2 pl-2">
+    <div class="flex flex-col justify-start pt-2 pl-2">
       <v-popover
         :container="$refs.statementSegment"
         trigger="hover focus"
@@ -117,13 +117,13 @@
       />
     </div>
     <text-content-renderer
-      class="segment-list-col--l overflow-word-break c-styled-html"
+      class="py-2 overflow-word-break c-styled-html"
       :text="visibleSegmentText"
     />
-    <div class="segment-list-col--s">
+    <div class="py-2 flex items-center justify-center">
       <button
         v-if="!isFullscreen"
-        class="segment-list-toggle-button btn--blank mx-auto"
+        class="segment-list-toggle-button btn--blank"
         :class="{'reverse': !isCollapsed}"
         :aria-label="Translator.trans('aria.expand')"
         @click="isCollapsed = !isCollapsed"
@@ -138,7 +138,7 @@
         />
       </button>
     </div>
-    <div class="segment-list-col--l overflow-word-break">
+    <div class="py-2 overflow-word-break">
       <image-modal
         ref="imageModal"
         data-cy="recommendation:imgModal"
@@ -397,10 +397,10 @@
         @secondary-action="abort"
       />
     </div>
-    <div class="segment-list-col--m text-right shrink-2 px-2">
+    <div class="py-2 text-right px-2">
       <div
         class="segment-list-toolbar"
-        :class=" isAssignedToMe ? '' : 'segment-list-toolbar--dark'"
+        :class="isAssignedToMe && !isLocked ? '' : 'segment-list-toolbar--dark'"
       >
         <button
           v-tooltip="{
