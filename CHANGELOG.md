@@ -6,6 +6,10 @@
 
 ## UNRELEASED
 
+## v4.70.2 (2026-11-20)
+- The notes on the profile page for setting up two-factor authentication are clearer: they now show that scanning the QR code or entering the TOTP code are alternatives, and that a 6-digit code is expected
+- The segments list keeps the URL filter and the selected columns again
+
 ## v4.70.1 (2026-11-19)
 - Security update: PHP 8.4.28 and nginx 1.30.7
 - The statement list has a version history that also shows changes to custom fields
