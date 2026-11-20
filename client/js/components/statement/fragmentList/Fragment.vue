@@ -541,12 +541,12 @@ import {
   hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import DOMPurify from 'dompurify'
 import DpClaim from '../DpClaim.vue'
 import DpFragmentEdit from '../fragment/Edit.vue'
 import DpFragmentStatus from '../fragment/Status.vue'
 import DpFragmentVersions from '../fragment/Version.vue'
 import DpItemRow from '../assessmentTable/ItemRow.vue'
+import { escapeHtml } from '@DpJs/lib/shared/escapeHtml'
 import HeightLimit from '@DpJs/components/statement/HeightLimit.vue'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer.vue'
 
@@ -667,9 +667,9 @@ export default {
       const fragmentId = Translator.trans(this.missKeyValue(this.fragment.displayId, 'notspecified'))
       const statementId = Translator.trans(this.missKeyValue(this.fragment.statement.externId, 'notspecified'))
 
-      return DOMPurify.sanitize(`${Translator.trans('fragment.created')} ${this.createdDateFragment}<br>` +
-        `${Translator.trans('fragment.id')}: ${fragmentId}<br>` +
-        `${Translator.trans('statement.id')}: ${statementId}`)
+      return `${Translator.trans('fragment.created')} ${escapeHtml(this.createdDateFragment)}<br>` +
+        `${Translator.trans('fragment.id')}: ${escapeHtml(fragmentId)}<br>` +
+        `${Translator.trans('statement.id')}: ${escapeHtml(statementId)}`
     },
 
     statementFiles () {
@@ -703,9 +703,9 @@ export default {
       return value
     },
 
-    // The tooltip inserts its content as HTML, and tag titles are user input
+    // The tooltip inserts its content as HTML, and tag titles are plain text
     tagTooltip (tag) {
-      return DOMPurify.sanitize(`<strong class="block">${tag.topicTitle}</strong>${tag.title}`)
+      return `<strong class="block">${escapeHtml(tag.topicTitle)}</strong>${escapeHtml(tag.title)}`
     },
 
     toggleEditing () {
