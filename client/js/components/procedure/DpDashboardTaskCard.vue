@@ -6,7 +6,7 @@
       <span v-cleanhtml="Translator.trans('segments.assigned.now', { count: assignedSegmentCount })" />
     </div>
     <div
-      v-if="assignedSegmentCount !== 0"
+      v-if="assignedSegmentCount !== 0 && userHash"
       class="text-right u-mt"
     >
       <dp-button
