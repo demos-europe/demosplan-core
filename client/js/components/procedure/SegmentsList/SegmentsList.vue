@@ -392,7 +392,23 @@
               </div>
             </template>
             <template v-slot:flyout="rowData">
-              <dp-flyout data-cy="segmentsList:flyoutEditMenu">
+              <!-- The padding sits on the trigger content, so its tooltip covers the whole button but not the open menu -->
+              <dp-flyout
+                :aria-label="Translator.trans('segment.actions', { id: rowData.attributes.externId })"
+                button-classes="p-0"
+                data-cy="segmentsList:flyoutEditMenu"
+              >
+                <template v-slot:trigger>
+                  <span
+                    v-tooltip="Translator.trans('segment.actions', { id: rowData.attributes.externId })"
+                    class="block px-1 py-0.5"
+                  >
+                    <i
+                      class="fa fa-ellipsis-h"
+                      aria-hidden="true"
+                    />
+                  </span>
+                </template>
                 <a
                   v-if="hasPermission('feature_segment_recommendation_edit')"
                   class="block leading-[2] whitespace-nowrap"
