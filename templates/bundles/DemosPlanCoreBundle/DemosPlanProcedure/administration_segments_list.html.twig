@@ -45,8 +45,10 @@
                 :custom-field-definitions="$refs.segmentsList?.customFieldDefinitions || []"
                 :total-column-count="$refs.segmentsList?.selectableColumns?.length || 0"
                 :filters="JSON.parse('{{ filterNames|json_encode|e('js', 'utf-8') }}')"
+                :has-query-state="{{ (segmentListQuery.filter is not empty or segmentListQuery.searchPhrase is not empty or segmentListQuery.viewSettings is not empty) ? 'true' : 'false' }}"
                 @apply-bookmark="$refs.segmentsList.applyBookmarkSettings($event); $refs.segmentsListFilter.syncFromBookmark($event.attributes.filter)"
                 @has-unsaved-changes="$refs.bookmarksButton.setHasUnsavedChanges($event)"
+                @no-bookmark="$refs.segmentsList.applyInitialView()"
                 @reset-view="$refs.segmentsList.applyBookmarkSettings(null)"
                 @update-button-text="$refs.bookmarksButton.updateButtonText($event)">
             </segments-bookmarks>

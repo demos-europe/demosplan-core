@@ -6,7 +6,7 @@
       <span v-cleanhtml="Translator.trans('segments.assigned.now', { count: assignedSegmentCount })" />
     </div>
     <div
-      v-if="assignedSegmentCount !== 0"
+      v-if="assignedSegmentCount !== 0 && userHash"
       class="text-right u-mt"
     >
       <dp-button
@@ -53,19 +53,23 @@ export default {
 
   computed: {
     userFilteredSegmentUrl () {
-      return Routing.generate('dplan_segments_list', { procedureId: this.procedureId }) + '/' + this.userHash
+      // The hash is the same on every visit, so the segments list would restore the last page without page=1
+      return Routing.generate('dplan_segments_list', { procedureId: this.procedureId }) + '/' + this.userHash + '?page=1'
     },
   },
 
   mounted () {
     // Filter by current user as assignee and current procedure
-    const filterQuery = {
+    const assigneeFilter = {
       [this.currentUserId]: {
         condition: {
           path: 'assignee',
           value: this.currentUserId,
         },
       },
+    }
+    const filterQuery = {
+      ...assigneeFilter,
       sameProcedure: {
         condition: {
           path: 'parentStatement.procedure.id',
@@ -95,9 +99,10 @@ export default {
         const redirectUrl = response.url
         const splitUrl = redirectUrl.split('/')
         const queryHash = splitUrl[splitUrl.length - 1]
+        // The segments list scopes by procedure itself; a procedure condition in the hash would show up as a filter
         const filterData = {
           filter: {
-            ...filterQuery,
+            ...assigneeFilter,
           },
           searchPhrase: '',
         }

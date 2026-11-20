@@ -617,6 +617,13 @@ export default {
       default: '',
     },
 
+    // An empty value arrives as [] from twig
+    initialViewSettings: {
+      type: [Object, Array],
+      required: false,
+      default: () => ({}),
+    },
+
     isReadOnly: {
       type: Boolean,
       required: false,
@@ -717,6 +724,8 @@ export default {
         },
       ],
       isCopyingToClipboard: false,
+      isInitialViewApplied: false,
+      isPageResetRequested: false,
       isLoading: true,
       lsKey: {
         // LocalStorage keys
@@ -724,6 +733,13 @@ export default {
         currentQueryHash: `${this.procedureId}:segments:currentQueryHash`,
         selectedSort: `${this.procedureId}:segmentsListSelectedSort`,
         toggledSegments: `${this.procedureId}:toggledSegments`,
+      },
+      // SessionStorage keys
+      tabKey: {
+        // Query hash the stored page belongs to
+        pageQueryHash: `${this.procedureId}:segmentsListPageQueryHash`,
+        selectedColumns: 'segmentList',
+        selectedSort: `${this.procedureId}:segmentsListSelectedSort`,
       },
       pagination: {},
       searchTerm: this.initialSearchTerm,
@@ -778,6 +794,7 @@ export default {
     }),
 
     ...mapState('Bookmark', {
+      currentBookmarkId: 'currentBookmarkId',
       isBookmarkStateInitialized: 'isBookmarkStateInitialized',
     }),
 
@@ -1165,7 +1182,54 @@ export default {
       resetToDefaultView: 'resetToDefaultView',
     }),
 
+    /*
+     * Initial load when no bookmark matches the URL. Unlike applyBookmarkSettings(null), this keeps the state
+     * of the URL hash; without view settings in it, columns and sorting come from this browser tab.
+     */
+    applyInitialView () {
+      this.initializeFilters()
+
+      this.isInitialViewApplied = true
+
+      // The backend drops empty columns and default sorting from view settings, so missing keys mean empty
+      const hasUrlViewSettings = !Array.isArray(this.initialViewSettings) && Object.keys(this.initialViewSettings).length > 0
+
+      if (hasUrlViewSettings) {
+        const { selectedColumns, sorting } = this.initialViewSettings
+
+        this.currentSelection = Array.isArray(selectedColumns) ? [...selectedColumns] : []
+        this.selectedSort = sorting ?? ''
+      } else {
+        const tabColumns = this.getTabColumnSelection()
+        const tabSort = this.getTabValue(this.tabKey.selectedSort)
+
+        this.currentSelection = tabColumns ?? [...this.defaultColumnSelection]
+        this.selectedSort = tabSort ?? ''
+
+        // Bookmark saves and outgoing links use the query hash, so it has to hold the view shown
+        if (tabColumns !== null || tabSort !== null) {
+          this.updateQueryHash({ replace: true })
+        }
+      }
+
+      this.setStoreSelectedColumns(this.currentSelection)
+      this.setStoreSearchPhrase(this.searchTerm)
+      this.setStoreSorting(this.selectedSort)
+
+      this.columnSelectorKey++
+
+      // The stored page may not exist for another filter, e.g. from the dashboard or a shared link
+      const isSameList = !this.isPageResetRequested && this.getTabValue(this.tabKey.pageQueryHash) === this.currentQueryHash
+
+      this.applyQuery(isSameList ? this.pagination.currentPage : 1)
+    },
+
     async applyBookmarkSettings (bookmark) {
+      // Only the first call restores a bookmark on page load; later ones are explicit selections
+      const isRestore = !this.isInitialViewApplied
+
+      this.isInitialViewApplied = true
+
       if (!bookmark) {
         await this.resetQuery()
         this.setDefaultView()
@@ -1190,11 +1254,11 @@ export default {
       this.selectedSort = sorting || ''
       this.setStoreSorting(this.selectedSort)
 
-      if (this.selectedSort) {
-        lscache.set(this.lsKey.selectedSort, this.selectedSort)
-      } else {
-        lscache.remove(this.lsKey.selectedSort)
-      }
+      const hasTabChanges = isRestore && this.applyTabChangesOnBookmark(bookmark.id)
+
+      // Selecting a bookmark replaces unsaved changes; links without view settings reuse what was last shown
+      this.setTabValue(this.tabKey.selectedColumns, this.currentSelection)
+      this.setTabValue(this.tabKey.selectedSort, this.selectedSort)
 
       // Apply filters
       this.appliedFilterQuery = filter
@@ -1206,17 +1270,49 @@ export default {
         this.setCurrentQueryHash(queryHash)
       }
 
+      // The bookmark's hash lacks the restored changes, but saving the bookmark uses the hash
+      if (hasTabChanges) {
+        this.updateQueryHash({ replace: true })
+      }
+
       this.resetSelection()
       this.applyQuery(1)
     },
 
+    // Unsaved column and sorting changes made on this bookmark in this tab; true if they differ from the bookmark
+    applyTabChangesOnBookmark (bookmarkId) {
+      const tabColumns = this.getTabColumnSelection(bookmarkId)
+      const tabSort = this.getTabValue(this.tabKey.selectedSort, bookmarkId)
+      // Order does not count, the backend sorts selected columns as well
+      const hasColumnChanges = tabColumns !== null && (
+        tabColumns.length !== this.currentSelection.length ||
+        tabColumns.some(column => !this.currentSelection.includes(column))
+      )
+      const hasSortChange = tabSort !== null && tabSort !== this.selectedSort
+
+      if (hasColumnChanges) {
+        this.currentSelection = tabColumns
+        this.setStoreSelectedColumns(tabColumns)
+      }
+
+      if (hasSortChange) {
+        this.selectedSort = tabSort
+        this.setStoreSorting(tabSort)
+      }
+
+      return hasColumnChanges || hasSortChange
+    },
+
     applySort (sortValue) {
       this.selectedSort = sortValue
-      lscache.set(this.lsKey.selectedSort, sortValue)
 
       if (this.hasBookmarks) {
+        // Unsaved sorting only lasts for this browser tab
+        this.setTabValue(this.tabKey.selectedSort, sortValue)
         this.setStoreSorting(sortValue)
         this.updateQueryHash()
+      } else {
+        lscache.set(this.lsKey.selectedSort, sortValue)
       }
 
       this.applyQuery(1)
@@ -1264,6 +1360,7 @@ export default {
            * We need to set the localStorage to be able to persist the last viewed page selected in the vue-sliding-pagination.
            */
           this.setLocalStorage(data.meta)
+          this.setTabValue(this.tabKey.pageQueryHash, this.currentQueryHash)
 
           // Fake the count from meta info of paged request, until `fetchSegmentIds()` resolves
           this.allItemsCount = data.meta.totalItems
@@ -1627,6 +1724,28 @@ export default {
       this.commitFilterQuery()
     },
 
+    /*
+     * Value kept for this browser tab, or null. With a bookmarkId, only if it was set on that bookmark
+     * (null: no bookmark); without one, regardless of the bookmark.
+     */
+    getTabValue (key, bookmarkId) {
+      try {
+        const stored = JSON.parse(sessionStorage.getItem(key))
+        const isMatch = bookmarkId === undefined || stored?.bookmarkId === bookmarkId
+
+        return isMatch ? stored?.value ?? null : null
+      } catch {
+        return null
+      }
+    },
+
+    getTabColumnSelection (bookmarkId) {
+      const stored = this.getTabValue(this.tabKey.selectedColumns, bookmarkId)
+
+      // An empty selection is valid, externId is always shown
+      return Array.isArray(stored) ? stored : null
+    },
+
     // Effective order of the list and its export: the user-selected sort, or the default order
     getSortParams () {
       const defaultOrder = {
@@ -1829,6 +1948,22 @@ export default {
 
     setSlidebarContent (val) {
       this.setSlidebarState({ prop: 'slidebar', val })
+    },
+
+    /*
+     * Links ask for page 1 with ?page=1. Removed right away: the query hash is read from the end of the URL,
+     * and reload or back should restore the page again.
+     */
+    readPageResetFromUrl () {
+      const url = new URL(globalThis.location.href)
+
+      if (!url.searchParams.has('page')) {
+        return
+      }
+
+      this.isPageResetRequested = url.searchParams.get('page') === '1'
+      url.searchParams.delete('page')
+      globalThis.history.replaceState(globalThis.history.state, document.title, url.href)
     },
 
     recommendationHasHtmlTags (recommendation) {
@@ -2108,8 +2243,23 @@ export default {
       this.currentSelection = selection
 
       if (this.hasBookmarks) {
+        // Unsaved column changes only last for this browser tab
+        this.setTabValue(this.tabKey.selectedColumns, selection)
         this.setStoreSelectedColumns(selection)
         this.updateQueryHash()
+      }
+    },
+
+    // Stored with the selected bookmark, so a restored bookmark only gets its own changes; null drops it
+    setTabValue (key, value) {
+      try {
+        if (value === null) {
+          sessionStorage.removeItem(key)
+        } else {
+          sessionStorage.setItem(key, JSON.stringify({ bookmarkId: this.currentBookmarkId ?? null, value }))
+        }
+      } catch {
+        // Storage blocked: the value only lasts until the page is left
       }
     },
 
@@ -2172,6 +2322,9 @@ export default {
       this.currentSelection = [...this.defaultColumnSelection]
       this.setStoreSelectedColumns(this.currentSelection)
       localStorage.setItem('segmentList', JSON.stringify(this.defaultColumnSelection))
+      // The default view also replaces the tab's own columns and sorting on the next visit
+      this.setTabValue(this.tabKey.selectedColumns, null)
+      this.setTabValue(this.tabKey.selectedSort, null)
       this.columnSelectorKey++
 
       this.selectedSort = ''
@@ -2211,7 +2364,8 @@ export default {
       this.setSlidebarContent({ externId: '', isOpen: !closing, segmentId: '', showTab: 'bookmarks' })
     },
 
-    updateQueryHash () {
+    // With replace, no back button entry is added, e.g. for state restored on page load
+    updateQueryHash ({ replace = false } = {}) {
       const hrefParts = globalThis.location.href.split('/')
       const oldQueryHash = hrefParts[hrefParts.length - 1]
       const url = Routing.generate('dplan_rpc_segment_list_query_update', {
@@ -2238,7 +2392,7 @@ export default {
         .patch(url, {}, data)
         .then(({ data }) => {
           if (data) {
-            this.updateQueryHashInURL(oldQueryHash, data)
+            this.updateQueryHashInURL(oldQueryHash, data, replace)
             this.currentQueryHash = data
             this.setCurrentQueryHash(data)
           }
@@ -2246,13 +2400,13 @@ export default {
         .catch((err) => console.log(err))
     },
 
-    updateQueryHashInURL (oldQueryHash, newQueryHash) {
+    updateQueryHashInURL (oldQueryHash, newQueryHash, replace = false) {
       const newHref = globalThis.location.href.replace(
         oldQueryHash,
         newQueryHash,
       )
 
-      globalThis.history.pushState(
+      globalThis.history[replace ? 'replaceState' : 'pushState'](
         { html: newHref, pageTitle: document.title },
         document.title,
         newHref,
@@ -2274,6 +2428,11 @@ export default {
       this.resetSelection()
       this.applyQuery(1)
     },
+  },
+
+  created () {
+    // Before anything reads the query hash from the URL
+    this.readPageResetFromUrl()
   },
 
   async mounted () {
@@ -2312,7 +2471,10 @@ export default {
 
     lscache.remove(navigationSourceKey)
 
-    this.restoreSorting()
+    // With bookmarks, sorting comes from the bookmark or the URL hash only
+    if (!this.hasBookmarks) {
+      this.restoreSorting()
+    }
 
     if (hasPermission('field_segments_custom_fields')) {
       await this.loadSegmentCustomFields()

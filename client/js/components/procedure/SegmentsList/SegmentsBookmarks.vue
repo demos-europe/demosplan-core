@@ -101,6 +101,11 @@
 </template>
 
 <script setup lang="ts">
+import type {
+  Bookmark,
+  CreateBookmarkPayload,
+  UpdateBookmarkPayload,
+} from '@DpJs/types/bookmarks'
 import {
   computed,
   type ComputedRef,
@@ -109,11 +114,6 @@ import {
   ref,
   watch,
 } from 'vue'
-import type {
-  Bookmark,
-  CreateBookmarkPayload,
-  UpdateBookmarkPayload,
-} from '@DpJs/types/bookmarks'
 import {
   DpButton,
   DpButtonRow,
@@ -131,11 +131,14 @@ import { useStore } from 'vuex'
 /* Props */
 const props = withDefaults(defineProps<{
   customFieldDefinitions?: Array<{ id: string, attributes: { name: string } }>
+  // True if the URL hash stores a filter, search phrase or view settings; false for an empty hash (e.g. menu link)
+  hasQueryState?: boolean
   procedureId: string
   totalColumnCount?: number
   filters?: Record<string, { labelTranslationKey: string, rootPath: string, comparisonOperator: string }>
 }>(), {
   customFieldDefinitions: () => [],
+  hasQueryState: false,
   totalColumnCount: 0,
   filters: () => ({}),
 })
@@ -149,6 +152,19 @@ const lsKey = `${props.procedureId}:segments:currentBookmarkId`
 const newBookmarkName: Ref<string> = ref('')
 const showNewBookmarkForm: Ref<boolean> = ref(false)
 const showUnsavedChanges: Ref<boolean> = ref(false)
+// URL hash of this tab's last view and the bookmark it was changed from (sessionStorage)
+const tabViewKey = `${props.procedureId}:segments:tabView`
+
+const readTabView = (): { queryHash: string, bookmarkId: string } | null => {
+  try {
+    return JSON.parse(sessionStorage.getItem(tabViewKey) || 'null')
+  } catch {
+    return null
+  }
+}
+
+// Read before the watcher below can overwrite it with the state of this page load
+const storedTabView = readTabView()
 
 /* Computed */
 const bookmarks: ComputedRef<Bookmark[]> = computed(() => state.Bookmark.allBookmarks)
@@ -177,6 +193,7 @@ const setBookmarkStateInitialized = (value: boolean): void => store.commit('Book
 interface SegmentsBookmarksEmits {
   (e: 'applyBookmark', bookmark: Bookmark): void
   (e: 'hasUnsavedChanges', value: boolean): void
+  (e: 'noBookmark'): void
   (e: 'resetView'): void
   (e: 'updateButtonText', text: string): void
 }
@@ -191,6 +208,22 @@ watch(hasUnsavedChanges, (newValue: boolean): void => {
 watch(isVisible, (visible: boolean): void => {
   if (visible) {
     emit('hasUnsavedChanges', hasUnsavedChanges.value)
+  }
+})
+
+watch([currentQueryHash, currentBookmarkId], ([queryHash, bookmarkId]): void => {
+  if (!state.Bookmark.isBookmarkStateInitialized) {
+    return
+  }
+
+  try {
+    if (queryHash && bookmarkId) {
+      sessionStorage.setItem(tabViewKey, JSON.stringify({ queryHash, bookmarkId }))
+    } else {
+      sessionStorage.removeItem(tabViewKey)
+    }
+  } catch {
+    // Storage blocked: a changed bookmark is not recognized when coming back
   }
 })
 
@@ -299,7 +332,8 @@ const findBookmarkToRestore = (): Bookmark | undefined => {
     // URL hash matches different bookmark → use URL match for shared links
     const bookmarkFromUrl = findBookmarkByQueryHash(urlQueryHash)
 
-    if (bookmarkFromUrl) {
+    // A stateful hash without a bookmark (e.g. dashboard link) must not be overridden by the saved bookmark
+    if (bookmarkFromUrl || props.hasQueryState) {
       return bookmarkFromUrl
     }
   }
@@ -384,12 +418,39 @@ const initializeViewState = (bookmark: Bookmark | null): void => {
   setBookmarkStateInitialized(true)
 }
 
+// The bookmark the URL hash was changed from in this tab, e.g. when coming back via the back button
+const findChangedBookmark = (): Bookmark | undefined => {
+  if (storedTabView?.queryHash !== getQueryHashFromUrl()) {
+    return undefined
+  }
+
+  return bookmarks.value.find(bookmark => bookmark.id === storedTabView.bookmarkId)
+}
+
+// Selects the bookmark without applying it, so the URL's state shows as unsaved changes to it
+const restoreChangedBookmark = (bookmark: Bookmark): void => {
+  store.commit('Bookmark/setCurrentBookmarkId', bookmark.id)
+  store.commit('Bookmark/setCurrentBookmark', bookmark)
+  lscache.set(lsKey, bookmark.id)
+  updateBookmarkButtonText(bookmark)
+  setBookmarkStateInitialized(true)
+  emit('noBookmark')
+}
+
 const restoreSavedBookmark = async (): Promise<void> => {
   const bookmarkToApply = findBookmarkToRestore()
+  const changedBookmark = bookmarkToApply ? undefined : findChangedBookmark()
+
+  if (changedBookmark) {
+    restoreChangedBookmark(changedBookmark)
+
+    return
+  }
 
   if (!bookmarkToApply) {
     setBookmarkStateInitialized(true)
-    emit('resetView')
+    // Initial load without a matching bookmark: keep the URL filter and the user's columns, do not reset
+    emit('noBookmark')
 
     return
   }
