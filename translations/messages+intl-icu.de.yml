@@ -6,11 +6,14 @@
 2fa.email.activated: 'Die Zwei-Faktor-Authentifizierung per Email ist <strong>aktiviert</strong>. Um sie zu deaktivieren geben Sie bitte einen aktuellen Code ein und speichern Sie das Formular. <a href="{link}">Neuen Code an Ihre Email-Adresse senden</a>'
 2fa.email.enable.explanation: 'Um die Zwei-Faktor-Authentifizierung per Email zu nutzen, müssen Sie diese zunächst aktivieren.'
 2fa.email.enable: 'Zwei-Faktor-Authentifizierung per Email aktivieren'
-2fa.totp.code: "TOTP Code"
-2fa.totp.code.qr: "TOTP QR Code"
-2fa.totp.activate.explanation: "Bitte scannen Sie den folgenden Code in einer entsprechenden App wie dem Google Authenticator, FreeOTP oder anderen. Alternativ können Sie den unten stehenden sog. TOTP Code in einen Passwortmanager wie KeepassXC eingeben, um die Einmalcodes generieren zu lassen."
-2fa.totp.activate: "Um die Zwei-Faktor-Authentifizierung zu aktivieren, geben Sie bitte einen aktuellen Code ein und speichern Sie das Formular."
+2fa.totp.activate.explanation.setupInstructions: "Scannen Sie den folgenden QR-Code mit einer Authenticator-App wie dem Google Authenticator oder FreeOTP <strong>oder</strong> geben Sie den unten stehenden TOTP-Code in Ihrer App bzw. in einem Passwortmanager wie KeePassXC ein. Sie benötigen nur einen der beiden Wege."
+2fa.totp.activate: "Ihre App zeigt anschließend einen 6-stelligen Code an. Geben Sie diesen Code in das folgende Feld ein und speichern Sie das Formular, um die Zwei-Faktor-Authentifizierung zu aktivieren."
 2fa.totp.activated: "Die Zwei-Faktor-Authentifizierung ist <strong>aktiviert</strong>. Um sie zu deaktivieren, geben Sie bitte einen aktuellen Code ein und speichern Sie das Formular"
+2fa.totp.code: "TOTP Code"
+2fa.totp.code.explanation: "nur für die Eingabe in Ihrer App"
+2fa.totp.code.qr: "TOTP QR Code"
+2fa.totp.code.placeholder: "z. B. 123456"
+2fa.totp.codeFromApp: "6-stelliger Code aus Ihrer App"
 2fa.totp.enable.explanation: "Um die Zwei-Faktor-Authentifizierung zu nutzen, müssen Sie diese zunächst aktivieren."
 2fa.totp.enable: "Zwei-Faktor-Authentifizierung per App aktivieren"
 2fa.code: "Zwei-Faktor-Authentifizierungscode"
@@ -18,6 +21,7 @@
     Ihre Organisation verlangt eine Zwei-Faktor-Authentifizierung. Dieser Faktor kann deshalb nicht deaktiviert werden.
     Um zu wechseln, richten Sie zuerst einen anderen Faktor ein.
 2fa.email.subject: 'Zwei-Faktor-Authentifizierung für Ihr {projectName} Konto'
+2fa.qr.code: "QR-Code"
 2fa.reset: "Zwei-Faktor-Authentifizierung zurücksetzen"
 2fa.reset.confirm: "Soll die Zwei-Faktor-Authentifizierung für {name} wirklich zurückgesetzt werden? Der Nutzer kann sich danach allein mit Passwort anmelden und die Zwei-Faktor-Authentifizierung neu einrichten."
 2fa.reset.hint: "Für dieses Konto ist die Zwei-Faktor-Authentifizierung aktiviert. Setzen Sie sie zurück, falls der Zugriff auf den zweiten Faktor verloren gegangen ist."
@@ -2648,6 +2652,7 @@ option.add: "Option hinzufügen"
 option.delete: "Option entfernen"
 option.empty: "-"
 options: "Optionen"
+or: "oder"
 orga.edit: "Organisation bearbeiten"
 organisation.add.new: "Neue Organisation anlegen"
 organisation.add: "Organisation hinzufügen"
