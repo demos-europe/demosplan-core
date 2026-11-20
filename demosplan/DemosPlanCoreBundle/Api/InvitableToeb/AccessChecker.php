@@ -55,6 +55,14 @@ class AccessChecker
     }
 
     /**
+     * Whether the values of the custom fields of an institution are exposed, like in the legacy resource type.
+     */
+    public function canReadCustomFields(): bool
+    {
+        return $this->currentUser->hasPermission('field_organisations_custom_fields');
+    }
+
+    /**
      * Attributes that are only exposed with a permission, like in the legacy resource type. Without the permission the
      * attribute stays null.
      *

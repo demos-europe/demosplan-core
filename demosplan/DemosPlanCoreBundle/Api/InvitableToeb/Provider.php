@@ -109,7 +109,8 @@ class Provider implements ProviderInterface
             $orga,
             $visibleTags,
             $this->accessChecker->canReadPhone(),
-            $this->accessChecker->getReadableOptionalAttributes()
+            $this->accessChecker->getReadableOptionalAttributes(),
+            $this->accessChecker->canReadCustomFields()
         );
     }
 }

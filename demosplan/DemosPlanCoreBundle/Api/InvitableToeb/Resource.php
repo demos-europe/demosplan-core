@@ -98,6 +98,14 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public ?string $contactPerson = null;
 
+    /**
+     * Only filled with the permission `field_organisations_custom_fields`.
+     *
+     * @var list<array{id: string, value: mixed}>|null
+     */
+    #[ApiProperty(readable: true, writable: false)]
+    public ?array $customFields = null;
+
     /** @var list<InstitutionLocationContactResource> */
     #[ApiProperty(readable: true, writable: false)]
     public array $locationContacts = [];
@@ -110,8 +118,9 @@ class Resource
      * @param list<InstitutionTag> $visibleTags                only the tags the current user may read
      * @param bool                 $canReadPhone               whether the phone number of the location contacts is exposed
      * @param list<string>         $readableOptionalAttributes names of the permission based attributes to fill
+     * @param bool                 $canReadCustomFields        whether the values of the custom fields are exposed
      */
-    public static function fromEntity(Orga $orga, array $visibleTags, bool $canReadPhone, array $readableOptionalAttributes = []): self
+    public static function fromEntity(Orga $orga, array $visibleTags, bool $canReadPhone, array $readableOptionalAttributes = [], bool $canReadCustomFields = false): self
     {
         $resource = new self();
         $resource->id = $orga->getId();
@@ -127,6 +136,7 @@ class Resource
         if (in_array('contactPerson', $readableOptionalAttributes, true)) {
             $resource->contactPerson = $orga->getContactPerson();
         }
+        $resource->customFields = $canReadCustomFields ? $orga->getCustomFields()?->toJson() : null;
         $resource->locationContacts = array_map(
             static fn (Address $address): InstitutionLocationContactResource => InstitutionLocationContactResource::fromEntity($address, $canReadPhone),
             $orga->getAddresses()->getValues()

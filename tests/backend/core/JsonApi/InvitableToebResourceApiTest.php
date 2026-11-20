@@ -17,6 +17,8 @@ use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaStatusInCustomerInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\OrgaTypeInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\RoleInterface;
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValue;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
@@ -567,6 +569,72 @@ class InvitableToebResourceApiTest extends AbstractApiTest
 
         // Assert
         self::assertEqualsCanonicalizing([$untagged->getId(), $tagged->getId()], $this->getIds($response));
+    }
+
+    public function testListExposesTheCustomFieldValuesWithPermission(): void
+    {
+        // Arrange
+        $orga = $this->createInvitableOrga();
+        $this->setCustomFieldValue($orga, 'custom-field-id', 'some note');
+        $this->getApiEntityManager()->clear();
+        $this->enableInvitablePermissions(['field_organisations_custom_fields']);
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE, 'GET', $this->user, $this->procedure);
+
+        // Assert
+        self::assertSame(
+            [['id' => 'custom-field-id', 'value' => 'some note']],
+            $this->getAttributes($response, $orga)['customFields']
+        );
+    }
+
+    /**
+     * API Platform leaves null values out of the response, so the attribute is not part of it at all.
+     */
+    public function testListOmitsTheCustomFieldValuesWithoutPermission(): void
+    {
+        // Arrange
+        $orga = $this->createInvitableOrga();
+        $this->setCustomFieldValue($orga, 'custom-field-id', 'some note');
+        $this->getApiEntityManager()->clear();
+        $this->enableInvitablePermissions();
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE, 'GET', $this->user, $this->procedure);
+
+        // Assert
+        self::assertArrayNotHasKey('customFields', $this->getAttributes($response, $orga));
+    }
+
+    public function testGetExposesTheCustomFieldValuesWithPermission(): void
+    {
+        // Arrange
+        $orga = $this->createInvitableOrga();
+        $this->setCustomFieldValue($orga, 'custom-field-id', 'some note');
+        $this->getApiEntityManager()->clear();
+        $this->enableInvitablePermissions(['field_organisations_custom_fields']);
+
+        // Act
+        $response = $this->sendRequest(self::ROUTE.'/'.$orga->getId(), 'GET', $this->user, $this->procedure);
+
+        // Assert
+        self::assertSame(Response::HTTP_OK, $response->getStatusCode());
+        self::assertSame(
+            [['id' => 'custom-field-id', 'value' => 'some note']],
+            Json::decodeToArray($response->getContent())['data']['attributes']['customFields']
+        );
+    }
+
+    private function setCustomFieldValue(Orga $orga, string $customFieldId, string $value): void
+    {
+        $customFieldValue = new CustomFieldValue();
+        $customFieldValue->setId($customFieldId);
+        $customFieldValue->setValue($value);
+        $customFieldValues = new CustomFieldValuesList();
+        $customFieldValues->addCustomFieldValue($customFieldValue);
+        $orga->setCustomFields($customFieldValues);
+        $this->getApiEntityManager()->flush();
     }
 
     /**
