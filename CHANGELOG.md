@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Fix guests landing on the default start page instead of the requested page (e.g. a scheduled export link) after logging in (DPLAN-18555)
 
 ## v4.70.1 (2026-11-19)
 - Security update: PHP 8.4.28 and nginx 1.30.7

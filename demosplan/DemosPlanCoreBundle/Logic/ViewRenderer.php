@@ -199,7 +199,7 @@ class ViewRenderer
 
         if ($setRedirectLoggedInRouteCookie) {
             // save current route in cookie for later redirecting
-            $redirect->headers->setCookie(PreviousRouteCookie::create($request));
+            $redirect->headers->setCookie(new PreviousRouteCookie($request));
         }
 
         return $redirect;
