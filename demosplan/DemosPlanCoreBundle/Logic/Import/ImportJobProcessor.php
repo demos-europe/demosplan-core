@@ -344,11 +344,13 @@ class ImportJobProcessor
                 $firstErrorsLabel = 1 === $shownCount
                     ? 'Erster Fehler:'
                     : sprintf('Erste %d Fehler:', $shownCount);
-                $errorSummary = sprintf(
-                    "Validierungsfehler in der Import-Datei: %d Fehler gefunden.\n\n%s\n\n",
-                    $errorCount,
-                    $firstErrorsLabel
-                );
+                $errorSummary = $errorCount > 1
+                    ? sprintf(
+                        "Validierungsfehler in der Import-Datei: %d Fehler gefunden.\n\n%s\n\n",
+                        $errorCount,
+                        $firstErrorsLabel
+                    )
+                    : '';
 
                 // Add first errors to summary
                 $firstErrors = array_slice($errors, 0, $showErrors);
