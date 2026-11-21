@@ -407,9 +407,9 @@ class QueryProcedureTest extends FunctionalTestCase
         $this->sut->setScopes([AbstractQuery::SCOPE_INTERNAL]);
         $sortDefault = $this->sut->getSortDefault();
         static::assertInstanceOf(Sort::class, $sortDefault);
-        static::assertEquals('endDate', $sortDefault->getName());
+        static::assertEquals('endDateTimestamp', $sortDefault->getName());
         static::assertInstanceOf(SortField::class, $sortDefault->getFields()[0]);
-        static::assertEquals('endDate', $sortDefault->getFields()[0]->getName());
+        static::assertEquals('endDateTimestamp', $sortDefault->getFields()[0]->getName());
         static::assertEquals('asc', $sortDefault->getFields()[0]->getDirection());
     }
 
@@ -419,9 +419,9 @@ class QueryProcedureTest extends FunctionalTestCase
         $sort = $this->sut->getSort();
 
         static::assertInstanceOf(Sort::class, $sort[0]);
-        static::assertEquals('publicParticipationEndDate', $sort[0]->getName());
+        static::assertEquals('publicParticipationEndDateTimestamp', $sort[0]->getName());
         static::assertInstanceOf(SortField::class, $sort[0]->getFields()[0]);
-        static::assertEquals('publicParticipationEndDate', $sort[0]->getFields()[0]->getName());
+        static::assertEquals('publicParticipationEndDateTimestamp', $sort[0]->getFields()[0]->getName());
         static::assertEquals('asc', $sort[0]->getFields()[0]->getDirection());
 
         $sortDefault = $this->sut->getSortDefault();
@@ -437,12 +437,12 @@ class QueryProcedureTest extends FunctionalTestCase
             Sort::class,
             $sort[0]
         );
-        static::assertEquals('endDate', $sort[0]->getName());
+        static::assertEquals('endDateTimestamp', $sort[0]->getName());
         static::assertInstanceOf(
             SortField::class,
             $sort[0]->getFields()[0]
         );
-        static::assertEquals('endDate', $sort[0]->getFields()[0]->getName());
+        static::assertEquals('endDateTimestamp', $sort[0]->getFields()[0]->getName());
         static::assertEquals('asc', $sort[0]->getFields()[0]->getDirection());
 
         $sortDefault = $this->sut->getSortDefault();
@@ -458,12 +458,12 @@ class QueryProcedureTest extends FunctionalTestCase
             Sort::class,
             $sort[0]
         );
-        static::assertEquals('endDate', $sort[0]->getName());
+        static::assertEquals('endDateTimestamp', $sort[0]->getName());
         static::assertInstanceOf(
             SortField::class,
             $sort[0]->getFields()[0]
         );
-        static::assertEquals('endDate', $sort[0]->getFields()[0]->getName());
+        static::assertEquals('endDateTimestamp', $sort[0]->getFields()[0]->getName());
         static::assertEquals('asc', $sort[0]->getFields()[0]->getDirection());
 
         $sortDefault = $this->sut->getSortDefault();
