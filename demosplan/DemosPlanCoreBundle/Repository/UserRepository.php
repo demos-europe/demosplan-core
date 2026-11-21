@@ -593,6 +593,30 @@ class UserRepository extends CoreRepository implements ArrayInterface, ObjectInt
     }
 
     /**
+     * Non-deleted users with a password whose orga is registered in the given customer.
+     *
+     * @return list<User>
+     */
+    public function findActiveUsersWithPasswordInCustomer(CustomerInterface $customer): array
+    {
+        return $this->createQueryBuilder('u')
+            ->select('DISTINCT u')
+            ->innerJoin('u.orga', 'o')
+            ->innerJoin('o.statusInCustomers', 'sic')
+            ->where('u.deleted = :deleted')
+            ->andWhere('u.password IS NOT NULL')
+            ->andWhere("u.password <> ''")
+            ->andWhere('u.id <> :anonymousId')
+            ->andWhere('sic.customer = :customer')
+            ->setParameter('deleted', false)
+            ->setParameter('anonymousId', User::ANONYMOUS_USER_ID)
+            ->setParameter('customer', $customer)
+            ->orderBy('u.lastname', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * Find non-deleted users by email address (case-insensitive).
      *
      * @return User[]

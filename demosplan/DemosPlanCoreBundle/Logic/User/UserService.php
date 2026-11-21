@@ -1491,7 +1491,7 @@ class UserService implements UserServiceInterface
 
     public function getTestUsers($testPassword): IlluminateCollection
     {
-        return collect($this->getAllActiveUsers())
+        return collect($this->userRepository->findActiveUsersWithPasswordInCustomer($this->customerService->getCurrentCustomer()))
             ->filter(function (User $user) use ($testPassword) {
                 if (!$this->getValidUser($user->getLogin() ?? '') instanceof User) {
                     return false;
