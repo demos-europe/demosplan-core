@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentEmailSender;
+use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentMailContent;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\FunctionalTestCase;
 
@@ -72,8 +73,7 @@ class SegmentEmailSenderTest extends FunctionalTestCase
             [$segment->getId()],
             $procedure->getId(),
             self::RECIPIENT,
-            self::SUBJECT,
-            self::BODY,
+            new SegmentMailContent(self::SUBJECT, self::BODY),
             'not-formatted-email',
             null
         );
@@ -96,8 +96,7 @@ class SegmentEmailSenderTest extends FunctionalTestCase
             [$segment->getId()],
             $procedure->getId(),
             self::RECIPIENT,
-            self::SUBJECT,
-            self::BODY,
+            new SegmentMailContent(self::SUBJECT, self::BODY),
             $tooManyCc,
             null
         );
@@ -115,8 +114,7 @@ class SegmentEmailSenderTest extends FunctionalTestCase
             [$segment->getId()],
             $procedure->getId(),
             'not-a-valid-email',
-            self::SUBJECT,
-            self::BODY,
+            new SegmentMailContent(self::SUBJECT, self::BODY),
             null,
             null
         );
@@ -133,8 +131,7 @@ class SegmentEmailSenderTest extends FunctionalTestCase
             ['00000000-0000-0000-0000-000000000000'],
             $procedure->getId(),
             self::RECIPIENT,
-            self::SUBJECT,
-            self::BODY,
+            new SegmentMailContent(self::SUBJECT, self::BODY),
             null,
             null
         );
@@ -154,8 +151,7 @@ class SegmentEmailSenderTest extends FunctionalTestCase
             [$segment->getId()],
             $otherProcedure->getId(),
             self::RECIPIENT,
-            self::SUBJECT,
-            self::BODY,
+            new SegmentMailContent(self::SUBJECT, self::BODY),
             null,
             null
         );
@@ -176,8 +172,7 @@ class SegmentEmailSenderTest extends FunctionalTestCase
             [$segment->getId()],
             $procedure->getId(),
             self::RECIPIENT,
-            self::SUBJECT,
-            self::BODY,
+            new SegmentMailContent(self::SUBJECT, self::BODY),
             'valid-cc@test.de',
             'reply@test.de'
         );
@@ -222,8 +217,7 @@ class SegmentEmailSenderTest extends FunctionalTestCase
             array_map(static fn (Segment $segment): string => $segment->getId(), $segments),
             $procedure->getId(),
             self::RECIPIENT,
-            self::SUBJECT,
-            self::BODY,
+            new SegmentMailContent(self::SUBJECT, self::BODY),
             null,
             null
         );
@@ -252,8 +246,7 @@ class SegmentEmailSenderTest extends FunctionalTestCase
             [$segment->getId()],
             $procedure->getId(),
             self::RECIPIENT,
-            self::SUBJECT,
-            $body,
+            new SegmentMailContent(self::SUBJECT, $body),
             null,
             null
         );

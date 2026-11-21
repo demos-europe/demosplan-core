@@ -677,11 +677,19 @@ class EntityContentChangeService
         $this->entityContentChangeRepository->persistEntities([$entry]);
     }
 
-    public function createSegmentSentByMailChangeEntry(Segment $segment, string $recipientMail, string $message, DateTime $whenSent): void
+    public function createSegmentSentByMailChangeEntry(Segment $segment, string $recipientMail, string $message, DateTime $whenSent, ?string $segmentText = null, ?string $recommendationText = null): void
     {
+        $logText = $this->translator->trans('segment.sent.via.mail.value', ['recipient' => $recipientMail, 'message' => $message]);
+        if (null !== $segmentText && '' !== $segmentText) {
+            $logText .= ' '.$this->translator->trans('segment.sent.via.mail.segment', ['text' => $segmentText]);
+        }
+        if (null !== $recommendationText && '' !== $recommendationText) {
+            $logText .= ' '.$this->translator->trans('segment.sent.via.mail.recommendation', ['text' => $recommendationText]);
+        }
+
         $contentChange = $this->generateActualDiff(
             '',
-            $this->translator->trans('segment.sent.via.mail.value', ['recipient' => $recipientMail, 'message' => $message]),
+            $logText,
             'sentViaMail',
             Segment::class,
             $this->lockedDiffOptions(),
