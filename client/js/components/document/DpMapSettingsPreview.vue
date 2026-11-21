@@ -56,7 +56,7 @@
           zoom-to-drawing
         />
         <dp-ol-map-layer-vector
-          v-if="territory"
+          v-if="features.territory"
           class="u-mb-0_5"
           :draw-style="drawingStyles.territory"
           :features="features.territory"
@@ -405,7 +405,7 @@ export default {
             },
           } :
           null,
-        territory: this.territory ? JSON.parse(this.territory) : null,
+        territory: this.territory && JSON.parse(this.territory)?.type ? JSON.parse(this.territory) : null,
       }
     },
 
