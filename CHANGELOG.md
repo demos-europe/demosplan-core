@@ -5,6 +5,9 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Tags get an optional plaintext description of up to 1000 characters (`Tag::$description`), writable through
+  JSON:API 2.0 and the tag edit page and readable through API 3.0. Writing it needs the new permission
+  `field_tag_description`; projects must grant it explicitly (DPLAN-18350)
 
 ## v4.70.1 (2026-11-19)
 - Security update: PHP 8.4.28 and nginx 1.30.7
