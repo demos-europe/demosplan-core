@@ -10,11 +10,14 @@
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Orga;
 
+use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureDeleter;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Schema\SchemaException;
+use Doctrine\DBAL\Types\Types;
 use Exception;
 
 class OrgaDeleter
@@ -29,7 +32,7 @@ class OrgaDeleter
     /**
      * @throws Exception
      */
-    public function deleteOrganisations(array $orgaIds, bool $isDryRun): void
+    public function deleteOrganisations(array $orgaIds, bool $isDryRun, bool $hardDeleteProcedures = false): void
     {
         $slugsIds = array_column($this->queriesService->fetchFromTableByParameter(['s_id'], 'orga_slug', 'o_id', $orgaIds), 's_id');
         // delete orga slugs
@@ -73,17 +76,41 @@ class OrgaDeleter
 
         $this->deleteAccesssControl($orgaIds, $isDryRun);
 
-        $orgasProcedureIds = Collect($this->procedureRepository->findBy(['orga' => $orgaIds]))->map(
-            static fn (Procedure $procedure): string => $procedure->getId()
-        );
-        // delete procedures
-        // handles tables with orga_ids as well as procedureIds like:
-        // procedure_planningoffices, procedure_orga_datainput, institution_mail, _draft_statement_versions
-        $this->procedureDeleter->deleteProcedures($orgasProcedureIds->toArray(), $isDryRun);
+        if ($hardDeleteProcedures) {
+            $orgasProcedureIds = Collect($this->procedureRepository->findBy(['orga' => $orgaIds]))->map(
+                static fn (Procedure $procedure): string => $procedure->getId()
+            );
+            // handles tables with orga_ids as well as procedureIds like:
+            // procedure_planningoffices, procedure_orga_datainput, institution_mail, _draft_statement_versions
+            $this->procedureDeleter->deleteProcedures($orgasProcedureIds->toArray(), $isDryRun);
+        } else {
+            // procedures are only flagged as deleted and detached from the organisation
+            $this->softDeleteProcedures($orgaIds, $isDryRun);
+        }
 
         $this->deleteProcedurePlannungOffices($orgaIds, $isDryRun);
         // delete organisations
         $this->deleteOrgas($orgaIds, $isDryRun);
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function softDeleteProcedures(array $orgaIds, bool $isDryRun): void
+    {
+        if ($isDryRun) {
+            return;
+        }
+
+        $this->queriesService->getConnection()->createQueryBuilder()
+            ->update('_procedure')
+            ->set('_p_deleted', '1')
+            ->set('_p_deleted_date', ':now')
+            ->set('_o_id', 'NULL')
+            ->where('_o_id IN (:orgaIds)')
+            ->setParameter('now', new DateTime(), Types::DATETIME_MUTABLE)
+            ->setParameter('orgaIds', $orgaIds, ArrayParameterType::STRING)
+            ->executeStatement();
     }
 
     /**

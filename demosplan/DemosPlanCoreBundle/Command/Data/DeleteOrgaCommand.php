@@ -26,7 +26,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
-#[AsCommand(name: 'dplan:organisation:delete', description: 'Deletes an organisation including all related content like procedure, statements, tags, News, etc.')]
+#[AsCommand(name: 'dplan:organisation:delete', description: 'Deletes an organisation and its related content. Its procedures are soft-deleted and detached from the organisation unless --hard-delete-procedures is given.')]
 class DeleteOrgaCommand extends CoreCommand
 {
     public function __construct(
@@ -54,6 +54,13 @@ class DeleteOrgaCommand extends CoreCommand
         );
 
         $this->addOption(
+            'hard-delete-procedures',
+            '',
+            InputOption::VALUE_NONE,
+            'Permanently deletes the procedures of the organisations including statements, elements and related data instead of soft-deleting them.'
+        );
+
+        $this->addOption(
             'without-repopulate',
             'wrp',
             InputOption::VALUE_NONE,
@@ -66,6 +73,7 @@ class DeleteOrgaCommand extends CoreCommand
         $output = new SymfonyStyle($input, $output);
 
         $isDryRun = (bool) $input->getOption('dry-run');
+        $hardDeleteProcedures = (bool) $input->getOption('hard-delete-procedures');
         $withoutRepopulate = (bool) $input->getOption('without-repopulate');
         $orgaIds = $input->getArgument('orgaIds');
         $orgaIds = explode(',', (string) $orgaIds);
@@ -97,7 +105,7 @@ class DeleteOrgaCommand extends CoreCommand
             $output->info("Dry-run: $isDryRun");
 
             $this->orgaDeleter->beginTransactionAndDisableForeignKeyChecks();
-            $this->orgaDeleter->deleteOrganisations($retrievedOrgaIds, $isDryRun);
+            $this->orgaDeleter->deleteOrganisations($retrievedOrgaIds, $isDryRun, $hardDeleteProcedures);
             $this->orgaDeleter->commitTransactionAndEnableForeignKeyChecks();
         } catch (Exception $exception) {
             $this->queriesService->rollbackTransaction();

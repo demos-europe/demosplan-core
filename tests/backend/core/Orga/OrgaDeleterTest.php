@@ -11,6 +11,8 @@
 namespace backend\core\Orga;
 
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Orga\OrgaFactory;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
+use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Logic\Orga\OrgaDeleter;
 use demosplan\DemosPlanCoreBundle\Services\Queries\SqlQueriesService;
@@ -19,7 +21,7 @@ use Zenstruck\Foundry\Persistence\Proxy;
 
 class OrgaDeleterTest extends FunctionalTestCase
 {
-    private null|Orga|Proxy $testOrga;
+    private Orga|Proxy|null $testOrga;
 
     private ?array $testOrgas;
 
@@ -72,5 +74,34 @@ class OrgaDeleterTest extends FunctionalTestCase
         $this->sut->deleteOrganisations($ids, false);
 
         static::assertSame($totalAmountOfOrgasBeforeDeletion - 2, $this->countEntries(Orga::class));
+    }
+
+    public function testDeleteOrgaSoftDeletesProcedures()
+    {
+        $procedure = ProcedureFactory::createOne(['orga' => $this->testOrga]);
+        $procedureId = $procedure->getId();
+        $procedureCount = $this->countEntries(Procedure::class);
+
+        $this->sut->deleteOrganisations([$this->testOrga->getId()], false);
+
+        $this->getEntityManager()->clear();
+        $reloaded = $this->getEntityManager()->find(Procedure::class, $procedureId);
+        static::assertNotNull($reloaded);
+        static::assertTrue($reloaded->isDeleted());
+        static::assertNull($reloaded->getOrga());
+        static::assertSame($procedureCount, $this->countEntries(Procedure::class));
+    }
+
+    public function testDeleteOrgaHardDeletesProceduresOnRequest()
+    {
+        $procedure = ProcedureFactory::createOne(['orga' => $this->testOrga]);
+        $procedureId = $procedure->getId();
+        $procedureCount = $this->countEntries(Procedure::class);
+
+        $this->sut->deleteOrganisations([$this->testOrga->getId()], false, true);
+
+        $this->getEntityManager()->clear();
+        static::assertNull($this->getEntityManager()->find(Procedure::class, $procedureId));
+        static::assertSame($procedureCount - 1, $this->countEntries(Procedure::class));
     }
 }
