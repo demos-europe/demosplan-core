@@ -206,9 +206,6 @@ export default {
   },
 
   methods: {
-    ...mapActions('AssignableUser', {
-      fetchAssignableUsers: 'list',
-    }),
 
     ...mapActions('Place', {
       fetchPlaces: 'list',
@@ -411,35 +408,9 @@ export default {
 
       const { page: targetPage, shouldRemoveParam } = await this.calculateSegmentPage(page)
 
-      await this.fetchPlaces({
-        fields: {
-          Place: [
-            'description',
-            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
-            'name',
-            'solved',
-            'sortIndex',
-          ].join(),
-        },
-        sort: 'sortIndex',
-      })
-
-      await this.fetchAssignableUsers({
-        fields: {
-          AssignableUser: [
-            'firstname',
-            'lastname',
-            'orga',
-          ].join(),
-          orga: ['name'].join(),
-        },
-        include: 'orga',
-        sort: 'lastname',
-      })
-
       const fields = this.buildFieldsObject(statementSegmentFields)
 
-      const response = await this.listSegments({
+      const segmentsRequest = this.listSegments({
         include: statementSegmentInclude.join(),
         fields,
         page: {
@@ -462,6 +433,20 @@ export default {
           },
         },
       })
+      const placesRequest = this.fetchPlaces({
+        fields: {
+          Place: [
+            'description',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+            'name',
+            'solved',
+            'sortIndex',
+          ].join(),
+        },
+        sort: 'sortIndex',
+      })
+
+      const [response] = await Promise.all([segmentsRequest, placesRequest])
 
       if (response?.meta?.pagination) {
         this.setLocalStorage(response.meta.pagination)
