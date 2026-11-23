@@ -218,6 +218,7 @@ export default {
           })
         }
       },
+      immediate: true,
     },
 
     'slidebar.segmentId': {

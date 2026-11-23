@@ -8,7 +8,7 @@
 </license>
 
 <template>
-  <div v-if="statement">
+  <div>
     <dp-slidebar
       :open="slidebar.isOpen"
       @close="resetSlidebar"
@@ -29,6 +29,7 @@
         :current-user="currentUser"
       />
       <segment-location-map
+        v-if="isMapDataLoaded"
         v-show="slidebar.showTab === 'map'"
         ref="locationMap"
         :map-data="procedureMapSettings"
@@ -47,7 +48,7 @@
       :message="Translator.trans('check.cluster.release')"
     />
 
-    <dp-sticky-element>
+    <dp-sticky-element v-if="statement">
       <header class="border--bottom u-pv-0_5 flow-root">
         <div class="inline-flex space-inline-m">
           <status-badge
@@ -216,7 +217,7 @@
         :statement-id="statementId"
       />
       <statement-segments-edit
-        v-else-if="currentAction === 'details'"
+        v-else-if="currentAction === 'details' && statement"
         :current-user="currentUser"
         :editable="editable"
         :has-draft-segments="hasDraftSegments()"
@@ -380,6 +381,8 @@ export default {
     return {
       currentAction: 'recommendation',
       isLoading: false,
+      isMapDataLoaded: false,
+      isMapDataRequested: false,
       procedureMapSettings: {},
       returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedure.id }),
       segmentDraftList: '',
@@ -577,9 +580,40 @@ export default {
       },
       deep: false, // Set default for migrating purpose. To know this occurrence is checked
     },
+
+    'slidebar.showTab': {
+      handler (tab) {
+        if (tab === 'map') {
+          this.loadMapData()
+        }
+      },
+      immediate: true,
+    },
   },
 
   methods: {
+    async loadMapData () {
+      if (this.isMapDataRequested) {
+        return
+      }
+
+      this.isMapDataRequested = true
+
+      const [settings, layers] = await Promise.all([
+        this.fetchProcedureMapSettings({ procedureId: this.procedure.id }),
+        this.fetchLayers(this.procedureId),
+      ])
+
+      this.procedureMapSettings = {
+        ...this.procedureMapSettings,
+        ...(settings?.attributes ?? {}),
+        layers: layers.data.data
+          .filter(layer => layer.attributes.isEnabled && layer.attributes.hasDefaultVisibility)
+          .map(layer => layer.attributes),
+      }
+      this.isMapDataLoaded = true
+    },
+
     ...mapActions('AdminProcedure', {
       getAdminProcedureWithFields: 'get',
     }),
@@ -947,6 +981,7 @@ export default {
         ].join(),
         orga: 'name',
       },
+      sort: 'lastname',
     })
     this.setContent({ prop: 'commentsList', val: { ...this.commentsList, procedureId: this.procedure.id, statementId: this.statementId } })
 
@@ -962,20 +997,6 @@ export default {
     }
 
     globalThis.addEventListener('hashchange', this.handleHashChange)
-
-    this.fetchProcedureMapSettings({ procedureId: this.procedure.id })
-      .then(response => {
-        if (response?.attributes) {
-          this.procedureMapSettings = { ...this.procedureMapSettings, ...response.attributes }
-        }
-      })
-
-    this.fetchLayers(this.procedureId)
-      .then(response => {
-        this.procedureMapSettings.layers = response.data.data
-          .filter(layer => layer.attributes.isEnabled && layer.attributes.hasDefaultVisibility)
-          .map(layer => layer.attributes)
-      })
   },
 
   beforeUnmount () {
