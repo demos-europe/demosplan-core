@@ -97,6 +97,9 @@ use UnexpectedValueException;
  */
 #[ORM\Table(name: '_statement')]
 #[ORM\UniqueConstraint(name: 'internId_procedure', columns: ['_st_intern_id', '_p_id'])]
+#[ORM\Index(name: 'procedure_extern_id', columns: ['_p_id', '_st_extern_id'])]
+#[ORM\Index(name: 'procedure_source_statement_id', columns: ['_p_id', 'source_statement_id'])]
+#[ORM\Index(name: 'procedure_order_in_procedure', columns: ['_p_id', 'order_in_procedure'])]
 #[ORM\InheritanceType('SINGLE_TABLE')]
 #[ORM\DiscriminatorColumn(name: 'entity_type', type: 'string')]
 #[ORM\DiscriminatorMap(['Statement' => 'Statement', 'Segment' => 'demosplan\DemosPlanCoreBundle\Entity\Statement\Segment'])]

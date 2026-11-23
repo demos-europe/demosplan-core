@@ -70,7 +70,7 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
     /**
      * @var Collection<int,StatementInterface>
      */
-    #[ORM\ManyToMany(targetEntity: Statement::class, mappedBy: 'tags', cascade: ['persist', 'refresh'])]
+    #[ORM\ManyToMany(targetEntity: Statement::class, mappedBy: 'tags', cascade: ['persist', 'refresh'], fetch: 'EXTRA_LAZY')]
     protected $statements;
 
     /**
