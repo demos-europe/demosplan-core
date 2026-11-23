@@ -260,6 +260,88 @@ class SegmentEmailSenderTest extends FunctionalTestCase
         static::assertStringContainsString('Public info', $content);
     }
 
+    public function testSendSegmentMailWithPartsBuildsBodyFromPartsNotFromBody(): void
+    {
+        $this->createSegmentMailTemplate();
+        $procedure = ProcedureFactory::createOne()->_real();
+        $segment = SegmentFactory::createOne(['procedure' => $procedure])->_real();
+        $this->currentProcedureService->setProcedure($procedure);
+
+        $isEmailSent = $this->sut->sendSegmentsMail(
+            [$segment->getId()],
+            $procedure->getId(),
+            self::RECIPIENT,
+            new SegmentMailContent(self::SUBJECT, 'UNLOGGED-BODY', 'Hello', '', ''),
+            null,
+            null
+        );
+
+        static::assertTrue($isEmailSent);
+
+        // The given body must not be sent when parts are present, otherwise it would be missing in the history.
+        static::assertStringNotContainsString('UNLOGGED-BODY', (string) $this->getLatestMail()['_ms_content']);
+        static::assertStringContainsString('Hello', (string) $this->getLatestMail()['_ms_content']);
+    }
+
+    public function testSendSegmentMailWithPartsLogsLabelledPartsObscuredAndFlattened(): void
+    {
+        $this->createSegmentMailTemplate();
+        $procedure = ProcedureFactory::createOne()->_real();
+        $segment = SegmentFactory::createOne(['procedure' => $procedure])->_real();
+        $this->currentProcedureService->setProcedure($procedure);
+
+        $isEmailSent = $this->sut->sendSegmentsMail(
+            [$segment->getId()],
+            $procedure->getId(),
+            self::RECIPIENT,
+            new SegmentMailContent(
+                self::SUBJECT,
+                null,
+                "Hello\n<dp-obscure>SECRET-MSG</dp-obscure>",
+                '<p>Segment   text</p>',
+                'Recommendation <dp-obscure>SECRET-REC</dp-obscure>',
+            ),
+            null,
+            null
+        );
+
+        static::assertTrue($isEmailSent);
+
+        $history = $this->getSentViaMailContentFor($segment);
+        static::assertStringNotContainsString('SECRET-MSG', $history);
+        static::assertStringNotContainsString('SECRET-REC', $history);
+        static::assertStringNotContainsString("\n", $history);
+        // Labels appear in the order message, segment, recommendation.
+        $messagePosition = strpos($history, 'Hello');
+        $segmentPosition = strpos($history, 'Segment text');
+        $recommendationPosition = strpos($history, 'Recommendation');
+        static::assertNotFalse($messagePosition);
+        static::assertLessThan($segmentPosition, $messagePosition);
+        static::assertLessThan($recommendationPosition, $segmentPosition);
+    }
+
+    public function testSendSegmentMailWithPartsOmitsUnattachedPartsInBodyAndHistory(): void
+    {
+        $this->createSegmentMailTemplate();
+        $procedure = ProcedureFactory::createOne()->_real();
+        $segment = SegmentFactory::createOne(['procedure' => $procedure])->_real();
+        $this->currentProcedureService->setProcedure($procedure);
+
+        $this->sut->sendSegmentsMail(
+            [$segment->getId()],
+            $procedure->getId(),
+            self::RECIPIENT,
+            new SegmentMailContent(self::SUBJECT, null, 'Hello', '', ''),
+            null,
+            null
+        );
+
+        $history = $this->getSentViaMailContentFor($segment);
+        static::assertStringContainsString('Hello', $history);
+        static::assertStringNotContainsString('Abschnitt:', $history);
+        static::assertStringNotContainsString('Erwiderung:', $history);
+    }
+
     private function assertFailedWithSyntaxError(bool $isEmailSent): void
     {
         static::assertFalse($isEmailSent);

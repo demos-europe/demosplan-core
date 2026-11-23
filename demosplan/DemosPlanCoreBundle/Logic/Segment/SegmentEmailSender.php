@@ -69,14 +69,15 @@ class SegmentEmailSender
             // the sender address is the procedures agency mailbox
             $sentFrom = $segments[0]->getProcedure()->getAgencyMainEmailAddress();
             // handle anonymized text before building email variables
-            $obscuredBody = null === $content->body ? null : $this->editorService->obscureString($content->body);
+            $mailBody = $content->getMailBody();
+            $obscuredBody = null === $mailBody ? null : $this->editorService->obscureString($mailBody);
             $emailVariables = $this->populateEmailVariables($content->subject, $obscuredBody);
             // Queue the mail and write the version-history audit entries together. The caller
             // (RpcSegmentEmailSender::execute) wraps this in a transaction so a queued mail can
             // never end up without its GDPR audit entry. No attachments as of now.
             $this->sendSegment($sendMailTo, $sentFrom, $ccEmailAddresses, $emailVariables, [], $replyTo);
             // The separate parts allow labelling them in the version history. Without them the whole body is logged as the message.
-            $hasParts = null !== $content->messageText;
+            $hasParts = $content->hasParts();
             $loggedMessage = $this->toLogText($hasParts ? $content->messageText : $content->body);
             $loggedSegmentText = $hasParts ? $this->toLogText($content->segmentText) : null;
             $loggedRecommendation = $hasParts ? $this->toLogText($content->recommendationText) : null;

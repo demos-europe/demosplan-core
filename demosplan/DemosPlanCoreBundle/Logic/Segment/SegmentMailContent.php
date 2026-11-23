@@ -28,4 +28,27 @@ final class SegmentMailContent
         public readonly ?string $recommendationText = null,
     ) {
     }
+
+    public function hasParts(): bool
+    {
+        return null !== $this->messageText;
+    }
+
+    /**
+     * The body that is sent. With separate parts it is built from them, so the sent content always
+     * matches what is written to the version history. Without parts the given body is used.
+     */
+    public function getMailBody(): ?string
+    {
+        if (!$this->hasParts()) {
+            return $this->body;
+        }
+
+        $parts = array_filter(
+            [$this->messageText, $this->segmentText, $this->recommendationText],
+            static fn (?string $part): bool => null !== $part && '' !== $part
+        );
+
+        return implode("\n\n", $parts);
+    }
 }
