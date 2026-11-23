@@ -8,7 +8,7 @@
 
     {% if "text.customer.settings"|trans != "" %}
         <p>
-            {{ "text.customer.settings"|trans({ domain: [templateVars.customer.subdomain, templateVars.projectDomain]|join('.') })|wysiwyg }}
+            {{ "text.customer.settings"|trans({ domain: templateVars.customerHost })|wysiwyg }}
         </p>
     {% endif %}
 
