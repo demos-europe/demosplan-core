@@ -27,62 +27,97 @@
         <template v-slot:trigger>
           #{{ segment.attributes.externId }}
         </template>
-        <div class="c-statement-meta-tooltip">
-          <dl>
-            <div class="weight--bold pb-2 pr-2">
+        <div class="w-[400px] max-w-full">
+          <div class="p-3">
+            <p class="mb-1 font-semibold">
               {{ Translator.trans('segment') }} {{ segment.attributes.externId }}
-            </div>
-            <div v-if="segment.attributes.externId">
-              <dt class="weight--bold">
-                {{ Translator.trans('id') }}:
-              </dt>
-              <dd>{{ segment.attributes.externId }}</dd>
-            </div>
-            <div>
-              <dt class="weight--bold">
-                {{ Translator.trans('tags') }}:
-              </dt>
-              <dd>{{ tagsAsString }}</dd>
-            </div>
-            <div v-if="segment.relationships.place">
-              <dt class="weight--bold">
-                {{ Translator.trans('workflow.place') }}:
-              </dt>
-              <dd>{{ segmentPlace.name }}</dd>
-            </div>
-            <div v-if="assignee.name !== ''">
-              <dt class="weight--bold">
-                {{ Translator.trans('assigned.to') }}:
-              </dt>
-              <dd>{{ assignee.name }}</dd>
-            </div>
-          </dl>
-          <custom-fields-list
-            v-if="hasPermission('field_segments_custom_fields')"
-            v-slot:default="{ fieldsWithDefinitions }"
-            :definition-source-id="procedureId"
-            :resource-id="segment.id"
-            :show-title="false"
-            mode="readonly"
-            resource-type="StatementSegment"
-            source-entity="PROCEDURE"
-            target-entity="SEGMENT"
-            title-class=""
-          >
-            <dl>
-              <template
-                v-for="{ field, definition } in fieldsWithDefinitions"
-                :key="field.id"
-              >
-                <div v-if="definition">
-                  <dt class="weight--bold">
-                    {{ definition.attributes.name }}:
-                  </dt>
-                  <dd>{{ resolveCustomFieldLabels(definition, field.value).join(', ') }}</dd>
-                </div>
+            </p>
+            <dl class="mb-0 grid [&>dd]:ml-0 grid-cols-[2fr_3fr] gap-x-3 gap-y-0.5">
+              <template v-if="segment.relationships.place">
+                <dt class="text-muted">
+                  {{ Translator.trans('workflow.place') }}
+                </dt>
+                <dd>{{ segmentPlace.name }}</dd>
+              </template>
+              <template v-if="assignee.name !== ''">
+                <dt class="text-muted">
+                  {{ Translator.trans('assignee') }}
+                </dt>
+                <dd>{{ assignee.name }}</dd>
               </template>
             </dl>
-          </custom-fields-list>
+          </div>
+
+          <div class="border-t border-neutral-light-3 p-3">
+            <dl class="mb-0 grid [&>dd]:ml-0 grid-cols-[2fr_3fr] gap-x-3">
+              <dt class="text-muted">
+                {{ Translator.trans('tags') }}
+              </dt>
+              <!-- Receives the focus once the "show more" button is gone -->
+              <dd
+                ref="tagList"
+                class="flex flex-wrap items-center gap-1 outline-none"
+                tabindex="-1"
+              >
+                <template v-if="segmentTags.length">
+                  <dp-badge
+                    v-for="tag in visibleTags"
+                    :key="tag.id"
+                    :text="tag.attributes.title"
+                    color="default"
+                    size="small"
+                  />
+                  <button
+                    v-if="hiddenTagsCount > 0"
+                    class="rounded-sm text-sm text-interactive hover:text-interactive-hover hover:underline"
+                    type="button"
+                    @click="showAllTags"
+                  >
+                    {{ Translator.trans('tags.show.more', { count: hiddenTagsCount }) }}
+                  </button>
+                </template>
+                <template v-else>
+                  –
+                </template>
+              </dd>
+            </dl>
+
+            <custom-fields-list
+              v-if="hasPermission('field_segments_custom_fields')"
+              v-slot:default="{ fieldsWithDefinitions }"
+              :definition-source-id="procedureId"
+              :resource-id="segment.id"
+              :show-loading="false"
+              :show-title="false"
+              mode="readonly"
+              resource-type="StatementSegment"
+              source-entity="PROCEDURE"
+              target-entity="SEGMENT"
+              title-class=""
+            >
+              <div
+                v-if="fieldsWithDefinitions.some(({ definition }) => definition)"
+                class="mt-3 border-t border-neutral-light-3 pt-3"
+              >
+                <p class="mb-1 font-semibold text-muted">
+                  {{ Translator.trans('custom.fields.collection') }}
+                </p>
+                <dl class="mb-0 grid [&>dd]:ml-0 grid-cols-[2fr_3fr] gap-x-3 gap-y-0.5">
+                  <template
+                    v-for="{ field, definition } in fieldsWithDefinitions"
+                    :key="field.id"
+                  >
+                    <template v-if="definition">
+                      <dt class="text-muted">
+                        {{ definition.attributes.name }}
+                      </dt>
+                      <dd>{{ resolveCustomFieldLabels(definition, field.value).join(', ') }}</dd>
+                    </template>
+                  </template>
+                </dl>
+              </div>
+            </custom-fields-list>
+          </div>
         </div>
       </dp-popover>
 
@@ -576,6 +611,9 @@ import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer.vue
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useUnsavedChangesGuard } from '@DpJs/composables/useUnsavedChangesGuard'
 
+// More tags make the popover too tall, the rest is shown on demand
+const MAX_VISIBLE_TAGS = 3
+
 export default {
   name: 'StatementSegment',
 
@@ -666,6 +704,7 @@ export default {
 
   data () {
     return {
+      areAllTagsShown: false,
       claimLoading: false,
       customFieldValues: [],
       currentUserName: this.currentUserFirstName + ' ' + this.currentUserLastName,
@@ -883,6 +922,10 @@ export default {
         ''
     },
 
+    hiddenTagsCount () {
+      return this.areAllTagsShown ? 0 : Math.max(this.segmentTags.length - MAX_VISIBLE_TAGS, 0)
+    },
+
     segmentPlace () {
       return this.segment.relationships.place ?
         this.places.find(place => place.id === this.segment.relationships.place.data.id) :
@@ -905,8 +948,8 @@ export default {
       return this.isAssignedToMe && !this.isLocked
     },
 
-    tagsAsString () {
-      return this.segmentTags.length ? this.segmentTags.map(tag => tag.attributes.title).join(', ') : '-'
+    visibleTags () {
+      return this.areAllTagsShown ? this.segmentTags : this.segmentTags.slice(0, MAX_VISIBLE_TAGS)
     },
 
     /**
@@ -1389,6 +1432,11 @@ export default {
       if (hasPermission('area_admin_boilerplates')) {
         this.$refs.boilerPlateModal.toggleModal()
       }
+    },
+
+    showAllTags () {
+      this.areAllTagsShown = true
+      this.$nextTick(() => this.$refs.tagList?.focus())
     },
 
     // Loads the popover data before the click, so the open panel does not change its size and jump

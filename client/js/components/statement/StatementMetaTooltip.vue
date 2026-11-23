@@ -8,89 +8,123 @@
 </license>
 
 <template>
-  <div class="c-statement-meta-tooltip flow-root">
-    <button
-      v-if="toggleButton"
-      class="btn--blank o-link--default float-right"
-      data-cy="pinInformation"
-      @click="$emit('toggle')"
+  <div class="w-[480px] max-w-full">
+    <div
+      v-if="hasSegmentSection"
+      class="p-3"
     >
-      {{ Translator.trans('information.pin') }}
-    </button>
-
-    <div v-if="isSegmentWithPlace || isSegmentWithAssignee">
-      <div class="weight--bold u-pb-0_5 u-pl-0">
-        {{ Translator.trans('segment') }} {{ segment.attributes.externId }}
+      <div class="mb-1 flex items-start justify-between gap-2">
+        <p class="mb-0 font-semibold">
+          {{ Translator.trans('segment') }} {{ segment.attributes.externId }}
+        </p>
+        <button
+          v-if="toggleButton"
+          class="btn--blank o-link--default"
+          data-cy="pinInformation"
+          @click="$emit('toggle')"
+        >
+          {{ Translator.trans('information.pin') }}
+        </button>
       </div>
-      <dl class="description-list-inline u-mb-0_5">
+      <dl class="mb-0 grid [&>dd]:ml-0 grid-cols-[2fr_3fr] gap-x-3 gap-y-0.5">
         <template v-if="isSegmentWithPlace">
-          <dt>{{ Translator.trans('workflow.place') }}:</dt>
+          <dt class="text-muted">
+            {{ Translator.trans('workflow.place') }}
+          </dt>
           <dd>{{ segmentPlace.name }}</dd>
         </template>
         <template v-if="isSegmentWithAssignee">
-          <dt>{{ Translator.trans('assigned.to') }}:</dt>
+          <dt class="text-muted">
+            {{ Translator.trans('assignee') }}
+          </dt>
           <dd>{{ segmentAssignee.name }}</dd>
         </template>
       </dl>
     </div>
 
-    <div class="weight--bold u-mt u-pb-0_5 u-pl-0">
-      {{ Translator.trans('statement') }} {{ statement.attributes.externId }}
-    </div>
-
-    <statement-meta-data
-      :statement="statement"
-      :submit-type-options="submitTypeOptions"
+    <div
+      class="p-3"
+      :class="{ 'border-t border-neutral-light-3': hasSegmentSection }"
     >
-      <template
-        v-slot:default="{
-          formattedAuthoredDate,
-          formattedSubmitDate,
-          isSubmittedByCitizen,
-          initialOrganisationDepartmentName,
-          initialOrganisationName,
-          internId,
-          memo,
-          submitName,
-          submitType,
-          location
-        }"
-      >
-        <dl class="description-list-inline u-mb-0_5">
-          <dt>{{ Translator.trans('submitter') }}:</dt>
-          <dd>{{ submitName }}</dd>
-          <template v-if="!isSubmittedByCitizen">
-            <dt>{{ Translator.trans('organisation') }}:</dt>
-            <dd>{{ initialOrganisationName }}</dd>
-            <dt>{{ Translator.trans('department') }}:</dt>
-            <dd>{{ initialOrganisationDepartmentName }}</dd>
-          </template>
-          <dt>{{ Translator.trans('address') }}:</dt>
-          <dd>{{ location }}</dd>
-        </dl>
-
-        <dl class="description-list-inline u-mb-0_5">
-          <dt>{{ Translator.trans('internId') }}:</dt>
-          <dd>{{ internId }}</dd>
-          <dt>{{ Translator.trans('statement.date.authored') }}:</dt>
-          <dd>{{ formattedAuthoredDate }}</dd>
-          <dt>{{ Translator.trans('statement.date.submitted') }}:</dt>
-          <dd>{{ formattedSubmitDate }}</dd>
-          <dt>{{ Translator.trans('submit.type') }}:</dt>
-          <dd>{{ submitType }}</dd>
-        </dl>
-
-        <dl
-          v-if="hasPermission('field_statement_memo')"
-          class="description-list"
+      <div class="mb-1 flex items-start justify-between gap-2">
+        <p class="mb-0 font-semibold">
+          {{ Translator.trans('statement') }}
+        </p>
+        <button
+          v-if="toggleButton && !hasSegmentSection"
+          class="btn--blank o-link--default"
+          data-cy="pinInformation"
+          @click="$emit('toggle')"
         >
-          <dt>{{ Translator.trans('memo') }}:</dt>
-          <dd class="max-h-12 overflow-auto">
-            {{ memo }}
-          </dd>
-        </dl>
-      </template>
-    </statement-meta-data>
+          {{ Translator.trans('information.pin') }}
+        </button>
+      </div>
+
+      <statement-meta-data
+        :statement="statement"
+        :submit-type-options="submitTypeOptions"
+      >
+        <template
+          v-slot:default="{
+            formattedAuthoredDate,
+            formattedSubmitDate,
+            isSubmittedByCitizen,
+            initialOrganisationDepartmentName,
+            initialOrganisationName,
+            internId,
+            memo,
+            submitName,
+            submitType,
+            location
+          }"
+        >
+          <dl class="mb-0 grid [&>dd]:ml-0 grid-cols-[2fr_3fr] gap-x-3 gap-y-0.5">
+            <dt class="text-muted">
+              {{ Translator.trans('submitter') }}
+            </dt>
+            <dd>{{ valueOrDash(submitName) }}</dd>
+            <template v-if="!isSubmittedByCitizen">
+              <dt class="text-muted">
+                {{ Translator.trans('institution') }}
+              </dt>
+              <dd>{{ valueOrDash(initialOrganisationName) }}</dd>
+              <dt class="text-muted">
+                {{ Translator.trans('department') }}
+              </dt>
+              <dd>{{ valueOrDash(initialOrganisationDepartmentName) }}</dd>
+            </template>
+            <dt class="text-muted">
+              {{ Translator.trans('address') }}
+            </dt>
+            <dd>{{ valueOrDash(location) }}</dd>
+            <dt class="text-muted">
+              {{ Translator.trans('internId') }}
+            </dt>
+            <dd>{{ valueOrDash(internId) }}</dd>
+            <dt class="text-muted">
+              {{ Translator.trans('statement.date.authored') }}
+            </dt>
+            <dd>{{ valueOrDash(formattedAuthoredDate) }}</dd>
+            <dt class="text-muted">
+              {{ Translator.trans('statement.date.submitted') }}
+            </dt>
+            <dd>{{ valueOrDash(formattedSubmitDate) }}</dd>
+            <dt class="text-muted">
+              {{ Translator.trans('submit.type') }}
+            </dt>
+            <dd>{{ valueOrDash(submitType) }}</dd>
+            <template v-if="hasPermission('field_statement_memo')">
+              <dt class="text-muted">
+                {{ Translator.trans('memo') }}
+              </dt>
+              <dd class="max-h-12 overflow-auto">
+                {{ valueOrDash(memo) }}
+              </dd>
+            </template>
+          </dl>
+        </template>
+      </statement-meta-data>
+    </div>
   </div>
 </template>
 
@@ -148,6 +182,10 @@ export default {
   ],
 
   computed: {
+    hasSegmentSection () {
+      return Boolean(this.isSegmentWithPlace || this.isSegmentWithAssignee)
+    },
+
     isSegmentWithAssignee () {
       return Object.keys(this.segment).length && Object.keys(this.segmentAssignee).length
     },
@@ -171,6 +209,12 @@ export default {
       }
 
       return this.places.find(place => place.id === this.segment.relationships.place.data.id) || {}
+    },
+  },
+
+  methods: {
+    valueOrDash (value) {
+      return value || '–'
     },
   },
 }

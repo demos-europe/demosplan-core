@@ -10,6 +10,7 @@
 <template>
   <div
     v-if="chips.length > 0"
+    ref="root"
     class="flex flex-wrap items-center gap-1"
   >
     <!-- Chips beyond the limit are only shown while the table row is expanded. The flex wrapper avoids a text line box that would be taller than the badge. -->
@@ -36,22 +37,26 @@
       v-if="hiddenCount > 0"
       :aria-label="Translator.trans('custom.fields.chips.show.more', { count: hiddenCount })"
       :panel-label="Translator.trans('custom.fields.collection')"
+      :top-boundary="getTableHeader"
       class="[.is-expanded-row_&]:hidden"
     >
       <template v-slot:trigger>
         +{{ hiddenCount }}
       </template>
-      <div class="w-max max-w-[400px] p-3 text-sm text-default">
-        <p class="font-semibold">
-          {{ '#'+ externId }} | {{ Translator.trans('custom.fields.collection') }}
+      <div class="w-max max-w-[400px] p-3 text-default">
+        <p class="mb-3 font-semibold">
+          {{ Translator.trans('statement') }} {{ externId }}
         </p>
-        <dl class="mt-1 grid grid-cols-[auto_1fr] gap-x-3">
+        <p class="mb-1 font-semibold text-muted">
+          {{ Translator.trans('custom.fields.collection') }}
+        </p>
+        <dl class="mb-0 grid [&>dd]:ml-0 grid-cols-[auto_1fr] gap-x-4 gap-y-0.5">
           <template
             v-for="entry in entries"
             :key="entry.name"
           >
-            <dt class="font-semibold">
-              {{ entry.name }}:
+            <dt class="text-muted">
+              {{ entry.name }}
             </dt>
             <dd>
               {{ entry.labels.join(', ') }}
@@ -64,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type PropType } from 'vue'
+import { computed, type PropType, ref } from 'vue'
 import type { CustomFieldDefinition, CustomFieldValue } from '@DpJs/types/customFields'
 import { DpBadge, DpPopover, DpTooltip } from '@demos-europe/demosplan-ui'
 import { resolveCustomFieldLabels } from '@DpJs/lib/shared/resolveCustomFieldLabels'
@@ -81,6 +86,11 @@ interface FieldEntry {
 }
 
 const MAX_VISIBLE_CHIPS = 4
+
+const root = ref<HTMLElement | null>(null)
+
+// The popover must not cover the sticky header row of the surrounding table
+const getTableHeader = (): HTMLElement | null => root.value?.closest('.c-data-table')?.querySelector<HTMLElement>('.c-data-table__sticky-header') ?? null
 
 const props = defineProps({
   // The values of the statement, as already requested for the row

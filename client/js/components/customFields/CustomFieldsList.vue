@@ -78,10 +78,12 @@ All rights reserved
     </div>
 
     <!-- Non-expandable: spinner at top level -->
-    <dp-loading
-      v-else-if="isLoading"
-      :overlay="false"
-    />
+    <template v-else-if="isLoading">
+      <dp-loading
+        v-if="showLoading"
+        :overlay="false"
+      />
+    </template>
 
     <!-- Non-expandable: fieldset (editable) or div (readonly) -->
     <component
@@ -261,6 +263,13 @@ export default {
       type: Boolean,
       required: false,
       default: false,
+    },
+
+    // Off where a spinner would only flash, e.g. in a popover whose data is prefetched
+    showLoading: {
+      type: Boolean,
+      required: false,
+      default: true,
     },
 
     sourceEntity: {
