@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Core\Core\Functional;
 
 use DateTime;
+use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\MailTemplateFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\SegmentFactory;
@@ -22,7 +23,11 @@ use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Segment;
 use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\Customer\CustomerUrlGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\EntityContentChangeService;
+use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
+use Psr\Log\NullLogger;
+use Symfony\Component\Routing\RouterInterface;
 use Tests\Base\FunctionalTestCase;
 
 /**
@@ -65,6 +70,28 @@ class AssignedTaskNotificationLinksTest extends FunctionalTestCase
         self::assertStringNotContainsString('customer-b', $mailTextA);
         self::assertStringContainsString('://customer-b.', $mailTextB);
         self::assertStringNotContainsString('customer-a', $mailTextB);
+    }
+
+    public function testEnvironmentLabelOfTheContextHostIsKept(): void
+    {
+        // Arrange
+        $customer = CustomerFactory::createOne(['subdomain' => 'customer-a'])->_real();
+        $router = $this->getContainer()->get(RouterInterface::class);
+        $originalHost = $router->getContext()->getHost();
+        $router->getContext()->setHost('environment.base-domain.test');
+        $sut = new CustomerUrlGenerator(
+            $this->getContainer()->get(CustomerRepository::class),
+            $this->getContainer()->get(GlobalConfigInterface::class),
+            new NullLogger(),
+            $router
+        );
+
+        // Act
+        $url = $sut->generate($customer, 'DemosPlan_user_portal');
+        $router->getContext()->setHost($originalHost);
+
+        // Assert: "environment" is no customer, so the customer is prefixed instead of replacing it
+        self::assertStringContainsString('://customer-a.environment.base-domain.test/', $url);
     }
 
     /**
