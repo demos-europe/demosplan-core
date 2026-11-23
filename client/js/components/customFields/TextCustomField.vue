@@ -73,10 +73,10 @@ All rights reserved
       :id="`custom-field-${field.id}`"
       :data-dp-validate-error-fieldname="field.attributes.name"
       :disabled="disabled"
-      :value="currentValue"
+      :model-value="currentValue"
       maxlength="250"
       reduced-height
-      @input="handleUpdate"
+      @update:model-value="handleUpdate"
     />
   </div>
 </template>

@@ -33,7 +33,7 @@
         v-else-if="hasStyledTags"
         hook-name="tag.style.segment.recommendation"
         :addon-props="{ tags }"
-        wrapper-classes="flex flex-wrap gap-1 items-center"
+        wrapper-classes="flex flex-wrap gap-1 items-center min-w-0"
         @remove="removeTag"
       />
 

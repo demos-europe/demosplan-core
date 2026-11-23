@@ -63,7 +63,7 @@ export default {
     }),
 
     designatedSwitchDate () {
-      return `${Translator.trans('phase.autoswitch.datetime')}: ${formatDate(this.element.attributes.designatedSwitchDate, 'long')}`
+      return `${Translator.trans('element.autoswitch.datetime')}: ${formatDate(this.element.attributes.designatedSwitchDate, 'long')}`
     },
 
     element () {

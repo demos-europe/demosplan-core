@@ -1,6 +1,6 @@
 {% set disableLocked = templateVars.twoFactorSetup.disableLocked|default(false) %}
 {% if hasPermission('feature_2fa') %}
-    <h2 class="mt-6">{{ '2fa'|trans }}</h2>
+    <h2 class="mt-6 mb-4">{{ '2fa'|trans }}</h2>
 
     <div class="grid grid-cols-2 gap-4">
         <div>
@@ -9,16 +9,34 @@
                 <p>{{ '2fa.totp.enable.explanation'|trans }}</p>
                 <a class="dropdown-item" href="{{ path('DemosPlan_user_2fa_enable') }}">{{ '2fa.totp.enable'|trans }}</a>
             {% elseif not user.totpEnabled %}
-                <p>{{ '2fa.totp.activate.explanation'|trans }}</p>
-                <img src="{{ path('DemosPlan_user_qr_code') }}" alt="{{ '2fa.totp.code.qr'|trans }}">
-                {{ '2fa.totp.code'|trans }}: <pre>{{ user.totpSecret }}</pre>
-                <p>{{ '2fa.totp.activate'|trans }}</p>
+                <p>{{ '2fa.totp.activate.explanation.setupInstructions'|trans|wysiwyg }}</p>
+
+                <div class="ml-1">
+                    <p class="mb-0 ml-4">{{ '2fa.qr.code'|trans }}:</p>
+                    <img
+                        class="ml-0.5"
+                        src="{{ path('DemosPlan_user_qr_code') }}"
+                        alt="{{ '2fa.totp.code.qr'|trans }}"
+                    >
+
+                    <p class="ml-4 uppercase font-semibold">{{ 'or'|trans }}</p>
+
+                    <p class="ml-4 mb-0">
+                        {{ '2fa.totp.code'|trans }}
+                        ({{ '2fa.totp.code.explanation'|trans }}):
+                    </p>
+                    <pre class="ml-4"><code>{{ user.totpSecret }}</code></pre>
+                </div>
+
+                <p class="mb-4">{{ '2fa.totp.activate'|trans }}</p>
+
                 {{ uiComponent('form.element', {
-                    label: { text: '2fa.code'|trans },
+                    label: { text: '2fa.totp.codeFromApp'|trans },
                     control: { name: 'twoFactorCode' },
                     type: 'text',
                     id: 'twoFactorCode',
                     elementClass: 'u-mb-0_25',
+                    placeholder: '2fa.totp.code.placeholder'|trans,
                 }) }}
             {% endif %}
 

@@ -147,7 +147,7 @@
                           >
                             <td
                               :id="'fieldName' + time.anyEntityContentChangeIdOfThisChangeInstance"
-                              class="u-pt-0_5 u-pl-0_5 u-mr u-pr align-top u-1-of-6 inline-block"
+                              class="u-pt-0_5 u-pl-0_5 u-mr u-pr align-top inline-block"
                               data-cy="fieldName"
                             >
                               <strong>

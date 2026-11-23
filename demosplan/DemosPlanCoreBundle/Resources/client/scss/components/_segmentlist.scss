@@ -8,16 +8,11 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 .segment-list {
-    &-infobox {
-        border: 1px solid $dp-color-neutral-light-2 !important;
-        border-radius: 4px;
-        display: flex;
-        justify-content: space-between;
-        padding: 12px;
-    }
-
     &-row {
-        display: flex;
+        // Shared column template for header and rows: id | text | toggle | recommendation | toolbar.
+        // minmax(0, 1fr) keeps cell content from resizing the columns.
+        display: grid;
+        grid-template-columns: 140px minmax(0, 1fr) 48px minmax(0, 1fr) 64px;
 
         &:not(.segment-list-row--assigned) {
             background-color: $dp-color-white;
@@ -43,28 +38,6 @@
             .tiptap .editor__content {
                 height: 500px;
             }
-        }
-    }
-
-    &-col {
-        &--l,
-        &--m,
-        &--s {
-            display: inline-block;
-            padding: 12px 0;
-            vertical-align: top;
-        }
-
-        &--l {
-            width: 100%;
-        }
-
-        &--m {
-            width: 130px;
-        }
-
-        &--s {
-            width: 70px;
         }
     }
 

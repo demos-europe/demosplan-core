@@ -33,10 +33,10 @@
       <dp-text-area
         id="orga_paperCopySpec"
         data-cy="organisationData:paperCopy:specification"
-        :name="`${organisation.id}:paperCopySpec`"
-        :v-model="organisation.paperCopySpec"
-        :label="Translator.trans('copies.kind')"
         :hint="Translator.trans('explanation.organisation.copies.kind')"
+        :label="Translator.trans('copies.kind')"
+        :model-value="organisation.paperCopySpec"
+        :name="`${organisation.id}:paperCopySpec`"
       />
     </div>
   </fieldset>
