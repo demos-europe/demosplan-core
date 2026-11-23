@@ -13,68 +13,82 @@
     ref="statementSegment"
     class="segment-list-row"
     :class="{'segment-list-row--assigned': isAssignedToMe && !isLocked, 'fullscreen': isFullscreen, 'rounded-lg': !isFullscreen}"
-    @mouseenter="isHover = true"
-    @mouseleave="isHover = false"
   >
     <div class="flex flex-col justify-start basis-1/5 pt-2 pl-2">
-      <v-popover
-        :container="$refs.statementSegment"
-        trigger="hover focus"
+      <!-- Negative margins align the id with the segment text and the claim/lock icons; no bottom offset, so the buttons are not clicked by mistake -->
+      <dp-popover
+        :aria-label="`#${segment.attributes.externId} ${Translator.trans('details.show')}`"
+        :panel-label="`${Translator.trans('segment')} ${segment.attributes.externId}`"
+        class="-mt-[4px] -ml-[6px] self-start whitespace-nowrap text-base!"
+        variant="subtle"
+        @focus="prefetchCustomFields"
+        @pointerenter="prefetchCustomFields"
       >
-        <i
-          class="fa fa-hashtag color--grey-light"
-          :class="{'color--grey-dark': isAssignedToMe || isHover}"
-          aria-hidden="true"
-        />
-        <span>{{ segment.attributes.externId }}</span>
-        <template v-slot:popover>
-          <div class="c-statement-meta-tooltip px-0 py-0">
-            <dl>
-              <div class="weight--bold pb-2 pr-2">
-                {{ Translator.trans('segment') }} {{ segment.attributes.externId }}
-              </div>
-              <div v-if="segment.attributes.externId">
-                <dt class="weight--bold">
-                  {{ Translator.trans('id') }}:
-                </dt>
-                <dd>{{ segment.attributes.externId }}</dd>
-              </div>
-              <div>
-                <dt class="weight--bold">
-                  {{ Translator.trans('tags') }}:
-                </dt>
-                <dd>{{ tagsAsString }}</dd>
-              </div>
-              <div v-if="segment.relationships.place">
-                <dt class="weight--bold">
-                  {{ Translator.trans('workflow.place') }}:
-                </dt>
-                <dd>{{ segmentPlace.name }}</dd>
-              </div>
-              <div v-if="assignee.name !== ''">
-                <dt class="weight--bold">
-                  {{ Translator.trans('assigned.to') }}:
-                </dt>
-                <dd>{{ assignee.name }}</dd>
-              </div>
-            </dl>
-            <custom-fields-list
-              v-if="hasPermission('field_segments_custom_fields')"
-              :definition-source-id="procedureId"
-              :resource-id="segment.id"
-              :show-title="false"
-              mode="readonly"
-              resource-type="StatementSegment"
-              source-entity="PROCEDURE"
-              target-entity="SEGMENT"
-            />
-          </div>
+        <template v-slot:trigger>
+          #{{ segment.attributes.externId }}
         </template>
-      </v-popover>
+        <div class="c-statement-meta-tooltip">
+          <dl>
+            <div class="weight--bold pb-2 pr-2">
+              {{ Translator.trans('segment') }} {{ segment.attributes.externId }}
+            </div>
+            <div v-if="segment.attributes.externId">
+              <dt class="weight--bold">
+                {{ Translator.trans('id') }}:
+              </dt>
+              <dd>{{ segment.attributes.externId }}</dd>
+            </div>
+            <div>
+              <dt class="weight--bold">
+                {{ Translator.trans('tags') }}:
+              </dt>
+              <dd>{{ tagsAsString }}</dd>
+            </div>
+            <div v-if="segment.relationships.place">
+              <dt class="weight--bold">
+                {{ Translator.trans('workflow.place') }}:
+              </dt>
+              <dd>{{ segmentPlace.name }}</dd>
+            </div>
+            <div v-if="assignee.name !== ''">
+              <dt class="weight--bold">
+                {{ Translator.trans('assigned.to') }}:
+              </dt>
+              <dd>{{ assignee.name }}</dd>
+            </div>
+          </dl>
+          <custom-fields-list
+            v-if="hasPermission('field_segments_custom_fields')"
+            v-slot:default="{ fieldsWithDefinitions }"
+            :definition-source-id="procedureId"
+            :resource-id="segment.id"
+            :show-title="false"
+            mode="readonly"
+            resource-type="StatementSegment"
+            source-entity="PROCEDURE"
+            target-entity="SEGMENT"
+            title-class=""
+          >
+            <dl>
+              <template
+                v-for="{ field, definition } in fieldsWithDefinitions"
+                :key="field.id"
+              >
+                <div v-if="definition">
+                  <dt class="weight--bold">
+                    {{ definition.attributes.name }}:
+                  </dt>
+                  <dd>{{ resolveCustomFieldLabels(definition, field.value).join(', ') }}</dd>
+                </div>
+              </template>
+            </dl>
+          </custom-fields-list>
+        </div>
+      </dp-popover>
 
       <div
         v-if="isLocked"
-        class="flex items-center space-x-1 mt-1 mr-2"
+        class="flex items-center space-x-1 mt-1.5 mr-2"
       >
         <dp-button
           v-if="hasPermission('feature_administrate_segment_lock')"
@@ -105,7 +119,7 @@
       </div>
       <dp-claim
         v-else
-        class="ml-[5px] mt-1"
+        class="ml-[5px] mt-1.5 self-start"
         entity-type="segment"
         :assigned-id="assignee.id || ''"
         :assigned-name="assignee.name || ''"
@@ -361,17 +375,19 @@
             resource-type="StatementSegment"
             source-entity="PROCEDURE"
             target-entity="SEGMENT"
+            class="mt-2"
             @loaded="onCustomFieldsLoaded"
           >
             <div
               v-for="{ field, definition } in fieldsWithDefinitions"
               :key="field.id"
+              class="mt-2 first:mt-0"
             >
               <dp-label
                 :bold="false"
                 :for="`custom-field-${field.id}`"
                 :text="definition?.attributes?.name || ''"
-                class="mb-0.5 mt-2"
+                class="mb-0.5"
               />
               <custom-field
                 :definition="definition"
@@ -537,13 +553,13 @@ import {
   DpLabel,
   DpLoading,
   DpMultiselect,
+  DpPopover,
   DpTooltip,
   formatDate,
   prefixClassMixin,
   reformatDateString,
   sortAlphabetically,
   Tooltip,
-  VPopover,
 } from '@demos-europe/demosplan-ui'
 import { embedBoilerplateContent, stripBoilerplateContent } from './utils/boilerplateTagContent'
 import { mapActions, mapMutations, mapState } from 'vuex'
@@ -554,6 +570,7 @@ import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal.vu
 import DpClaim from '@DpJs/components/statement/DpClaim.vue'
 import ImageModal from '@DpJs/components/shared/ImageModal.vue'
 import RecommendationModal from '../Shared/RecommendationModal.vue'
+import { resolveCustomFieldLabels } from '@DpJs/lib/shared/resolveCustomFieldLabels'
 import SegmentTags from './SegmentTags.vue'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer.vue'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
@@ -585,12 +602,12 @@ export default {
     DpLabel,
     DpLoading,
     DpMultiselect,
+    DpPopover,
     DpTooltip,
     ImageModal,
     RecommendationModal,
     SegmentTags,
     TextContentRenderer,
-    VPopover,
   },
 
   directives: {
@@ -606,6 +623,7 @@ export default {
     return {
       initUnsavedChangesGuard: init,
       cleanupUnsavedChangesGuard: cleanup,
+      resolveCustomFieldLabels,
     }
   },
 
@@ -656,7 +674,6 @@ export default {
       isCollapsed: !(this.segment.relationships?.assignee?.data && this.segment.relationships.assignee.data.id === this.currentUserId),
       isEditing: false,
       isFullscreen: false,
-      isHover: false,
       isSaving: false,
       lockedBeforeSave: false,
       pendingUnlink: null,
@@ -1372,6 +1389,21 @@ export default {
       if (hasPermission('area_admin_boilerplates')) {
         this.$refs.boilerPlateModal.toggleModal()
       }
+    },
+
+    // Loads the popover data before the click, so the open panel does not change its size and jump
+    prefetchCustomFields () {
+      if (!hasPermission('field_segments_custom_fields')) {
+        return
+      }
+
+      const { fetchCustomFields, fetchCustomFieldValues } = useCustomFields()
+
+      // Failed requests are not cached, so the list in the panel requests again and shows the error
+      Promise.all([
+        fetchCustomFields(this.procedureId, { sourceEntity: 'PROCEDURE', targetEntity: 'SEGMENT' }),
+        fetchCustomFieldValues('StatementSegment', this.segment.id),
+      ]).catch(() => {})
     },
 
     restoreInitialCustomFields () {

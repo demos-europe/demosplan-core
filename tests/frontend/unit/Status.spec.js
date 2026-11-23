@@ -27,7 +27,13 @@ describe('Status', () => {
         transDone: 'fragment.voteAdvice.status.done',
       },
       global: {
-        renderStubDefaultSlot: true,
+        mocks: {
+          $store: {
+            getters: {
+              'AssessmentTable/adviceValues': [{ id: 'done', title: 'fragment.vote.done' }],
+            },
+          },
+        },
       },
     })
   })
@@ -47,11 +53,12 @@ describe('Status', () => {
   })
 
   it('should display tooltip when tooltip prop is true', () => {
-    expect(wrapper.find('v-popover-stub').exists()).toBe(true)
+    expect(wrapper.find('[aria-describedby^="tooltip-"]').exists()).toBe(true)
   })
 
-  it('should not display tooltip when tooltip prop is false', async () => {
+  it('should display title instead of tooltip when tooltip prop is false', async () => {
     await wrapper.setProps({ tooltip: false })
-    expect(wrapper.find('v-popover-stub').exists()).toBe(false)
+    expect(wrapper.find('[aria-describedby^="tooltip-"]').exists()).toBe(false)
+    expect(wrapper.find('[title]').exists()).toBe(true)
   })
 })
