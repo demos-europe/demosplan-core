@@ -236,6 +236,7 @@
                   v-if="statementsObject[rowData.relationships?.parentStatement?.data?.id]"
                   :aria-label="`#${rowData.attributes.externId} ${Translator.trans('details.show')}`"
                   :panel-label="`${Translator.trans('segment')} ${rowData.attributes.externId}`"
+                  :top-boundary="getTableHeader"
                   class="-my-[4px] -ml-[10px] text-base!"
                   variant="subtle"
                 >
@@ -1783,6 +1784,12 @@ export default {
         .finally(() => {
           this.customFieldsReady = true
         })
+    },
+
+    // The sticky table header, which the segment popovers must not cover
+    getTableHeader () {
+      // The header row is the sticky element, the thead around it scrolls away
+      return this.$refs.dataTable?.$el?.querySelector('.c-data-table__sticky-header') ?? null
     },
 
     getTagsBySegment (id) {
