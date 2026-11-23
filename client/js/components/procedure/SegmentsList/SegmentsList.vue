@@ -230,8 +230,8 @@
               </span>
             </template>
             <template v-slot:externId="rowData">
-              <!-- Negative margins offset the button paddings, so the id aligns with the column header and the other cells -->
-              <div class="flex items-center whitespace-nowrap">
+              <!-- Negative margins align the id with the column header; the gap keeps the id and unlock buttons from being clicked by mistake -->
+              <div class="flex items-center gap-1 whitespace-nowrap">
                 <dp-popover
                   v-if="statementsObject[rowData.relationships?.parentStatement?.data?.id]"
                   :aria-label="`#${rowData.attributes.externId} ${Translator.trans('details.show')}`"

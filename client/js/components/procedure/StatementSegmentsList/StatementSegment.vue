@@ -15,11 +15,11 @@
     :class="{'segment-list-row--assigned': isAssignedToMe && !isLocked, 'fullscreen': isFullscreen, 'rounded-lg': !isFullscreen}"
   >
     <div class="flex flex-col justify-start basis-1/5 pt-2 pl-2">
-      <!-- Negative margins offset the button paddings, so the id aligns with the segment text and the claim/lock icons below -->
+      <!-- Negative margins align the id with the segment text and the claim/lock icons; no bottom offset, so the buttons are not clicked by mistake -->
       <dp-popover
         :aria-label="`#${segment.attributes.externId} ${Translator.trans('details.show')}`"
         :panel-label="`${Translator.trans('segment')} ${segment.attributes.externId}`"
-        class="-my-[4px] -ml-[6px] self-start whitespace-nowrap text-base!"
+        class="-mt-[4px] -ml-[6px] self-start whitespace-nowrap text-base!"
         variant="subtle"
         @focus="prefetchCustomFields"
         @pointerenter="prefetchCustomFields"
@@ -88,7 +88,7 @@
 
       <div
         v-if="isLocked"
-        class="flex items-center space-x-1 mt-1 mr-2"
+        class="flex items-center space-x-1 mt-1.5 mr-2"
       >
         <dp-button
           v-if="hasPermission('feature_administrate_segment_lock')"
@@ -119,7 +119,7 @@
       </div>
       <dp-claim
         v-else
-        class="ml-[5px] mt-1 self-start"
+        class="ml-[5px] mt-1.5 self-start"
         entity-type="segment"
         :assigned-id="assignee.id || ''"
         :assigned-name="assignee.name || ''"
