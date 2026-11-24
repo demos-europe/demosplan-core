@@ -175,7 +175,7 @@
     "symfony/phpunit-bridge": "7.*.*",
     "symfony/web-profiler-bundle": "6.*.*",
     "timeweb/phpstan-enum": "^4",
-    "vimeo/psalm": "^5",
+    "vimeo/psalm": "^7",
     "weirdan/doctrine-psalm-plugin": "^2",
     "zenstruck/foundry": "^2.9"
   },
