@@ -342,9 +342,12 @@ export default {
         }
 
         if (addonRequests.length > 0) {
-          Promise.all(addonRequests).then(() => {
-            this.submitConfigForm(formElement)
-          })
+          Promise.all(addonRequests)
+            .then(() => {
+              this.submitConfigForm(formElement)
+            })
+            // The form is not submitted when an addon request fails
+            .catch(error => console.error('Saving the addon fields failed', error))
         } else {
           this.submitConfigForm(formElement)
         }
