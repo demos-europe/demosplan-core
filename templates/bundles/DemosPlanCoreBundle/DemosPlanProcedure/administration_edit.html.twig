@@ -134,7 +134,8 @@
             submit,
             submitWithoutInterfaceActivation,
             unselectAllAuthUsers,
-            updateAddonPayload
+            updateAddonPayload,
+            updateExtraFieldsPayload
           }">
 
         <form
@@ -263,7 +264,8 @@
                                 {% set addonProps = { 'procedureId': templateVars.proceduresettings.id } %}
                                 <addon-wrapper
                                     hook-name="administration.edit.extra.fields"
-                                    :addon-props="JSON.parse('{{ addonProps|json_encode|e('js', 'utf-8') }}')">
+                                    :addon-props="JSON.parse('{{ addonProps|json_encode|e('js', 'utf-8') }}')"
+                                    @change="updateExtraFieldsPayload">
                                 </addon-wrapper>
                             </div>
 

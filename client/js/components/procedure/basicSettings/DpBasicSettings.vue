@@ -25,6 +25,7 @@
       :submit-without-interface-activation="submitWithoutInterfaceActivation"
       :unselect-all-auth-users="unselectAllAuthUsers"
       :update-addon-payload="updateAddonPayload"
+      :update-extra-fields-payload="updateExtraFieldsPayload"
     />
   </div>
 </template>
@@ -221,6 +222,7 @@ export default {
         value: '',
       },
       bypassAddonWarningModal: false,
+      extraFieldsPayload: null, // Payload emitted by addons hooked into `administration.edit.extra.fields`
       isInterfaceAddonLoaded: false,
       isLoadingPlisData: false,
     }
@@ -267,13 +269,14 @@ export default {
   },
 
   methods: {
-    createAddonPayload () {
-      const { attributes, id, resourceType, url } = this.addonPayload
+    createAddonPayload (addonPayload = this.addonPayload) {
+      const { attributes, id, method, resourceType, url } = addonPayload
+      const isUpdate = url === 'api_resource_update' || method === 'PATCH'
 
       return {
         type: resourceType,
         attributes,
-        relationships: url === 'api_resource_update' ?
+        relationships: isUpdate ?
           undefined :
           {
             procedure: {
@@ -283,19 +286,29 @@ export default {
               },
             },
           },
-        ...(url === 'api_resource_update' ? { id } : {}),
+        ...(isUpdate ? { id } : {}),
       }
     },
 
-    handleAddonRequest () {
-      const payload = this.createAddonPayload()
+    handleAddonRequest (addonPayload = this.addonPayload) {
+      const payload = this.createAddonPayload(addonPayload)
+
+      /*
+       * An addon can either name a route (`api_resource_create`, `api_resource_update`) or hand over the full path
+       * of its own endpoint, e.g. an API Platform resource, together with the method to use.
+       */
+      const isPath = addonPayload.url.startsWith('/')
+      const method = addonPayload.method ?? (addonPayload.url === 'api_resource_update' ? 'PATCH' : 'POST')
+      const url = isPath ?
+        addonPayload.url :
+        Routing.generate(addonPayload.url, {
+          resourceType: addonPayload.resourceType,
+          ...(addonPayload.url === 'api_resource_update' && { resourceId: addonPayload.id }),
+        })
 
       const addonRequest = dpApi({
-        method: this.addonPayload.url === 'api_resource_update' ? 'PATCH' : 'POST',
-        url: Routing.generate(this.addonPayload.url, {
-          resourceType: this.addonPayload.resourceType,
-          ...(this.addonPayload.url === 'api_resource_update' && { resourceId: this.addonPayload.id }),
-        }),
+        method,
+        url,
         data: {
           data: payload,
         },
@@ -318,8 +331,18 @@ export default {
       const addonHasValue = !!this.addonPayload.value || !!this.addonPayload.initValue
 
       this.dpValidateAction('configForm', () => {
+        const addonRequests = []
+
         if (addonExists && addonHasValue) {
-          this.handleAddonRequest().then(() => {
+          addonRequests.push(this.handleAddonRequest())
+        }
+
+        if (this.extraFieldsPayload) {
+          addonRequests.push(this.handleAddonRequest(this.extraFieldsPayload))
+        }
+
+        if (addonRequests.length > 0) {
+          Promise.all(addonRequests).then(() => {
             this.submitConfigForm(formElement)
           })
         } else {
@@ -334,6 +357,10 @@ export default {
 
     updateAddonPayload (payload) {
       this.addonPayload = payload
+    },
+
+    updateExtraFieldsPayload (payload) {
+      this.extraFieldsPayload = payload
     },
 
     // Needed for the addon-modal on submit
