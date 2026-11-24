@@ -13,7 +13,7 @@
 
 import { initialize } from '@DpJs/InitVue'
 import SplitStatementStore from '@DpJs/store/statement/SplitStatementStore'
-import SplitStatementView from '@DpJs/components/statement/splitStatement/SplitStatementView'
+import SplitStatementView from '@DpJs/components/statement/splitStatement/SplitStatementView.vue'
 
 const components = {
   SplitStatementView,

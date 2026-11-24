@@ -221,6 +221,7 @@
               v-model="customField.selected"
               class="w-12"
               :disabled="!hasSegments"
+              :multiple="customField.isMultiple"
               :options="customField.optionLabels"
             />
           </action-stepper-action>
@@ -302,7 +303,7 @@
           class="py-4"
         >
           <p v-cleanhtml="Translator.trans('segments.bulk.edit.customFields.description', { label: customField.label })" />
-          <selected-tags-list :selected-tags="[{ title: customField.selected, id: customField.id }]" />
+          <selected-tags-list :selected-tags="selectedTags(customField)" />
         </div>
       </div>
     </template>
@@ -377,7 +378,7 @@
         :description-error="Translator.trans('segments.bulk.edit.generic.error', { count: segments.length, label: customField.label })"
         :description-success="Translator.trans('segments.bulk.edit.generic.success', { count: segments.length, label: customField.label })"
       >
-        <selected-tags-list :selected-tags="[{ title: customField.selected, id: customField.id }]" />
+        <selected-tags-list :selected-tags="selectedTags(customField)" />
       </action-stepper-response>
     </template>
   </action-stepper>
@@ -397,15 +398,15 @@ import {
   reformatDateString,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper'
-import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction'
-import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse'
+import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper.vue'
+import ActionStepperAction from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperAction.vue'
+import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepperResponse.vue'
 import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 import { defineAsyncComponent } from 'vue'
-import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal.vue'
 import lscache from 'lscache'
-import RecommendationModal from '../Shared/RecommendationModal'
-import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList'
+import RecommendationModal from '../Shared/RecommendationModal.vue'
+import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList.vue'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 export default {
@@ -562,7 +563,7 @@ export default {
     customFieldsCheckedAndSelected () {
       return hasPermission('field_segments_custom_fields') ?
         this.actions.customFields.filter(customField => {
-          return customField.checked && customField.selected
+          return customField.checked && customField.selected?.length > 0
         }) :
         []
     },
@@ -655,13 +656,16 @@ export default {
 
     addCustomFieldsToActions () {
       this.customFieldDefinitions.forEach(customField => {
+        const isMultiple = customField.attributes.fieldType === 'multiSelect'
+
         this.actions.customFields.push({
           checked: false,
           id: customField.id,
+          isMultiple,
           label: customField.attributes.name,
           optionLabels: customField.attributes.options.map((option) => option.label),
           options: customField.attributes.options,
-          selected: null,
+          selected: isMultiple ? [] : null,
           success: false,
         })
       })
@@ -685,12 +689,13 @@ export default {
       }
 
       if (this.customFieldsCheckedAndSelected.length > 0) {
-        params.customFields = this.customFieldsCheckedAndSelected.map(({ id, selected, options }) => {
-          const selectedOption = options.find(option => option.label === selected)
+        params.customFields = this.customFieldsCheckedAndSelected.map(({ id, isMultiple, selected, options }) => {
+          // The labels of a field are unique, so a label identifies its option
+          const optionIdOf = (label) => options.find(option => option.label === label)?.id
 
           return {
             id,
-            value: selectedOption?.id,
+            value: isMultiple ? selected.map(optionIdOf) : optionIdOf(selected),
           }
         })
       }
@@ -822,6 +827,11 @@ export default {
 
     toggleRecommendationModal () {
       this.$refs.recommendationModal.toggle()
+    },
+
+    selectedTags (customField) {
+      // A singleSelect holds one label, a multiSelect a list of labels
+      return [customField.selected].flat().map(label => ({ id: `${customField.id}:${label}`, title: label }))
     },
 
     /**

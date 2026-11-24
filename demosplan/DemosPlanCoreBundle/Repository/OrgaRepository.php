@@ -429,6 +429,10 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
             $entity->setShowname(true);
         }
 
+        if (array_key_exists(Orga::TWO_FACTOR_REQUIRED, $data)) {
+            $entity->setTwoFactorRequired((bool) $data[Orga::TWO_FACTOR_REQUIRED]);
+        }
+
         if (array_key_exists('copy', $data)) {
             $entity->setPaperCopy((int) $data['copy']);
         }
@@ -646,6 +650,7 @@ class OrgaRepository extends SluggedRepository implements ArrayInterface
             $organisation = $this->find($organisationId);
 
             $organisation->setName(null);
+            $organisation->setTechnicalName(null);
             $organisation->setGatewayName(null);
             $organisation->setCode(null);
             $organisation->setEmail2(null);

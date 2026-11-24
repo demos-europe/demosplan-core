@@ -1,5 +1,5 @@
 import { enableAutoUnmount } from '@vue/test-utils'
-import ServerBanner from '@DpJs/components/shared/ServerBanner'
+import ServerBanner from '@DpJs/components/shared/ServerBanner.vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('ServerBanner', () => {

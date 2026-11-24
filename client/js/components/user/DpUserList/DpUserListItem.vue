@@ -148,8 +148,8 @@
 <script>
 import { dpApi, DpButton, DpButtonRow, DpIcon, dpValidateMixin } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
-import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
-import DpUserFormFields from './DpUserFormFields'
+import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard.vue'
+import DpUserFormFields from './DpUserFormFields.vue'
 
 export default {
   name: 'DpUserListItem',

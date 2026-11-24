@@ -29,5 +29,8 @@
     "dist",
     "client/js/legacy",
     "client/js/generated"
-  ]
+  ],
+  "vueCompilerOptions": {
+    "htmlAttributes": []
+  }
 }

@@ -82,7 +82,7 @@ All rights reserved
 
 <script>
 import { dpApi, DpBulkEditHeader, DpDataTable, makeFormPost } from '@demos-europe/demosplan-ui'
-import DpNewsItemStatus from './DpNewsItemStatus'
+import DpNewsItemStatus from './DpNewsItemStatus.vue'
 
 export default {
   name: 'DpNewsAdminList',

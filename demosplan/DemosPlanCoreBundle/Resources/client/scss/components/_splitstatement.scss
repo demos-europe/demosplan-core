@@ -95,7 +95,7 @@
             transition: all .3s cubic-bezier(1, .5, .8, 1);
         }
 
-        &-enter,
+        &-enter-from,
         &-leave-to {
             opacity: 0;
         }

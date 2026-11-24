@@ -84,6 +84,7 @@ All rights reserved
     <component
       :is="getComponentForType(resolvedDefinition.attributes.fieldType)"
       v-else-if="mergedField"
+      :disabled="disabled"
       :field="mergedField"
       :mode="mode"
       :show-label="showLabel"
@@ -130,6 +131,12 @@ export default {
       type: [String, null],
       required: false,
       default: null,
+    },
+
+    disabled: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
 
     enableToggle: {

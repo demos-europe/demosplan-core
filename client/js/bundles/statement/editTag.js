@@ -12,7 +12,7 @@
  */
 
 import { DpEditor, DpMultiselect, DpRadio, dpValidate } from '@demos-europe/demosplan-ui'
-import EditTag from '@DpJs/components/tags/EditTag'
+import EditTag from '@DpJs/components/tags/EditTag.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = { DpEditor, DpMultiselect, DpRadio, EditTag }

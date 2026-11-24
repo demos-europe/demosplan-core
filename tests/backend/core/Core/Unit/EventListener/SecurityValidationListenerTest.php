@@ -16,17 +16,14 @@ use demosplan\DemosPlanCoreBundle\EventListener\SecurityValidationListener;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
-use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class SecurityValidationListenerTest extends TestCase
 {
     private const TEST_PATH = '/test';
     private const NULL_BYTE_VALUE = "value\0injection";
-    private const NULL_BYTE_MESSAGE = 'Invalid input detected: null byte';
-    private const LIMITS_MESSAGE = 'Request exceeds allowed limits';
-    private const MALICIOUS_PATTERN_MESSAGE = 'Malicious pattern detected';
 
     private SecurityValidationListener $sut;
     private LoggerInterface $logger;
@@ -47,6 +44,14 @@ class SecurityValidationListenerTest extends TestCase
         return new RequestEvent($kernel, $request, $requestType);
     }
 
+    private function assertRejected(RequestEvent $event): void
+    {
+        $response = $event->getResponse();
+
+        self::assertInstanceOf(Response::class, $response);
+        self::assertSame(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+    }
+
     // ========== Null Byte Detection Tests ==========
 
     public function testNullByteInQueryParamIsRejected(): void
@@ -54,10 +59,9 @@ class SecurityValidationListenerTest extends TestCase
         $request = Request::create(self::TEST_PATH, 'GET', ['param' => self::NULL_BYTE_VALUE]);
         $event = $this->createRequestEvent($request);
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage(self::NULL_BYTE_MESSAGE);
-
         $this->sut->onKernelRequest($event);
+
+        $this->assertRejected($event);
     }
 
     public function testNullByteInPostDataIsRejected(): void
@@ -66,10 +70,9 @@ class SecurityValidationListenerTest extends TestCase
         $request->request->set('field', self::NULL_BYTE_VALUE);
         $event = $this->createRequestEvent($request);
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage(self::NULL_BYTE_MESSAGE);
-
         $this->sut->onKernelRequest($event);
+
+        $this->assertRejected($event);
     }
 
     public function testNullByteInHeaderIsRejected(): void
@@ -78,10 +81,9 @@ class SecurityValidationListenerTest extends TestCase
         $request->headers->set('X-Custom', self::NULL_BYTE_VALUE);
         $event = $this->createRequestEvent($request);
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage(self::NULL_BYTE_MESSAGE);
-
         $this->sut->onKernelRequest($event);
+
+        $this->assertRejected($event);
     }
 
     public function testNullByteInCookieIsRejected(): void
@@ -90,10 +92,9 @@ class SecurityValidationListenerTest extends TestCase
         $request->cookies->set('session', self::NULL_BYTE_VALUE);
         $event = $this->createRequestEvent($request);
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage(self::NULL_BYTE_MESSAGE);
-
         $this->sut->onKernelRequest($event);
+
+        $this->assertRejected($event);
     }
 
     public function testNullByteInRawBodyIsRejected(): void
@@ -101,10 +102,9 @@ class SecurityValidationListenerTest extends TestCase
         $request = Request::create(self::TEST_PATH, 'POST', [], [], [], [], "raw body with \0 null byte");
         $event = $this->createRequestEvent($request);
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage(self::NULL_BYTE_MESSAGE);
-
         $this->sut->onKernelRequest($event);
+
+        $this->assertRejected($event);
     }
 
     public function testNullByteInArrayKeyIsRejected(): void
@@ -112,10 +112,9 @@ class SecurityValidationListenerTest extends TestCase
         $request = Request::create(self::TEST_PATH, 'GET', ["key\0injection" => 'value']);
         $event = $this->createRequestEvent($request);
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage(self::NULL_BYTE_MESSAGE);
-
         $this->sut->onKernelRequest($event);
+
+        $this->assertRejected($event);
     }
 
     public function testNullByteInNestedArrayIsRejected(): void
@@ -129,10 +128,9 @@ class SecurityValidationListenerTest extends TestCase
         ]);
         $event = $this->createRequestEvent($request);
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage(self::NULL_BYTE_MESSAGE);
-
         $this->sut->onKernelRequest($event);
+
+        $this->assertRejected($event);
     }
 
     // ========== DoS Protection Tests ==========
@@ -143,10 +141,9 @@ class SecurityValidationListenerTest extends TestCase
         $request = Request::create(self::TEST_PATH, 'GET', [$longKey => 'value']);
         $event = $this->createRequestEvent($request);
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage(self::LIMITS_MESSAGE);
-
         $this->sut->onKernelRequest($event);
+
+        $this->assertRejected($event);
     }
 
     public function testExcessivelyLongParameterValueIsRejected(): void
@@ -155,10 +152,9 @@ class SecurityValidationListenerTest extends TestCase
         $request = Request::create(self::TEST_PATH, 'GET', ['param' => $longValue]);
         $event = $this->createRequestEvent($request);
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage(self::LIMITS_MESSAGE);
-
         $this->sut->onKernelRequest($event);
+
+        $this->assertRejected($event);
     }
 
     public function testDeeplyNestedArrayIsRejected(): void
@@ -172,10 +168,9 @@ class SecurityValidationListenerTest extends TestCase
         $request = Request::create(self::TEST_PATH, 'GET', ['data' => $deepArray]);
         $event = $this->createRequestEvent($request);
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage(self::LIMITS_MESSAGE);
-
         $this->sut->onKernelRequest($event);
+
+        $this->assertRejected($event);
     }
 
     public function testArrayWithTooManyElementsIsRejected(): void
@@ -189,10 +184,9 @@ class SecurityValidationListenerTest extends TestCase
         $request = Request::create(self::TEST_PATH, 'GET', ['data' => $largeArray]);
         $event = $this->createRequestEvent($request);
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage(self::LIMITS_MESSAGE);
-
         $this->sut->onKernelRequest($event);
+
+        $this->assertRejected($event);
     }
 
     // ========== Attack Pattern Tests ==========
@@ -202,10 +196,9 @@ class SecurityValidationListenerTest extends TestCase
         $request = Request::create(self::TEST_PATH, 'GET', ['__proto__' => 'malicious']);
         $event = $this->createRequestEvent($request);
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage(self::MALICIOUS_PATTERN_MESSAGE);
-
         $this->sut->onKernelRequest($event);
+
+        $this->assertRejected($event);
     }
 
     public function testConstructorPollutionIsRejected(): void
@@ -213,10 +206,9 @@ class SecurityValidationListenerTest extends TestCase
         $request = Request::create(self::TEST_PATH, 'GET', ['constructor' => 'malicious']);
         $event = $this->createRequestEvent($request);
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage(self::MALICIOUS_PATTERN_MESSAGE);
-
         $this->sut->onKernelRequest($event);
+
+        $this->assertRejected($event);
     }
 
     public function testPrototypePollutionIsRejected2(): void
@@ -224,10 +216,9 @@ class SecurityValidationListenerTest extends TestCase
         $request = Request::create(self::TEST_PATH, 'GET', ['prototype' => 'malicious']);
         $event = $this->createRequestEvent($request);
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage(self::MALICIOUS_PATTERN_MESSAGE);
-
         $this->sut->onKernelRequest($event);
+
+        $this->assertRejected($event);
     }
 
     public function testDirectoryTraversalUnixIsRejected(): void
@@ -235,10 +226,9 @@ class SecurityValidationListenerTest extends TestCase
         $request = Request::create(self::TEST_PATH, 'GET', ['file' => '../../../etc/passwd']);
         $event = $this->createRequestEvent($request);
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage(self::MALICIOUS_PATTERN_MESSAGE);
-
         $this->sut->onKernelRequest($event);
+
+        $this->assertRejected($event);
     }
 
     public function testDirectoryTraversalWindowsIsRejected(): void
@@ -246,10 +236,20 @@ class SecurityValidationListenerTest extends TestCase
         $request = Request::create(self::TEST_PATH, 'GET', ['file' => '..\\..\\..\\windows\\system32']);
         $event = $this->createRequestEvent($request);
 
-        $this->expectException(BadRequestHttpException::class);
-        $this->expectExceptionMessage(self::MALICIOUS_PATTERN_MESSAGE);
+        $this->sut->onKernelRequest($event);
+
+        $this->assertRejected($event);
+    }
+
+    public function testScannerProbeRedirectedTo404PageIsRejectedWithBadRequest(): void
+    {
+        // A bot probe for "/public../.env" is redirected to /notfound with the raw path as currentPage
+        $request = Request::create('/notfound', 'GET', ['currentPage' => '/public../.env']);
+        $event = $this->createRequestEvent($request);
 
         $this->sut->onKernelRequest($event);
+
+        $this->assertRejected($event);
     }
 
     // ========== Valid Request Tests ==========
@@ -259,10 +259,10 @@ class SecurityValidationListenerTest extends TestCase
         $request = Request::create(self::TEST_PATH, 'GET', ['param' => 'clean value']);
         $event = $this->createRequestEvent($request);
 
-        // Should not throw
+        // Should not be rejected
         $this->sut->onKernelRequest($event);
 
-        $this->addToAssertionCount(1);
+        self::assertNull($event->getResponse());
     }
 
     public function testLegitimateArrayRequestIsAllowed(): void
@@ -274,10 +274,10 @@ class SecurityValidationListenerTest extends TestCase
         ]);
         $event = $this->createRequestEvent($request);
 
-        // Should not throw
+        // Should not be rejected
         $this->sut->onKernelRequest($event);
 
-        $this->addToAssertionCount(1);
+        self::assertNull($event->getResponse());
     }
 
     public function testSpecialCharactersAreAllowed(): void
@@ -289,14 +289,14 @@ class SecurityValidationListenerTest extends TestCase
         ]);
         $event = $this->createRequestEvent($request);
 
-        // Should not throw - no modification, just detection
+        // Should not be rejected - no modification, just detection
         // XSS prevention is handled at view layer (Twig auto-escaping)
         $this->sut->onKernelRequest($event);
 
         // Verify original data is preserved (no escaping)
         $this->assertEquals('AT&T', $request->query->get('company'));
         $this->assertEquals('<script>alert(1)</script>', $request->query->get('query'));
-        $this->addToAssertionCount(1);
+        self::assertNull($event->getResponse());
     }
 
     public function testStaticAssetRequestsAreSkipped(): void
@@ -305,10 +305,10 @@ class SecurityValidationListenerTest extends TestCase
         $request = Request::create('/css/style.css', 'GET', ['param' => "malicious\0"]);
         $event = $this->createRequestEvent($request);
 
-        // Should not throw because static assets are skipped
+        // Should not be rejected because static assets are skipped
         $this->sut->onKernelRequest($event);
 
-        $this->addToAssertionCount(1);
+        self::assertNull($event->getResponse());
     }
 
     public function testTusUploadWithBinaryDataIsAllowed(): void
@@ -318,10 +318,10 @@ class SecurityValidationListenerTest extends TestCase
         $request = Request::create('/_tus/upload/54f3f6b6-e74a-443c-8fa9-3ad92ab3a5b3', 'PATCH', [], [], [], [], $binaryData);
         $event = $this->createRequestEvent($request);
 
-        // Should not throw because TUS endpoints are skipped
+        // Should not be rejected because TUS endpoints are skipped
         $this->sut->onKernelRequest($event);
 
-        $this->addToAssertionCount(1);
+        self::assertNull($event->getResponse());
     }
 
     public function testSubRequestsAreSkipped(): void
@@ -330,10 +330,10 @@ class SecurityValidationListenerTest extends TestCase
         $request = Request::create(self::TEST_PATH, 'GET', ['param' => "malicious\0"]);
         $event = $this->createRequestEvent($request, false); // false = sub-request
 
-        // Should not throw because sub-requests are skipped
+        // Should not be rejected because sub-requests are skipped
         $this->sut->onKernelRequest($event);
 
-        $this->addToAssertionCount(1);
+        self::assertNull($event->getResponse());
     }
 
     public function testEdgeCaseAcceptableLimits(): void
@@ -344,10 +344,10 @@ class SecurityValidationListenerTest extends TestCase
         ]);
         $event = $this->createRequestEvent($request);
 
-        // Should not throw - exactly at limit is OK
+        // Should not be rejected - exactly at limit is OK
         $this->sut->onKernelRequest($event);
 
-        $this->addToAssertionCount(1);
+        self::assertNull($event->getResponse());
     }
 
     // ========== Logging Tests ==========
@@ -372,10 +372,6 @@ class SecurityValidationListenerTest extends TestCase
                 })
             );
 
-        try {
-            $this->sut->onKernelRequest($event);
-        } catch (BadRequestHttpException $e) {
-            // Expected exception
-        }
+        $this->sut->onKernelRequest($event);
     }
 }

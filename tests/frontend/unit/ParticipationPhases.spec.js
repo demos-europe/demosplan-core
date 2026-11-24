@@ -1,4 +1,4 @@
-import ParticipationPhases from '@DpJs/components/procedure/basicSettings/ParticipationPhases'
+import ParticipationPhases from '@DpJs/components/procedure/basicSettings/ParticipationPhases.vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('ParticipationPhases', () => {

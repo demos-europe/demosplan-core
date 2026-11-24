@@ -59,6 +59,7 @@ use function strlen;
 class RemoveUserDataCommand extends CoreCommand
 {
     /** @var UserService */
+    /** @var UserService */
     protected $userService;
 
     /** @var StatementService */
@@ -259,6 +260,7 @@ class RemoveUserDataCommand extends CoreCommand
         foreach ($allOrganisations as $organisation) {
             if (User::ANONYMOUS_USER_ORGA_ID != $organisation->getId()) {
                 $organisation->setName($this->map($organisation->getName(), $this->faker->company));
+                $organisation->setTechnicalName($this->map($organisation->getTechnicalName(), $this->faker->company));
                 $organisation->setGatewayName($this->map($organisation->getGatewayName(), $organisation->getName()));
                 $organisation->setCode($this->map($organisation->getCode(), $organisation->getName()));
                 $organisation->setEmail2($this->map($organisation->getEmail2(), $this->faker->companyEmail));

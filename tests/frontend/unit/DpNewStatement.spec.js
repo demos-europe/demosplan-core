@@ -1,4 +1,4 @@
-import DpNewStatement from '../../../client/js/components/assessmenttable/DpNewStatement'
+import DpNewStatement from '../../../client/js/components/assessmenttable/DpNewStatement.vue'
 import { shallowMount } from '@vue/test-utils'
 import { vi } from 'vitest'
 import Vuex from 'vuex'

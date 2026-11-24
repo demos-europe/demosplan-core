@@ -1,0 +1,20 @@
+{% extends '@DemosPlanCore/DemosPlanCore/email.html.twig' %}
+{% block body_plain %}
+
+Guten Tag,
+
+Ihr geplanter Excel-Export wurde erfolgreich erstellt und steht zum Download bereit.
+
+Bitte melden Sie sich zunächst mit Ihrem Konto an, um den Download zu starten:
+
+{{ templateVars.downloadUrl }}
+
+Viele Grüße
+
+Ihr Team von {{ projectName }}
+
+-------------------------------------------------------------------
+
+Diese Nachricht wurde automatisch erstellt. Bitte antworten Sie nicht auf diese E-Mail.
+
+{% endblock body_plain %}

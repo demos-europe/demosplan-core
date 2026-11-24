@@ -51,7 +51,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import DpAssessmentTableCard from '../DpAssessmentTableCard'
+import DpAssessmentTableCard from '../DpAssessmentTableCard.vue'
 import tocViewGroupMixin from './mixins/tocViewGroupMixin'
 
 export default {

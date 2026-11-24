@@ -65,7 +65,7 @@ All rights reserved
 import { computed, onMounted, ref } from 'vue'
 import { DpAccordion, dpApi, DpButtonRow, DpInput, DpSlidingPagination } from '@demos-europe/demosplan-ui'
 import { redirectToStatementListWithGroupResolvedToast } from '../../Shared/utils/redirectToStatementListWithGroupResolvedToast'
-import SelectedStatementsList from '@DpJs/components/statement/SelectedStatementsList'
+import SelectedStatementsList from '@DpJs/components/statement/SelectedStatementsList.vue'
 
 const props = defineProps({
   editable: {

@@ -19,7 +19,8 @@ use demosplan\DemosPlanCoreBundle\CustomField\TextField;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\StatementFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\CustomerFactory;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
+use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Creation\CustomFieldCreator;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Base\UnitTestCase;
@@ -99,6 +100,24 @@ class CustomFieldCreatorTest extends UnitTestCase
             static::assertNotEmpty($option->getId());
             static::assertMatchesRegularExpression('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $option->getId());
         }
+    }
+
+    /**
+     * The segment form does not send isRequired, so it must default to false.
+     */
+    public function testCreateMultiSelectFieldForSegmentWithoutIsRequired(): void
+    {
+        // Arrange
+        $this->attributes['fieldType'] = 'multiSelect';
+        $this->attributes['targetEntity'] = 'SEGMENT';
+        unset($this->attributes['isRequired']);
+
+        // Act
+        $result = $this->sut->createCustomField($this->attributes);
+
+        // Assert
+        static::assertInstanceOf(MultiSelectField::class, $result);
+        static::assertFalse($result->getRequired());
     }
 
     /**
@@ -280,6 +299,168 @@ class CustomFieldCreatorTest extends UnitTestCase
 
         // Act
         $this->sut->createCustomField($this->attributes);
+    }
+
+    public function testCreateSingleSelectFieldForStatementWithoutIsRequired(): void
+    {
+        // Arrange
+        $this->attributes['fieldType'] = 'singleSelect';
+        $this->attributes['targetEntity'] = 'STATEMENT';
+        unset($this->attributes['isRequired']);
+
+        // Act
+        $result = $this->sut->createCustomField($this->attributes);
+
+        // Assert
+        static::assertInstanceOf(RadioButtonField::class, $result);
+        static::assertFalse($result->getRequired());
+    }
+
+    public function testCreateRequiredSingleSelectFieldForStatement(): void
+    {
+        // Arrange
+        $this->attributes['fieldType'] = 'singleSelect';
+        $this->attributes['targetEntity'] = 'STATEMENT';
+        $this->attributes['isRequired'] = true;
+
+        // Act
+        $result = $this->sut->createCustomField($this->attributes);
+
+        // Assert
+        static::assertInstanceOf(RadioButtonField::class, $result);
+        static::assertTrue($result->getRequired());
+    }
+
+    public function testIsRequiredOfSingleSelectFieldIsPersisted(): void
+    {
+        // Arrange
+        $this->attributes['fieldType'] = 'singleSelect';
+        $this->attributes['targetEntity'] = 'STATEMENT';
+        $this->attributes['isRequired'] = true;
+
+        // Act
+        $created = $this->sut->createCustomField($this->attributes);
+
+        // Assert
+        $configuration = $this->getContainer()
+            ->get(CustomFieldConfigurationRepository::class)
+            ->find($created->getId());
+        static::assertTrue($configuration->getConfiguration()->getRequired());
+    }
+
+    public function testFromJsonWithoutIsRequiredDefaultsToFalseForSingleSelect(): void
+    {
+        // Arrange: a single select stored before the field supported isRequired
+        $field = new RadioButtonField();
+
+        // Act
+        $field->fromJson(['fieldType' => 'singleSelect', 'name' => 'Status', 'description' => 'Pick status', 'options' => []]);
+
+        // Assert
+        static::assertFalse($field->getRequired());
+    }
+
+    public function testIsRequiredSurvivesJsonRoundTripForSingleSelect(): void
+    {
+        // Arrange
+        $field = new RadioButtonField();
+        $field->fromJson(['fieldType' => 'singleSelect', 'name' => 'Status', 'description' => 'Pick status', 'isRequired' => true, 'options' => []]);
+
+        // Act
+        $restored = new RadioButtonField();
+        $restored->fromJson($field->toJson());
+
+        // Assert
+        static::assertTrue($restored->getRequired());
+    }
+
+    public function testCreateStatementFieldAsCollectionColumn(): void
+    {
+        // Arrange
+        $this->attributes['fieldType'] = 'singleSelect';
+        $this->attributes['targetEntity'] = 'STATEMENT';
+        $this->attributes['isSeparateColumn'] = false;
+
+        // Act
+        $result = $this->sut->createCustomField($this->attributes);
+
+        // Assert
+        static::assertFalse($result->isSeparateColumn());
+    }
+
+    public function testCreateStatementFieldDefaultsToSeparateColumn(): void
+    {
+        // Arrange
+        $this->attributes['fieldType'] = 'multiSelect';
+        $this->attributes['targetEntity'] = 'STATEMENT';
+        unset($this->attributes['isSeparateColumn']);
+
+        // Act
+        $result = $this->sut->createCustomField($this->attributes);
+
+        // Assert
+        static::assertTrue($result->isSeparateColumn());
+    }
+
+    public function testCreateSegmentFieldIgnoresIsSeparateColumn(): void
+    {
+        // Arrange
+        $this->attributes['fieldType'] = 'singleSelect';
+        $this->attributes['targetEntity'] = 'SEGMENT';
+        $this->attributes['isSeparateColumn'] = false;
+
+        // Act
+        $result = $this->sut->createCustomField($this->attributes);
+
+        // Assert
+        static::assertTrue($result->isSeparateColumn());
+    }
+
+    public function testIsSeparateColumnIsPersisted(): void
+    {
+        // Arrange
+        $this->attributes['fieldType'] = 'multiSelect';
+        $this->attributes['targetEntity'] = 'STATEMENT';
+        $this->attributes['isSeparateColumn'] = false;
+        $created = $this->sut->createCustomField($this->attributes);
+
+        // Act
+        $configuration = $this->getContainer()
+            ->get(CustomFieldConfigurationRepository::class)
+            ->find($created->getId());
+
+        // Assert
+        static::assertFalse($configuration->getConfiguration()->isSeparateColumn());
+    }
+
+    #[DataProvider('fromJsonProvider')]
+    public function testFromJsonWithoutIsSeparateColumnDefaultsToTrue(string $fieldClass, array $json): void
+    {
+        // Arrange
+        unset($json['isSeparateColumn']);
+        $field = new $fieldClass();
+
+        // Act
+        $field->fromJson($json);
+
+        // Assert
+        static::assertTrue($field->isSeparateColumn());
+    }
+
+    #[DataProvider('fromJsonProvider')]
+    public function testIsSeparateColumnSurvivesJsonRoundTrip(string $fieldClass, array $json): void
+    {
+        // Arrange
+        $json['isSeparateColumn'] = false;
+        $field = new $fieldClass();
+        $field->fromJson($json);
+
+        // Act
+        $restored = new $fieldClass();
+        $restored->fromJson($field->toJson());
+
+        // Assert
+        static::assertFalse($restored->isSeparateColumn());
     }
 
     public static function fromJsonProvider(): array

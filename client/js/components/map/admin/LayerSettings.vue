@@ -188,7 +188,7 @@ export default {
   name: 'LayerSettings',
 
   components: {
-    DpOlMap: defineAsyncComponent(() => import('../map/DpOlMap')),
+    DpOlMap: defineAsyncComponent(() => import('../map/DpOlMap.vue')),
     DpCheckbox,
     DpContextualHelp,
     DpInput,

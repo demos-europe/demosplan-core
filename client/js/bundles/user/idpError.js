@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import DpSupportCard from '@DpJs/components/support/DpSupportCard'
+import DpSupportCard from '@DpJs/components/support/DpSupportCard.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

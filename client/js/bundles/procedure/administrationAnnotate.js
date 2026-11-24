@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_annotate.html.twig
  */
 
-import DpImageAnnotator from '@DpJs/components/procedure/imageAnnotator/DpImageAnnotator'
+import DpImageAnnotator from '@DpJs/components/procedure/imageAnnotator/DpImageAnnotator.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = { DpImageAnnotator }

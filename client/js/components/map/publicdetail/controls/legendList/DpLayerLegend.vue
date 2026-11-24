@@ -71,7 +71,7 @@
   </div>
 </template>
 <script>
-import DpLayerLegendItem from './DpLayerLegendItem'
+import DpLayerLegendItem from './DpLayerLegendItem.vue'
 import { mapGetters } from 'vuex'
 import { prefixClassMixin } from '@demos-europe/demosplan-ui'
 

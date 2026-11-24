@@ -12,7 +12,7 @@
  */
 
 import { initialize } from '@DpJs/InitVue'
-import StatementGroupForm from '@DpJs/components/statement/StatementGroupForm'
+import StatementGroupForm from '@DpJs/components/statement/StatementGroupForm.vue'
 
 const components = { StatementGroupForm }
 

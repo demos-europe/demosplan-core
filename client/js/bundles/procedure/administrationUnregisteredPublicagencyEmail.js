@@ -12,7 +12,7 @@
  */
 import { DpAccordion, DpEditor, DpLabel, dpValidate, hasPermission } from '@demos-europe/demosplan-ui'
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
-import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

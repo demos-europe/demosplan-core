@@ -24,8 +24,8 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldJsonRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\AllAttributesTransformer;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\Creation\CustomFieldCreator;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldConfigBuilder;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldCreator;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldDeleter;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\CustomFieldUpdater;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Enum\CustomFieldSupportedEntity;
@@ -149,6 +149,11 @@ final class CustomFieldResourceType extends AbstractResourceType implements Json
             )
             ->addPathCreationBehavior(OptionalField::YES)
             ->addPathUpdateBehavior();
+        $configBuilder->isSeparateColumn
+            ->setReadableByCallable(
+                static fn (CustomFieldInterface $customField): bool => $customField->isSeparateColumn()
+            )
+            ->addPathCreationBehavior(OptionalField::YES);
         $configBuilder->fieldType->setReadableByPath()->addPathCreationBehavior();
         $configBuilder->options
             ->setReadableByCallable(

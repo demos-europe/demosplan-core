@@ -205,6 +205,10 @@
               </span>
             </template>
 
+            <template v-slot:isSeparateColumn="rowData">
+              {{ rowData.isSeparateColumn ? Translator.trans('custom.fields.display.separate') : Translator.trans('custom.fields.display.collection') }}
+            </template>
+
             <template v-slot:flyout="rowData">
               <div class="flex float-right">
                 <button
@@ -329,7 +333,7 @@ import {
   DpTabs,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
-import CreateCustomFieldForm from '@DpJs/components/procedure/admin/CreateCustomFieldForm'
+import CreateCustomFieldForm from '@DpJs/components/procedure/admin/CreateCustomFieldForm.vue'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 import { useCustomFieldTypes } from '@DpJs/composables/useCustomFieldTypes'
 
@@ -452,6 +456,10 @@ export default {
       return Object.keys(this.createTargetOptions).length > 0
     },
 
+    canSetRequired () {
+      return hasPermission('feature_statements_custom_fields_required')
+    },
+
     /*
      * Filters out targets that cannot receive new fields.
      * STATEMENT fields cannot be created once statements have been submitted
@@ -535,10 +543,18 @@ export default {
         },
       )
 
-      if (this.isActiveTabStatementContext) {
+      if (this.isActiveTabStatementContext && this.canSetRequired) {
         fields.push({
           field: 'isRequired',
           label: Translator.trans('field.required'),
+          colClass: 'u-7-of-12',
+        })
+      }
+
+      if (this.isActiveTabStatementContext && hasPermission('feature_statements_custom_fields_column_display')) {
+        fields.push({
+          field: 'isSeparateColumn',
+          label: Translator.trans('custom.fields.display'),
           colClass: 'u-7-of-12',
         })
       }
@@ -786,14 +802,14 @@ export default {
       const fieldsReduced = this.currentTabDefinitions
         .map(definition => {
           const { id, attributes } = definition
-          const { description, fieldType, isRequired, name, options } = attributes
+          const { description, fieldType, isRequired, isSeparateColumn = false, name, options } = attributes
 
           return {
             id,
             name,
             description,
             fieldType,
-            ...(this.isActiveTabStatementContext && { isRequired }),
+            ...(this.isActiveTabStatementContext && { isRequired, isSeparateColumn }),
             options: JSON.parse(JSON.stringify(options)),
             open: false,
             edit: false,
@@ -866,7 +882,12 @@ export default {
                 isRequired,
                 name,
                 options,
-              }).filter(([key]) => key !== 'fieldType' && (key !== 'options' || isOptionsSupported)),
+                // The display mode can only be chosen when the field is created
+              }).filter(
+                ([key]) => key !== 'fieldType' &&
+                  key !== 'isSeparateColumn' &&
+                  (key !== 'options' || isOptionsSupported) &&
+                  (key !== 'isRequired' || this.canSetRequired)),
             ),
           }
 
@@ -891,11 +912,12 @@ export default {
      * @param customFieldData.description {String}
      * @param customFieldData.fieldType {String}
      * @param customFieldData.isRequired {Boolean}
+     * @param customFieldData.isSeparateColumn {Boolean}
      * @param customFieldData.name {String}
      * @param customFieldData.targetEntity {String}
      */
     saveNewField (customFieldData) {
-      const { description, fieldType, isRequired, name, targetEntity } = customFieldData
+      const { description, fieldType, isRequired, isSeparateColumn, name, targetEntity } = customFieldData
       const options = this.newFieldOptions.filter(option => option.label !== '')
       const isDataValid = this.validateNamesAreUnique(name, options)
 
@@ -912,7 +934,10 @@ export default {
         fieldType,
         name,
         options,
-        ...(targetEntity === 'STATEMENT' && { isRequired }),
+        ...(targetEntity === 'STATEMENT' && {
+          ...(this.canSetRequired && { isRequired }),
+          isSeparateColumn,
+        }),
         sourceEntity: this.resolvedSourceEntity,
         /*
          * For CUSTOMER source the BE derives sourceEntityId from the current

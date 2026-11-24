@@ -6,7 +6,7 @@
  *
  * All rights reserved
  */
-import NewTagForm from '@DpJs/components/procedure/admin/InstitutionTagManagement/NewTagForm'
+import NewTagForm from '@DpJs/components/procedure/admin/InstitutionTagManagement/NewTagForm.vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('NewTagForm', () => {

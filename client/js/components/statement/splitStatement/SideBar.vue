@@ -245,11 +245,11 @@ import {
   Tooltip,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import AssignedTags from './AssignedTags'
-import DpCreateTag from './DpCreateTag'
-import FloatingContextButton from './FloatingContextButton'
-import SearchSelect from './SearchSelect'
-import TagSelect from './TagSelect'
+import AssignedTags from './AssignedTags.vue'
+import DpCreateTag from './DpCreateTag.vue'
+import FloatingContextButton from './FloatingContextButton.vue'
+import SearchSelect from './SearchSelect.vue'
+import TagSelect from './TagSelect.vue'
 
 export default {
   name: 'SideBar',

@@ -9,7 +9,7 @@
 import { createStore } from 'vuex'
 import { nextTick } from 'vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
-import SideBar from '@DpJs/components/statement/splitStatement/SideBar'
+import SideBar from '@DpJs/components/statement/splitStatement/SideBar.vue'
 
 const noAssignee = { id: 'noAssigneeId', name: 'not.assigned' }
 const assignableUser = { id: 'user1', name: 'Jane Doe' }

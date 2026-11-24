@@ -9,7 +9,7 @@
 
 import { DpDataTable, DpIcon } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
-import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout.vue'
 
 const components = {
   DpDataTable,

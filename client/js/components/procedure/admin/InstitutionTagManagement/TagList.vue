@@ -93,9 +93,9 @@ import {
   DpTreeList,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
-import NewCategoryForm from './NewCategoryForm'
-import NewTagForm from './NewTagForm'
-import TagListItem from './TagListItem'
+import NewCategoryForm from './NewCategoryForm.vue'
+import NewTagForm from './NewTagForm.vue'
+import TagListItem from './TagListItem.vue'
 
 export default {
   name: 'TagList',

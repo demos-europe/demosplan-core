@@ -61,7 +61,7 @@
 import { mapGetters, mapMutations, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
 import { DpButton } from '@demos-europe/demosplan-ui'
-import DpEditSelectedItemsMenu from '@DpJs/components/statement/assessmentTable/DpEditSelectedItemsMenu'
+import DpEditSelectedItemsMenu from '@DpJs/components/statement/assessmentTable/DpEditSelectedItemsMenu.vue'
 
 export default {
   name: 'SearchAndSorting',
@@ -69,8 +69,8 @@ export default {
   components: {
     DpButton,
     DpEditSelectedItemsMenu,
-    DpFilterModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/DpFilterModal')),
-    SearchModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/SearchModal/SearchModal')),
+    DpFilterModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/DpFilterModal.vue')),
+    SearchModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/SearchModal/SearchModal.vue')),
   },
 
   emits: [

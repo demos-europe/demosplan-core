@@ -11,8 +11,8 @@
  * This is the entrypoint for list_final_group_citizen.html.twig
  */
 
-import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal'
-import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList'
+import DpMapModal from '@DpJs/components/statement/assessmentTable/DpMapModal.vue'
+import DpPublicStatementList from '@DpJs/components/statement/publicStatementLists/DpPublicStatementList.vue'
 import { initialize } from '@DpJs/InitVue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
 import Tabs from '@DpJs/lib/statement/Tabs'

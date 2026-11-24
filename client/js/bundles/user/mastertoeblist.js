@@ -10,7 +10,7 @@
 /**
  * This is the entrypoint for mastertoeblist.html.twig
  */
-import DpMasterToebList from '@DpJs/components/user/DpMasterToebList'
+import DpMasterToebList from '@DpJs/components/user/DpMasterToebList.vue'
 import { initialize } from '@DpJs/InitVue'
 
 initialize({ DpMasterToebList })

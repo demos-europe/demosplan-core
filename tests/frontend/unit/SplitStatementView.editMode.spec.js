@@ -16,7 +16,7 @@ vi.mock('@DpJs/lib/prosemirror/commands', () => ({
 }))
 
 import { activateRangeEdit, setRangeEditingState } from '@DpJs/lib/prosemirror/commands'
-import SplitStatementView from '@DpJs/components/statement/splitStatement/SplitStatementView'
+import SplitStatementView from '@DpJs/components/statement/splitStatement/SplitStatementView.vue'
 import { vi } from 'vitest'
 
 const { enableEditMode, disableEditMode } = SplitStatementView.methods

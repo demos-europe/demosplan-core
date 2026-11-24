@@ -54,7 +54,7 @@
 <script>
 import { DpButton, DpSlidebar, externalApi } from '@demos-europe/demosplan-ui'
 import DomPurify from 'dompurify'
-import DpUnfoldToolbarControl from './DpUnfoldToolbarControl'
+import DpUnfoldToolbarControl from './DpUnfoldToolbarControl.vue'
 import { mapGetters } from 'vuex'
 import { TileWMS } from 'ol/source'
 

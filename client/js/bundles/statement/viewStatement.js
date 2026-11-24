@@ -13,7 +13,7 @@
 
 import AnimateById from '@DpJs/lib/shared/AnimateById'
 import { DpAccordion } from '@demos-europe/demosplan-ui'
-import HeightLimit from '@DpJs/components/statement/HeightLimit'
+import HeightLimit from '@DpJs/components/statement/HeightLimit.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

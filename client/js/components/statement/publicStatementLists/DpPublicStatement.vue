@@ -280,9 +280,9 @@
 
 <script>
 import { CleanHtml, DpFlyout, DpInlineNotification, prefixClassMixin } from '@demos-europe/demosplan-ui'
-import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList.vue'
 import DomPurify from 'dompurify'
-import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard'
+import DpTableCard from '@DpJs/components/user/DpTableCardList/DpTableCard.vue'
 import { mapState } from 'vuex'
 
 export default {
