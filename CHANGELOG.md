@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- addons can save the fields they add to the procedure settings page, e.g. through an API Platform endpoint, when the settings are saved
 
 ## v4.70.1 (2026-11-19)
 - Security update: PHP 8.4.28 and nginx 1.30.7
