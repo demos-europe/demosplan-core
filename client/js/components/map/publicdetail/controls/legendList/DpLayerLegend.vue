@@ -89,7 +89,7 @@
         >
           <dp-layer-legend-item
             v-for="legend in section.images"
-            :key="legend.url"
+            :key="`${legend.layerId}:${legend.url}`"
             :legend="legend"
           />
         </ul>
