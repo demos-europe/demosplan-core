@@ -16,6 +16,7 @@ use ApiPlatform\Metadata\ApiFilter;
 use ApiPlatform\Metadata\ApiProperty;
 use ApiPlatform\Metadata\ApiResource;
 use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Serializer\Filter\PropertyFilter;
 use demosplan\DemosPlanCoreBundle\Api\InstitutionTagCategory\Resource as InstitutionTagCategoryResource;
 use demosplan\DemosPlanCoreBundle\ApiResources\ApiPlatformConstants;
@@ -24,6 +25,11 @@ use demosplan\DemosPlanCoreBundle\Entity\User\InstitutionTag;
 #[ApiResource(
     shortName: 'InstitutionTag',
     operations: [
+        new GetCollection(
+            uriTemplate: '/InstitutionTag',
+            paginationEnabled: false,
+            order: ['creationDate' => 'ASC', 'label' => 'ASC'],
+        ),
         new Get(uriTemplate: '/InstitutionTag/{id}'),
     ],
     formats: ['jsonapi'],
@@ -42,12 +48,23 @@ class Resource
     #[ApiProperty(readable: true, writable: false)]
     public ?InstitutionTagCategoryResource $category = null;
 
+    #[ApiProperty(readable: true, writable: false)]
+    public string $creationDate = '';
+
+    /**
+     * True if the tag is assigned to at least one institution.
+     */
+    #[ApiProperty(readable: true, writable: false)]
+    public bool $isUsed = false;
+
     public static function fromEntity(InstitutionTag $tag): self
     {
         $resource = new self();
         $resource->id = $tag->getId();
         $resource->name = $tag->getLabel();
         $resource->category = InstitutionTagCategoryResource::fromEntity($tag->getCategory());
+        $resource->creationDate = $tag->getCreationDate()->format(DATE_ATOM);
+        $resource->isUsed = !$tag->getTaggedInstitutions()->isEmpty();
 
         return $resource;
     }

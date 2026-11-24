@@ -114,6 +114,16 @@ export default {
       required: true,
     },
 
+    /**
+     * API Platform 3.0 returns the tags as a list of their own, they only refer to their category.
+     * EDT 2.0 returns the tags as a relationship of the category.
+     */
+    loadTagsSeparately: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+
     rawItems: {
       type: Array,
       required: true,
@@ -138,6 +148,7 @@ export default {
       institutionTagCategoriesCopy: {},
       initiallySelectedFilterCategories: [],
       isLoading: true,
+      tagsByCategory: {},
     }
   },
 
@@ -205,6 +216,10 @@ export default {
       fetchInstitutionTagCategories: 'list',
     }),
 
+    ...mapActions('InstitutionTag', {
+      fetchInstitutionTags: 'list',
+    }),
+
     ...mapMutations('FilterFlyout', {
       setInitialFlyoutFilterIds: 'setInitialFlyoutFilterIds',
       setIsFilterFlyoutLoading: 'setIsLoading',
@@ -236,9 +251,7 @@ export default {
       const { categoryId, isInitialWithQuery } = params
       const selectedFilterOptionIds = Object.keys(this.appliedFilterQuery).filter(id => !id.includes('_group'))
 
-      let filterOptions = this.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length > 0 ?
-        this.institutionTagCategoriesCopy[categoryId].relationships.tags.list() :
-        []
+      let filterOptions = this.getCategoryTags(categoryId)
 
       if (Object.keys(filterOptions).length > 0) {
         filterOptions = Object.values(filterOptions)
@@ -299,8 +312,40 @@ export default {
       this.$emit('itemsFiltered', filteredItems)
     },
 
+    /**
+     * The tags are in the order of the response of the backend (creation order), they are not sorted here.
+     */
+    getCategoryTags (categoryId) {
+      if (this.loadTagsSeparately) {
+        return this.tagsByCategory[categoryId] || []
+      }
+
+      return this.institutionTagCategoriesCopy[categoryId]?.relationships?.tags?.data.length > 0 ?
+        this.institutionTagCategoriesCopy[categoryId].relationships.tags.list() :
+        []
+    },
+
+    groupTagsByCategory (tags) {
+      return (tags || []).reduce((grouped, tag) => {
+        const categoryId = tag.relationships?.category?.data?.id
+
+        return categoryId ? { ...grouped, [categoryId]: [...(grouped[categoryId] || []), tag] } : grouped
+      }, {})
+    },
+
+    // API Platform 3.0: the categories do not contain their tags, so they are loaded in a second request
+    loadCategoriesAndTags () {
+      return Promise.all([
+        this.fetchInstitutionTagCategories({ fields: { InstitutionTagCategory: 'creationDate,name' } }),
+        this.fetchInstitutionTags({ fields: { InstitutionTag: 'category,creationDate,name' } }),
+      ])
+        .then(([, tagsResponse]) => {
+          this.tagsByCategory = this.groupTagsByCategory(tagsResponse.data)
+        })
+    },
+
     getInstitutionTagCategories (isInitial = false) {
-      return this.fetchInstitutionTagCategories({
+      const request = this.loadTagsSeparately ? this.loadCategoriesAndTags() : this.fetchInstitutionTagCategories({
         fields: {
           InstitutionTagCategory: [
             'creationDate',
@@ -319,6 +364,8 @@ export default {
           'tags.category',
         ].join(),
       })
+
+      return request
         .then(() => {
           this.institutionTagCategoriesCopy = { ...this.institutionTagCategories }
 

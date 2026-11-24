@@ -65,7 +65,12 @@ describe('OrganisationTable', () => {
   let wrapper: VueWrapper<any>
 
   const mountTable = (items: ReturnType<typeof createItem>[], resourceType: 'InvitableToeb' | 'InvitedToeb' = 'InvitedToeb') => {
-    list = vi.fn(() => ({ meta: { pagination: { currentPage: 1, perPage: 50, total: items.length, totalPages: 1 } } }))
+    // EDT 2.0 nests the pagination in the meta data, API Platform 3.0 returns it directly
+    list = vi.fn(() => ({
+      meta: resourceType === 'InvitableToeb' ?
+        { currentPage: 1, itemsPerPage: 50, totalItems: items.length } :
+        { pagination: { currentPage: 1, perPage: 50, total: items.length, totalPages: 1 } },
+    }))
     const emptyModule = { namespaced: true, state: () => ({ items: {} }), actions: { list: vi.fn(() => ({})) } }
     const store = createStore({
       modules: {
@@ -153,5 +158,55 @@ describe('OrganisationTable', () => {
     const requestedFields = list.mock.calls[0][1].fields.InvitedToeb.split(',')
 
     expect(requestedFields).toContain('hasActiveUsers')
+  })
+
+  it('requests the institutions that can be invited in the format of API Platform 3.0', async () => {
+    mountTable([createItem()], 'InvitableToeb')
+    await flushPromises()
+
+    const params = list.mock.calls[0][1]
+
+    expect(params).toMatchObject({ page: 1, itemsPerPage: 50, pagination: true })
+    expect(Object.keys(params.fields)).toEqual(expect.arrayContaining(['InvitableToeb', 'locationContacts', 'assignedTags']))
+    expect(Object.keys(params.fields)).not.toContain('InstitutionLocationContact')
+    expect(Object.keys(params.fields)).not.toContain('InstitutionTag')
+    expect(params.filter).toBeUndefined()
+  })
+
+  it('requests the invited institutions in the format of EDT 2.0', async () => {
+    mountTable([createItem()], 'InvitedToeb')
+    await flushPromises()
+
+    const params = list.mock.calls[0][1]
+
+    expect(params.page).toEqual({ number: 1, size: 50 })
+    expect(Object.keys(params.fields)).toEqual(expect.arrayContaining(['InvitedToeb', 'InstitutionLocationContact', 'InstitutionTag']))
+    expect(Object.keys(params.fields)).not.toContain('locationContacts')
+  })
+
+  it('sends the search term of the institutions that can be invited as plain parameter', async () => {
+    mountTable([createItem()], 'InvitableToeb')
+    await flushPromises()
+
+    wrapper.vm.handleSearch('  Amt  ')
+    await flushPromises()
+
+    const params = list.mock.calls[1][1]
+
+    expect(params.search).toBe('Amt')
+    expect(params.filter).toBeUndefined()
+  })
+
+  it('sends the search term of the invited institutions as filter conditions', async () => {
+    mountTable([createItem()], 'InvitedToeb')
+    await flushPromises()
+
+    wrapper.vm.handleSearch('Amt')
+    await flushPromises()
+
+    const params = list.mock.calls[1][1]
+
+    expect(params.filter.namefilter.condition).toMatchObject({ path: 'legalName', value: 'Amt' })
+    expect(params.search).toBeUndefined()
   })
 })
