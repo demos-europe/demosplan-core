@@ -1076,7 +1076,12 @@ export default {
         })
     },
 
-    closeRecommendationModalAfterInsert () {
+    closeRecommendationModalAfterInsert (recommendation) {
+      // Also sets recommendationEmbedded, which the editor shows with boilerplate linking
+      if (typeof recommendation === 'string') {
+        this.updateRecommendation(recommendation)
+      }
+
       this.toggleRecommendationModal()
       dplan.notify.notify('confirm', Translator.trans('recommendation.pasted'))
     },
