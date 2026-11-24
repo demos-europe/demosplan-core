@@ -15,7 +15,7 @@ namespace Tests\Core\MessageHandler;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\ProcedureExportJob;
 use demosplan\DemosPlanCoreBundle\Exception\DemosException;
-use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobContextRestorer;
+use demosplan\DemosPlanCoreBundle\Logic\AsyncJobContextRestorer;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFailureReason;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobStatusWriter;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportResponseFileStore;
@@ -38,7 +38,7 @@ class ExportProcedureMessageHandlerTest extends UnitTestCase
 
     // Mock-suffixed to avoid colliding with the untyped properties declared on the base test case.
     private ?EntityManagerInterface $entityManagerMock = null;
-    private ?ExportJobContextRestorer $contextRestorerMock = null;
+    private ?AsyncJobContextRestorer $contextRestorerMock = null;
     private ?ExportJobStatusWriter $statusWriterMock = null;
     private ?ExportService $exportServiceMock = null;
     private ?FileService $fileServiceMock = null;
@@ -49,7 +49,7 @@ class ExportProcedureMessageHandlerTest extends UnitTestCase
         parent::setUp();
 
         $this->entityManagerMock = $this->createMock(EntityManagerInterface::class);
-        $this->contextRestorerMock = $this->createMock(ExportJobContextRestorer::class);
+        $this->contextRestorerMock = $this->createMock(AsyncJobContextRestorer::class);
         $this->statusWriterMock = $this->createMock(ExportJobStatusWriter::class);
         $this->exportServiceMock = $this->createMock(ExportService::class);
         $this->fileServiceMock = $this->createMock(FileService::class);
@@ -110,7 +110,7 @@ class ExportProcedureMessageHandlerTest extends UnitTestCase
         $job = new ProcedureExportJob();
         $this->mockFindReturning($job);
         $this->contextRestorerMock->method('restore')
-            ->willThrowException(new RuntimeException('Export job user not found: missing-user'));
+            ->willThrowException(new RuntimeException('Async job user not found: missing-user'));
         $this->exportServiceMock->expects($this->never())->method('generateProcedureExportZip');
 
         // Act

@@ -19,7 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\ExportSchedule;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\ScheduledExportJob;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobContextRestorer;
+use demosplan\DemosPlanCoreBundle\Logic\AsyncJobContextRestorer;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFailureReason;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobStatusWriter;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportResponseFileStore;
@@ -66,7 +66,7 @@ class GenerateScheduledExportMessageHandler
 
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly ExportJobContextRestorer $contextRestorer,
+        private readonly AsyncJobContextRestorer $contextRestorer,
         private readonly ExportJobFailureReason $failureReason,
         private readonly ExportJobStatusWriter $statusWriter,
         private readonly ExportResponseFileStore $fileStore,

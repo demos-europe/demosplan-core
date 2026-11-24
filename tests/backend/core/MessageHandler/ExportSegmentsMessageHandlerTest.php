@@ -15,7 +15,7 @@ namespace Tests\Core\MessageHandler;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AssessmentTableExportJob;
-use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobContextRestorer;
+use demosplan\DemosPlanCoreBundle\Logic\AsyncJobContextRestorer;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFailureReason;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobStatusWriter;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportResponseFileStore;
@@ -39,7 +39,7 @@ class ExportSegmentsMessageHandlerTest extends UnitTestCase
 
     // Mock-suffixed to avoid colliding with the untyped properties declared on the base test case.
     private ?EntityManagerInterface $entityManagerMock = null;
-    private ?ExportJobContextRestorer $contextRestorerMock = null;
+    private ?AsyncJobContextRestorer $contextRestorerMock = null;
     private ?ExportJobStatusWriter $statusWriterMock = null;
     private ?FileService $fileServiceMock = null;
     private ?LoggerInterface $loggerMock = null;
@@ -51,7 +51,7 @@ class ExportSegmentsMessageHandlerTest extends UnitTestCase
         parent::setUp();
 
         $this->entityManagerMock = $this->createMock(EntityManagerInterface::class);
-        $this->contextRestorerMock = $this->createMock(ExportJobContextRestorer::class);
+        $this->contextRestorerMock = $this->createMock(AsyncJobContextRestorer::class);
         $this->statusWriterMock = $this->createMock(ExportJobStatusWriter::class);
         $this->fileServiceMock = $this->createMock(FileService::class);
         $this->loggerMock = $this->createMock(LoggerInterface::class);
@@ -133,7 +133,7 @@ class ExportSegmentsMessageHandlerTest extends UnitTestCase
         $job = new AssessmentTableExportJob();
         $this->mockFindReturning($job);
         $this->contextRestorerMock->method('restore')
-            ->willThrowException(new RuntimeException('Export job user not found: missing-user'));
+            ->willThrowException(new RuntimeException('Async job user not found: missing-user'));
         $this->responseBuilderMock->expects($this->never())->method('build');
 
         // Act

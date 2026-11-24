@@ -14,7 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AssessmentTableExportJob;
-use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobContextRestorer;
+use demosplan\DemosPlanCoreBundle\Logic\AsyncJobContextRestorer;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFailureReason;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobStatusWriter;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportResponseFileStore;
@@ -46,7 +46,7 @@ class ExportAssessmentTableMessageHandler
     public function __construct(
         private readonly AssessmentTableExporterStrategy $assessmentExporter,
         private readonly EntityManagerInterface $entityManager,
-        private readonly ExportJobContextRestorer $contextRestorer,
+        private readonly AsyncJobContextRestorer $contextRestorer,
         private readonly ExportJobFailureReason $failureReason,
         private readonly ExportJobStatusWriter $statusWriter,
         private readonly ExportResponseFileStore $fileStore,
