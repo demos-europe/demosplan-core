@@ -87,16 +87,19 @@ describe('Layers Actions', () => {
   })
 
   describe('buildLegends', () => {
-    it('should build legend URLs for enabled overlay layers', async () => {
+    it('should build legend URLs for enabled overlay and base WMS layers', async () => {
       const commitSpy = vi.spyOn(StubStore, 'commit')
 
       await StubStore.dispatch('Layers/buildLegends')
 
-      // Should commit setLegend for each enabled overlay layer
-      expect(commitSpy).toHaveBeenCalledTimes(2)
-
-      // Check the legends were added to the state
-      expect(StubStore.state.Layers.legends).toHaveLength(2)
+      // 2 overlay + 2 base layers; base-layer-2 is WMTS and gets no legend
+      expect(commitSpy).toHaveBeenCalledTimes(4)
+      expect(StubStore.state.Layers.legends.map(legend => legend.layerId)).toEqual([
+        'overlay-layer-1',
+        'overlay-layer-2',
+        'base-layer-1',
+        'base-layer-3',
+      ])
       expect(StubStore.state.Layers.legends[0]).toEqual({
         layerId: 'overlay-layer-1',
         treeOrder: 101010301,
@@ -122,8 +125,34 @@ describe('Layers Actions', () => {
 
       await StubStore.dispatch('Layers/buildLegends')
 
-      // Should create legend for each layer parameter (3 for overlay-layer-1 + 1 for overlay-layer-2)
-      expect(commitSpy).toHaveBeenCalledTimes(4)
+      // 3 for overlay-layer-1 + 1 for overlay-layer-2 + 2 base WMS layers
+      expect(commitSpy).toHaveBeenCalledTimes(6)
+      // The apiData state is the shared fixture object
+      overlayLayer.attributes.layers = 'sample_layer'
+    })
+
+    it('should not build legends for disabled layers', async () => {
+      const overlayLayer = StubStore.state.Layers.apiData.included.find(item => item.id === 'overlay-layer-2')
+
+      overlayLayer.attributes.isEnabled = false
+      StubStore.commit('Layers/updateState', { key: 'legends', value: [] })
+
+      await StubStore.dispatch('Layers/buildLegends')
+
+      expect(StubStore.state.Layers.legends.some(legend => legend.layerId === 'overlay-layer-2')).toBe(false)
+      overlayLayer.attributes.isEnabled = true
+    })
+
+    it('should not add the same legend twice when run repeatedly', async () => {
+      StubStore.commit('Layers/updateState', { key: 'legends', value: [] })
+
+      await StubStore.dispatch('Layers/buildLegends')
+
+      const legendCount = StubStore.state.Layers.legends.length
+
+      await StubStore.dispatch('Layers/buildLegends')
+
+      expect(StubStore.state.Layers.legends).toHaveLength(legendCount)
     })
   })
 
@@ -388,6 +417,56 @@ describe('Layers Actions', () => {
       await StubStore.dispatch('Layers/toggleCategoryAlternatively', layer)
 
       expect(dispatchSpy).toHaveBeenCalledWith('Layers/findMostParentCategory', layer)
+    })
+  })
+})
+
+describe('Layers legends', () => {
+  beforeEach(() => {
+    StubStore = createStore({})
+    StubStore.registerModule('Layers', Layers)
+    // Module state is a shared object, so reset everything the legend tests rely on
+    StubStore.commit('Layers/updateApiData', JSON.parse(JSON.stringify(layersApiResponse)))
+    StubStore.commit('Layers/updateState', { key: 'legends', value: [] })
+    StubStore.commit('Layers/updateState', { key: 'loadedLegends', value: [] })
+    StubStore.commit('Layers/updateState', { key: 'layerStates', value: {} })
+  })
+
+  describe('markLegendAsLoaded', () => {
+    it('should store each legend url once', () => {
+      StubStore.commit('Layers/markLegendAsLoaded', 'https://example.com/legend.png')
+      StubStore.commit('Layers/markLegendAsLoaded', 'https://example.com/legend.png')
+
+      expect(StubStore.state.Layers.loadedLegends).toEqual(['https://example.com/legend.png'])
+    })
+  })
+
+  describe('visibleLegendsByLayerType', () => {
+    it('should return empty groups without api data', () => {
+      StubStore.commit('Layers/updateApiData', {})
+
+      expect(StubStore.getters['Layers/visibleLegendsByLayerType']).toEqual({ base: [], overlay: [] })
+    })
+
+    it('should group legends of visible layers by layer type', async () => {
+      await StubStore.dispatch('Layers/buildLegends')
+      StubStore.commit('Layers/setLayerState', { id: 'overlay-layer-1', key: 'isVisible', value: true })
+      StubStore.commit('Layers/setLayerState', { id: 'base-layer-3', key: 'isVisible', value: true })
+
+      const { base, overlay } = StubStore.getters['Layers/visibleLegendsByLayerType']
+
+      expect(overlay.map(legend => legend.layerId)).toEqual(['overlay-layer-1'])
+      expect(base.map(legend => legend.layerId)).toEqual(['base-layer-3'])
+    })
+
+    it('should sort legends by treeOrder', async () => {
+      await StubStore.dispatch('Layers/buildLegends')
+      StubStore.commit('Layers/setLayerState', { id: 'base-layer-3', key: 'isVisible', value: true })
+      StubStore.commit('Layers/setLayerState', { id: 'base-layer-1', key: 'isVisible', value: true })
+
+      const { base } = StubStore.getters['Layers/visibleLegendsByLayerType']
+
+      expect(base.map(legend => legend.layerId)).toEqual(['base-layer-1', 'base-layer-3'])
     })
   })
 })

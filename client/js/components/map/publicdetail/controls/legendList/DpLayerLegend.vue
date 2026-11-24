@@ -24,14 +24,17 @@
       </button>
     </div>
 
-    <template v-if="hasPermission('feature_map_layer_get_legend') || hasPermission('feature_map_use_plan_draw_pdf')">
+    <div
+      v-if="hasPermission('feature_map_layer_get_legend') || hasPermission('feature_map_use_plan_draw_pdf')"
+      v-show="unfolded"
+    >
       <ul
-        v-show="unfolded"
-        :class="prefixClass('c-map__group js__mapLayerLegends')"
+        v-if="hasPermission('feature_map_use_plan_pdf') && planPdf.hash"
+        :class="prefixClass('c-map__group mt-2 mb-1')"
       >
-        <li v-if="hasPermission('feature_map_use_plan_pdf') && planPdf.hash">
+        <li>
           <a
-            :class="prefixClass('c-map__group-item block')"
+            :class="prefixClass('c-map__group-item c-map__layer block h-auto')"
             target="_blank"
             :href="Routing.generate('core_file_procedure', { hash: planPdf.hash, procedureId: procedureId})"
             :title="planPdfTitle"
@@ -40,39 +43,63 @@
               :class="prefixClass('fa fa-download')"
               aria-hidden="true"
             />
-            {{ Translator.trans('legend.download') }}
+            {{ Translator.trans('drawing.explanation.download') }}
           </a>
         </li>
+      </ul>
 
-        <dp-layer-legend-item
-          v-for="item in legends"
-          :key="item.id"
-          :legend="item"
-        />
+      <section
+        v-for="section in legendSections"
+        :key="section.layerType"
+        :data-cy="`layerLegend:${section.layerType}`"
+      >
+        <h4
+          v-show="section.files.length > 0 || section.hasLoadedImages"
+          :class="prefixClass('mt-3 mb-1 text-sm')"
+        >
+          {{ section.title }}
+        </h4>
 
-        <template v-if="hasPermission('feature_map_layer_legend_file')">
+        <ul
+          v-if="section.files.length > 0"
+          :class="prefixClass('c-map__group mt-0 mb-1')"
+        >
           <li
-            v-for="(layer, idx) in layersWithLegendFiles"
-            :key="idx"
-            :data-layername="layer.name"
+            v-for="file in section.files"
+            :key="file.id"
           >
             <a
-              :class="prefixClass('c-map__group-item block')"
+              :class="prefixClass('c-map__group-item c-map__layer block h-auto')"
               target="_blank"
-              :href="Routing.generate('core_file_procedure', { hash: layer.legend.hash, procedureId: procedureId })"
-              :title="`${layer.name} (${layer.legend.mimeType}, ${layer.legend.fileSize})`"
+              :href="Routing.generate('core_file_procedure', { hash: file.legend.hash, procedureId: procedureId })"
+              :title="`${file.name} (${file.legend.mimeType}, ${file.legend.fileSize})`"
             >
-              {{ layer.name }}
+              <i
+                :class="prefixClass('fa fa-download')"
+                aria-hidden="true"
+              />
+              {{ file.name }} ({{ file.legend.mimeType }}, {{ file.legend.fileSize }})
             </a>
           </li>
-        </template>
-      </ul>
-    </template>
+        </ul>
+
+        <ul
+          v-show="section.hasLoadedImages"
+          :class="prefixClass('c-map__group mt-0')"
+        >
+          <dp-layer-legend-item
+            v-for="legend in section.images"
+            :key="legend.url"
+            :legend="legend"
+          />
+        </ul>
+      </section>
+    </div>
   </div>
 </template>
 <script>
+import { mapGetters, mapState } from 'vuex'
 import DpLayerLegendItem from './DpLayerLegendItem.vue'
-import { mapGetters } from 'vuex'
 import { prefixClassMixin } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -113,8 +140,13 @@ export default {
 
   computed: {
     ...mapGetters('Layers', {
+      element: 'element',
+      isLayerVisible: 'isLayerVisible',
       legends: 'elementListForLegendSidebar',
+      visibleLegendsByLayerType: 'visibleLegendsByLayerType',
     }),
+
+    ...mapState('Layers', ['loadedLegends']),
 
     buttonTitle () {
       if (!this.hasLegend) {
@@ -128,6 +160,22 @@ export default {
       return this.layersWithLegendFiles.length > 0 || this.planPdf.hash || this.legends.length > 0
     },
 
+    legendSections () {
+      return [
+        { layerType: 'overlay', title: Translator.trans('legend.overlay_layers') },
+        { layerType: 'base', title: Translator.trans('map.base') },
+      ].map(section => {
+        const images = this.visibleLegendsByLayerType[section.layerType]
+
+        return {
+          ...section,
+          files: this.visibleLegendFiles.filter(file => this.layerType(file.id) === section.layerType),
+          hasLoadedImages: images.some(legend => this.loadedLegends.includes(legend.url)),
+          images,
+        }
+      })
+    },
+
     planPdfTitle () {
       let fileInfo = ''
 
@@ -135,13 +183,25 @@ export default {
         fileInfo = ` (${this.planPdf.mimeType}, ${this.planPdf.size})`
       }
 
-      return `${Translator.trans('legend.download')}${fileInfo}`
+      return `${Translator.trans('drawing.explanation.download')}${fileInfo}`
+    },
+
+    visibleLegendFiles () {
+      if (!hasPermission('feature_map_layer_legend_file')) {
+        return []
+      }
+
+      return this.layersWithLegendFiles.filter(file => this.isLayerVisible(file.id))
     },
   },
 
   methods: {
     fold () {
       this.unfolded = false
+    },
+
+    layerType (layerId) {
+      return this.element({ id: layerId, type: 'GisLayer' })?.attributes?.layerType
     },
 
     toggle () {
