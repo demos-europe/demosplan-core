@@ -90,7 +90,7 @@
       <dp-confirm-dialog
         ref="confirmDialog"
         data-cy="removeTagOrTopic"
-        :message="setConfirmMessage()"
+        :message="confirmMessage"
       />
     </div>
   </div>
@@ -104,6 +104,7 @@ import {
   DpInput,
 } from '@demos-europe/demosplan-ui'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import { useTagListEditForm } from '@DpJs/composables/useTagListEditForm'
 
 export default {
   name: 'TagListEditForm',
@@ -145,49 +146,21 @@ export default {
     'save',
   ],
 
-  data () {
-    return {
-      unsavedItem: {
-        title: '',
-      },
-    }
+  setup (props, { emit }) {
+    return useTagListEditForm(props, emit)
   },
 
   methods: {
-    abort () {
-      this.$emit('abort')
-    },
-
     async deleteItem () {
-      const { type, id } = this.nodeElement
-
-      if (this.$refs.confirmDialog?.open) {
-        const isConfirmed = await this.$refs.confirmDialog.open()
-
-        if (isConfirmed) {
-          this.$emit('delete', { id, type })
-        }
+      if (!this.$refs.confirmDialog?.open) {
+        return
       }
-    },
 
-    setConfirmMessage () {
-      const { type, attributes, children } = this.nodeElement
-      const isTagTopic = type === 'TagTopic'
-      const topicConfirmMessage = isTagTopic && children?.length === 0 ? 'check.topic.delete' : 'check.topic.delete.tags'
+      const isConfirmed = await this.$refs.confirmDialog.open()
 
-      return isTagTopic ?
-        Translator.trans(topicConfirmMessage, { topic: attributes.title }) :
-        Translator.trans('check.tag.delete', { tag: attributes.title })
-    },
-
-    editItem () {
-      this.unsavedItem = { ...this.nodeElement.attributes }
-      this.$emit('edit', { id: this.nodeElement.id, type: this.nodeElement.type })
-    },
-
-    saveItem () {
-      const isTitleChanged = this.nodeElement.attributes.title !== this.unsavedItem.title
-      this.$emit('save', { id: this.nodeElement.id, attributes: this.unsavedItem, type: this.nodeElement.type, isTitleChanged })
+      if (isConfirmed) {
+        this.confirmDelete()
+      }
     },
   },
 }
