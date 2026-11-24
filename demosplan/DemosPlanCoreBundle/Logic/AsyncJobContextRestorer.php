@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace demosplan\DemosPlanCoreBundle\Logic\Export;
+namespace demosplan\DemosPlanCoreBundle\Logic;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
@@ -27,16 +27,16 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
- * Rebuilds the request-scoped context an export needs when it runs in a background worker instead of
- * a web request: customer (subdomain), acting user, permissions and - where the export is bound to a
+ * Rebuilds the request-scoped context a job needs when it runs in a background worker instead of
+ * a web request: customer (subdomain), acting user, permissions and - where the job is bound to a
  * single procedure - the current procedure.
  *
- * Both parts matter for the resulting document. Without the customer, permissions stored per customer
+ * Both parts matter, e.g. for an exported document. Without the customer, permissions stored per customer
  * in access_control resolve against whatever the worker's default subdomain happens to be. Without
  * {@link PermissionsInterface::setProcedurePermissions()} every procedure-scoped permission stays
  * disabled, and the export silently comes back anonymised or with columns missing.
  */
-class ExportJobContextRestorer
+class AsyncJobContextRestorer
 {
     public function __construct(
         private readonly CurrentProcedureService $currentProcedureService,
@@ -67,7 +67,7 @@ class ExportJobContextRestorer
 
         $user = $this->entityManager->find(User::class, $userId);
         if (!$user instanceof User) {
-            throw new UserNotFoundException("Export job user not found: {$userId}");
+            throw new UserNotFoundException("Async job user not found: {$userId}");
         }
         // Assign explicitly rather than relying on DoctrineUserListener::postLoad(), which resolves
         // the customer from the subdomain that was active when the user got loaded.

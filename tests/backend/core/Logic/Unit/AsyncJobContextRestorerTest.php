@@ -10,7 +10,7 @@ declare(strict_types=1);
  * All rights reserved
  */
 
-namespace Tests\Core\Export\Unit;
+namespace Tests\Core\Logic\Unit;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Exceptions\AddonOrgaNotFoundException;
@@ -21,7 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
-use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobContextRestorer;
+use demosplan\DemosPlanCoreBundle\Logic\AsyncJobContextRestorer;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
@@ -29,9 +29,9 @@ use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Tests\Base\UnitTestCase;
 
-class ExportJobContextRestorerTest extends UnitTestCase
+class AsyncJobContextRestorerTest extends UnitTestCase
 {
-    protected ?ExportJobContextRestorer $sut = null;
+    protected ?AsyncJobContextRestorer $sut = null;
 
     private ?CurrentProcedureService $currentProcedureServiceMock = null;
     private ?CurrentUserService $currentUserServiceMock = null;
@@ -64,7 +64,7 @@ class ExportJobContextRestorerTest extends UnitTestCase
             }
         );
 
-        $this->sut = new ExportJobContextRestorer(
+        $this->sut = new AsyncJobContextRestorer(
             $this->currentProcedureServiceMock,
             $this->currentUserServiceMock,
             $this->customerServiceMock,

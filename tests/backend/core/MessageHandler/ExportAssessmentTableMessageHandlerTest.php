@@ -15,7 +15,7 @@ namespace Tests\Core\MessageHandler;
 use demosplan\DemosPlanCoreBundle\Entity\File;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\AssessmentTableExportJob;
 use demosplan\DemosPlanCoreBundle\Exception\AssessmentTableZipExportException;
-use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobContextRestorer;
+use demosplan\DemosPlanCoreBundle\Logic\AsyncJobContextRestorer;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobFailureReason;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobStatusWriter;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportResponseFileStore;
@@ -40,7 +40,7 @@ class ExportAssessmentTableMessageHandlerTest extends UnitTestCase
     // Mock-suffixed to avoid colliding with the untyped properties declared on the base test case.
     private ?AssessmentTableExporterStrategy $assessmentExporterMock = null;
     private ?EntityManagerInterface $entityManagerMock = null;
-    private ?ExportJobContextRestorer $contextRestorerMock = null;
+    private ?AsyncJobContextRestorer $contextRestorerMock = null;
     private ?ExportJobStatusWriter $statusWriterMock = null;
     private ?FileResponseGeneratorStrategy $responseGeneratorMock = null;
     private ?FileService $fileServiceMock = null;
@@ -52,7 +52,7 @@ class ExportAssessmentTableMessageHandlerTest extends UnitTestCase
 
         $this->assessmentExporterMock = $this->createMock(AssessmentTableExporterStrategy::class);
         $this->entityManagerMock = $this->createMock(EntityManagerInterface::class);
-        $this->contextRestorerMock = $this->createMock(ExportJobContextRestorer::class);
+        $this->contextRestorerMock = $this->createMock(AsyncJobContextRestorer::class);
         $this->statusWriterMock = $this->createMock(ExportJobStatusWriter::class);
         $this->responseGeneratorMock = $this->createMock(FileResponseGeneratorStrategy::class);
         $this->fileServiceMock = $this->createMock(FileService::class);
@@ -110,7 +110,7 @@ class ExportAssessmentTableMessageHandlerTest extends UnitTestCase
         $job = new AssessmentTableExportJob();
         $this->mockFindReturning($job);
         $this->contextRestorerMock->method('restore')
-            ->willThrowException(new RuntimeException('Export job user not found: missing-user'));
+            ->willThrowException(new RuntimeException('Async job user not found: missing-user'));
         $this->assessmentExporterMock->expects($this->never())->method('export');
 
         // Act
