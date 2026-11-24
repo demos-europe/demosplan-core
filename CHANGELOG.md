@@ -6,6 +6,23 @@
 
 ## UNRELEASED
 
+## v4.71.0 (2026-11-24)
+
+### Added
+- The statement list shows a version history for statements
+- Custom fields can be displayed in the statement list, either in their own column or combined in one shared column with tooltip (configurable per custom field)
+- The location reference (Ortsbezug) of a statement can be stored separately from the drawn geometry (feature permission `feature_diplankarte_split_location_reference`); a statement can be submitted with only a location reference
+- Keycloak role "Datenerfassung" is mapped to the data input role
+- The export modal's tag filter only shows tags that are in use
+
+### Changed
+- The map libraries run in an updated version, so the layer switcher accordions and search work again
+- Customer URLs generated outside of requests (e.g. in emails and account deletion links) use the configured project domain; `customer_url_keep_context_host` keeps the current host for single-host instances
+
+### Fixed
+- The archive filter of the procedure list no longer depends on the archive permission
+- The procedure protocol PDF has a proper document title
+
 ## v4.69.0 (2026-11-13)
 - Organisations get a read-only technical name from the identity provider, stored as `Orga::$technicalName` (JSON:API 2.0
   attribute `Orga.technicalName`) next to the editable name (`Orga::$name`). Only the Keycloak OZG login
