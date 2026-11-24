@@ -94,6 +94,14 @@
           />
         </ul>
       </section>
+
+      <p
+        v-if="!hasVisibleLayerLegend"
+        :class="prefixClass('mt-2 mb-1 text-sm')"
+        data-cy="layerLegend:empty"
+      >
+        {{ Translator.trans('legend.none_for_visible_layers') }}
+      </p>
     </div>
   </div>
 </template>
@@ -156,8 +164,13 @@ export default {
       return ''
     },
 
+    // Counts legends of all layers so the button stays usable while layers are toggled
     hasLegend () {
       return this.layersWithLegendFiles.length > 0 || this.planPdf.hash || this.legends.length > 0
+    },
+
+    hasVisibleLayerLegend () {
+      return this.legendSections.some(section => section.files.length > 0 || section.hasLoadedImages)
     },
 
     legendSections () {

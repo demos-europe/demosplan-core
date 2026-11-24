@@ -101,6 +101,17 @@ describe('DpLayerLegend', () => {
     expect(isShown(section('overlay').find('h4'))).toBe(true)
     expect(isShown(section('base').find('h4'))).toBe(false)
   })
+
+  it('should show a hint only while no legend of a visible layer is shown', async () => {
+    mountLegend([legendFile('overlay-layer-2')])
+
+    expect(wrapper.find('[data-cy="layerLegend:empty"]').exists()).toBe(true)
+
+    store.commit('Layers/setLayerState', { id: 'overlay-layer-2', key: 'isVisible', value: true })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('[data-cy="layerLegend:empty"]').exists()).toBe(false)
+  })
 })
 
 describe('DpLayerLegendItem', () => {
