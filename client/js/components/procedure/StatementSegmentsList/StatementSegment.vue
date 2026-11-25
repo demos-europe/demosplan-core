@@ -324,6 +324,12 @@
               </div>
             </template>
           </dp-multiselect>
+          <dp-inline-notification
+            v-if="showLockWithoutRecommendationHint"
+            class="mt-2"
+            :message="Translator.trans('segment.recommendation.none.lock.hint')"
+            type="info"
+          />
         </div>
 
         <dp-checkbox
@@ -534,6 +540,7 @@ import {
   DpContextualHelp,
   DpDatepicker,
   DpIcon,
+  DpInlineNotification,
   DpLabel,
   DpLoading,
   DpMultiselect,
@@ -553,6 +560,7 @@ import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal.vue'
 import DpClaim from '@DpJs/components/statement/DpClaim.vue'
 import ImageModal from '@DpJs/components/shared/ImageModal.vue'
+import { isEmptyHtml } from '@DpJs/lib/shared/isEmptyHtml'
 import RecommendationModal from '../Shared/RecommendationModal.vue'
 import SegmentTags from './SegmentTags.vue'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer.vue'
@@ -582,6 +590,7 @@ export default {
       return DpEditor
     }),
     DpIcon,
+    DpInlineNotification,
     DpLabel,
     DpLoading,
     DpMultiselect,
@@ -833,6 +842,10 @@ export default {
       const placeId = this.segment.relationships?.place?.data?.id
 
       return !!this.placeItems[placeId]?.attributes?.locked
+    },
+
+    showLockWithoutRecommendationHint () {
+      return !!this.selectedPlace.locked && isEmptyHtml(this.segment.attributes.recommendation)
     },
 
     lockTooltipText () {
