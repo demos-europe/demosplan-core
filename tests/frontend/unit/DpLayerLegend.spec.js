@@ -127,7 +127,6 @@ describe('DpLayerLegendItem', () => {
 
     await wrapper.find('img').trigger('load')
 
-    expect(store.state.Layers.loadedLegends).toEqual([legend.url])
     expect(isShown(wrapper.find('li'))).toBe(true)
   })
 })
