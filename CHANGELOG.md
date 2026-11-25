@@ -6,7 +6,7 @@
 
 ## UNRELEASED
 
-## v4.66.1 (2026-11-19)
+## v4.72.0 (2026-11-25)
 - production image: PHP 8.4.28 and nginx 1.30.7 (November 2026 security releases)
 
 ## v4.71.0 (2026-11-24)
@@ -69,6 +69,9 @@
 ## v4.68.0 (2026-11-12)
 
 ## v4.67.0 (2026-11-06)
+
+## v4.66.1 (2026-11-19)
+- production image: PHP 8.4.28 and nginx 1.30.7 (November 2026 security releases)
 
 ## v4.66.0 (2026-11-05)
 
