@@ -15,8 +15,8 @@ namespace demosplan\DemosPlanCoreBundle\EventListener;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Security\ApiToken\ApiTokenContextInterface;
-use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use LogicException;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
 
 /**

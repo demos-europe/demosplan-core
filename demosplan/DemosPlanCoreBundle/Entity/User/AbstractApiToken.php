@@ -125,5 +125,4 @@ abstract class AbstractApiToken extends CoreEntity
     {
         return null !== $this->revokedAt;
     }
-
 }

@@ -58,9 +58,7 @@ class ApiTokenSecretService
             }
         }
         if (null === $prefix) {
-            throw new RuntimeException(
-                sprintf('Failed to generate a unique token prefix after %d attempts.', self::PREFIX_ATTEMPTS)
-            );
+            throw new RuntimeException(sprintf('Failed to generate a unique token prefix after %d attempts.', self::PREFIX_ATTEMPTS));
         }
 
         $secret = $randomizer->getBytesFromString(self::TOKEN_ALPHABET, self::SECRET_LENGTH);
