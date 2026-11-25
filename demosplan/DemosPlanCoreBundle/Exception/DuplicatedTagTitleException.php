@@ -25,9 +25,13 @@ class DuplicatedTagTitleException extends Exception
     /**
      * @return static
      */
-    public static function createFromTitleAndProcedureId(TagTopic $topic, string $tagTitle): self
+    public static function createFromTitleAndTopic(TagTopic $topic, string $tagTitle): self
     {
-        return new self("A tag with the title {$tagTitle} already exist in a procedure with the ID {$topic->getProcedure()->getId()}", $topic, $tagTitle);
+        return new self(
+            "A tag with the title {$tagTitle} already exists in the topic with the ID {$topic->getId()}",
+            $topic,
+            $tagTitle
+        );
     }
 
     public function getTagTitle(): string
