@@ -10,13 +10,13 @@
 <template>
   <action-stepper
     class="u-mv"
-    :busy="busy"
+    :busy="busy || isLoadingSegmentsWithoutRecommendation"
     :valid="hasActions && hasSegments"
     :return-link="returnLink"
     :step="step"
     :selected-elements="segments.length"
     @apply="apply"
-    @confirm="step = 2"
+    @confirm="handleConfirm"
     @edit="step = 1"
   >
     <!-- Step 1 - Chose action -->
@@ -60,9 +60,35 @@
             class="w-12"
             :disabled="!hasPlaces"
             :options="places"
+            :sub-slots="['option', 'singleLabel']"
             label="name"
             track-by="id"
-          />
+          >
+            <template v-slot:option="{ props }">
+              <div v-tooltip="props.option.description">
+                {{ props.option.name }}
+                <dp-contextual-help
+                  v-if="props.option.solved"
+                  class="float-right text-muted"
+                  icon="check"
+                  size="small"
+                  :text="Translator.trans('statement.solved.description')"
+                />
+              </div>
+            </template>
+            <template v-slot:singleLabel="{ props }">
+              <div v-tooltip="props.option.description">
+                {{ props.option.name }}
+                <dp-contextual-help
+                  v-if="props.option.solved"
+                  class="float-right text-muted mt-0.5"
+                  icon="check"
+                  size="small"
+                  :text="Translator.trans('statement.solved.description')"
+                />
+              </div>
+            </template>
+          </dp-multiselect>
         </action-stepper-action>
 
         <!-- Add deadline -->
@@ -263,6 +289,57 @@
         >
           <p v-cleanhtml="Translator.trans('segments.bulk.edit.place.assigned.description')" />
           <p v-cleanhtml="actions.assignPlace.selected.name" />
+
+          <!-- Segments without recommendation that get locked by the chosen place -->
+          <div
+            v-if="isLockingPlaceSelected"
+            class="mt-4"
+            data-cy="segmentsBulkEdit:lockWithoutRecommendation"
+          >
+            <dp-loading v-if="isLoadingSegmentsWithoutRecommendation" />
+            <template v-else-if="segmentsWithoutRecommendation.length > 0">
+              <p class="font-semibold mb-3">
+                {{ Translator.trans('segments.bulk.edit.place.locked.no.recommendation.hint') }}
+              </p>
+              <p class="mb-2">
+                {{ Translator.trans('segments.bulk.edit.place.locked.no.recommendation.headline', { count: segmentsWithoutRecommendation.length }) }}
+              </p>
+              <dp-data-table
+                :header-fields="headerFields"
+                :items="segmentsWithoutRecommendationOnPage"
+                column-width-storage-key="segmentsBulkEditSegmentsWithoutRecommendation"
+                data-cy="segmentsBulkEdit:segmentsWithoutRecommendation"
+                track-by="id"
+                is-truncatable
+              >
+                <template v-slot:externId="rowData">
+                  <a
+                    :href="rowData.href"
+                    data-cy="segmentsBulkEdit:segmentsWithoutRecommendationLink"
+                    rel="noopener"
+                    target="_blank"
+                  >
+                    {{ rowData.externId }}
+                  </a>
+                </template>
+                <template v-slot:text="rowData">
+                  <div v-cleanhtml="rowData.text" />
+                </template>
+              </dp-data-table>
+              <dp-pager
+                v-if="segmentsWithoutRecommendation.length > pagination.limits[0]"
+                :key="`segmentsWithoutRecommendationPager_${segmentsWithoutRecommendation.length}_${pagination.perPage}`"
+                :current-page="pagination.currentPage"
+                :limits="pagination.limits"
+                :per-page="pagination.perPage"
+                :total-items="segmentsWithoutRecommendation.length"
+                :total-pages="totalPages"
+                class="mt-2 flex justify-end"
+                @page-change="handlePageChange"
+                @size-change="handleSizeChange"
+              />
+            </template>
+          </div>
         </div>
 
         <div
@@ -388,14 +465,19 @@
 import {
   CleanHtml,
   dpApi,
+  DpContextualHelp,
+  DpDataTable,
   DpDatepicker,
+  DpLoading,
   DpMultiselect,
+  DpPager,
   DpRadio,
   dpRpc,
   DpTooltip,
   hasOwnProp,
   prefixClassMixin,
   reformatDateString,
+  Tooltip,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper.vue'
@@ -404,10 +486,13 @@ import ActionStepperResponse from '@DpJs/components/procedure/SegmentsBulkEdit/A
 import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
 import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal.vue'
+import { isEmptyHtml } from '@DpJs/lib/shared/isEmptyHtml'
 import lscache from 'lscache'
 import RecommendationModal from '../Shared/RecommendationModal.vue'
 import SelectedTagsList from '@DpJs/components/procedure/SegmentsBulkEdit/SelectedTagsList.vue'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
+
+const SEGMENTS_FETCH_CHUNK_SIZE = 200
 
 export default {
   name: 'SegmentsBulkEdit',
@@ -417,6 +502,8 @@ export default {
     ActionStepperAction,
     ActionStepperResponse,
     DpBoilerPlateModal,
+    DpContextualHelp,
+    DpDataTable,
     DpDatepicker,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
@@ -428,7 +515,9 @@ export default {
 
       return DpInlineNotification
     }),
+    DpLoading,
     DpMultiselect,
+    DpPager,
     DpRadio,
     DpTooltip,
     RecommendationModal,
@@ -437,6 +526,7 @@ export default {
 
   directives: {
     cleanhtml: CleanHtml,
+    tooltip: Tooltip,
   },
 
   mixins: [prefixClassMixin],
@@ -497,12 +587,25 @@ export default {
       customFieldDefinitions: [],
       hasLockedSelection: false,
       hasRecommendationTabs: false,
+      headerFields: [
+        { colWidth: '100px', field: 'externId', label: Translator.trans('id') },
+        { colWidth: '200px', field: 'assigneeName', label: Translator.trans('assignee') },
+        { colWidth: '600px', field: 'text', label: Translator.trans('segment') },
+      ],
       isLoading: true,
+      isLoadingSegmentsWithoutRecommendation: false,
       lockedCount: 0,
+      pagination: {
+        currentPage: 1,
+        limits: [10, 25, 50],
+        perPage: 10,
+      },
       places: [],
+      requestId: 0,
       returnLink: Routing.generate('dplan_segments_list', { procedureId: this.procedureId }),
       segmentDataLoaded: false,
       segments: [],
+      segmentsWithoutRecommendation: [],
       step: 1,
     }
   },
@@ -556,8 +659,22 @@ export default {
       return this.actions.assignSegment.checked && Object.values(this.actions.assignSegment.selected).length > 0
     },
 
+    segmentsWithoutRecommendationOnPage () {
+      const { currentPage, perPage } = this.pagination
+
+      return this.segmentsWithoutRecommendation.slice((currentPage - 1) * perPage, currentPage * perPage)
+    },
+
+    totalPages () {
+      return this.segmentsWithoutRecommendation.length > 0 ? Math.ceil(this.segmentsWithoutRecommendation.length / this.pagination.perPage) : 1
+    },
+
     assignPlaceCheckedAndSelected () {
       return this.actions.assignPlace.checked && Object.values(this.actions.assignPlace.selected).length > 0
+    },
+
+    isLockingPlaceSelected () {
+      return this.assignPlaceCheckedAndSelected && !!this.actions.assignPlace.selected.locked
     },
 
     customFieldsCheckedAndSelected () {
@@ -742,6 +859,126 @@ export default {
         })
     },
 
+    handlePageChange (page) {
+      this.pagination.currentPage = page
+    },
+
+    handleSizeChange (size) {
+      this.pagination.perPage = size
+      this.pagination.currentPage = 1
+    },
+
+    handleConfirm () {
+      this.step = 2
+      this.loadSegmentsWithoutRecommendation()
+    },
+
+    /**
+     * Load the selected segments in chunks, because all ids do not fit into one url, and keep
+     * those without recommendation. They are locked by the chosen place, so the user is warned.
+     */
+    async loadSegmentsWithoutRecommendation () {
+      const requestId = ++this.requestId
+      const recommendationEdit = this.getRecommendationEdit()
+
+      this.segmentsWithoutRecommendation = []
+      this.pagination.currentPage = 1
+
+      // Recommendations are edited before the place is set, so every segment has one afterwards
+      if (!this.isLockingPlaceSelected || recommendationEdit === 'fills') {
+        this.isLoadingSegmentsWithoutRecommendation = false
+
+        return
+      }
+
+      this.isLoadingSegmentsWithoutRecommendation = true
+
+      try {
+        const idChunks = []
+
+        for (let start = 0; start < this.segments.length; start += SEGMENTS_FETCH_CHUNK_SIZE) {
+          idChunks.push(this.segments.slice(start, start + SEGMENTS_FETCH_CHUNK_SIZE))
+        }
+
+        const responses = await Promise.all(idChunks.map(idChunk => dpApi.get(apiUrl('StatementSegment', 'list'), {
+          /*
+           * Relationships are only part of the response if they are included.
+           * API 2.0: sparse fieldsets of included resources use the type name, not the relationship name.
+           */
+          fields: {
+            AssignableUser: 'firstname,lastname',
+            Statement: 'externId',
+            StatementSegment: 'assignee,externId,parentStatement,recommendation,text',
+          },
+          filter: {
+            idIsOneOf: {
+              condition: {
+                operator: 'IN',
+                path: 'id',
+                value: idChunk,
+              },
+            },
+          },
+          include: 'assignee,parentStatement',
+        })))
+        const loadedSegments = responses.flatMap(response => response.data.data)
+        const assigneeNames = this.getAssigneeNames(responses.flatMap(response => response.data.included ?? []))
+
+        // A newer request was started in the meantime, so this result is outdated
+        if (requestId !== this.requestId) {
+          return
+        }
+
+        this.segmentsWithoutRecommendation = loadedSegments
+          .filter(segment => recommendationEdit === 'empties' || isEmptyHtml(segment.attributes.recommendation))
+          .map(segment => this.toTableRow(segment, assigneeNames))
+      } catch (error) {
+        console.error(error)
+        dplan.notify.notify('error', Translator.trans('error.api.generic'))
+      } finally {
+        if (requestId === this.requestId) {
+          this.isLoadingSegmentsWithoutRecommendation = false
+        }
+      }
+    },
+
+    getAssigneeNames (includedResources) {
+      return Object.fromEntries(includedResources
+        .filter(resource => resource.type === 'AssignableUser')
+        .map(resource => [resource.id, `${resource.attributes.firstname} ${resource.attributes.lastname}`]))
+    },
+
+    /**
+     * What the recommendation text of this bulk edit does to the stored recommendations: the same
+     * rules as in the backend, where "attach" with an empty text changes nothing.
+     * @return {'fills'|'empties'|'keeps'}
+     */
+    getRecommendationEdit () {
+      const { isTextAttached, text } = this.actions.addRecommendations
+
+      if (!isEmptyHtml(text)) {
+        return 'fills'
+      }
+
+      return isTextAttached ? 'keeps' : 'empties'
+    },
+
+    toTableRow (segment, assigneeNames) {
+      const assigneeId = segment.relationships?.assignee?.data?.id
+
+      return {
+        assigneeName: assigneeNames[assigneeId] ?? '—',
+        externId: segment.attributes.externId,
+        href: Routing.generate('dplan_statement_segments_list', {
+          procedureId: this.procedureId,
+          segment: segment.id,
+          statementId: segment.relationships?.parentStatement?.data?.id,
+        }),
+        id: segment.id,
+        text: segment.attributes.text,
+      }
+    },
+
     fetchAssignableUsers () {
       return dpApi.get(apiUrl('AssignableUser'), { sort: 'lastname' })
         .then(response => {
@@ -774,12 +1011,26 @@ export default {
     },
 
     fetchPlaces () {
-      return dpApi.get(apiUrl('Place'), { sort: 'sortIndex' })
+      // `description`, `solved` and `locked` are not default fields, so they have to be requested
+      return dpApi.get(apiUrl('Place'), {
+        fields: {
+          Place: [
+            'description',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+            'name',
+            'solved',
+          ].join(),
+        },
+        sort: 'sortIndex',
+      })
         .then(response => {
           this.places = response.data.data.map(place => {
             return {
               id: place.id,
               name: place.attributes.name,
+              description: place.attributes.description,
+              locked: place.attributes.locked,
+              solved: place.attributes.solved,
             }
           })
         })
