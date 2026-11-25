@@ -887,30 +887,31 @@ export default {
       this.isLoadingSegmentsWithoutRecommendation = true
 
       try {
-        const loadedSegments = []
+        const idChunks = []
 
         for (let start = 0; start < this.segments.length; start += SEGMENTS_FETCH_CHUNK_SIZE) {
-          const response = await dpApi.get(apiUrl('StatementSegment', 'list'), {
-            // Relationships are only part of the response if they are included
-            fields: {
-              assignee: 'firstname,lastname',
-              parentStatement: 'externId',
-              StatementSegment: 'assignee,externId,parentStatement,recommendation,text',
-            },
-            filter: {
-              idIsOneOf: {
-                condition: {
-                  operator: 'IN',
-                  path: 'id',
-                  value: this.segments.slice(start, start + SEGMENTS_FETCH_CHUNK_SIZE),
-                },
+          idChunks.push(this.segments.slice(start, start + SEGMENTS_FETCH_CHUNK_SIZE))
+        }
+
+        const responses = await Promise.all(idChunks.map(idChunk => dpApi.get(apiUrl('StatementSegment', 'list'), {
+          // Relationships are only part of the response if they are included
+          fields: {
+            assignee: 'firstname,lastname',
+            parentStatement: 'externId',
+            StatementSegment: 'assignee,externId,parentStatement,recommendation,text',
+          },
+          filter: {
+            idIsOneOf: {
+              condition: {
+                operator: 'IN',
+                path: 'id',
+                value: idChunk,
               },
             },
-            include: 'assignee,parentStatement',
-          })
-
-          loadedSegments.push(...response.data.data)
-        }
+          },
+          include: 'assignee,parentStatement',
+        })))
+        const loadedSegments = responses.flatMap(response => response.data.data)
 
         // A newer request was started in the meantime, so this result is outdated
         if (requestId !== this.requestId) {
@@ -919,7 +920,7 @@ export default {
 
         this.segmentsWithoutRecommendation = loadedSegments
           .filter(segment => isEmptyHtml(segment.attributes.recommendation))
-          .map(this.toTableRow)
+          .map(segment => this.toTableRow(segment))
       } catch (error) {
         console.error(error)
         dplan.notify.notify('error', Translator.trans('error.api.generic'))
