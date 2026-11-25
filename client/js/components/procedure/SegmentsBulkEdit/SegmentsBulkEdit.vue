@@ -333,6 +333,7 @@
                 :limits="pagination.limits"
                 :per-page="pagination.perPage"
                 :total-items="segmentsWithoutRecommendation.length"
+                :total-pages="totalPages"
                 class="mt-2 flex justify-end"
                 @page-change="handlePageChange"
                 @size-change="handleSizeChange"
@@ -662,6 +663,10 @@ export default {
       const { currentPage, perPage } = this.pagination
 
       return this.segmentsWithoutRecommendation.slice((currentPage - 1) * perPage, currentPage * perPage)
+    },
+
+    totalPages () {
+      return this.segmentsWithoutRecommendation.length > 0 ? Math.ceil(this.segmentsWithoutRecommendation.length / this.pagination.perPage) : 1
     },
 
     assignPlaceCheckedAndSelected () {
