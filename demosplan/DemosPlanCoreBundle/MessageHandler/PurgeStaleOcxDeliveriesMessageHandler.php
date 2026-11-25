@@ -13,7 +13,7 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
 use DateTime;
-use demosplan\DemosPlanCoreBundle\Logic\Ocx\OcxDeliveryService;
+use demosplan\DemosPlanCoreBundle\Logic\Ocx\OcxDeliveryHousekeeping;
 use demosplan\DemosPlanCoreBundle\Message\PurgeStaleOcxDeliveriesMessage;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
@@ -40,7 +40,7 @@ final readonly class PurgeStaleOcxDeliveriesMessageHandler
     private const STALLED_AFTER = '-15 minutes';
 
     public function __construct(
-        private OcxDeliveryService $deliveryService,
+        private OcxDeliveryHousekeeping $housekeeping,
         private LoggerInterface $logger,
     ) {
     }
@@ -48,7 +48,7 @@ final readonly class PurgeStaleOcxDeliveriesMessageHandler
     public function __invoke(PurgeStaleOcxDeliveriesMessage $message): void
     {
         try {
-            $aborted = $this->deliveryService->abortStale(new DateTime('-'.self::MAX_OPEN_DAYS.' days'));
+            $aborted = $this->housekeeping->abortStale(new DateTime('-'.self::MAX_OPEN_DAYS.' days'));
         } catch (Throwable $e) {
             $this->logger->error('Error aborting stale OCX deliveries', ['exception' => $e]);
 
@@ -59,7 +59,7 @@ final readonly class PurgeStaleOcxDeliveriesMessageHandler
         }
 
         try {
-            $this->deliveryService->failStalled(
+            $this->housekeeping->failStalled(
                 new DateTime('-'.self::MAX_UNFINISHED_HOURS.' hours'),
                 new DateTime(self::STALLED_AFTER)
             );

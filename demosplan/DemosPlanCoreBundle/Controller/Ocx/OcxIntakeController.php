@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Ocx\OcxDelivery;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\OcxProblemException;
 use demosplan\DemosPlanCoreBundle\Logic\Ocx\OcxDeliveryService;
+use demosplan\DemosPlanCoreBundle\Logic\Ocx\OcxDeliveryStatusMapper;
 use demosplan\DemosPlanCoreBundle\Logic\Ocx\OcxPayloadValidator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
 use demosplan\DemosPlanCoreBundle\Security\Authentication\Authenticator\OcxApiTokenAuthenticator;
@@ -47,6 +48,7 @@ class OcxIntakeController extends AbstractController
     public function __construct(
         private readonly CurrentUserService $currentUser,
         private readonly OcxDeliveryService $deliveryService,
+        private readonly OcxDeliveryStatusMapper $statusMapper,
         private readonly LoggerInterface $logger,
         private readonly OcxPayloadValidator $payloadValidator,
         private readonly PermissionsInterface $permissions,
@@ -232,7 +234,7 @@ class OcxIntakeController extends AbstractController
      */
     private function status(OcxDelivery $delivery, int $status): Response
     {
-        return $this->jsonBody($this->deliveryService->toStatus($delivery), $status);
+        return $this->jsonBody($this->statusMapper->toStatus($delivery), $status);
     }
 
     /**

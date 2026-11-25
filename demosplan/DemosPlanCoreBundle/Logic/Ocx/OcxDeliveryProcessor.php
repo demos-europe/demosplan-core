@@ -17,13 +17,13 @@ use demosplan\DemosPlanCoreBundle\Entity\Ocx\OcxDelivery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\OcxEntryFailedException;
+use demosplan\DemosPlanCoreBundle\Exception\OcxProcessingException;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureIntegration\RecommendationPushOutcome;
 use demosplan\DemosPlanCoreBundle\Logic\ProcedureIntegration\RecommendationPushService;
 use demosplan\DemosPlanCoreBundle\Types\OcxEntryKind;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
 use Throwable;
 
 use function in_array;
@@ -64,58 +64,17 @@ class OcxDeliveryProcessor
             'procedureId'    => $procedure->getId(),
             'organisationId' => $delivery->getOrganisation()?->getId(),
         ];
-        $permittedKinds = $delivery->getPermittedKinds();
-        $receivedAttachments = $delivery->getReceivedAttachments();
-        $usedFileIds = [];
+        $run = new OcxDeliveryRun($delivery->getPermittedKinds(), $delivery->getReceivedAttachments());
         $parts = $delivery->getReceivedParts();
         ksort($parts);
-
-        $results = [];
-        $seenSenders = [];
-        $seenTargets = [];
         $reported = ['entries' => 0, 'at' => microtime(true)];
 
         try {
             foreach ($parts as $part) {
                 [$procedure, $sender] = $this->enterContext($context);
                 foreach ($this->readEntries($part['path']) as $entry) {
-                    $reported = $this->reportProgress($deliveryId, count($results), $reported);
-                    $senderId = $entry['senderId'];
-                    $kind = OcxEntryKind::from($entry['kind']);
-
-                    if (isset($seenSenders[$senderId])) {
-                        $results[] = OcxEntryResult::skipped($senderId, 'duplicate_in_delivery');
-                        continue;
-                    }
-                    $seenSenders[$senderId] = true;
-
-                    if (!in_array($kind->value, $permittedKinds, true)) {
-                        $results[] = OcxEntryResult::failed($senderId, 'not_permitted');
-                        continue;
-                    }
-
-                    try {
-                        if (OcxEntryKind::STATEMENT === $kind) {
-                            $statement = $this->statementCreator->create($procedure, $sender, $entry, $receivedAttachments);
-                            foreach ($statement->fileIds as $fileId) {
-                                $usedFileIds[] = $fileId;
-                            }
-                            $results[] = OcxEntryResult::fromStatement($senderId, $statement);
-                        } elseif (isset($seenTargets[$entry['targetId']])) {
-                            $results[] = OcxEntryResult::skipped($senderId, 'duplicate_in_delivery');
-                        } else {
-                            $seenTargets[$entry['targetId']] = true;
-                            $results[] = $this->applyResponse($procedure, $senderId, $entry['targetId'], $entry['response']);
-                        }
-                    } catch (OcxEntryFailedException $e) {
-                        $results[] = OcxEntryResult::failed($senderId, $e->reason, $e->getMessage());
-                    } catch (Throwable $e) {
-                        if (!$this->entityManager->isOpen()) {
-                            throw $e;
-                        }
-                        $this->logger->error('OCX entry failed', ['deliveryId' => $deliveryId, 'senderId' => $senderId, 'exception' => $e]);
-                        $results[] = OcxEntryResult::failed($senderId, 'internal_error');
-                    }
+                    $reported = $this->reportProgress($deliveryId, count($run->results), $reported);
+                    $run->results[] = $this->processEntry($run, $procedure, $sender, $entry, $deliveryId);
                     // keeps every flush small and drops whatever a failed entry left unflushed
                     $this->entityManager->clear();
                     [$procedure, $sender] = $this->enterContext($context);
@@ -129,10 +88,68 @@ class OcxDeliveryProcessor
         $this->files->deleteParts($deliveryId, array_column($parts, 'path'));
         $this->files->deleteAttachments(
             $deliveryId,
-            array_diff(array_column($receivedAttachments, 'fileId'), $usedFileIds)
+            array_diff(array_column($run->receivedAttachments, 'fileId'), $run->usedFileIds)
         );
 
-        return $results;
+        return $run->results;
+    }
+
+    /**
+     * @param array<string, mixed> $entry
+     *
+     * @throws Throwable when the database is no longer usable
+     */
+    private function processEntry(OcxDeliveryRun $run, Procedure $procedure, User $sender, array $entry, string $deliveryId): OcxEntryResult
+    {
+        $senderId = $entry['senderId'];
+        $kind = OcxEntryKind::from($entry['kind']);
+
+        if (!$run->markSenderSeen($senderId)) {
+            return OcxEntryResult::skipped($senderId, 'duplicate_in_delivery');
+        }
+        if (!in_array($kind->value, $run->permittedKinds, true)) {
+            return OcxEntryResult::failed($senderId, 'not_permitted');
+        }
+
+        try {
+            return OcxEntryKind::STATEMENT === $kind
+                ? $this->applyStatement($run, $procedure, $sender, $entry)
+                : $this->applyResponseEntry($run, $procedure, $entry);
+        } catch (OcxEntryFailedException $e) {
+            return OcxEntryResult::failed($senderId, $e->reason, $e->getMessage());
+        } catch (Throwable $e) {
+            if (!$this->entityManager->isOpen()) {
+                throw $e;
+            }
+            $this->logger->error('OCX entry failed', ['deliveryId' => $deliveryId, 'senderId' => $senderId, 'exception' => $e]);
+
+            return OcxEntryResult::failed($senderId, 'internal_error');
+        }
+    }
+
+    /**
+     * @param array<string, mixed> $entry
+     *
+     * @throws Throwable
+     */
+    private function applyStatement(OcxDeliveryRun $run, Procedure $procedure, User $sender, array $entry): OcxEntryResult
+    {
+        $statement = $this->statementCreator->create($procedure, $sender, $entry, $run->receivedAttachments);
+        array_push($run->usedFileIds, ...$statement->fileIds);
+
+        return OcxEntryResult::fromStatement($entry['senderId'], $statement);
+    }
+
+    /**
+     * @param array<string, mixed> $entry
+     */
+    private function applyResponseEntry(OcxDeliveryRun $run, Procedure $procedure, array $entry): OcxEntryResult
+    {
+        if (!$run->markTargetSeen($entry['targetId'])) {
+            return OcxEntryResult::skipped($entry['senderId'], 'duplicate_in_delivery');
+        }
+
+        return $this->applyResponse($procedure, $entry['senderId'], $entry['targetId'], $entry['response']);
     }
 
     private function applyResponse(Procedure $procedure, string $senderId, string $targetId, string $response): OcxEntryResult
@@ -201,9 +218,9 @@ class OcxDeliveryProcessor
 
         return [
             $this->entityManager->find(Procedure::class, $context['procedureId'])
-                ?? throw new RuntimeException('Procedure of the OCX delivery is gone'),
+                ?? throw new OcxProcessingException('Procedure of the OCX delivery is gone'),
             $this->entityManager->find(User::class, $context['userId'])
-                ?? throw new RuntimeException('Sender of the OCX delivery is gone'),
+                ?? throw new OcxProcessingException('Sender of the OCX delivery is gone'),
         ];
     }
 }

@@ -21,11 +21,11 @@ use demosplan\DemosPlanCoreBundle\Entity\Workflow\Place;
 use demosplan\DemosPlanCoreBundle\EntityValidator\SegmentValidator;
 use demosplan\DemosPlanCoreBundle\EntityValidator\TagValidator;
 use demosplan\DemosPlanCoreBundle\Exception\OcxEntryFailedException;
+use demosplan\DemosPlanCoreBundle\Exception\OcxProcessingException;
 use demosplan\DemosPlanCoreBundle\Logic\Segment\SegmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Logic\Workflow\PlaceService;
 use Doctrine\ORM\EntityManagerInterface;
-use RuntimeException;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 
 use function array_map;
@@ -84,7 +84,7 @@ class OcxSectionWriter
         usort($indexes, static fn (int $a, int $b): int => $sections[$a]['order'] <=> $sections[$b]['order']);
 
         $place = $this->placeService->findFirstOrderedBySortIndex($procedure->getId())
-            ?? throw new RuntimeException('The procedure has no workflow place for segments');
+            ?? throw new OcxProcessingException('The procedure has no workflow place for segments');
         $orderInProcedure = $this->segmentService->getNextSegmentOrderNumber($procedure->getId());
         $externIds = [];
 
@@ -104,10 +104,7 @@ class OcxSectionWriter
 
             $violations = $this->segmentValidator->validate($segment, Segment::VALIDATION_GROUP_IMPORT);
             if (0 !== $violations->count()) {
-                throw OcxEntryFailedException::invalidEntry(array_map(
-                    static fn (ConstraintViolationInterface $violation): string => "sections/{$i}/".$violation->getPropertyPath(),
-                    iterator_to_array($violations)
-                ));
+                throw OcxEntryFailedException::invalidEntry(array_map(static fn (ConstraintViolationInterface $violation): string => "sections/{$i}/".$violation->getPropertyPath(), iterator_to_array($violations)));
             }
             $this->entityManager->persist($segment);
         }

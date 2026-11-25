@@ -25,15 +25,15 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Statement\ManualOriginalStatementCreatedEvent;
 use demosplan\DemosPlanCoreBundle\Exception\OcxEntryFailedException;
+use demosplan\DemosPlanCoreBundle\Exception\OcxProcessingException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
-use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementCopier;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementService;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\StatementToLegacyConverter;
+use demosplan\DemosPlanCoreBundle\Logic\StatementAttachmentService;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use RuntimeException;
 use Symfony\Component\Validator\ConstraintViolationInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Service\ResetInterface;
@@ -83,7 +83,7 @@ class OcxStatementCreator implements ResetInterface
     }
 
     /**
-     * @param array<string, mixed>                                $entry               a `statementEntry` valid against the OCX schema
+     * @param array<string, mixed>                                 $entry               a `statementEntry` valid against the OCX schema
      * @param array<string, array{sha256: string, fileId: string}> $receivedAttachments attachments of the delivery by OCX id
      *
      * @throws OcxEntryFailedException
@@ -284,7 +284,7 @@ class OcxStatementCreator implements ResetInterface
 
             $container = $this->fileService->addStatementFileContainer($statement->getId(), $file->getId(), $file->getFileString(), false);
             if (null === $container) {
-                throw new RuntimeException('OCX attachment could not be linked to the statement');
+                throw new OcxProcessingException('OCX attachment could not be linked to the statement');
             }
             $fileStrings[] = $container->getFileString();
         }

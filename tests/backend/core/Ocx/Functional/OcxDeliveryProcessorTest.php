@@ -32,12 +32,13 @@ use demosplan\DemosPlanCoreBundle\Exception\OcxProblemException;
 use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\Ocx\OcxDeliveryService;
+use demosplan\DemosPlanCoreBundle\Logic\Ocx\OcxDeliveryStatusMapper;
 use demosplan\DemosPlanCoreBundle\Logic\Ocx\OcxSchemaValidator;
 use demosplan\DemosPlanCoreBundle\Message\OcxProcessDeliveryMessage;
 use demosplan\DemosPlanCoreBundle\Message\PurgeStaleOcxDeliveriesMessage;
-use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\MessageHandler\OcxProcessDeliveryMessageHandler;
 use demosplan\DemosPlanCoreBundle\MessageHandler\PurgeStaleOcxDeliveriesMessageHandler;
+use demosplan\DemosPlanCoreBundle\Permissions\Permissions;
 use demosplan\DemosPlanCoreBundle\Repository\RecommendationVersionRepository;
 use demosplan\DemosPlanCoreBundle\Types\OcxDeliveryFailure;
 use demosplan\DemosPlanCoreBundle\Types\OcxDeliveryStatus;
@@ -230,7 +231,7 @@ class OcxDeliveryProcessorTest extends FunctionalTestCase
             $this->response(Uuid::uuid4()->toString(), '<p>x</p>'),
         ]);
 
-        $status = $this->getContainer()->get(OcxDeliveryService::class)->toStatus($delivery);
+        $status = (new OcxDeliveryStatusMapper())->toStatus($delivery);
         $validator = new OcxSchemaValidator(self::SCHEMAS);
         $violations = $validator->validate(
             json_decode(json_encode($status, JSON_THROW_ON_ERROR), false, 512, JSON_THROW_ON_ERROR),
@@ -503,7 +504,7 @@ class OcxDeliveryProcessorTest extends FunctionalTestCase
             $this->getEntityManager()->flush();
         }, expectedStatus: OcxDeliveryStatus::FAILED);
 
-        self::assertSame('no_longer_accepted', $this->getContainer()->get(OcxDeliveryService::class)->toStatus($delivery)['failure']['code']);
+        self::assertSame('no_longer_accepted', (new OcxDeliveryStatusMapper())->toStatus($delivery)['failure']['code']);
         self::assertSame([], $this->getEntityManager()->getRepository(Statement::class)->findBy(['sourceStatementId' => $entry['senderId']]));
     }
 
@@ -521,7 +522,7 @@ class OcxDeliveryProcessorTest extends FunctionalTestCase
         self::assertNotNull($delivery->getProgressUpdatedAt());
         self::assertSame(
             ['processedEntries' => 30, 'totalEntries' => 30],
-            array_intersect_key($this->getContainer()->get(OcxDeliveryService::class)->toStatus($delivery)['progress'], ['processedEntries' => 0, 'totalEntries' => 0])
+            array_intersect_key((new OcxDeliveryStatusMapper())->toStatus($delivery)['progress'], ['processedEntries' => 0, 'totalEntries' => 0])
         );
     }
 

@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Logic\Ocx;
 
 use DateTime;
-use DateTimeInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Ocx\OcxDelivery;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
@@ -21,7 +20,6 @@ use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Exception\OcxProblemException;
 use demosplan\DemosPlanCoreBundle\Message\OcxProcessDeliveryMessage;
 use demosplan\DemosPlanCoreBundle\Repository\OcxDeliveryRepository;
-use demosplan\DemosPlanCoreBundle\Types\OcxDeliveryFailure;
 use demosplan\DemosPlanCoreBundle\Types\OcxDeliveryStatus;
 use demosplan\DemosPlanCoreBundle\Types\OcxEntryKind;
 use Doctrine\DBAL\LockMode;
@@ -38,18 +36,13 @@ use Throwable;
  */
 class OcxDeliveryService
 {
-    private const FAILURE_DETAILS = [
-        OcxDeliveryFailure::NO_LONGER_ACCEPTED->value => 'The procedure no longer accepts deliveries from this sender.',
-        OcxDeliveryFailure::STALLED->value            => 'Processing stopped and was given up.',
-        OcxDeliveryFailure::INTERNAL_ERROR->value     => 'The delivery could not be processed.',
-    ];
-
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
         private readonly LoggerInterface $logger,
         private readonly MessageBusInterface $messageBus,
         private readonly OcxDeliveryFiles $files,
         private readonly OcxDeliveryRepository $deliveryRepository,
+        private readonly OcxDeliveryStatusMapper $statusMapper,
         private readonly OcxPayloadValidator $payloadValidator,
         private readonly PermissionsInterface $permissions,
     ) {
@@ -150,7 +143,7 @@ class OcxDeliveryService
     {
         $this->assertOpen($delivery);
         $announced = $this->findAnnouncedAttachment($delivery, $attachmentId);
-        $mismatch = OcxProblemException::unprocessable('Attachment '.$attachmentId.' does not match size or sha256 announced in the manifest.');
+        $mismatch = OcxProblemException::unprocessable(sprintf('Attachment %s does not match size or sha256 announced in the manifest.', $attachmentId));
         if (null !== $contentLength && $contentLength > $announced['size']) {
             throw $mismatch;
         }
@@ -270,8 +263,8 @@ class OcxDeliveryService
             return null;
         }
 
-        $missingParts = $this->getMissingParts($delivery);
-        $missingAttachments = $this->getMissingAttachments($delivery);
+        $missingParts = $this->statusMapper->getMissingParts($delivery);
+        $missingAttachments = $this->statusMapper->getMissingAttachments($delivery);
         if ([] !== $missingParts || [] !== $missingAttachments) {
             throw OcxProblemException::unprocessable('The delivery is incomplete.', ['missingParts' => $missingParts, 'missingAttachments' => $missingAttachments]);
         }
@@ -308,84 +301,6 @@ class OcxDeliveryService
     }
 
     /**
-     * Aborts deliveries that stayed open for too long and deletes what was uploaded.
-     */
-    public function abortStale(DateTime $openedBefore): int
-    {
-        $deliveries = $this->deliveryRepository->findOpenCreatedBefore($openedBefore);
-        foreach ($deliveries as $delivery) {
-            $this->files->discardReceived($delivery);
-            $delivery->setStatus(OcxDeliveryStatus::ABORTED);
-        }
-        $this->entityManager->flush();
-
-        return count($deliveries);
-    }
-
-    /**
-     * Fails queued or processing deliveries no worker finishes any more: the message was lost or
-     * the worker stopped. A delivery that still progresses is left alone.
-     */
-    public function failStalled(DateTime $completedBefore, DateTime $progressBefore): int
-    {
-        $deliveries = $this->deliveryRepository->findUnfinishedCompletedBefore($completedBefore, $progressBefore);
-        foreach ($deliveries as $delivery) {
-            $this->logger->warning('OCX delivery failed because its processing stalled', [
-                'deliveryId'       => $delivery->getId(),
-                'status'           => $delivery->getStatus()->value,
-                'processedEntries' => $delivery->getProcessedEntries(),
-            ]);
-            $this->discardLeftovers($delivery);
-            $delivery->fail(OcxDeliveryFailure::STALLED);
-            $delivery->setProcessedAt(new DateTime());
-        }
-        $this->entityManager->flush();
-
-        return count($deliveries);
-    }
-
-    /**
-     * Deletes the parts and every attachment no statement took over, after the delivery failed as
-     * a whole. Statements created before the failure keep their files.
-     */
-    public function discardLeftovers(OcxDelivery $delivery): void
-    {
-        $this->files->discardReceived($delivery, true);
-    }
-
-    /**
-     * The delivery as described by `delivery.schema.json`.
-     *
-     * @return array<string, mixed>
-     */
-    public function toStatus(OcxDelivery $delivery): array
-    {
-        $isOpen = OcxDeliveryStatus::OPEN === $delivery->getStatus();
-
-        return [
-            'deliveryId'         => $delivery->getId(),
-            'procedureId'        => $delivery->getProcedure()->getId(),
-            'status'             => $delivery->getStatus()->value,
-            'failure'            => $this->getFailure($delivery),
-            'missingParts'       => $isOpen ? $this->getMissingParts($delivery) : [],
-            'missingAttachments' => $isOpen ? $this->getMissingAttachments($delivery) : [],
-            'progress'           => $this->getProgress($delivery),
-            'counts'             => $delivery->getCounts(),
-            'results'            => $delivery->getResults(),
-        ];
-    }
-
-    /**
-     * @return array{code: string, detail: string}|null
-     */
-    private function getFailure(OcxDelivery $delivery): ?array
-    {
-        $failure = $delivery->getFailure();
-
-        return null === $failure ? null : ['code' => $failure->value, 'detail' => self::FAILURE_DETAILS[$failure->value]];
-    }
-
-    /**
      * Whether a manifest sent again under an Idempotency-Key describes the delivery opened with it.
      * Other members differ legitimately, e.g. `createdAt` when a sender resumes.
      *
@@ -404,23 +319,6 @@ class OcxDeliveryService
         }
 
         return true;
-    }
-
-    /**
-     * @return array{processedEntries: int, totalEntries: int, updatedAt: string}|null
-     */
-    private function getProgress(OcxDelivery $delivery): ?array
-    {
-        $updatedAt = $delivery->getProgressUpdatedAt();
-        if (null === $updatedAt || OcxDeliveryStatus::ABORTED === $delivery->getStatus()) {
-            return null;
-        }
-
-        return [
-            'processedEntries' => $delivery->getProcessedEntries(),
-            'totalEntries'     => (int) $delivery->getManifest()['counts']['entries'],
-            'updatedAt'        => $updatedAt->format(DateTimeInterface::RFC3339),
-        ];
     }
 
     /**
@@ -482,7 +380,7 @@ class OcxDeliveryService
     {
         $received = $delivery->getReceivedAttachments()[$attachmentId] ?? null;
         if (null !== $received && $received['sha256'] !== $sha256) {
-            throw OcxProblemException::conflict('Attachment '.$attachmentId.' was already uploaded with different content.');
+            throw OcxProblemException::conflict(sprintf('Attachment %s was already uploaded with different content.', $attachmentId));
         }
     }
 
@@ -543,26 +441,6 @@ class OcxDeliveryService
             }
         }
 
-        throw OcxProblemException::unprocessable('Attachment '.$attachmentId.' is not announced in the manifest.');
-    }
-
-    /**
-     * @return list<int>
-     */
-    private function getMissingParts(OcxDelivery $delivery): array
-    {
-        $totalParts = (int) $delivery->getManifest()['counts']['parts'];
-
-        return array_values(array_diff(range(1, $totalParts), array_keys($delivery->getReceivedParts())));
-    }
-
-    /**
-     * @return list<string>
-     */
-    private function getMissingAttachments(OcxDelivery $delivery): array
-    {
-        $announced = array_column($delivery->getManifest()['attachments'], 'id');
-
-        return array_values(array_diff($announced, array_keys($delivery->getReceivedAttachments())));
+        throw OcxProblemException::unprocessable(sprintf('Attachment %s is not announced in the manifest.', $attachmentId));
     }
 }

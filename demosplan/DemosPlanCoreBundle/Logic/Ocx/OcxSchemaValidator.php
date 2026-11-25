@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\Logic\Ocx;
 
+use demosplan\DemosPlanCoreBundle\Exception\OcxProcessingException;
 use demosplan\DemosPlanCoreBundle\Types\OcxEntryKind;
 use JsonException;
 use JsonSchema\Constraints\Factory;
@@ -19,7 +20,6 @@ use JsonSchema\SchemaStorage;
 use JsonSchema\Validator;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
-use RuntimeException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
@@ -59,7 +59,7 @@ class OcxSchemaValidator
     public function validate(mixed $data, string $schemaName): array
     {
         $this->getSchemaStorage();
-        $schemaId = $this->schemaIds[$schemaName] ?? throw new RuntimeException('Unknown OCX schema '.$schemaName);
+        $schemaId = $this->schemaIds[$schemaName] ?? throw new OcxProcessingException('Unknown OCX schema '.$schemaName);
 
         if (self::ENTRIES === $schemaName && is_object($data) && is_array($data->entries ?? null)) {
             return $this->validateEntriesDocument($data, $schemaId);
@@ -131,7 +131,7 @@ class OcxSchemaValidator
         }
 
         if (!is_dir($this->schemaDirectory)) {
-            throw new RuntimeException('OCX schemas not found in '.$this->schemaDirectory);
+            throw new OcxProcessingException('OCX schemas not found in '.$this->schemaDirectory);
         }
 
         $storage = new SchemaStorage();

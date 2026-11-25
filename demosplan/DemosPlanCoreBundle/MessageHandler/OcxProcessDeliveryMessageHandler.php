@@ -14,6 +14,8 @@ namespace demosplan\DemosPlanCoreBundle\MessageHandler;
 
 use DateTime;
 use demosplan\DemosPlanCoreBundle\Entity\Ocx\OcxDelivery;
+use demosplan\DemosPlanCoreBundle\Exception\OcxProcessingException;
+use demosplan\DemosPlanCoreBundle\Logic\Ocx\OcxDeliveryHousekeeping;
 use demosplan\DemosPlanCoreBundle\Logic\Ocx\OcxDeliveryProcessor;
 use demosplan\DemosPlanCoreBundle\Logic\Ocx\OcxDeliveryService;
 use demosplan\DemosPlanCoreBundle\Logic\Ocx\OcxEntryResult;
@@ -23,7 +25,6 @@ use demosplan\DemosPlanCoreBundle\Types\OcxDeliveryStatus;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Psr\Log\LoggerInterface;
-use RuntimeException;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 use Throwable;
 
@@ -39,6 +40,7 @@ readonly class OcxProcessDeliveryMessageHandler
         private ManagerRegistry $managerRegistry,
         private OcxDeliveryProcessor $processor,
         private OcxDeliveryService $deliveryService,
+        private OcxDeliveryHousekeeping $housekeeping,
     ) {
     }
 
@@ -80,7 +82,7 @@ readonly class OcxProcessDeliveryMessageHandler
         }
         if (null !== $failure) {
             $delivery = $this->findDelivery($message->deliveryId);
-            $this->deliveryService->discardLeftovers($delivery);
+            $this->housekeeping->discardLeftovers($delivery);
             $delivery->fail($failure);
         }
         $delivery->setProcessedAt(new DateTime());
@@ -96,6 +98,6 @@ readonly class OcxProcessDeliveryMessageHandler
     private function findDelivery(string $deliveryId): OcxDelivery
     {
         return $this->entityManager->find(OcxDelivery::class, $deliveryId)
-            ?? throw new RuntimeException('OCX delivery is gone');
+            ?? throw new OcxProcessingException('OCX delivery is gone');
     }
 }
