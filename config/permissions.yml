@@ -1468,6 +1468,14 @@ feature_obscure_text:
     expose: true
     label: 'Activate obscure function'
     loginRequired: true
+feature_ocx_intake_response:
+    description: 'Allows an external system to write responses (Abwägung) into existing statements of a procedure via the OCX intake API.'
+    label: 'Receive responses via OCX'
+    loginRequired: true
+feature_ocx_intake_statement:
+    description: 'Allows an external system to create statements in a procedure via the OCX intake API.'
+    label: 'Receive statements via OCX'
+    loginRequired: true
 feature_optional_tag_propagation:
     description: 'If this feature is disabled the propagation will be done automatically. If it is enabled the user can control the propagation on a case to case basis.'
     expose: true
