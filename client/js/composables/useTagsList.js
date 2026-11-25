@@ -60,8 +60,7 @@ export function useTagsList () {
 
   const dataIsRequested = ref(false)
   const isInEditState = ref('')
-  // Id of the tag/topic that is currently being saved or deleted
-  const pendingItemId = ref('')
+  const pendingItemId = ref('') /* ID of the tag/topic that is currently being saved or deleted */
 
   const clearPending = () => {
     pendingItemId.value = ''
@@ -90,7 +89,9 @@ export function useTagsList () {
     })
   }
 
-  // Apply tagList.reorder RPC response — sync sortIndex in the Tag store for every changed tag
+  /**
+   * Apply tagList.reorder RPC response — sync sortIndex in the Tag store for every changed tag
+   */
   const applyReorderResponse = (response) => {
     const result = response.data[0].result
 
@@ -131,7 +132,9 @@ export function useTagsList () {
 
   const isBranch = ({ node }) => node.type === TAG_TOPIC
 
-  // Persist cross-topic move — optimistic update on both topics + rollback
+  /**
+   * Persist cross-topic move — optimistic update on both topics + rollback
+   */
   const crossTopicReorder = (tagId, newIndex, targetTopicId) => {
     const newParent = tagTopics.value[targetTopicId]
     const oldParent = Object.values(tagTopics.value).find(topic =>
@@ -157,7 +160,9 @@ export function useTagsList () {
     })
   }
 
-  // Persist new tag order within a topic — optimistic update + rollback
+  /**
+   * Persist new tag order within a topic — optimistic update + rollback
+   */
   const reorderTagInTopic = (parentId, tagId, newIndex) => {
     const topic = tagTopics.value[parentId]
 

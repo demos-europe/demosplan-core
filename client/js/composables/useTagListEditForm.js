@@ -13,9 +13,6 @@ import { computed, ref } from 'vue'
  * Shared state and logic for a single row (tag or tag topic) of the tag list.
  * Used by the core TagListEditForm and by project-specific variants that only differ in markup.
  *
- * The delete confirmation UI is left to the component: open your dialog with `confirmMessage`
- * and call `confirmDelete()` once the user confirmed.
- *
  * The component must declare the emits `abort`, `delete`, `edit`, `save`.
  *
  * @param {Object} props

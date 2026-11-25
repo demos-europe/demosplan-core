@@ -55,10 +55,9 @@ export function useTagsCreateForm (props) {
   const tagTopics = computed(() => store.state[TAG_TOPIC].items)
 
   /*
-   * Mirror the backend uniqueness rules to give feedback before the request is sent:
-   * - Tag titles are compared exactly (TagResourceType::checkTitleUnique)
-   * - TagTopic titles are compared case-insensitively, as the backend check runs
-   *   as a database query on a case-insensitive column (TagTopicResourceType::checkTitleUniqueForProcedure)
+   * Mirror backend uniqueness rules for early validation:
+   * - Tag titles: exact match (TagResourceType::checkTitleUnique)
+   * - TagTopic titles: case-insensitive match (TagTopicResourceType::checkTitleUniqueForProcedure)
    */
   const isTagTitleTaken = (title) => Object.values(tags.value)
     .some(({ attributes }) => attributes.title.trim() === title.trim())
@@ -91,10 +90,7 @@ export function useTagsCreateForm (props) {
   const openForm = (form) => {
     currentForm.value = form
   }
-
-  /**
-   * Used by addon hooks (`tag.create.form`) to set additional tag fields
-   */
+  
   const updateForm = ({ key, value }) => {
     newTag.value[key] = value
   }
