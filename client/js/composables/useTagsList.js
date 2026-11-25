@@ -60,14 +60,11 @@ export function useTagsList () {
 
   const dataIsRequested = ref(false)
   const isInEditState = ref('')
-  const pendingItem = ref({ id: '', action: '' })
-
-  const setPending = (id, action) => {
-    pendingItem.value = { id, action }
-  }
+  // Id of the tag/topic that is currently being saved or deleted
+  const pendingItemId = ref('')
 
   const clearPending = () => {
-    pendingItem.value = { id: '', action: '' }
+    pendingItemId.value = ''
   }
 
   const tags = computed(() => store.state[TAG].items)
@@ -212,7 +209,7 @@ export function useTagsList () {
   }
 
   const deleteItem = (item) => {
-    setPending(item.id, 'delete')
+    pendingItemId.value = item.id
 
     return dpRpc('bulk.delete.tags.and.topics', { ids: [item] })
       .then(loadTagsAndTopics)
@@ -233,7 +230,7 @@ export function useTagsList () {
       type,
     })
 
-    setPending(id, 'save')
+    pendingItemId.value = id
 
     return store.dispatch(`${type}/save`, id)
       .then(closeEditForm)
@@ -250,7 +247,7 @@ export function useTagsList () {
     isBranch,
     isInEditState,
     loadTagsAndTopics,
-    pendingItem,
+    pendingItemId,
     save,
     setEditState,
     transformedCategories,
