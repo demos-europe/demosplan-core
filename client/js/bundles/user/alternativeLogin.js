@@ -12,10 +12,10 @@
  */
 
 import { DpDataTableExtended, dpValidate } from '@demos-europe/demosplan-ui'
-import AlternativeLogin from '@DpJs/components/user/AlternativeLogin'
-import IdpLoginForm from '@DpJs/components/user/IdpLoginForm/IdpLoginForm'
+import AlternativeLogin from '@DpJs/components/user/AlternativeLogin.vue'
+import IdpLoginForm from '@DpJs/components/user/IdpLoginForm/IdpLoginForm.vue'
 import { initialize } from '@DpJs/InitVue'
-import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout.vue'
 
 const components = {
   AlternativeLogin,

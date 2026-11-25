@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import AdminLayerList from '@DpJs/components/map/admin/AdminLayerList'
+import AdminLayerList from '@DpJs/components/map/admin/AdminLayerList.vue'
 import { createStore } from 'vuex'
 import LayersStore from '@DpJs/store/map/Layers'
 

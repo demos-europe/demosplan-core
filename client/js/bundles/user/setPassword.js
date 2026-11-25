@@ -13,8 +13,8 @@
 
 import { dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
-import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
-import SetPassword from '@DpJs/components/user/portalUser/SetPassword'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout.vue'
+import SetPassword from '@DpJs/components/user/portalUser/SetPassword.vue'
 
 const components = {
   RegisterFlyout,

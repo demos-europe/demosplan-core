@@ -11,12 +11,12 @@
  * This is the entry point for administration_dashboard.html.twig
  */
 
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper.vue'
 import { DpContextualHelp } from '@demos-europe/demosplan-ui'
-import DpDashboardTaskCard from '@DpJs/components/procedure/DpDashboardTaskCard'
-import DpStatementSegmentsStatusCharts from '@DpJs/components/procedure/charts/DpStatementSegmentsStatusCharts'
+import DpDashboardTaskCard from '@DpJs/components/procedure/DpDashboardTaskCard.vue'
+import DpStatementSegmentsStatusCharts from '@DpJs/components/procedure/charts/DpStatementSegmentsStatusCharts.vue'
 import { initialize } from '@DpJs/InitVue'
-import ProcedureAnalyticsChart from '@DpJs/components/procedure/charts/ProcedureAnalyticsChart'
+import ProcedureAnalyticsChart from '@DpJs/components/procedure/charts/ProcedureAnalyticsChart.vue'
 import ProcedureCharts from '@DpJs/components/procedure/charts/ProcedureCharts'
 
 const components = {

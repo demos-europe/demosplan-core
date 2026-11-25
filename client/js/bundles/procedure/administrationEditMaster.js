@@ -21,9 +21,9 @@ import {
   DpUploadFiles,
   dpValidate,
 } from '@demos-europe/demosplan-ui'
-import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
+import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList.vue'
 import { initialize } from '@DpJs/InitVue'
-import ProcedureTemplateBasicSettings from '@DpJs/components/procedure/basicSettings/ProcedureTemplateBasicSettings'
+import ProcedureTemplateBasicSettings from '@DpJs/components/procedure/basicSettings/ProcedureTemplateBasicSettings.vue'
 
 const components = {
   DpCheckbox,

@@ -7,7 +7,7 @@
  * All rights reserved
  */
 import { createStore } from 'vuex'
-import DpBulkEditStatement from '@DpJs/components/statement/assessmentTable/DpBulkEditStatement'
+import DpBulkEditStatement from '@DpJs/components/statement/assessmentTable/DpBulkEditStatement.vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 import StatementStore from '@DpJs/store/statement/Statement'
 

@@ -198,16 +198,16 @@ import {
   hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper.vue'
 import { apiUrl } from '@DpJs/store/core/VuexApiRoutes'
-import CardPane from './CardPane'
+import CardPane from './CardPane.vue'
 import dayjs from 'dayjs'
 import { EditorState } from 'prosemirror-state'
 import { generateRangeChangeMap } from '@DpJs/lib/prosemirror/utilities'
-import SegmentationEditor from './SegmentationEditor'
-import SideBar from './SideBar'
-import StatementMeta from '@DpJs/components/procedure/StatementSegmentsList/StatementMeta/StatementMeta'
-import StatementMetaTooltip from '../StatementMetaTooltip'
+import SegmentationEditor from './SegmentationEditor.vue'
+import SideBar from './SideBar.vue'
+import StatementMeta from '@DpJs/components/procedure/StatementSegmentsList/StatementMeta/StatementMeta.vue'
+import StatementMetaTooltip from '../StatementMetaTooltip.vue'
 import { v4 as uuid } from 'uuid'
 
 /**

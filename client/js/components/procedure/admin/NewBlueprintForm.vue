@@ -185,7 +185,7 @@ import {
   DpSelect,
   DpTextArea,
 } from '@demos-europe/demosplan-ui'
-import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
+import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList.vue'
 
 export default {
   name: 'NewBlueprintForm',

@@ -38,6 +38,28 @@ class UserReportEntryFactory extends AbstractReportEntryFactory
         return $entry;
     }
 
+    /**
+     * Documents that a user set up a second factor.
+     *
+     * @param string $method 'totp' or 'email'
+     */
+    public function createTwoFactorSetupEntry(UserInterface $user, string $method): ReportEntry
+    {
+        $entry = $this->createReportEntry();
+        $entry->setCategory(ReportEntry::CATEGORY_SETUP_TWO_FACTOR);
+        $entry->setUser($this->currentUserProvider->getUser());
+        $entry->setIdentifier($user->getId());
+        $entry->setIdentifierType(ReportEntry::IDENTIFIER_TYPE_USER);
+        $entry->setMessage(Json::encode([
+            'userId'    => $user->getId(),
+            'userName'  => $user->getFullname(),
+            'userEmail' => $user->getEmail(),
+            'method'    => $method,
+        ], JSON_UNESCAPED_UNICODE));
+
+        return $entry;
+    }
+
     protected function createReportEntry(): ReportEntry
     {
         $entry = parent::createReportEntry();

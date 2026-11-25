@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import DpListItem from './ListItem'
+import DpListItem from './ListItem.vue'
 import Scroller from '@DpJs/directives/scroller'
 
 export default {

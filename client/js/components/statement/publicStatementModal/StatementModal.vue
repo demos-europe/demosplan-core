@@ -357,6 +357,7 @@
             :required="formDefinition.required && formData.r_isNegativeReport !== '1'"
             :logged-in="loggedIn"
             :counties="counties"
+            @go-to-tab="gotoTab"
           />
         </template>
 
@@ -417,6 +418,7 @@
                   :disabled="formData.r_isNegativeReport !== '0'"
                   allowed-file-types="pdf-img-zip"
                   :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
+                  :chunk-size="dplan.settings.uploadChunkSize"
                   :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
                   :max-number-of-files="20"
                   :translations="{ dropHereOr: Translator.trans('form.button.upload.file', { browse: '{browse}', maxUploadSize: '2GB' }) }"
@@ -890,11 +892,11 @@ import {
   toggleFullscreen,
 } from '@demos-europe/demosplan-ui'
 import { mapMutations, mapState } from 'vuex'
-import CustomField from '@DpJs/components/customFields/CustomField'
-import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
+import CustomField from '@DpJs/components/customFields/CustomField.vue'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList.vue'
 import dayjs from 'dayjs'
 import { defineAsyncComponent } from 'vue'
-import StatementModalRecheck from './StatementModalRecheck'
+import StatementModalRecheck from './StatementModalRecheck.vue'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
@@ -943,19 +945,19 @@ export default {
       return DpEditor
     }),
     DpUploadFiles,
-    FormGroupCitizenOrInstitution: defineAsyncComponent(() => import('./formGroups/FormGroupCitizenOrInstitution')),
-    FormGroupCountyReference: defineAsyncComponent(() => import('./formGroups/FormGroupCountyReference')),
-    FormGroupEmailAddress: defineAsyncComponent(() => import('./formGroups/FormGroupEmailAddress')),
-    FormGroupEvaluationMailViaEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaEmail')),
-    FormGroupEvaluationMailViaSnailMailOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaSnailMailOrEmail')),
-    FormGroupMapReference: defineAsyncComponent(() => import('./formGroups/FormGroupMapReference')),
-    FormGroupName: defineAsyncComponent(() => import('./formGroups/FormGroupName')),
-    FormGroupPhoneNumber: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneNumber')),
-    FormGroupPhoneOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneOrEmail')),
-    FormGroupPostalAndCity: defineAsyncComponent(() => import('./formGroups/FormGroupPostalAndCity')),
-    FormGroupStateAndGroupAndOrgaNameAndPosition: defineAsyncComponent(() => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition')),
-    FormGroupStreet: defineAsyncComponent(() => import('./formGroups/FormGroupStreet')),
-    FormGroupStreetAndHouseNumber: defineAsyncComponent(() => import('./formGroups/FormGroupStreetAndHouseNumber')),
+    FormGroupCitizenOrInstitution: defineAsyncComponent(() => import('./formGroups/FormGroupCitizenOrInstitution.vue')),
+    FormGroupCountyReference: defineAsyncComponent(() => import('./formGroups/FormGroupCountyReference.vue')),
+    FormGroupEmailAddress: defineAsyncComponent(() => import('./formGroups/FormGroupEmailAddress.vue')),
+    FormGroupEvaluationMailViaEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaEmail.vue')),
+    FormGroupEvaluationMailViaSnailMailOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupEvaluationMailViaSnailMailOrEmail.vue')),
+    FormGroupMapReference: defineAsyncComponent(() => import('./formGroups/FormGroupMapReference.vue')),
+    FormGroupName: defineAsyncComponent(() => import('./formGroups/FormGroupName.vue')),
+    FormGroupPhoneNumber: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneNumber.vue')),
+    FormGroupPhoneOrEmail: defineAsyncComponent(() => import('./formGroups/FormGroupPhoneOrEmail.vue')),
+    FormGroupPostalAndCity: defineAsyncComponent(() => import('./formGroups/FormGroupPostalAndCity.vue')),
+    FormGroupStateAndGroupAndOrgaNameAndPosition: defineAsyncComponent(() => import('./formGroups/FormGroupStateAndGroupAndOrgaNameAndPosition.vue')),
+    FormGroupStreet: defineAsyncComponent(() => import('./formGroups/FormGroupStreet.vue')),
+    FormGroupStreetAndHouseNumber: defineAsyncComponent(() => import('./formGroups/FormGroupStreetAndHouseNumber.vue')),
     StatementModalRecheck,
   },
 
@@ -1673,6 +1675,7 @@ export default {
         dataToSend.r_location_priority_area_key = ''
         dataToSend.r_location_priority_area_type = ''
         dataToSend.r_location_geometry = ''
+        dataToSend.r_location_reference_geometry = ''
       }
 
       /*
@@ -2021,6 +2024,7 @@ export default {
     },
 
     setDraftData (data, priorityAreaKey, priorityAreaType) {
+      const isLocationReferenceSplit = hasPermission('feature_diplankarte_split_location_reference')
       const draft = {
         r_text: data.draftStatement.text,
         r_files_initial: data.draftStatement.files ? JSON.stringify(data.draftStatement.files) : [],
@@ -2034,10 +2038,11 @@ export default {
         r_document_title: data.draftStatement.document?.title ?? '',
         r_represents: data.draftStatement.represents ?? '',
         r_location: Object.keys(data.draftStatement.statementAttributes).pop() ?? 'mapLocation',
-        r_location_geometry: data.draftStatement.polygon,
+        r_location_geometry: isLocationReferenceSplit ? data.draftStatement.r_location_geometry : data.draftStatement.polygon,
         r_location_priority_area_key: priorityAreaKey,
         r_location_priority_area_type: priorityAreaType,
         r_location_point: '',
+        r_location_reference_geometry: isLocationReferenceSplit ? data.draftStatement.r_location_reference_geometry : '',
         location_is_set: priorityAreaKey.length > 0 ? 'priority_area' : 'geometry',
         r_county: data.draftStatement.statementAttributes.county ?? '',
         r_makePublic: data.draftStatement.publicAllowed ? 'on' : 'off',
@@ -2157,7 +2162,7 @@ export default {
     },
 
     validateStatementStep () {
-      if (this.formData.r_location === 'point' && (this.formData.r_location_geometry === '' && this.formData.r_location_point === '' && this.formData.r_location_priority_area_key === '')) {
+      if (this.formData.r_location === 'point' && (this.formData.r_location_geometry === '' && this.formData.r_location_point === '' && this.formData.r_location_priority_area_key === '' && this.formData.r_location_reference_geometry === '')) {
         this.setStatementData({ r_location: '' })
         document.getElementById('locationPoint').checked = false
       }
@@ -2233,10 +2238,6 @@ export default {
     // Set data from map
     this.$root.$on('updateStatementFormMapData', (data, toggle) => {
       this.setLocation(data, toggle)
-    })
-
-    this.$root.$on('statementModal:goToTab', tabname => {
-      this.gotoTab(tabname)
     })
   },
 }

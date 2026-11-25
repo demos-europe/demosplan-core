@@ -33,7 +33,7 @@
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
-import CardPaneCard from './CardPaneCard'
+import CardPaneCard from './CardPaneCard.vue'
 
 export default {
   name: 'CardPane',

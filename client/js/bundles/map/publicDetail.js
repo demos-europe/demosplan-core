@@ -12,20 +12,20 @@
  * See core-publicdetail.js for the entrypoint loaded when there is no Map
  */
 import { DpUploadFiles, DpVideoPlayer, TableWrapper } from '@demos-europe/demosplan-ui'
-import CustomLayer from '@DpJs/components/map/publicdetail/controls/CustomLayer'
+import CustomLayer from '@DpJs/components/map/publicdetail/controls/CustomLayer.vue'
 import { defineAsyncComponent } from 'vue'
-import DpLayerLegend from '@DpJs/components/map/publicdetail/controls/legendList/DpLayerLegend'
-import DpPublicDetail from '@DpJs/components/map/publicdetail/DpPublicDetail'
-import DpPublicLayerListWrapper from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerListWrapper'
-import DpUnfoldToolbarControl from '@DpJs/components/map/publicdetail/controls/DpUnfoldToolbarControl'
+import DpLayerLegend from '@DpJs/components/map/publicdetail/controls/legendList/DpLayerLegend.vue'
+import DpPublicDetail from '@DpJs/components/map/publicdetail/DpPublicDetail.vue'
+import DpPublicLayerListWrapper from '@DpJs/components/map/publicdetail/controls/layerlist/DpPublicLayerListWrapper.vue'
+import DpUnfoldToolbarControl from '@DpJs/components/map/publicdetail/controls/DpUnfoldToolbarControl.vue'
 import { initialize } from '@DpJs/InitVue'
 import layers from '@DpJs/store/map/Layers'
-import Map from '@DpJs/components/map/publicdetail/Map'
-import MapTools from '@DpJs/components/map/publicdetail/controls/MapTools'
+import Map from '@DpJs/components/map/publicdetail/Map.vue'
+import MapTools from '@DpJs/components/map/publicdetail/controls/MapTools.vue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
-import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout.vue'
 import StatementForm from '@DpJs/lib/statement/StatementForm'
-import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
+import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal.vue'
 
 //  Vuex store modules (to be registered on core bundle vuex store)
 const stores = {
@@ -48,7 +48,7 @@ const components = {
   DpUploadFiles,
   DpVideoPlayer,
   // Only rendered by the projects that override public_elements_list.html.twig
-  ElementsList: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList')),
+  ElementsList: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList.vue')),
   RegisterFlyout,
   StatementModal,
 }

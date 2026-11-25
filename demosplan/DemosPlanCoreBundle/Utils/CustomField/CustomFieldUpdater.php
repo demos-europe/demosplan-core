@@ -18,7 +18,7 @@ use demosplan\DemosPlanCoreBundle\Entity\CustomFields\CustomFieldConfiguration;
 use demosplan\DemosPlanCoreBundle\Exception\InvalidArgumentException;
 use demosplan\DemosPlanCoreBundle\Repository\CustomFieldConfigurationRepository;
 use demosplan\DemosPlanCoreBundle\Utils\CustomField\Constraint\ProcedureWithStatementsCustomFieldConstraint;
-use demosplan\DemosPlanCoreBundle\Utils\CustomField\Factory\EntityCustomFieldUsageStrategyFactory;
+use demosplan\DemosPlanCoreBundle\Utils\CustomField\UsageRemoval\EntityCustomFieldUsageStrategyFactory;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 

@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace demosplan\DemosPlanCoreBundle\DependencyInjection\Compiler;
 
+use DemosEurope\DemosplanAddon\Utilities\AddonPath;
+use demosplan\DemosPlanCoreBundle\Addon\AddonManifestCollection;
 use demosplan\DemosPlanCoreBundle\DependencyInjection\Configuration\MenusTreeBuilder;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use Symfony\Component\Config\Definition\Processor;
@@ -24,8 +26,10 @@ class MenusLoaderPass implements CompilerPassInterface
 {
     public function process(ContainerBuilder $container): void
     {
+        // Installed addons may add entries to the menus with a menus.yml in their config directory.
         $fileLocator = new FileLocator([
             DemosPlanPath::getConfigPath(),
+            ...$this->getAddonConfigPaths(),
             DemosPlanPath::getProjectPath('app/Resources/DemosPlanCoreBundle/config'),
         ]);
 
@@ -41,5 +45,25 @@ class MenusLoaderPass implements CompilerPassInterface
         );
 
         $container->setParameter('menu_definitions', $merged);
+    }
+
+    /**
+     * @return list<string> the existing config directories of all enabled addons
+     */
+    private function getAddonConfigPaths(): array
+    {
+        $configPaths = [];
+        foreach (AddonManifestCollection::load() as $addonConfig) {
+            if (false === ($addonConfig['enabled'] ?? true)) {
+                continue;
+            }
+
+            $configPath = AddonPath::getRootPath($addonConfig['install_path'].'/config');
+            if (is_dir($configPath)) {
+                $configPaths[] = $configPath;
+            }
+        }
+
+        return $configPaths;
     }
 }

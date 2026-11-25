@@ -62,6 +62,7 @@ tasks
 /public/bundles/
 /var/
 /vendor/
+/config/reference.php
 ###< symfony/framework-bundle ###
 
 ###> lexik/jwt-authentication-bundle ###

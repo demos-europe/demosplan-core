@@ -80,7 +80,7 @@
 
 <script>
 import { DpMultiselect, hasOwnProp } from '@demos-europe/demosplan-ui'
-import DpEditField from './DpEditField'
+import DpEditField from './DpEditField.vue'
 
 export default {
   name: 'DpEditFieldSingleSelect',

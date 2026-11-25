@@ -3,7 +3,7 @@
         id="r_document"
         allowed-file-types="pdf-zip-video"
         :basic-auth="dplan.settings.basicAuth"
-        :chunk-size="100 * 1024 * 1024/* 100 MiB */"
+        :chunk-size="{{ upload_chunk_size }}"
         :get-file-by-hash="(hash) => {
            return Routing.generate('core_file_procedure', { hash: hash, procedureId: procedure })
         }"
@@ -24,7 +24,7 @@
         id="r_document"
         allowed-file-types="pdf-video"
         :basic-auth="dplan.settings.basicAuth"
-        :chunk-size="100 * 1024 * 1024/* 100 MiB */"
+        :chunk-size="{{ upload_chunk_size }}"
         :get-file-by-hash="(hash) => {
            return Routing.generate('core_file_procedure', { hash: hash, procedureId: procedure })
         }"

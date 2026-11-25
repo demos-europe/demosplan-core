@@ -337,6 +337,9 @@ parameters:
     # TUS resumable upload cache TTL in seconds (how long incomplete uploads are remembered)
     tus_cache_ttl: 604800  # 1 week
 
+    # Chunk size in bytes for large file uploads in the browser
+    upload_chunk_size: '%env(int:UPLOAD_CHUNK_SIZE)%'
+
     # Karten
 
     # Maximale Boundingbox für das Projekt. Standard ist deutschlandweit
@@ -586,9 +589,13 @@ parameters:
     # Define which areas of the platform are subject to orga branding
     orga_branded_routes: []
 
-    # Used to communicate the platform url for a specific customer
-    # #refactor: is this used at all?
+    # Base domain of the customer hosts (<customer>.<project_domain>), used for customer urls
+    # outside of a request
     project_domain: ''
+
+    # true for instances that serve all customers on one host (e.g. stage), so customer urls
+    # outside of a request keep the router host instead of a host per customer
+    customer_url_keep_context_host: false
 
     # Default subdomain to be used, in case in the url there is none or more than one. Represents the Customer/Mandant.
     subdomain: sh

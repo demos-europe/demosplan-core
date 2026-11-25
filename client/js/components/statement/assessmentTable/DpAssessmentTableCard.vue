@@ -764,13 +764,14 @@
 import { dpApi, DpContextualHelp, DpTooltip, formatDate, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { Base64 } from 'js-base64'
-import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
-import DpClaim from '../DpClaim'
-import DpEditFieldMultiSelect from './DpEditFieldMultiSelect'
-import DpEditFieldSingleSelect from './DpEditFieldSingleSelect'
-import DpItemRow from './ItemRow'
-import EditableText from './EditableText'
-import TableCardFlyoutMenu from '@DpJs/components/statement/assessmentTable/TableCardFlyoutMenu'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList.vue'
+import { defineAsyncComponent } from 'vue'
+import DpClaim from '../DpClaim.vue'
+import DpEditFieldMultiSelect from './DpEditFieldMultiSelect.vue'
+import DpEditFieldSingleSelect from './DpEditFieldSingleSelect.vue'
+import DpItemRow from './ItemRow.vue'
+import EditableText from './EditableText.vue'
+import TableCardFlyoutMenu from '@DpJs/components/statement/assessmentTable/TableCardFlyoutMenu.vue'
 
 export default {
   name: 'DpAssessmentTableCard',
@@ -781,8 +782,8 @@ export default {
     DpContextualHelp,
     DpEditFieldMultiSelect,
     DpEditFieldSingleSelect,
-    DpFragmentList: () => import(/* webpackChunkName: "dp-fragment-list" */ './DpFragmentList'),
-    DpFragmentsSwitcher: () => import(/* webpackChunkName: "dp-fragments-switcher" */ './DpFragmentsSwitcher'),
+    DpFragmentList: defineAsyncComponent(() => import(/* webpackChunkName: "dp-fragment-list" */ './DpFragmentList.vue')),
+    DpFragmentsSwitcher: defineAsyncComponent(() => import(/* webpackChunkName: "dp-fragments-switcher" */ './DpFragmentsSwitcher.vue')),
     DpItemRow,
     DpTooltip,
     EditableText,
@@ -1080,6 +1081,10 @@ export default {
       'replaceStatement',
     ]),
 
+    ...mapMutations('VersionHistorySlidebar', [
+      'markEntityUpdated',
+    ]),
+
     fetchStatementFragments () {
       if (Object.values(this.fragmentsByStatement(this.statementId).fragments).length === 0 && this.statement.fragmentsTotal !== 0) {
         this.fragmentsLoading = true
@@ -1322,8 +1327,7 @@ export default {
             }
           }
 
-          // Used in DpVersionHistory to update items in version history sidebar
-          this.$root.$emit('entity:updated', this.statementId, 'statement')
+          this.markEntityUpdated(this.statementId)
           // Used in DpEditField to disable editing
           this.$root.$emit('saveSuccess', this.statementId, 'statement')
 
@@ -1407,7 +1411,7 @@ export default {
       this.setAssigneeAction({ statementId: this.statementId, assigneeId: (hasOwnProp(this.statement.assignee, 'id') && this.currentUserId === this.statement.assignee.id ? '' : this.currentUserId) })
         .then(response => {
           this.updatingClaimState = false
-          this.$root.$emit('entity:updated', this.statementId, 'statement')
+          this.markEntityUpdated(this.statementId)
         })
     },
   },

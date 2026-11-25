@@ -11,7 +11,7 @@
  * This is the entrypoint for news_admin_list.html.twig
  */
 
-import DpNewsAdminList from '@DpJs/components/news/DpNewsAdminList'
+import DpNewsAdminList from '@DpJs/components/news/DpNewsAdminList.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

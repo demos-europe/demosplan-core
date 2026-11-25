@@ -11,10 +11,10 @@
  * This is the entrypoint for elements_admin_list.html.twig
  */
 
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
-import DpMapSettingsPreview from '@DpJs/components/document/DpMapSettingsPreview'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper.vue'
+import DpMapSettingsPreview from '@DpJs/components/document/DpMapSettingsPreview.vue'
 import { DpUploadFiles } from '@demos-europe/demosplan-ui'
-import ElementsAdminList from '@DpJs/components/document/ElementsAdminList'
+import ElementsAdminList from '@DpJs/components/document/ElementsAdminList.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

@@ -11,17 +11,16 @@
  * Global vitest setup — registers global vue test utils plugins,
  * components, directives, and globalProperties
  */
+import { compatConfig } from '@DpJs/lib/vue/compatConfig'
 import { config } from '@vue/test-utils'
 import { configureCompat } from 'vue'
 import lscache from 'lscache'
 import { vi } from 'vitest'
 
 configureCompat({
+  ...compatConfig,
   ATTR_FALSE_VALUE: 'suppress-warning',
   COMPONENT_V_MODEL: 'suppress-warning',
-  CONFIG_WHITESPACE: 'suppress-warning',
-  CUSTOM_DIR: 'suppress-warning',
-  RENDER_FUNCTION: false,
   WATCH_ARRAY: 'suppress-warning',
 })
 

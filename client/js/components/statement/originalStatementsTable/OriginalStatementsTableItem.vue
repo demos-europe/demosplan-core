@@ -235,8 +235,8 @@ import {
   hasOwnProp,
 } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations, mapState } from 'vuex'
-import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList'
-import HeightLimit from '@DpJs/components/statement/HeightLimit'
+import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList.vue'
+import HeightLimit from '@DpJs/components/statement/HeightLimit.vue'
 
 export default {
   name: 'OriginalStatementsTableItem',

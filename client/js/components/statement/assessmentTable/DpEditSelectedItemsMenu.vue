@@ -44,6 +44,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 import { DpButton } from '@demos-europe/demosplan-ui'
 
 export default {
@@ -51,8 +52,8 @@ export default {
 
   components: {
     DpButton,
-    DpSelectedItemsStatements: () => import(/* webpackChunkName: "dp-selected-items-statements" */ './DpSelectedItemsStatements'),
-    DpSelectedItemsFragments: () => import(/* webpackChunkName: "dp-selected-items-fragments" */ './DpSelectedItemsFragments'),
+    DpSelectedItemsStatements: defineAsyncComponent(() => import(/* webpackChunkName: "dp-selected-items-statements" */ './DpSelectedItemsStatements.vue')),
+    DpSelectedItemsFragments: defineAsyncComponent(() => import(/* webpackChunkName: "dp-selected-items-fragments" */ './DpSelectedItemsFragments.vue')),
   },
 
   props: {

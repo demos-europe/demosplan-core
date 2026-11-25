@@ -11,9 +11,9 @@
  * This is the entrypoint for list_user.html.twig
  */
 
-import DpCreateItem from '@DpJs/components/user/DpCreateItem'
-import DpUserList from '@DpJs/components/user/DpUserList/DpUserList'
-import DpUserListExtended from '@DpJs/components/user/DpUserListExtended'
+import DpCreateItem from '@DpJs/components/user/DpCreateItem.vue'
+import DpUserList from '@DpJs/components/user/DpUserList/DpUserList.vue'
+import DpUserListExtended from '@DpJs/components/user/DpUserListExtended.vue'
 import { initialize } from '@DpJs/InitVue'
 import UserFormFields from '@DpJs/store/user/UserFormFields'
 

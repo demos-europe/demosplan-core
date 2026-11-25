@@ -112,6 +112,20 @@ const api3_0Modules = {
     'list',
     'get',
   ],
+  Bookmark: [
+    'list',
+    'get',
+    'create',
+    'update',
+    'delete',
+  ],
+  ScheduledExport: [
+    'list',
+    'get',
+    'create',
+    'delete',
+    'update',
+  ],
 }
 
 // Store bundle-specific 3.0 overrides (set during store initialization)

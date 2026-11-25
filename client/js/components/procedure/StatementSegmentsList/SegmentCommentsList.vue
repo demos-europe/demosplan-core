@@ -64,7 +64,7 @@
 <script>
 import { DpButton, DpLoading } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import CreateCommentForm from './CreateCommentForm'
+import CreateCommentForm from './CreateCommentForm.vue'
 import { defineAsyncComponent } from 'vue'
 
 export default {
@@ -79,7 +79,7 @@ export default {
       return DpInlineNotification
     }),
     DpLoading,
-    SegmentComment: defineAsyncComponent(() => import(/* webpackChunkName: "segment-comment" */ './SegmentComment')),
+    SegmentComment: defineAsyncComponent(() => import(/* webpackChunkName: "segment-comment" */ './SegmentComment.vue')),
   },
 
   props: {

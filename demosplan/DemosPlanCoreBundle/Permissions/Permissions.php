@@ -323,9 +323,11 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_json_api_update',
                 'feature_orga_edit_all_fields',
                 'feature_orga_get',
+                'feature_orga_registration_status_edit',
                 // In contrast to the permission "area_organisations", the permission "feature_organisation_user_list"
                 // allows the display of the organisation list, but does not grant access to the "Organisation" item in the menu
                 'feature_organisation_user_list',
+                'field_organisation_customer',
                 'field_statement_recommendation',
             ]);
         }
@@ -476,6 +478,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
                 'feature_procedure_report_public_phase',
                 'field_data_protection_text_customized_edit_customer',
                 'field_imprint_text_customized_edit_customer',
+                'field_organisation_customer',
                 'field_statement_recommendation',
             ]);
         }

@@ -1,5 +1,5 @@
 import { flushPromises, shallowMount } from '@vue/test-utils'
-import DpFaqItem from '../../../client/js/components/faq/DpFaqItem'
+import DpFaqItem from '../../../client/js/components/faq/DpFaqItem.vue'
 import { vi } from 'vitest'
 import Vuex from 'vuex'
 

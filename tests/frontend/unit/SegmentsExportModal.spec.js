@@ -9,7 +9,7 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { nextTick } from 'vue'
-import SegmentsExportModal from '@DpJs/components/procedure/SegmentsList/SegmentsExportModal'
+import SegmentsExportModal from '@DpJs/components/procedure/SegmentsList/SegmentsExportModal.vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('SegmentsExportModal', () => {

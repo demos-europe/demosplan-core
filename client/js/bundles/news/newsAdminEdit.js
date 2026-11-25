@@ -13,8 +13,8 @@
 
 import { DpCheckbox, DpEditor, DpLabel, DpUploadFiles, dpValidate, hasPermission } from '@demos-europe/demosplan-ui'
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
-import ChangeStateAtDate from '@DpJs/components/news/ChangeStateAtDate'
-import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import ChangeStateAtDate from '@DpJs/components/news/ChangeStateAtDate.vue'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal.vue'
 import { initialize } from '@DpJs/InitVue'
 import newsAdminInit from '@DpJs/lib/news/newsAdmin'
 

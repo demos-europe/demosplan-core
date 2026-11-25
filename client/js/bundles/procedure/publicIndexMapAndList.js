@@ -12,7 +12,7 @@
  * where the Map is on the left hand side and the Procedurelist on the right.
  */
 import { dpApi, prefixClass } from '@demos-europe/demosplan-ui'
-import DpSearchProcedureMap from '@DpJs/components/procedure/publicindex/DpSearchProcedureMap'
+import DpSearchProcedureMap from '@DpJs/components/procedure/publicindex/DpSearchProcedureMap.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const stores = {}

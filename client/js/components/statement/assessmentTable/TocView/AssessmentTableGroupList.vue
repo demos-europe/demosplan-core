@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import AssessmentTableGroup from './AssessmentTableGroup'
+import AssessmentTableGroup from './AssessmentTableGroup.vue'
 import { mapGetters } from 'vuex'
 
 export default {

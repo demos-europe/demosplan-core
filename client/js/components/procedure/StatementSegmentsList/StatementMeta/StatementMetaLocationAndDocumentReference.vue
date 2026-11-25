@@ -127,6 +127,7 @@ import {
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
+import { defineAsyncComponent } from 'vue'
 
 export default {
   name: 'StatementMetaLocationAndDocumentReference',
@@ -134,7 +135,7 @@ export default {
   components: {
     DpButton,
     DpButtonRow,
-    DpMapModal: () => import('@DpJs/components/statement/assessmentTable/DpMapModal'),
+    DpMapModal: defineAsyncComponent(() => import('@DpJs/components/statement/assessmentTable/DpMapModal.vue')),
     DpSelect,
   },
 

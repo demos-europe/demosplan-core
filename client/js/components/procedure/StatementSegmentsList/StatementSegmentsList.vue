@@ -13,10 +13,13 @@
       :open="slidebar.isOpen"
       @close="resetSlidebar"
     >
-      <dp-version-history
-        v-show="slidebar.showTab === 'history'"
+      <version-history
+        v-if="slidebar.showTab === 'history'"
         class="u-pr"
+        :entity-id="slidebar.segmentId"
+        :extern-id="slidebar.externId"
         :procedure-id="procedure.id"
+        entity-type="segment"
       />
       <segment-comments-list
         v-if="hasPermission('feature_segment_comment_list_on_segment')"
@@ -243,21 +246,21 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { buildDetailedStatementQuery } from '../Shared/utils/statementQueryBuilder'
-import DpClaim from '@DpJs/components/statement/DpClaim'
-import DpSegmentRecommendationEmail from '@DpJs/components/statement/statement/DpSegmentRecommendationEmail'
-import DpVersionHistory from '@DpJs/components/statement/statement/DpVersionHistory'
+import DpClaim from '@DpJs/components/statement/DpClaim.vue'
+import DpSegmentRecommendationEmail from '@DpJs/components/statement/statement/DpSegmentRecommendationEmail.vue'
 import lscache from 'lscache'
 import { redirectToStatementListWithGroupResolvedToast } from '../Shared/utils/redirectToStatementListWithGroupResolvedToast'
 import { sanitizeUrl } from '@braintree/sanitize-url'
-import SegmentCommentsList from './SegmentCommentsList'
-import SegmentLocationMap from './SegmentLocationMap'
-import SegmentsRecommendations from './SegmentsRecommendations'
-import StatementExportModal from '@DpJs/components/statement/StatementExportModal'
-import StatementMeta from './StatementMeta/StatementMeta'
-import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink'
-import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip'
-import StatementSegmentsEdit from './StatementSegmentsEdit'
-import StatusBadge from '../Shared/StatusBadge'
+import SegmentCommentsList from './SegmentCommentsList.vue'
+import SegmentLocationMap from './SegmentLocationMap.vue'
+import SegmentsRecommendations from './SegmentsRecommendations.vue'
+import StatementExportModal from '@DpJs/components/statement/statementExportModal/StatementExportModal.vue'
+import StatementMeta from './StatementMeta/StatementMeta.vue'
+import StatementMetaAttachmentsLink from './StatementMeta/StatementMetaAttachmentsLink.vue'
+import StatementMetaTooltip from '@DpJs/components/statement/StatementMetaTooltip.vue'
+import StatementSegmentsEdit from './StatementSegmentsEdit.vue'
+import StatusBadge from '../Shared/StatusBadge.vue'
+import VersionHistory from '@DpJs/components/statement/statement/VersionHistory.vue'
 
 export default {
   name: 'StatementSegmentsList',
@@ -270,7 +273,6 @@ export default {
     DpSegmentRecommendationEmail,
     DpSlidebar,
     DpStickyElement,
-    DpVersionHistory,
     SegmentCommentsList,
     SegmentLocationMap,
     SegmentsRecommendations,
@@ -280,6 +282,7 @@ export default {
     StatementMetaTooltip,
     StatementSegmentsEdit,
     StatusBadge,
+    VersionHistory,
   },
 
   provide () {

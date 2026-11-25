@@ -198,7 +198,7 @@ class OzgKeycloakUserDataMapper
             $orga = $this->orgaRepository->findOneBy(['gwId' => $gwId]);
 
             if ($orga instanceof Orga) {
-                $organisations[] = $this->updateOrganisation($orga, $requestedRoles, $gwId);
+                $organisations[] = $this->updateOrganisation($orga, $requestedRoles, $gwId, $orgaName);
                 continue;
             }
 
@@ -343,12 +343,9 @@ class OzgKeycloakUserDataMapper
             $existingOrga->setGwId($gwId);
         }
 
-        if ('' !== $orgaName && null !== $orgaName) {
-            $existingOrga->setName($orgaName);
-        }
+        $this->updateOrganisationTechnicalName($existingOrga, $orgaName);
 
-        // Do not overwrite org name on update — FPA users can modify it via the UI.
-        // Name is only set on org creation. Address fields are still synced from the token.
+        // Address fields are still synced from the token.
         if (UserInterface::ANONYMOUS_USER_ORGA_NAME !== $orgaName) {
             $existingOrga->setStreet($this->ozgKeycloakUserData->getStreet());
             $existingOrga->setAddressExtension($this->ozgKeycloakUserData->getAddressExtension());
@@ -367,6 +364,28 @@ class OzgKeycloakUserDataMapper
         ]);
 
         return $existingOrga;
+    }
+
+    /**
+     * The official name delivered by Keycloak is stored as technical name on every login.
+     * The (display) name is user-editable and is never touched here, it is only set on creation.
+     */
+    private function updateOrganisationTechnicalName(Orga $existingOrga, ?string $keycloakOrgaName): void
+    {
+        if (UserInterface::ANONYMOUS_USER_ORGA_NAME === $keycloakOrgaName) {
+            return;
+        }
+
+        if (null === $keycloakOrgaName || '' === $keycloakOrgaName) {
+            $this->logger->error('oauthAuthenticator: The organisation name delivered by Keycloak is empty, the technical name is not updated', [
+                'orgaId' => $existingOrga->getId(),
+                'gwId'   => $existingOrga->getGwId(),
+            ]);
+
+            return;
+        }
+
+        $existingOrga->setTechnicalName($keycloakOrgaName);
     }
 
     /**
@@ -436,6 +455,8 @@ class OzgKeycloakUserDataMapper
         }
 
         $orga = $this->orgaService->addOrga($orgaData);
+        // The official name is only ever written by this sync, never through the generic orga data
+        $orga->setTechnicalName($orgaName);
         $orga->setDepartments([$department]);
         $this->entityManager->persist($orga);
 
@@ -494,16 +515,16 @@ class OzgKeycloakUserDataMapper
         }
 
         $userData = [
-            'firstname'                 => $this->ozgKeycloakUserData->getFirstName(),
-            'lastname'                  => $this->ozgKeycloakUserData->getLastName(),
-            'email'                     => $this->ozgKeycloakUserData->getEmailAddress(),
-            'login'                     => $this->ozgKeycloakUserData->getUserName(),
-            'gwId'                      => $this->ozgKeycloakUserData->getUserId(),
+            'firstname'                  => $this->ozgKeycloakUserData->getFirstName(),
+            'lastname'                   => $this->ozgKeycloakUserData->getLastName(),
+            'email'                      => $this->ozgKeycloakUserData->getEmailAddress(),
+            'login'                      => $this->ozgKeycloakUserData->getUserName(),
+            'gwId'                       => $this->ozgKeycloakUserData->getUserId(),
             'providedByIdentityProvider' => true,
-            'customer'                  => $this->customerService->getCurrentCustomer(),
-            'organisation'              => $userOrga,
-            'department'                => $this->departmentMapper->findOrCreateDepartment($userOrga, $this->ozgKeycloakUserData->getCompanyDepartment()),
-            'roles'                     => $requestedRoles,
+            'customer'                   => $this->customerService->getCurrentCustomer(),
+            'organisation'               => $userOrga,
+            'department'                 => $this->departmentMapper->findOrCreateDepartment($userOrga, $this->ozgKeycloakUserData->getCompanyDepartment()),
+            'roles'                      => $requestedRoles,
         ];
 
         $newUser = $this->userService->addUser($userData);

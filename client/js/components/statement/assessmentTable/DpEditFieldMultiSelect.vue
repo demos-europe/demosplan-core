@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import DpEditField from './DpEditField'
+import DpEditField from './DpEditField.vue'
 import { DpMultiselect } from '@demos-europe/demosplan-ui'
 
 export default {

@@ -95,7 +95,7 @@
 
 <script>
 import { defineAsyncComponent } from 'vue'
-import VotingStatus from './VotingStatus'
+import VotingStatus from './VotingStatus.vue'
 
 export default {
   name: 'StatementPublish',

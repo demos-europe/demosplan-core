@@ -19,7 +19,7 @@ import {
   DpUploadFiles,
   dpValidate,
 } from '@demos-europe/demosplan-ui'
-import ElementAdminEdit from '@DpJs/components/document/ElementAdminEdit'
+import ElementAdminEdit from '@DpJs/components/document/ElementAdminEdit.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

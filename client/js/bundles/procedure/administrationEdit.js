@@ -20,16 +20,16 @@ import {
   DpTextArea,
   dpValidate,
 } from '@demos-europe/demosplan-ui'
-import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import AddonWrapper from '@DpJs/components/addon/AddonWrapper.vue'
 import { defineAsyncComponent } from 'vue'
-import DpBasicSettings from '@DpJs/components/procedure/basicSettings/DpBasicSettings'
-import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
+import DpBasicSettings from '@DpJs/components/procedure/basicSettings/DpBasicSettings.vue'
+import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList.vue'
 import DPWizard from '@DpJs/lib/procedure/DPWizard'
 import { initialize } from '@DpJs/InitVue'
 import UrlPreview from '@DpJs/lib/shared/UrlPreview'
 
 const AutoSwitchProcedurePhaseForm = defineAsyncComponent(() =>
-  import('@DpJs/components/procedure/basicSettings/AutoSwitchProcedurePhaseForm'),
+  import('@DpJs/components/procedure/basicSettings/AutoSwitchProcedurePhaseForm.vue'),
 )
 
 const DpCheckbox = defineAsyncComponent(async () => {
@@ -51,7 +51,7 @@ const DpMultiselect = defineAsyncComponent(async () => {
 })
 
 const ExportSettings = defineAsyncComponent(() =>
-  import('@DpJs/components/procedure/basicSettings/ExportSettings'),
+  import('@DpJs/components/procedure/basicSettings/ExportSettings.vue'),
 )
 
 const DpInlineNotification = defineAsyncComponent(async () => {
@@ -61,7 +61,7 @@ const DpInlineNotification = defineAsyncComponent(async () => {
 })
 
 const DpProcedureCoordinate = defineAsyncComponent(() =>
-  import('@DpJs/components/procedure/basicSettings/DpProcedureCoordinate'),
+  import('@DpJs/components/procedure/basicSettings/DpProcedureCoordinate.vue'),
 )
 
 const DpUploadFiles = defineAsyncComponent(async () => {
@@ -71,7 +71,7 @@ const DpUploadFiles = defineAsyncComponent(async () => {
 })
 
 const ParticipationPhases = defineAsyncComponent(() =>
-  import('@DpJs/components/procedure/basicSettings/ParticipationPhases'),
+  import('@DpJs/components/procedure/basicSettings/ParticipationPhases.vue'),
 )
 
 const components = {

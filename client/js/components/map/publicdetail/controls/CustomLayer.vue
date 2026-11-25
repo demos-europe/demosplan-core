@@ -45,7 +45,7 @@
 <script>
 import { dpValidateMixin, prefixClass } from '@demos-europe/demosplan-ui'
 import isMobile from 'ismobilejs'
-import LayerSettings from '@DpJs/components/map/admin/LayerSettings'
+import LayerSettings from '@DpJs/components/map/admin/LayerSettings.vue'
 
 export default {
   name: 'DpCustomLayer',

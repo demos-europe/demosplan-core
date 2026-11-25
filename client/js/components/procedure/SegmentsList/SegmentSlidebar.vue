@@ -21,7 +21,7 @@
     :open="slidebar.isOpen"
     @close="closeSlidebar"
   >
-    <slot />
+    <slot :slidebar="slidebar" />
   </dp-slidebar>
 </template>
 

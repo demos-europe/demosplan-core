@@ -85,8 +85,8 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import { defineAsyncComponent } from 'vue'
-import DpTableCardListHeader from '@DpJs/components/user/DpTableCardList/DpTableCardListHeader'
-import DpUserListExtendedItem from './DpUserListExtendedItem'
+import DpTableCardListHeader from '@DpJs/components/user/DpTableCardList/DpTableCardListHeader.vue'
+import DpUserListExtendedItem from './DpUserListExtendedItem.vue'
 
 export default {
   name: 'DpUserListExtended',
