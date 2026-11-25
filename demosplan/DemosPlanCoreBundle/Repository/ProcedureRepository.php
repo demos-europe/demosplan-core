@@ -1462,6 +1462,8 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
     /**
      * Extra method to get the shortUrl of a procedure by its id to avoid
      * hydrating the whole procedure.
+     *
+     * @return string the short url, '' for an unknown procedure
      */
     public function findShortUrlById(string $procedureId): string
     {
@@ -1471,6 +1473,10 @@ class ProcedureRepository extends SluggedRepository implements ArrayInterface, O
             ->setParameter('id', $procedureId)
             ->getQuery();
 
-        return $qb->getSingleScalarResult();
+        try {
+            return (string) $qb->getSingleScalarResult();
+        } catch (NoResultException) {
+            return '';
+        }
     }
 }

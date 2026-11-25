@@ -264,7 +264,7 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
     {
         $sourceStatementId = trim((string) $cell->getValue());
         if ('' === $sourceStatementId) {
-            $this->getConcreteStatement()->setSourceStatementId(null);
+            $this->getConcreteStatement()->setSourceStatementId(null)->setSourceSystem(null);
 
             return null;
         }
@@ -274,7 +274,9 @@ class StatementFromRowBuilder extends AbstractStatementFromRowBuilder
             return $violations;
         }
 
-        $this->getConcreteStatement()->setSourceStatementId($sourceStatementId);
+        $this->getConcreteStatement()
+            ->setSourceStatementId($sourceStatementId)
+            ->setSourceSystem(Statement::SOURCE_SYSTEM_ASSESSMENT_TABLE_IMPORT);
 
         return null;
     }

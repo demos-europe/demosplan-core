@@ -114,6 +114,9 @@ class StatementSourceReferenceImportTest extends FunctionalTestCase
         $original = $generatedStatements[0]->getOriginal();
         self::assertInstanceOf(Statement::class, $original);
         self::assertSame(self::SOURCE_ID_1, $original->getSourceStatementId());
+        self::assertSame(Statement::SOURCE_SYSTEM_ASSESSMENT_TABLE_IMPORT, $original->getSourceSystem());
+        self::assertSame(Statement::SOURCE_SYSTEM_ASSESSMENT_TABLE_IMPORT, $generatedStatements[0]->getSourceSystem());
+        self::assertNull($generatedStatements[0]->getRemoteStatementId());
     }
 
     public function testSkipsStatementsWhoseSourceReferenceWasAlreadyImported(): void
@@ -202,6 +205,7 @@ class StatementSourceReferenceImportTest extends FunctionalTestCase
         self::assertCount(1, $sut->getGeneratedStatements());
         self::assertSame(['M1' => 1], $sut->getSkippedStatements());
         self::assertNull($sut->getGeneratedStatements()[0]->getSourceStatementId());
+        self::assertNull($sut->getGeneratedStatements()[0]->getSourceSystem());
     }
 
     public function testReportsViolationForMalformedSourceReference(): void
