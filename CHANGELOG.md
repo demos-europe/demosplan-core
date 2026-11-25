@@ -9,6 +9,10 @@
 ### Added
 - Add text custom field definition editing
 
+### Changed
+- Tag and tag topic titles are limited to 250 characters (JSON:API create and rename, segments import)
+- Renaming a tag topic with an invalid title now returns an error instead of a success message
+
 ### Fixed
 - `dplan:procedure:delete` now also removes the two associated `procedure_phase` rows; previous runs left orphan rows behind, which are cleaned up by a one-shot migration
 
