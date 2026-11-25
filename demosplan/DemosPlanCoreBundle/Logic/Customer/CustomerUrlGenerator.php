@@ -14,6 +14,7 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Customer;
 
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\Entities\CustomerInterface;
+use demosplan\DemosPlanCoreBundle\Repository\CustomerRepository;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Routing\RouterInterface;
 
@@ -25,13 +26,15 @@ use Symfony\Component\Routing\RouterInterface;
  * to the wrong customer. Use this class whenever an absolute url has to be generated for a
  * specific customer outside of a request.
  *
- * The customer host is built from the context host by replacing its customer label, so the base
- * domain does not have to be configured. The parameter project_domain is only used if the
- * context host has no customer label (e.g. localhost).
+ * The customer host is built from the context host, so the base domain does not have to be
+ * configured. If the first label of the context host is a known customer subdomain, it is replaced;
+ * otherwise (e.g. an environment label like "ewm-release") the customer subdomain is prefixed.
+ * The parameter project_domain is only used if the context host is a single label (e.g. localhost).
  */
 class CustomerUrlGenerator
 {
     public function __construct(
+        private readonly CustomerRepository $customerRepository,
         private readonly GlobalConfigInterface $globalConfig,
         private readonly LoggerInterface $logger,
         private readonly RouterInterface $router,
@@ -66,11 +69,12 @@ class CustomerUrlGenerator
             return null;
         }
 
-        // Same rule as SubdomainHandler: a host with more than two labels carries the customer as
-        // its first label, so only that label has to be replaced.
         $labels = explode('.', $contextHost);
         if (count($labels) > 2) {
-            array_shift($labels);
+            // Only drop the first label if it belongs to a customer, not to an environment
+            if ($this->isCustomerSubdomain($labels[0])) {
+                array_shift($labels);
+            }
 
             return $subdomain.'.'.implode('.', $labels);
         }
@@ -86,5 +90,10 @@ class CustomerUrlGenerator
         );
 
         return $subdomain.'.'.$contextHost;
+    }
+
+    private function isCustomerSubdomain(string $label): bool
+    {
+        return null !== $this->customerRepository->findOneBy(['subdomain' => $label]);
     }
 }

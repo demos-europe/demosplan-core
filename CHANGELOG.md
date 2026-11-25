@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- Fixed: Links in the daily assigned section mail keep the environment part of the host (`<customer>.<environment>.<domain>`) instead of dropping it (DS-654)
 
 ## v4.70.2 (2026-11-20)
 - The notes on the profile page for setting up two-factor authentication are clearer: they now show that scanning the QR code or entering the TOTP code are alternatives, and that a 6-digit code is expected
