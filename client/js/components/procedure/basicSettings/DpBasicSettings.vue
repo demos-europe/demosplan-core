@@ -363,6 +363,10 @@ export default {
     },
 
     updateExtraFieldsPayload (payload) {
+      if (payload instanceof Event) {
+        return
+      }
+
       this.extraFieldsPayload = payload
     },
 
