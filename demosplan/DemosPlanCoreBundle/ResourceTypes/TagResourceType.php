@@ -130,6 +130,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
                                 $this->currentProcedureService->getProcedure()?->getTags() ?? new ArrayCollection();
                             $this->checkTitleUnique($title, $tagsOfProcedure);
                             $tag->setTitle($title);
+                            $this->resourceTypeService->validateObject($tag);
                         } catch (InvalidArgumentException $e) {
                             throw $e;
                         } catch (Exception $e) {
@@ -190,6 +191,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
                         $this->checkTopicIdInProcedure($tagTopicId, $existingTopicsOfProcedrue);
 
                         $tag->setSortIndex($this->tagRepository->getNextSortIndex($tagTopicId));
+                        $this->resourceTypeService->validateObject($tag);
 
                         $this->tagRepository->persistEntities([$tag]);
                     } catch (InvalidArgumentException $e) {

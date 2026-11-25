@@ -55,6 +55,11 @@ class Tag extends CoreEntity implements UuidEntityInterface, TagInterface
      * @var string
      */
     #[Assert\NotBlank(groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, 'segments_import'], message: 'Tag title may not be empty.')]
+    #[Assert\Length(
+        max: 250,
+        maxMessage: 'tag.title.max.length',
+        groups: [ResourceTypeService::VALIDATION_GROUP_DEFAULT, 'segments_import']
+    )]
     #[ORM\Column(name: '_t_title', type: 'string', length: 255, nullable: false)]
     protected $title = '';
 

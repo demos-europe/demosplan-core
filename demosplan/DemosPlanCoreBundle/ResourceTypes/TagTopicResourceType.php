@@ -121,8 +121,10 @@ final class TagTopicResourceType extends DplanResourceType
                             // title must be unique
                             $this->checkTitleUniqueForProcedure($title);
                             $tag->setTitle($title);
+                            $this->resourceTypeService->validateObject($tag);
                         } catch (InvalidArgumentException $e) {
                             $this->logError($e);
+                            throw $e;
                         } catch (Exception $e) {
                             $this->messageBag->add('error', 'tag.topic.update.error');
                             $this->logError($e);
@@ -220,6 +222,7 @@ final class TagTopicResourceType extends DplanResourceType
                         $title = $entityData->getAttributes()['title'] ?? null;
                         $this->checkTitleNotEmpty($title);
                         $this->checkTitleUniqueForProcedure($title);
+                        $this->resourceTypeService->validateObject($tagTopic);
 
                         $this->tagTopicRepository->persistEntities([$tagTopic]);
                     } catch (InvalidArgumentException $e) {

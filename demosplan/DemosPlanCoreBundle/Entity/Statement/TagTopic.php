@@ -23,6 +23,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table(name: '_tag_topic')]
 #[ORM\UniqueConstraint(name: 'tag_topic_unique_title', columns: ['_p_id', '_tt_title'])]
@@ -53,6 +54,7 @@ class TagTopic extends CoreEntity implements UuidEntityInterface, TagTopicInterf
      * * Necessary to set Type of $this->tags.
      */
     public function __construct(#[ORM\Column(name: '_tt_title', type: 'string', length: 255, nullable: false)]
+        #[Assert\Length(max: 250, maxMessage: 'tag.topic.title.max.length')]
         protected string $title, #[ORM\JoinColumn(name: '_p_id', referencedColumnName: '_p_id', nullable: false, onDelete: 'CASCADE')]
         #[ORM\ManyToOne(targetEntity: Procedure::class, inversedBy: 'topics')]
         protected ProcedureInterface $procedure)
