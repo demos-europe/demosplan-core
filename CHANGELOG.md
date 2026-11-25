@@ -12,11 +12,16 @@
 ### Changed
 - Tag and tag topic titles are limited to 250 characters (JSON:API create and rename, segments import)
 - Renaming a tag topic with an invalid title now returns an error instead of a success message
-- Tag titles must be unique within their topic instead of within the procedure; tag topic titles stay unique within the procedure. Both checks ignore case and leading/trailing spaces
+- Tag titles must be unique within their topic instead of within the procedure, both via JSON:API and in
+  `TagService::createTag()`; tag topic titles stay unique within the procedure. Both checks ignore case and
+  leading/trailing spaces
 
 ### Fixed
 - Tag topics can be renamed to a different spelling of their own title
-- JSON:API create requests receive the request body in functional tests
+- Accepting AI segment drafts keeps the stored tag IDs instead of looking tags up by title, which failed when a title
+  exists in several topics
+- JSON:API create requests build the creation request from the current request, so functional tests receive the
+  request body
 - `dplan:procedure:delete` now also removes the two associated `procedure_phase` rows; previous runs left orphan rows behind, which are cleaned up by a one-shot migration
 
 ## v4.42.0 (2026-05-21)
