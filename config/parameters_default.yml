@@ -204,6 +204,13 @@ parameters:
     addon_repository_token: '%env(ADDON_REPOSITORY_TOKEN)%'
     addon_repository_url: 'https://addons.demos-plan.de'
 
+    # largest accepted manifest or entries part of an OCX delivery, in bytes
+    ocx_max_body_size: 52428800
+    # largest accepted OCX attachment, in bytes; attachments are spooled to disk, not held in memory
+    ocx_max_attachment_size: 2147483648
+    # OCX intake requests per API user and minute
+    ocx_rate_limit: 600
+
     # MySQL Default Settings
     database_driver: "pdo_mysql"
     database_host: "localhost"

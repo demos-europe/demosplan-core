@@ -16,6 +16,7 @@ use DemosEurope\DemosplanAddon\Controller\APIController;
 use DemosEurope\DemosplanAddon\Response\APIResponse;
 use demosplan\DemosPlanCoreBundle\Exception\AccessDeniedException;
 use demosplan\DemosPlanCoreBundle\Exception\BadRequestException;
+use demosplan\DemosPlanCoreBundle\Exception\OcxProblemException;
 use demosplan\DemosPlanCoreBundle\Exception\ResourceNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\ExceptionService;
 use Exception;
@@ -86,6 +87,17 @@ class ExceptionEventSubscriber implements EventSubscriberInterface
          */
         if ($this->isApiPlatformRequest($event->getRequest())) {
             $event->setResponse($this->createApiPlatformErrorResponse($exception));
+
+            return;
+        }
+
+        // the OCX controller answers its own errors; this covers what fails before it, e.g. an unmatched route
+        if (str_starts_with($event->getRequest()->getPathInfo(), '/ocx/')) {
+            $status = $exception instanceof HttpExceptionInterface ? $exception->getStatusCode() : Response::HTTP_INTERNAL_SERVER_ERROR;
+            if (Response::HTTP_INTERNAL_SERVER_ERROR <= $status) {
+                $this->logger->error('OCX request failed before the controller', ['exception' => $exception]);
+            }
+            $event->setResponse((new OcxProblemException($status))->toResponse());
 
             return;
         }

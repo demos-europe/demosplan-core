@@ -9,6 +9,10 @@
     {
       "type": "vcs",
       "url": "https://github.com/demos-europe/enqueue-elastica-bundle"
+    },
+    {
+      "type": "vcs",
+      "url": "https://github.com/demos-europe/ocx"
     }
   ],
   "require": {
@@ -46,6 +50,7 @@
     "cocur/slugify": "^4.0",
     "composer/composer": "^2.8",
     "demos-europe/demosplan-addon": "^0.86",
+    "demos-europe/ocx": "0.1.*",
     "doctrine/annotations": "^2.0",
     "doctrine/common": "^3.2",
     "doctrine/data-fixtures": "^1.8",
@@ -76,6 +81,7 @@
     "jfcherng/php-diff": "^6.0",
     "jmikola/geojson": "^1.0",
     "jms/serializer-bundle": "^5.2",
+    "justinrainbow/json-schema": "^6.14",
     "khanamiryan/qrcode-detector-decoder": "^2.0",
     "knplabs/knp-menu-bundle": "^3.2",
     "knpuniversity/oauth2-client-bundle": "^2.10",

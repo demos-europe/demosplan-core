@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c1be7e59b5883206a2b5d94fd43e7824",
+    "content-hash": "7ef1cf3056e32853951754d4b7238f10",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -2102,6 +2102,40 @@
                 "source": "https://github.com/demos-europe/edt-queries/tree/0.28.0"
             },
             "time": "2026-04-17T12:01:43+00:00"
+        },
+        {
+            "name": "demos-europe/ocx",
+            "version": "0.1.3",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:demos-europe/ocx.git",
+                "reference": "2b32b1e31ae3c2aa78006c7ab28a10f8a380ea43"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/demos-europe/ocx/zipball/2b32b1e31ae3c2aa78006c7ab28a10f8a380ea43",
+                "reference": "2b32b1e31ae3c2aa78006c7ab28a10f8a380ea43",
+                "shasum": ""
+            },
+            "type": "library",
+            "archive": {
+                "exclude": [
+                    "/node_modules",
+                    "/tools",
+                    "/package.json",
+                    "/package-lock.json",
+                    "/redocly.yaml"
+                ]
+            },
+            "license": [
+                "proprietary"
+            ],
+            "description": "Open Consultation Exchange: JSON Schemas and OpenAPI description (data only)",
+            "support": {
+                "source": "https://github.com/demos-europe/ocx/tree/0.1.3",
+                "issues": "https://github.com/demos-europe/ocx/issues"
+            },
+            "time": "2026-11-24T09:56:16+00:00"
         },
         {
             "name": "doctrine/annotations",

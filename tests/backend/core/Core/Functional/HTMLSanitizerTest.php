@@ -11,6 +11,7 @@
 namespace Tests\Core\Core\Functional;
 
 use demosplan\DemosPlanCoreBundle\Services\HTMLSanitizer;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Base\FunctionalTestCase;
 
 class HTMLSanitizerTest extends FunctionalTestCase
@@ -136,6 +137,33 @@ class HTMLSanitizerTest extends FunctionalTestCase
             '<span style="line-height: 1">a</span><span style="line-height: 1">b</span>',
             $this->sut->sanitizeCssForPhpWord('<span style="line-height: inherit">a</span><span style="line-height: normal">b</span>')
         );
+    }
+
+    /**
+     * @return iterable<string, array{string, string, bool}>
+     */
+    public static function markupChanges(): iterable
+    {
+        yield 'unchanged' => ['<p>a</p><table><tr><td>b</td></tr></table>', '<p>a</p><table><tr><td>b</td></tr></table>', false];
+        yield 'rewritten but kept' => ['<p style="color:red">a<br>b</p>', '<p style="color:#FF0000;">a<br />b</p>', false];
+        yield 'element removed, text kept' => ['<p>a</p><script>x</script>', '<p>a</p>x', true];
+        yield 'attribute removed' => ['<p onclick="x()">a</p>', '<p>a</p>', true];
+        yield 'one of two elements removed' => ['<p><img src="a"><img src="b"></p>', '<p><img src="a" /></p>', true];
+        yield 'element names ignore case' => ['<P>a</P>', '<p>a</p>', false];
+    }
+
+    #[DataProvider('markupChanges')]
+    public function testRemovesMarkup(string $before, string $after, bool $removed): void
+    {
+        self::assertSame($removed, $this->sut->removesMarkup($before, $after));
+    }
+
+    public function testRemovesMarkupAfterTheWysiwygFilter(): void
+    {
+        $before = '<p>a<br>b</p><p onclick="x()">c</p>';
+
+        self::assertTrue($this->sut->removesMarkup($before, $this->sut->wysiwygFilter($before, [], true)));
+        self::assertFalse($this->sut->removesMarkup('<p>a<br>b</p>', $this->sut->wysiwygFilter('<p>a<br>b</p>', [], true)));
     }
 
     public function testAdditionalTags()
