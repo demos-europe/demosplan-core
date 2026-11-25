@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace demosplan\DemosPlanCoreBundle\Security\ApiToken;
 
 use demosplan\DemosPlanCoreBundle\Entity\User\AbstractApiToken;
+use demosplan\DemosPlanCoreBundle\Exception\ApiTokenGenerationException;
 use Random\Randomizer;
-use RuntimeException;
 use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactoryInterface;
 use Symfony\Component\PasswordHasher\PasswordHasherInterface;
 
@@ -58,7 +58,7 @@ class ApiTokenSecretService
             }
         }
         if (null === $prefix) {
-            throw new RuntimeException(sprintf('Failed to generate a unique token prefix after %d attempts.', self::PREFIX_ATTEMPTS));
+            throw new ApiTokenGenerationException(sprintf('Failed to generate a unique token prefix after %d attempts.', self::PREFIX_ATTEMPTS));
         }
 
         $secret = $randomizer->getBytesFromString(self::TOKEN_ALPHABET, self::SECRET_LENGTH);

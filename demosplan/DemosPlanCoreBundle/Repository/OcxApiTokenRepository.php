@@ -29,9 +29,6 @@ class OcxApiTokenRepository extends CoreRepository
      */
     public function findAllOrderedByCreation(): array
     {
-        /** @var list<OcxApiToken> $tokens */
-        $tokens = $this->findBy([], ['createdAt' => 'DESC']);
-
-        return $tokens;
+        return $this->findBy([], ['createdAt' => 'DESC']);
     }
 }
