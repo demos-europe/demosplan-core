@@ -846,7 +846,11 @@ export default {
     },
 
     showLockWithoutRecommendationHint () {
-      return !!this.selectedPlace.locked && isEmptyHtml(this.segment.attributes.recommendation)
+      // With linked boilerplates, the stored text has empty tags; the editor content has them filled in
+      const isEditorContentReady = this.canLinkBoilerplate && this.recommendationEmbedded !== null && !this.recommendationEmbeddedLoading
+      const recommendation = isEditorContentReady ? this.recommendationForEditor : this.segment.attributes.recommendation
+
+      return !!this.selectedPlace.locked && isEmptyHtml(recommendation)
     },
 
     lockTooltipText () {
