@@ -60,6 +60,15 @@ export function useTagsList () {
 
   const dataIsRequested = ref(false)
   const isInEditState = ref('')
+  const pendingItem = ref({ id: '', action: '' })
+
+  const setPending = (id, action) => {
+    pendingItem.value = { id, action }
+  }
+
+  const clearPending = () => {
+    pendingItem.value = { id: '', action: '' }
+  }
 
   const tags = computed(() => store.state[TAG].items)
   const tagTopics = computed(() => store.state[TAG_TOPIC].items)
@@ -184,12 +193,12 @@ export function useTagsList () {
 
   const loadTagsAndTopics = () => {
     if (dataIsRequested.value) {
-      return
+      return Promise.resolve()
     }
 
     dataIsRequested.value = true
 
-    store.dispatch(`${TAG_TOPIC}/list`, {
+    return store.dispatch(`${TAG_TOPIC}/list`, {
       fields: {
         Tag: ['boilerplate', 'sortIndex', 'title'].join(),
         TagTopic: ['title', 'tags'].join(),
@@ -197,14 +206,17 @@ export function useTagsList () {
       },
       include: 'tags,tags.boilerplate',
       sort: 'title',
-    }).then(() => {
+    }).finally(() => {
       dataIsRequested.value = false
     })
   }
 
   const deleteItem = (item) => {
-    dpRpc('bulk.delete.tags.and.topics', { ids: [item] })
+    setPending(item.id, 'delete')
+
+    return dpRpc('bulk.delete.tags.and.topics', { ids: [item] })
       .then(loadTagsAndTopics)
+      .finally(clearPending)
   }
 
   const save = ({ id, attributes, type, isTitleChanged }) => {
@@ -221,8 +233,11 @@ export function useTagsList () {
       type,
     })
 
-    store.dispatch(`${type}/save`, id)
+    setPending(id, 'save')
+
+    return store.dispatch(`${type}/save`, id)
       .then(closeEditForm)
+      .finally(clearPending)
   }
 
   onMounted(loadTagsAndTopics)
@@ -235,6 +250,7 @@ export function useTagsList () {
     isBranch,
     isInEditState,
     loadTagsAndTopics,
+    pendingItem,
     save,
     setEditState,
     transformedCategories,

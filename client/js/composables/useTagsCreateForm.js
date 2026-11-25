@@ -7,7 +7,7 @@
  * All rights reserved
  */
 
-import { computed, getCurrentInstance, ref } from 'vue'
+import { computed, getCurrentInstance, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
 const TAG = 'Tag'
@@ -41,10 +41,30 @@ export function useTagsCreateForm (props) {
   const { proxy } = getCurrentInstance()
 
   const currentForm = ref('')
+  const isSaving = ref(false)
   const newTag = ref(emptyTag())
   const newTopic = ref({ title: '' })
+  const tagError = ref('')
+  const topicError = ref('')
 
+  // Remove the error state as soon as the user changes the title
+  watch(() => newTag.value.title, () => { tagError.value = '' })
+  watch(() => newTopic.value.title, () => { topicError.value = '' })
+
+  const tags = computed(() => store.state[TAG].items)
   const tagTopics = computed(() => store.state[TAG_TOPIC].items)
+
+  /*
+   * Mirror the backend uniqueness rules to give feedback before the request is sent:
+   * - Tag titles are compared exactly (TagResourceType::checkTitleUnique)
+   * - TagTopic titles are compared case-insensitively, as the backend check runs
+   *   as a database query on a case-insensitive column (TagTopicResourceType::checkTitleUniqueForProcedure)
+   */
+  const isTagTitleTaken = (title) => Object.values(tags.value)
+    .some(({ attributes }) => attributes.title.trim() === title.trim())
+
+  const isTopicTitleTaken = (title) => Object.values(tagTopics.value)
+    .some(({ attributes }) => attributes.title.trim().localeCompare(title.trim(), undefined, { sensitivity: 'accent' }) === 0)
 
   const topicsAsOptions = computed(() => Object.values(tagTopics.value)
     .map(({ attributes, id }) => ({
@@ -61,6 +81,8 @@ export function useTagsCreateForm (props) {
   const closeForm = () => {
     currentForm.value = ''
     resetFormData()
+    tagError.value = ''
+    topicError.value = ''
   }
 
   /**
@@ -103,6 +125,14 @@ export function useTagsCreateForm (props) {
   const saveNewTag = () => {
     const topicId = newTag.value.topic
 
+    if (isTagTitleTaken(newTag.value.title)) {
+      tagError.value = Translator.trans('tag.name.unique.error')
+
+      return Promise.resolve()
+    }
+
+    isSaving.value = true
+
     return store.dispatch(`${TAG}/create`, {
       type: TAG,
       attributes: {
@@ -129,9 +159,20 @@ export function useTagsCreateForm (props) {
         proxy.$root.$emit('tag:created', newTagId)
         closeForm()
       })
+      .finally(() => {
+        isSaving.value = false
+      })
   }
 
   const saveNewTopic = () => {
+    if (isTopicTitleTaken(newTopic.value.title)) {
+      topicError.value = Translator.trans('tag.topic.name.duplicate.error')
+
+      return Promise.resolve()
+    }
+
+    isSaving.value = true
+
     return store.dispatch(`${TAG_TOPIC}/create`, {
       type: TAG_TOPIC,
       attributes: {
@@ -153,16 +194,22 @@ export function useTagsCreateForm (props) {
 
         closeForm()
       })
+      .finally(() => {
+        isSaving.value = false
+      })
   }
 
   return {
     closeForm,
     currentForm,
+    isSaving,
     newTag,
     newTopic,
     openForm,
     saveNewTag,
     saveNewTopic,
+    tagError,
+    topicError,
     topicsAsOptions,
     updateForm,
   }
