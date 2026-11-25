@@ -69,7 +69,7 @@
                 {{ props.option.name }}
                 <dp-contextual-help
                   v-if="props.option.solved"
-                  class="float-right color--grey"
+                  class="float-right text-muted"
                   icon="check"
                   size="small"
                   :text="Translator.trans('statement.solved.description')"
@@ -81,7 +81,7 @@
                 {{ props.option.name }}
                 <dp-contextual-help
                   v-if="props.option.solved"
-                  class="float-right color--grey mt-0.5"
+                  class="float-right text-muted mt-0.5"
                   icon="check"
                   size="small"
                   :text="Translator.trans('statement.solved.description')"
@@ -298,7 +298,7 @@
           >
             <dp-loading v-if="isLoadingSegmentsWithoutRecommendation" />
             <template v-else-if="segmentsWithoutRecommendation.length > 0">
-              <p class="font-semibold mb-4">
+              <p class="font-semibold mb-3">
                 {{ Translator.trans('segments.bulk.edit.place.locked.no.recommendation.hint') }}
               </p>
               <p class="mb-2">
