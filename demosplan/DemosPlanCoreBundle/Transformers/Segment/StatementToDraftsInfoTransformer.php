@@ -92,11 +92,26 @@ class StatementToDraftsInfoTransformer implements DraftsInfoTransformerInterface
     private function replaceExistingTagIds(object $segment, string $procedureId): void
     {
         foreach ($segment->tags as $piTag) {
+            if ($this->isTagOfProcedure($piTag->id, $procedureId)) {
+                continue;
+            }
+
             $existingTag = $this->tagService->findUniqueByTitle($piTag->tagName, $procedureId);
             if ($existingTag instanceof Tag) {
                 $piTag->id = $existingTag->getId();
             }
         }
+    }
+
+    private function isTagOfProcedure(string $tagId, string $procedureId): bool
+    {
+        if ('' === $tagId) {
+            return false;
+        }
+
+        $tag = $this->tagService->getTag($tagId);
+
+        return $tag instanceof Tag && $tag->getTopic()->getProcedure()->getId() === $procedureId;
     }
 
     /**
