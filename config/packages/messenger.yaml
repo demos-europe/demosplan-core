@@ -27,6 +27,7 @@ framework:
             demosplan\DemosPlanCoreBundle\Message\ExportProcedureMessage: async
             demosplan\DemosPlanCoreBundle\Message\GenerateScheduledExportMessage: async
             demosplan\DemosPlanCoreBundle\Message\ExportSegmentsMessage: async
+            demosplan\DemosPlanCoreBundle\Message\OcxProcessDeliveryMessage: async
 
 # when@test:
 #    framework:

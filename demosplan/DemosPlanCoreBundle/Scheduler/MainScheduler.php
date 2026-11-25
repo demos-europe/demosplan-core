@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Message\CheckMailBouncesMessage;
 use demosplan\DemosPlanCoreBundle\Message\FetchStatementGeoDataMessage;
 use demosplan\DemosPlanCoreBundle\Message\MaintainExportJobsMessage;
 use demosplan\DemosPlanCoreBundle\Message\ProcessImportJobsMessage;
+use demosplan\DemosPlanCoreBundle\Message\PurgeStaleOcxDeliveriesMessage;
 use demosplan\DemosPlanCoreBundle\Message\PurgeDeletedProceduresMessage;
 use demosplan\DemosPlanCoreBundle\Message\PurgeExpiredOAuthTokensMessage;
 use demosplan\DemosPlanCoreBundle\Message\PurgePendingBoilerplateDeletionsMessage;
@@ -58,6 +59,7 @@ class MainScheduler implements ScheduleProviderInterface
             ->add(RecurringMessage::every(self::MAINTENANCE_OFFSET, new PurgePendingBoilerplateDeletionsMessage()))
             ->add(RecurringMessage::every(self::OAUTH_CLEANUP_OFFSET, new PurgeExpiredOAuthTokensMessage()))
             ->add(RecurringMessage::every(self::EXPORT_JOB_CLEANUP_OFFSET, new MaintainExportJobsMessage()))
+            ->add(RecurringMessage::every(self::EXPORT_JOB_CLEANUP_OFFSET, new PurgeStaleOcxDeliveriesMessage()))
             ->lock($this->lockFactory->createLock('demosplan_main_scheduler_lock'))
         ;
     }

@@ -17,6 +17,11 @@ framework:
             rate: { interval: '15 minutes', amount: 2 }
         # limit api requests for captured bearer tokens
         # the bearer token is reset at every page reload
+        # OCX intake requests per API user; one delivery needs one request per attachment and part
+        ocx_intake:
+            policy: 'sliding_window'
+            limit: '%ocx_rate_limit%'
+            interval: '1 minute'
         jwt_token:
             policy: 'fixed_window'
             limit: '%ratelimit_jwt_token_limit%'

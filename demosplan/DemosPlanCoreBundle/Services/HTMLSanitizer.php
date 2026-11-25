@@ -16,6 +16,9 @@ use RuntimeException;
 
 class HTMLSanitizer
 {
+    private const ELEMENT = '/<([a-zA-Z][a-zA-Z0-9]*)\b([^>]*)>/';
+    private const ATTRIBUTE = '/([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*=/';
+
     /**
      * @var string
      */
@@ -126,5 +129,40 @@ class HTMLSanitizer
         }
 
         return $this->htmlPurifier->purify($text, $config);
+    }
+
+    /**
+     * Whether filtering dropped elements or attributes. The filters also rewrite markup they keep
+     * (`<br>` becomes `<br />`, colours are normalised), so only element and attribute names count.
+     */
+    public function removesMarkup(string $before, string $after): bool
+    {
+        $kept = $this->countMarkupNames($after);
+        foreach ($this->countMarkupNames($before) as $name => $count) {
+            if (($kept[$name] ?? 0) < $count) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return array<string, int> element and attribute names (`element`, `element@attribute`) with their counts
+     */
+    private function countMarkupNames(string $html): array
+    {
+        $names = [];
+        preg_match_all(self::ELEMENT, $html, $elements, PREG_SET_ORDER);
+        foreach ($elements as [, $element, $attributes]) {
+            $element = mb_strtolower($element);
+            $names[] = $element;
+            preg_match_all(self::ATTRIBUTE, $attributes, $matches);
+            foreach ($matches[1] as $attribute) {
+                $names[] = $element.'@'.mb_strtolower($attribute);
+            }
+        }
+
+        return array_count_values($names);
     }
 }
