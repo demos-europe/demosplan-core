@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\MailSend;
 use demosplan\DemosPlanCoreBundle\Entity\User\AccountDeletionTracking;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logger\PiiAwareLogger;
+use demosplan\DemosPlanCoreBundle\Logic\Customer\CustomerUrlGenerator;
 use demosplan\DemosPlanCoreBundle\Logic\MailService;
 use demosplan\DemosPlanCoreBundle\Logic\User\AccountDeletionStep;
 use demosplan\DemosPlanCoreBundle\Logic\User\LastLoginActivityChecker;
@@ -31,6 +32,7 @@ use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Tests\Base\UnitTestCase;
 
@@ -100,7 +102,12 @@ class AccountDeletionRunMessageHandlerTest extends UnitTestCase
             $this->piiLogger,
             $this->twig,
             $this->translator,
-            $this->globalConfig
+            $this->globalConfig,
+            new CustomerUrlGenerator(
+                $this->globalConfig,
+                $this->logger,
+                $this->createMock(RouterInterface::class)
+            )
         );
     }
 

@@ -9,6 +9,20 @@
   JSON:API 2.0 and the tag edit page and readable through API 3.0. Writing it needs the new permission
   `field_tag_description`; projects must grant it explicitly (DPLAN-18350)
 
+## v4.70.1 (2026-11-19)
+- Security update: PHP 8.4.28 and nginx 1.30.7
+- The statement list has a version history that also shows changes to custom fields
+- The PDF import no longer shows the box review step; a notice asks to check the recognized text, and a link opens the document with the recognized text areas
+
+## v4.70.0 (2026-11-16)
+- Custom fields are displayed in the statement list
+- Uploading large planning documents is more reliable, and documents with very long file names can be imported
+- The procedure protocol PDF has a proper document title
+- The Keycloak role Datenerfassung is mapped to the data input role
+
+## v4.69.1 (2026-11-19)
+- Security update: PHP 8.4.28 and nginx 1.30.7
+
 ## v4.69.0 (2026-11-13)
 - Organisations get a read-only technical name from the identity provider, stored as `Orga::$technicalName` (JSON:API 2.0
   attribute `Orga.technicalName`) next to the editable name (`Orga::$name`). Only the Keycloak OZG login
@@ -49,9 +63,18 @@
 - addons can cancel saving an organisation, e.g. to ask for a confirmation first
 - The statement details page shows the custom fields of a statement in a new section, where they can be viewed and edited (DPLAN-17933)
 
+## v4.68.1 (2026-11-19)
+- production image: PHP 8.4.28 and nginx 1.30.7 (November 2026 security releases)
+
 ## v4.68.0 (2026-11-12)
 
+## v4.67.1 (2026-11-19)
+- production image: PHP 8.4.28 and nginx 1.30.7 (November 2026 security releases)
+
 ## v4.67.0 (2026-11-06)
+
+## v4.66.1 (2026-11-19)
+- production image: PHP 8.4.28 and nginx 1.30.7 (November 2026 security releases)
 
 ## v4.66.0 (2026-11-05)
 
@@ -218,6 +241,15 @@
 - The statement PDF attached to the submission confirmation no longer states that the submitter declined feedback when no feedback preference was recorded at all.
 
 ## v4.53.0 (2026-07-30)
+
+## v4.52.3 (2026-11-19)
+
+### Changed
+- PHP updated to version 8.4.28
+- Container image: nginx updated to version 1.30.7 (official image, runs unprivileged)
+
+### Security
+- Disable PHP `session.upload_progress` in the production image (mitigation for PHP session handling vulnerabilities)
 
 ## v4.52.2 (2026-09-15)
 

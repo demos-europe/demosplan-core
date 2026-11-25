@@ -150,6 +150,20 @@
       </div>
     </dp-sticky-element>
 
+    <!-- Version History Slidebar -->
+    <dp-slidebar
+      :open="isSlidebarOpen"
+      @close="setIsOpen(false)"
+    >
+      <version-history
+        :entity-id="versionHistoryEntity?.id"
+        :entity-type="versionHistoryEntity?.type"
+        :extern-id="versionHistoryEntity?.externId"
+        :procedure-id="procedureId"
+        :reload-key="versionHistoryReloadKey"
+      />
+    </dp-slidebar>
+
     <dp-loading
       v-if="isLoading"
       class="u-mt"
@@ -280,7 +294,7 @@
                 class="line-clamp-3 c-styled-html"
               />
             </template>
-            <template v-slot:flyout="{ assignee, id, isCluster, isPlaceholder, movedStatementId, movedToProcedureId, originalId, originalPdf, segmentsCount, synchronized }">
+            <template v-slot:flyout="{ assignee, externId, id, isCluster, isPlaceholder, movedStatementId, movedToProcedureId, originalId, originalPdf, segmentsCount, synchronized }">
               <dp-flyout
                 v-if="isPlaceholder && isMovedToAccessibleProcedure(movedToProcedureId)"
                 data-cy="listStatements:placeholderActionsMenu"
@@ -320,6 +334,15 @@
                 >
                   {{ Translator.trans('statement.details_and_recommendation') }}
                 </a>
+                <button
+                  v-if="hasPermission('feature_statement_content_changes_view')"
+                  class="block btn--blank o-link--default leading-[2] whitespace-nowrap hover:underline active:underline"
+                  data-cy="listStatements:statementVersionHistory"
+                  type="button"
+                  @click="showHistory({ externId, id, type: 'statement' })"
+                >
+                  {{ Translator.trans('history') }}
+                </button>
                 <button
                   v-if="hasPermission('feature_statement_assignment')"
                   :class="{
@@ -519,7 +542,7 @@
             </template>
           </dp-data-table>
         </div>
-        <table-scrollbar
+        <dp-table-scrollbar
           v-show="scrollbarVisible"
           ref="scrollBar"
           :is-fullscreen="isFullscreen"
@@ -556,7 +579,9 @@ import {
   DpPager,
   dpRpc,
   DpSelect,
+  DpSlidebar,
   DpStickyElement,
+  DpTableScrollbar,
   formatDate,
   hasOwnProp,
   sessionStorageMixin,
@@ -576,9 +601,9 @@ import StatementCustomFieldChips from './StatementCustomFieldChips.vue'
 import StatementExportModal from '@DpJs/components/statement/statementExportModal/StatementExportModal.vue'
 import StatementMetaData from '@DpJs/components/statement/StatementMetaData.vue'
 import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge.vue'
-import TableScrollbar from '@DpJs/components/shared/TableScrollbar.vue'
 import tableScrollbarMixin from '@DpJs/components/shared/mixins/tableScrollbarMixin'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
+import VersionHistory from '@DpJs/components/statement/statement/VersionHistory.vue'
 
 // The initial width of a column is also its minimum width
 const createHeaderField = (field, label, width, options = {}) => ({
@@ -608,13 +633,15 @@ export default {
     DpLoading,
     DpPager,
     DpSelect,
+    DpSlidebar,
     DpStickyElement,
+    DpTableScrollbar,
     DpMoveStatementModal: defineAsyncComponent(() => import(/* webpackChunkName: "dp-move-statement-modal" */ '@DpJs/components/statement/assessmentTable/DpMoveStatementModal.vue')),
     StatementCustomFieldChips,
     StatementExportModal,
     StatementMetaData,
     StatusBadge,
-    TableScrollbar,
+    VersionHistory,
   },
 
   directives: {
@@ -678,7 +705,6 @@ export default {
   data () {
     const defaultColumnSelection = [
       'status',
-      'internId',
       'meta',
       'segmentsCount',
     ]
@@ -755,6 +781,12 @@ export default {
       currentPage: 'currentPage',
       totalFiles: 'totalFiles',
       isLoading: 'loading',
+    }),
+
+    ...mapState('VersionHistorySlidebar', {
+      isSlidebarOpen: 'isOpen',
+      versionHistoryEntity: 'entity',
+      versionHistoryReloadKey: 'reloadKey',
     }),
 
     assignableUsers () {
@@ -919,6 +951,11 @@ export default {
     ...mapMutations('Statement', {
       setStatement: 'setItem',
     }),
+
+    ...mapMutations('VersionHistorySlidebar', [
+      'setIsOpen',
+      'showHistory',
+    ]),
 
     assigneeId (statement) {
       if (statement.hasRelationship('assignee') && statement.relationships.assignee.data.id !== '') {

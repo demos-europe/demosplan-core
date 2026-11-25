@@ -72,8 +72,8 @@
         :label="Translator.trans('branding.styling.input')"
         name="r_styling"
         reduced-height
-        :value="branding.styling"
-        @input="branding = { key: 'styling', value: $event }"
+        :model-value="branding.styling"
+        @update:model-value="branding = { key: 'styling', value: $event }"
       />
       <dp-details
         data-cy="customerSettingsBranding:brandingStylingDetails"
