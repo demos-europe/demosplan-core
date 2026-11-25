@@ -21,6 +21,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceType;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Repository\TagTopicRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use EDT\JsonApi\ApiDocumentation\DefaultField;
 use EDT\JsonApi\ApiDocumentation\OptionalField;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
@@ -119,7 +120,7 @@ final class TagTopicResourceType extends DplanResourceType
                         try {
                             $this->checkTitleNotEmpty($title);
                             // title must be unique
-                            $this->checkTitleUniqueForProcedure($title);
+                            $this->checkTitleUniqueForProcedure($tag, $title);
                             $tag->setTitle($title);
                             $this->resourceTypeService->validateObject($tag);
                         } catch (InvalidArgumentException $e) {
@@ -221,7 +222,7 @@ final class TagTopicResourceType extends DplanResourceType
                         // check TagTopic title
                         $title = $entityData->getAttributes()['title'] ?? null;
                         $this->checkTitleNotEmpty($title);
-                        $this->checkTitleUniqueForProcedure($title);
+                        $this->checkTitleUniqueForProcedure($tagTopic, $title);
                         $this->resourceTypeService->validateObject($tagTopic);
 
                         $this->tagTopicRepository->persistEntities([$tagTopic]);
@@ -271,18 +272,27 @@ final class TagTopicResourceType extends DplanResourceType
     /**
      * @throws InvalidArgumentException
      */
-    private function checkTitleUniqueForProcedure(string $title): void
+    private function checkTitleUniqueForProcedure(TagTopicInterface $tagTopic, string $title): void
     {
-        $tagTopicTitleUniqueForProcedure = $this->tagService->getTagTopicsByTitle(
-            $this->currentProcedureService->getProcedure(),
-            $title
+        $normalizedTitle = $this->normalizeTitle($title);
+        $topicsOfProcedure = $this->currentProcedureService->getProcedure()?->getTopics() ?? new ArrayCollection();
+        $otherTopicsWithTitle = $topicsOfProcedure->filter(
+            fn (TagTopicInterface $t) => $t !== $tagTopic && $this->normalizeTitle($t->getTitle()) === $normalizedTitle
         );
 
-        if ([] !== $tagTopicTitleUniqueForProcedure) {
-            $this->logger->error('TagTopicResourceType tried to set duplicate title for tagTopic');
-            $this->messageBag->add('warning', 'tag.topic.name.duplicate.error');
+        if (!$otherTopicsWithTitle->isEmpty()) {
+            $this->logger->error(
+                'TagTopicResourceType tried to set a topic title that already exists within the procedure',
+                ['tagTopicName' => $title]
+            );
+            $this->messageBag->add('warning', 'tag.topic.title.duplicate.error');
 
-            throw new InvalidArgumentException('TagTopic title must be unique');
+            throw new InvalidArgumentException('TagTopic title must be unique within the procedure');
         }
+    }
+
+    private function normalizeTitle(string $title): string
+    {
+        return mb_strtolower(trim($title));
     }
 }

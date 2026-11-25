@@ -12,14 +12,15 @@ declare(strict_types=1);
 
 namespace Tests\Core\JsonApi\Functional;
 
-use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Procedure\ProcedureFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagFactory;
 use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\Statement\TagTopicFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\ProcedureResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\TagTopicResourceType;
@@ -38,7 +39,10 @@ class TagTitleLengthTest extends JsonApiTest
         parent::setUp();
 
         $this->user = $this->getUserReference(LoadUserData::TEST_USER_PLANNER_AND_PUBLIC_INTEREST_BODY);
-        $this->procedure = $this->getProcedureReference(LoadProcedureData::TESTPROCEDURE);
+        $this->procedure = ProcedureFactory::createOne([
+            'orga'     => $this->user->getOrga(),
+            'customer' => static::getContainer()->get(CustomerService::class)->getCurrentCustomer(),
+        ])->_real();
         $this->enablePermissions([
             'area_admin_statements_tag',
             'feature_json_api_create',
