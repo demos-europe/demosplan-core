@@ -44,8 +44,8 @@ export default {
 
   components: {
     DpModal,
-    DpOlMap: defineAsyncComponent(() => import('@DpJs/components/map/map/DpOlMap')),
-    DpOlMapLayerVector: defineAsyncComponent(() => import('@DpJs/components/map/map/DpOlMapLayerVector')),
+    DpOlMap: defineAsyncComponent(() => import('@DpJs/components/map/map/DpOlMap.vue')),
+    DpOlMapLayerVector: defineAsyncComponent(() => import('@DpJs/components/map/map/DpOlMapLayerVector.vue')),
   },
 
   mixins: [prefixClassMixin],

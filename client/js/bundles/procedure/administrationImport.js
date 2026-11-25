@@ -11,9 +11,9 @@
  * This is the entrypoint for administration_import.html.twig
  */
 
-import AdministrationImport from '@DpJs/components/procedure/AdministrationImport/AdministrationImport'
+import AdministrationImport from '@DpJs/components/procedure/AdministrationImport/AdministrationImport.vue'
 import { initialize } from '@DpJs/InitVue'
-import SegmentImportJobList from '@DpJs/components/procedure/AdministrationImport/SegmentImportJobList'
+import SegmentImportJobList from '@DpJs/components/procedure/AdministrationImport/SegmentImportJobList.vue'
 
 const components = {
   AdministrationImport,

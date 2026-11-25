@@ -12,7 +12,7 @@
  */
 
 import { initialize } from '@DpJs/InitVue'
-import ProcedurePhasesDefinition from '@DpJs/components/procedurePhasesDefinition/ProcedurePhasesDefinition'
+import ProcedurePhasesDefinition from '@DpJs/components/procedurePhasesDefinition/ProcedurePhasesDefinition.vue'
 
 const components = {
   ProcedurePhasesDefinition,

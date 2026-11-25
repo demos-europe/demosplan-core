@@ -11,14 +11,15 @@
  * This is the entrypoint for portal_user.html.twig
  */
 
-import { DpAccordion, dpValidate } from '@demos-europe/demosplan-ui'
-import ChangePassword from '@DpJs/components/user/portalUser/ChangePassword'
+import { DpAccordion, DpInlineNotification, dpValidate } from '@demos-europe/demosplan-ui'
+import ChangePassword from '@DpJs/components/user/portalUser/ChangePassword.vue'
 import { initialize } from '@DpJs/InitVue'
-import PersonalData from '@DpJs/components/user/portalUser/PersonalData'
+import PersonalData from '@DpJs/components/user/portalUser/PersonalData.vue'
 
 const components = {
   ChangePassword,
   DpAccordion,
+  DpInlineNotification,
   PersonalData,
 }
 

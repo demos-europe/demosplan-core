@@ -128,7 +128,7 @@ All rights reserved
 </template>
 <script>
 import { DpButton, DpInlineNotification, DpInput, DpLabel, dpRpc, DpUploadFiles, formatDate } from '@demos-europe/demosplan-ui'
-import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody'
+import DetailViewFinalEmailBody from '@DpJs/components/statement/assessmentTable/DetailView/DetailViewFinalEmailBody.vue'
 import { mapState } from 'vuex'
 
 export default {

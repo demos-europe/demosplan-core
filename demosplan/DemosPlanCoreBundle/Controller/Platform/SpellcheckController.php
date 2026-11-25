@@ -14,12 +14,15 @@ namespace demosplan\DemosPlanCoreBundle\Controller\Platform;
 
 use DemosEurope\DemosplanAddon\Controller\APIController;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
+use demosplan\DemosPlanCoreBundle\Exception\LanguageToolUnavailableException;
 use demosplan\DemosPlanCoreBundle\Logic\Spellcheck\LanguageToolService;
 use Exception;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class SpellcheckController extends APIController
 {
@@ -30,7 +33,7 @@ class SpellcheckController extends APIController
         try {
             return new JsonResponse($languageToolService->checkText($request->toArray()));
         } catch (Exception $e) {
-            return $this->handleApiError($e);
+            return $this->handleSpellcheckError($e);
         }
     }
 
@@ -41,7 +44,27 @@ class SpellcheckController extends APIController
         try {
             return new JsonResponse($languageToolService->getLanguages());
         } catch (Exception $e) {
-            return $this->handleApiError($e);
+            return $this->handleSpellcheckError($e);
         }
+    }
+
+    /**
+     * An unavailable LanguageTool is no application error. The request that finds it down tells the
+     * user once, requests answered while the circuit breaker is open stay silent.
+     */
+    private function handleSpellcheckError(Exception $e): Response
+    {
+        if ($e instanceof LanguageToolUnavailableException) {
+            return $this->createResponse(['errors' => [['status' => Response::HTTP_SERVICE_UNAVAILABLE]]], Response::HTTP_SERVICE_UNAVAILABLE);
+        }
+
+        if ($e instanceof TransportExceptionInterface || $e instanceof ServerExceptionInterface) {
+            $this->logger->warning('LanguageTool is unavailable', ['exception' => $e]);
+            $this->messageBag->add('info', 'spellcheck.unavailable');
+
+            return $this->createResponse(['errors' => [['status' => Response::HTTP_SERVICE_UNAVAILABLE]]], Response::HTTP_SERVICE_UNAVAILABLE);
+        }
+
+        return $this->handleApiError($e);
     }
 }

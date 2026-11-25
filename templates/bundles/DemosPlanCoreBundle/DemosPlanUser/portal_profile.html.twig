@@ -1,3 +1,15 @@
+{# The profile page doubles as setup page while an organisation requires a second factor.
+   Orga names are escaped, because the notification renders its message as HTML. #}
+{% if templateVars.twoFactorSetup.required|default(false) %}
+    <dp-inline-notification
+        class="mb-2"
+        message="{{ '2fa.setup.required.hint'|trans({
+            orgaName: templateVars.twoFactorSetup.orgaNames|map(name => name|e)|join(', ')
+        }) }}"
+        type="warning">
+    </dp-inline-notification>
+{% endif %}
+
 <form class="" method="post" action="{{ path('DemosPlan_user_edit') }}">
     {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
@@ -141,7 +153,7 @@ Therefor we want to hide it from the User #}
 
     {{ include('@DemosPlanCore/DemosPlanUser/portal_profile_2fa.html.twig') }}
 
-    {% if hasPermission('feature_profile_editable') %}
+    {% if hasPermission('feature_profile_editable') or hasPermission('feature_2fa') %}
         <div class="{{ 'text-right space-inline-s'|prefixClass }}">
             <input class="{{ 'btn btn--primary'|prefixClass }}" type="submit" value="{{ "save"|trans }}">
             <input class="{{ 'btn btn--secondary'|prefixClass }}" type="reset" value="{{ "abort"|trans }}">

@@ -8,7 +8,7 @@
  */
 
 import { createStore } from 'vuex'
-import DpLayerLegend from '@DpJs/components/map/publicdetail/controls/legendList/DpLayerLegend'
+import DpLayerLegend from '@DpJs/components/map/publicdetail/controls/legendList/DpLayerLegend.vue'
 import LayersStore from '@DpJs/store/map/Layers'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 

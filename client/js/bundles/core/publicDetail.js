@@ -14,12 +14,12 @@
 
 import { DpUploadFiles, DpVideoPlayer, TableWrapper } from '@demos-europe/demosplan-ui'
 import { defineAsyncComponent } from 'vue'
-import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap'
+import DpPublicDetailNoMap from '@DpJs/components/statement/DpPublicDetailNoMap.vue'
 import { initialize } from '@DpJs/InitVue'
 import publicStatement from '@DpJs/store/statement/PublicStatement'
-import RegisterFlyout from '@DpJs/components/user/RegisterFlyout'
+import RegisterFlyout from '@DpJs/components/user/RegisterFlyout.vue'
 import StatementForm from '@DpJs/lib/statement/StatementForm'
-import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal'
+import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal.vue'
 
 /*
  * DpPublicDetailNoMap renders the Twig markup as scoped slot content, which is compiled in the
@@ -30,7 +30,7 @@ const components = {
   DpUploadFiles,
   DpVideoPlayer,
   // Only rendered by the projects that override public_elements_list.html.twig
-  ElementsList: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList')),
+  ElementsList: defineAsyncComponent(() => import('@DpJs/components/document/ElementsList.vue')),
   RegisterFlyout,
   StatementModal,
 }

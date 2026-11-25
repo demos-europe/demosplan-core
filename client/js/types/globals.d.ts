@@ -2,7 +2,7 @@ export {}
 
 declare global {
   interface DplanTranslator {
-    trans(key: string, params?: Record<string, string>, domain?: string): string
+    trans(key: string, params?: Record<string, string | number>, domain?: string): string
   }
 
   interface DplanRouting {
@@ -30,9 +30,13 @@ declare global {
   const dplan: DplanGlobal
 
   function hasPermission(permission: string): boolean
-  function dpconfirm(message: string): boolean
+  function dpconfirm(message: string): Promise<boolean>
 
   const URL_PATH_PREFIX: string
+
+  interface Window {
+    dpconfirm(message: string): Promise<boolean>
+  }
 }
 
 /*

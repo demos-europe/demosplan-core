@@ -114,7 +114,6 @@
 <script setup lang="ts">
 import { CleanHtml, DpButton, DpCheckbox, DpDataTable, DpIcon, DpInlineNotification, DpTooltip } from '@demos-europe/demosplan-ui'
 import { computed, onMounted, ref } from 'vue'
-// eslint-disable-next-line import-x/extensions -- vue-tsc can't resolve an extensionless .vue import (see eslint.config.js:286-288)
 import SegmentUnlockModal from '@DpJs/components/procedure/StatementSegmentsList/SegmentUnlockModal.vue'
 import { useSegmentUnlock } from '@DpJs/composables/useSegmentUnlock'
 import { useStore } from 'vuex'

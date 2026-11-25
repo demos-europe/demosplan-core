@@ -284,8 +284,8 @@
 <script>
 import { dpApi, DpDatepicker, DpToggle, hasOwnProp } from '@demos-europe/demosplan-ui'
 import { Attribution } from 'ol/control'
-import DpOlMap from '@DpJs/components/map/map/DpOlMap'
-import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector'
+import DpOlMap from '@DpJs/components/map/map/DpOlMap.vue'
+import DpOlMapLayerVector from '@DpJs/components/map/map/DpOlMapLayerVector.vue'
 import { fromExtent } from 'ol/geom/Polygon'
 
 export default {

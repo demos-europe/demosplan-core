@@ -12,6 +12,15 @@ namespace Tests\Core\Document\Unit;
 
 use DemosEurope\DemosplanAddon\Contracts\MessageBagInterface;
 use demosplan\DemosPlanCoreBundle\Logic\Document\DocumentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ElementsService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\ParagraphService;
+use demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentHandler;
+use demosplan\DemosPlanCoreBundle\Logic\Document\SingleDocumentService;
+use demosplan\DemosPlanCoreBundle\Logic\FileService;
+use demosplan\DemosPlanCoreBundle\Logic\Procedure\ProcedureService;
+use demosplan\DemosPlanCoreBundle\Logic\User\CurrentUserService;
+use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanPath;
 use League\Flysystem\DirectoryAttributes;
 use League\Flysystem\DirectoryListing;
 use League\Flysystem\FileAttributes;
@@ -19,8 +28,13 @@ use League\Flysystem\FilesystemOperator;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use ReflectionClass;
+use RuntimeException;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 /**
  * Tests for the elementImportDirToArray method in DocumentHandler.
@@ -259,6 +273,51 @@ class DocumentHandlerElementImportTest extends TestCase
         // Verify no files at root level
         $filesAtRoot = array_filter($result, fn ($item) => !$item['isDir']);
         $this->assertCount(0, $filesAtRoot);
+    }
+
+    public function testLocalTempPathDoesNotUseFileName(): void
+    {
+        $longFileName = str_repeat('a', 251).'.pdf';
+        $generatedHash = md5('generated');
+
+        $fileService = $this->createMock(FileService::class);
+        $fileService->method('createHash')->willReturn($generatedHash);
+        $fileService->expects($this->once())
+            ->method('ensureLocalFile')
+            ->with('tmp/import/1/'.$longFileName, $generatedHash)
+            ->willThrowException(new RuntimeException('stop after temp path'));
+
+        $requestStack = $this->createMock(RequestStack::class);
+        $requestStack->method('getSession')->willReturn($this->session);
+
+        $handler = new DocumentHandler(
+            $this->createMock(CurrentUserService::class),
+            $this->createMock(ElementHandler::class),
+            $this->createMock(ElementsService::class),
+            $fileService,
+            $this->defaultStorage,
+            $this->createMock(MessageBagInterface::class),
+            $this->createMock(ParagraphService::class),
+            $this->createMock(ProcedureService::class),
+            $this->createMock(SingleDocumentHandler::class),
+            $this->createMock(SingleDocumentService::class),
+            $this->createMock(TranslatorInterface::class),
+            $this->createMock(ValidatorInterface::class),
+        );
+        $handler->setRequestStack($requestStack);
+        $handler->setLogger(new NullLogger());
+
+        $entries = [['isDir' => false, 'title' => $longFileName, 'path' => 'tmp/import/1/'.$longFileName]];
+        $errorReport = [];
+        $sessionId = 'session-'.uniqid('', true);
+        $procedureId = 'procedure-id';
+
+        $method = (new ReflectionClass(DocumentHandler::class))->getMethod('saveElementsFromDirArray');
+        $method->invokeArgs($handler, [$entries, 'element-id', $sessionId, $procedureId, [], [], &$errorReport]);
+
+        @unlink(DemosPlanPath::getPublicPath('uploads/files/importStatus_'.md5($sessionId.$procedureId).'.json'));
+
+        $this->assertCount(1, $errorReport);
     }
 
     /**

@@ -6,7 +6,7 @@
  * The method must return false instead.
  */
 
-import SplitStatementView from '@DpJs/components/statement/splitStatement/SplitStatementView'
+import SplitStatementView from '@DpJs/components/statement/splitStatement/SplitStatementView.vue'
 
 const determineDisplayScrollButton = SplitStatementView.methods.determineDisplayScrollButton
 

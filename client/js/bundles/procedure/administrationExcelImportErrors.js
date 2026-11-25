@@ -11,7 +11,7 @@
  * This is the entry point for administration_excel_import_errors.html.twig
  */
 
-import ExcelImportErrors from '@DpJs/components/procedure/AdministrationImport/ExcelImport/ExcelImportErrors'
+import ExcelImportErrors from '@DpJs/components/procedure/AdministrationImport/ExcelImport/ExcelImportErrors.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = { ExcelImportErrors }

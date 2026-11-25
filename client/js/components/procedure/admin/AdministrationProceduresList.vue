@@ -83,7 +83,7 @@
 
     <div class="flex items-center justify-between">
       <div
-        v-if="hasPermission('feature_procedure_read_only_toggle')"
+        v-if="hasPermission('feature_procedure_read_only_filter')"
         class="flex items-center gap-1"
       >
         <dp-toggle

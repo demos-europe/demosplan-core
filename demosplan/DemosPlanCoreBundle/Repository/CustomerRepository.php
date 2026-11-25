@@ -21,9 +21,18 @@ use Doctrine\ORM\OptimisticLockException;
  */
 class CustomerRepository extends CoreRepository
 {
+    /**
+     * @throws CustomerNotFoundException
+     */
     public function findCustomerById(string $id): Customer
     {
-        return $this->find($id);
+        $customer = $this->find($id);
+
+        if (!$customer instanceof Customer) {
+            throw CustomerNotFoundException::noId($id);
+        }
+
+        return $customer;
     }
 
     /**

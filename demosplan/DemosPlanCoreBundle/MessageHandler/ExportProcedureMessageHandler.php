@@ -20,6 +20,7 @@ use demosplan\DemosPlanCoreBundle\Logic\Export\ExportJobStatusWriter;
 use demosplan\DemosPlanCoreBundle\Logic\Export\ExportResponseFileStore;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ExportService;
 use demosplan\DemosPlanCoreBundle\Message\ExportProcedureMessage;
+use demosplan\DemosPlanCoreBundle\Tools\SessionLockReleaser;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -79,7 +80,11 @@ class ExportProcedureMessageHandler
 
             // No procedure id: a procedure export covers a selection, and ExportService sets each
             // procedure (and checks access to it) itself while building the archive.
-            $this->contextRestorer->restore($message->getUserId(), $message->getCustomerId());
+            $this->contextRestorer->restore(
+                $message->getUserId(),
+                $message->getCustomerId(),
+                organisationId: $message->getOrganisationId()
+            );
 
             $response = $this->exportService->generateProcedureExportZip(
                 $message->getProcedureIds(),
@@ -115,6 +120,7 @@ class ExportProcedureMessageHandler
     {
         $request = new Request();
         $request->setSession(new Session(new MockArraySessionStorage()));
+        SessionLockReleaser::markSynthetic($request);
         $this->requestStack->push($request);
     }
 }

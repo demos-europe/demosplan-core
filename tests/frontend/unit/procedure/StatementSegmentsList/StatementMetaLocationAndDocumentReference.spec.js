@@ -8,7 +8,7 @@
  */
 import { createStore } from 'vuex'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
-import StatementMetaLocationAndDocumentReference from '@DpJs/components/procedure/StatementSegmentsList/StatementMeta/StatementMetaLocationAndDocumentReference'
+import StatementMetaLocationAndDocumentReference from '@DpJs/components/procedure/StatementSegmentsList/StatementMeta/StatementMetaLocationAndDocumentReference.vue'
 import { vi } from 'vitest'
 
 const mount = ({ initialElementId = '', initialParagraphId = '', initialDocumentId = '' } = {}) => {

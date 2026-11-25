@@ -11,7 +11,7 @@
  * This is the entrypoint for statement_anonymize.html.twig
  */
 
-import DpStatementAnonymize from '@DpJs/components/statement/DpStatementAnonymize'
+import DpStatementAnonymize from '@DpJs/components/statement/DpStatementAnonymize.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = {

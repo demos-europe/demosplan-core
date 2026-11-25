@@ -81,7 +81,7 @@
 import { DpButtonRow, DpInput } from '@demos-europe/demosplan-ui'
 import { mapActions, mapMutations, mapState } from 'vuex'
 import { Attribution } from 'ol/control'
-import DpOlMap from '@DpJs/components/map/map/DpOlMap'
+import DpOlMap from '@DpJs/components/map/map/DpOlMap.vue'
 
 export default {
   name: 'CustomerSettingsMap',

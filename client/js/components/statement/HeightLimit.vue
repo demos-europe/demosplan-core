@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer'
+import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer.vue'
 
 export default {
   name: 'HeightLimit',

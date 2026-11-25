@@ -7,7 +7,7 @@
  * All rights reserved
  */
 import { dpApi } from '@demos-europe/demosplan-ui'
-import StatementSegment from '@DpJs/components/procedure/StatementSegmentsList/StatementSegment'
+import StatementSegment from '@DpJs/components/procedure/StatementSegmentsList/StatementSegment.vue'
 
 describe('StatementSegment recommendation embedding', () => {
   describe('recommendationForEditor', () => {

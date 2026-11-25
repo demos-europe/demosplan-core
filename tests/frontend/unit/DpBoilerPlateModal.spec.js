@@ -6,8 +6,8 @@
  *
  * All rights reserved
  */
-import DpBoilerPlate from '@DpJs/components/statement/DpBoilerPlate'
-import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal'
+import DpBoilerPlate from '@DpJs/components/statement/DpBoilerPlate.vue'
+import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal.vue'
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
 
 describe('DpBoilerPlate', () => {

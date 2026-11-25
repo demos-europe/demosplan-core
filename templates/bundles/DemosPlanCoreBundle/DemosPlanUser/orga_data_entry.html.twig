@@ -6,6 +6,7 @@
 {% set organisationData = {
     id: organisation.ident|default,
     name: organisation.nameLegal|default,
+    technicalName: hasPermission('field_organisation_technical_name') ? organisation.technicalName|default : '',
     addressId: organisation.address_ident|default,
     street: organisation.street|default,
     addressExtension: organisation.addressExtension|default,

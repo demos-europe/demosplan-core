@@ -59,11 +59,11 @@
 <script>
 import { DpLoading, MatchMedia } from '@demos-europe/demosplan-ui'
 import { mapGetters, mapMutations, mapState } from 'vuex'
-import DpContentToggle from './ContentToggle'
-import DpDetailView from './DetailView'
-import DpHandle from './Handle'
-import DpList from './List'
-import DpSearch from './Search'
+import DpContentToggle from './ContentToggle.vue'
+import DpDetailView from './DetailView.vue'
+import DpHandle from './Handle.vue'
+import DpList from './List.vue'
+import DpSearch from './Search.vue'
 
 export default {
   name: 'DpDrawer',

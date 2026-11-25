@@ -95,7 +95,7 @@ fieldset[disabled] .multiselect {
     opacity: 1;
 }
 
-.multiselect__loading-enter,
+.multiselect__loading-enter-from,
 .multiselect__loading-leave-active {
     opacity: 0;
 }
@@ -527,7 +527,7 @@ fieldset[disabled] .multiselect {
     transition: all .15s ease;
 }
 
-.multiselect-enter,
+.multiselect-enter-from,
 .multiselect-leave-active {
     opacity: 0;
 }

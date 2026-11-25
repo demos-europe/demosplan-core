@@ -13,7 +13,7 @@
 
 import AssessmentTableStore from '@DpJs/store/statement/AssessmentTable'
 import BoilerplatesStore from '@DpJs/store/procedure/Boilerplates'
-import DpBulkEditFragment from '@DpJs/components/statement/assessmentTable/DpBulkEditFragment'
+import DpBulkEditFragment from '@DpJs/components/statement/assessmentTable/DpBulkEditFragment.vue'
 import FragmentStore from '@DpJs/store/statement/Fragment'
 import { hasPermission } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'

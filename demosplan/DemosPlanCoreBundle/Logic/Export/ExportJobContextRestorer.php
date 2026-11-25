@@ -15,7 +15,9 @@ namespace demosplan\DemosPlanCoreBundle\Logic\Export;
 use DemosEurope\DemosplanAddon\Contracts\Config\GlobalConfigInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
+use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
+use demosplan\DemosPlanCoreBundle\Exception\OrgaNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\ProcedureNotFoundException;
 use demosplan\DemosPlanCoreBundle\Exception\UserNotFoundException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -51,8 +53,12 @@ class ExportJobContextRestorer
      * Restore user, customer and permissions. Pass the procedure id for exports scoped to a single
      * procedure; leave it null for exports covering a selection (the procedure export sets the
      * procedure itself, per procedure, while building the archive).
+     *
+     * Pass the organisation id the user had selected when starting the export: users with several
+     * organisations pick one per session, and without a session the user would otherwise fall back
+     * to their first organisation and fail the procedure access checks.
      */
-    public function restore(string $userId, string $customerId, ?string $procedureId = null): void
+    public function restore(string $userId, string $customerId, ?string $procedureId = null, ?string $organisationId = null): void
     {
         $customer = $this->customerService->findCustomerById($customerId);
         // Resolve the customer the same way a request would: several permission lookups go through
@@ -66,6 +72,9 @@ class ExportJobContextRestorer
         // Assign explicitly rather than relying on DoctrineUserListener::postLoad(), which resolves
         // the customer from the subdomain that was active when the user got loaded.
         $user->setCurrentCustomer($customer);
+
+        // A worker handles many messages in one process, so always assign, including null.
+        $user->setCurrentOrganisation($this->resolveOrganisation($organisationId));
         $this->currentUserService->setUser($user, $customer);
 
         $procedure = null;
@@ -85,5 +94,19 @@ class ExportJobContextRestorer
             $this->permissions->setProcedurePermissions();
             $this->currentProcedureService->setProcedure($procedure);
         }
+    }
+
+    private function resolveOrganisation(?string $organisationId): ?Orga
+    {
+        if (null === $organisationId) {
+            return null;
+        }
+
+        $orga = $this->entityManager->find(Orga::class, $organisationId);
+        if (!$orga instanceof Orga) {
+            throw OrgaNotFoundException::createFromId($organisationId);
+        }
+
+        return $orga;
     }
 }

@@ -45,7 +45,7 @@
 
 <script>
 import { dpApi, DpButton } from '@demos-europe/demosplan-ui'
-import OrganisationTable from '@DpJs/components/procedure/admin/InstitutionTagManagement/OrganisationTable'
+import OrganisationTable from '@DpJs/components/procedure/admin/InstitutionTagManagement/OrganisationTable.vue'
 
 export default {
   name: 'DpAddOrganisationList',

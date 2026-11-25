@@ -64,6 +64,7 @@
             allowed-file-types="all"
             :class="!editable ? 'pointer-events-none opacity-70' : 'mt-1 mb-3'"
             :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
+            :chunk-size="dplan.settings.uploadChunkSize"
             :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
             :max-number-of-files="1"
             name="uploadSourceStatementAttachment"
@@ -140,6 +141,7 @@
             allowed-file-types="all"
             :class="editable ? 'mt-1 mb-3' : 'pointer-events-none opacity-70'"
             :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
+            :chunk-size="dplan.settings.uploadChunkSize"
             :max-file-size="2 * 1024 * 1024 * 1024/* 2 GiB */"
             :max-number-of-files="1000"
             name="uploadStatementAttachment"
@@ -175,7 +177,7 @@ import {
 } from '@demos-europe/demosplan-ui'
 import { buildDetailedStatementQuery } from '../../Shared/utils/statementQueryBuilder'
 import { mapActions } from 'vuex'
-import StatementMetaAttachmentsLink from './StatementMetaAttachmentsLink'
+import StatementMetaAttachmentsLink from './StatementMetaAttachmentsLink.vue'
 
 export default {
   name: 'StatementMetaAttachments',

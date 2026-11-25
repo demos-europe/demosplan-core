@@ -8,7 +8,7 @@
  */
 
 import shallowMountWithGlobalMocks from '@DpJs/VueConfigLocal'
-import Status from '@DpJs/components/statement/fragment/Status'
+import Status from '@DpJs/components/statement/fragment/Status.vue'
 
 describe('Status', () => {
   let wrapper

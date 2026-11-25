@@ -143,8 +143,8 @@
 import { CleanHtml, DpAccordion, dpApi, DpButton, DpDataTable, DpLoading, DpSearchField, Tooltip } from '@demos-europe/demosplan-ui'
 import buildProcedureGroups from '@DpJs/components/procedure/utils/buildProcedureGroups'
 import { ref } from 'vue'
-import StatementMetaData from '@DpJs/components/statement/StatementMetaData'
-import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge'
+import StatementMetaData from '@DpJs/components/statement/StatementMetaData.vue'
+import StatusBadge from '@DpJs/components/procedure/Shared/StatusBadge.vue'
 
 const vCleanhtml = CleanHtml
 const vTooltip = Tooltip

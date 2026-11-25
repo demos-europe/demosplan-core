@@ -11,7 +11,7 @@
  * This is the entrypoint for administration_list_submitters.html.twig
  */
 
-import DpSubmitterList from '@DpJs/components/procedure/DpSubmitterList'
+import DpSubmitterList from '@DpJs/components/procedure/DpSubmitterList.vue'
 import { initialize } from '@DpJs/InitVue'
 
 const components = { DpSubmitterList }

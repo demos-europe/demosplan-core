@@ -12,8 +12,8 @@
  */
 
 import { DpEditor, dpValidate, hasAnyPermissions, hasPermission } from '@demos-europe/demosplan-ui'
-import DpCreateItem from '@DpJs/components/user/DpCreateItem'
-import DpOrganisationList from '@DpJs/components/user/DpOrganisationList/DpOrganisationList'
+import DpCreateItem from '@DpJs/components/user/DpCreateItem.vue'
+import DpOrganisationList from '@DpJs/components/user/DpOrganisationList/DpOrganisationList.vue'
 import { initialize } from '@DpJs/InitVue'
 import UrlPreview from '@DpJs/lib/shared/UrlPreview'
 

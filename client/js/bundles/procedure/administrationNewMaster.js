@@ -11,10 +11,10 @@
  * This is the entrypoint for administration_new_master.html.twig
  */
 
-import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList'
+import DpEmailList from '@DpJs/components/procedure/basicSettings/DpEmailList.vue'
 import { dpValidate } from '@demos-europe/demosplan-ui'
 import { initialize } from '@DpJs/InitVue'
-import NewBlueprintForm from '@DpJs/components/procedure/admin/NewBlueprintForm'
+import NewBlueprintForm from '@DpJs/components/procedure/admin/NewBlueprintForm.vue'
 
 const components = { DpEmailList, NewBlueprintForm }
 

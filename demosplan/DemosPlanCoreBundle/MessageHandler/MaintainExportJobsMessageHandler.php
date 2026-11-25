@@ -43,5 +43,11 @@ final class MaintainExportJobsMessageHandler
         } catch (Throwable $exception) {
             $this->logger->error('Maintenance: failed to purge expired export jobs', [$exception]);
         }
+
+        try {
+            $this->exportJobMaintenance->purgeExpiredScheduledExports();
+        } catch (Throwable $exception) {
+            $this->logger->error('Maintenance: failed to purge expired scheduled export jobs', [$exception]);
+        }
     }
 }

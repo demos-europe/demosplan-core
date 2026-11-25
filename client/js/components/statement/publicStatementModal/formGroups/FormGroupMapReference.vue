@@ -81,7 +81,7 @@
         data-cy="formGroupMap:procedureDetailsMap"
         @click.prevent="gotoTab('procedureDetailsMap')"
       >
-        <template v-if="statement.r_location_point !== ''">
+        <template v-if="statement.r_location_point !== '' || statement.r_location_reference_geometry !== ''">
           {{ Translator.trans('location.marked.yours') }}
         </template>
         <template v-else-if="statement.r_location_priority_area_key !== ''">
@@ -179,7 +179,7 @@ export default {
   },
 
   emits: [
-    'statementModal:goToTab',
+    'goToTab',
   ],
 
   computed: {
@@ -195,7 +195,7 @@ export default {
 
     gotoTab (tabName) {
       this.update({ key: 'activeActionBoxTab', val: 'draw' })
-      this.$root.$emit('statementModal:goToTab', tabName)
+      this.$emit('goToTab', tabName)
     },
   },
 }

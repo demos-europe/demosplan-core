@@ -181,9 +181,9 @@ module.exports = [
   {
     name: 'app/custom/rules',
     rules: {
-      // Do not allow file extensions when importing .js and .vue files, enforce extension on json files.
+      // TypeScript can't resolve extensionless .vue imports, so .vue (like .json) needs the extension
       'import-x/extensions': ['error', 'never', {
-        json: 'always', js: 'never', vue: 'never', ts: 'never',
+        json: 'always', js: 'never', vue: 'always', ts: 'never',
       }],
 
       'capitalized-comments': ['error', 'always', {
@@ -280,19 +280,6 @@ module.exports = [
       'vuejs-accessibility/no-redundant-roles': 'warn',
       'vuejs-accessibility/role-has-required-aria-props': 'warn',
       'vuejs-accessibility/tabindex-no-positive': 'warn',
-    },
-  },
-  {
-    /*
-     * TypeScript cannot resolve an extensionless import to a .vue file — there is no compiler option for it.
-     * So in .ts files the extension is required, inverting the project-wide `vue: 'never'` rule.
-     */
-    name: 'app/ts-import-extensions',
-    files: ['**/*.ts'],
-    rules: {
-      'import-x/extensions': ['error', 'never', {
-        json: 'always', js: 'never', vue: 'always', ts: 'never',
-      }],
     },
   },
 ]

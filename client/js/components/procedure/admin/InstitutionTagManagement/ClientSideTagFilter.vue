@@ -83,7 +83,7 @@ All rights reserved
 <script>
 import { DpButton, DpCheckbox, DpFlyout, DpIcon } from '@demos-europe/demosplan-ui'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout'
+import FilterFlyout from '@DpJs/components/procedure/SegmentsList/FilterFlyout.vue'
 
 /**
  * ClientSideTagFilter - Client-side filtering component for institution tags
