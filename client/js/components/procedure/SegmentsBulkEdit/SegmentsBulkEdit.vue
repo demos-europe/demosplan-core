@@ -60,9 +60,35 @@
             class="w-12"
             :disabled="!hasPlaces"
             :options="places"
+            :sub-slots="['option', 'singleLabel']"
             label="name"
             track-by="id"
-          />
+          >
+            <template v-slot:option="{ props }">
+              <div v-tooltip="props.option.description">
+                {{ props.option.name }}
+                <dp-contextual-help
+                  v-if="props.option.solved"
+                  class="float-right color--grey"
+                  icon="check"
+                  size="small"
+                  :text="Translator.trans('statement.solved.description')"
+                />
+              </div>
+            </template>
+            <template v-slot:singleLabel="{ props }">
+              <div v-tooltip="props.option.description">
+                {{ props.option.name }}
+                <dp-contextual-help
+                  v-if="props.option.solved"
+                  class="float-right color--grey mt-0.5"
+                  icon="check"
+                  size="small"
+                  :text="Translator.trans('statement.solved.description')"
+                />
+              </div>
+            </template>
+          </dp-multiselect>
         </action-stepper-action>
 
         <!-- Add deadline -->
@@ -388,6 +414,7 @@
 import {
   CleanHtml,
   dpApi,
+  DpContextualHelp,
   DpDatepicker,
   DpMultiselect,
   DpRadio,
@@ -396,6 +423,7 @@ import {
   hasOwnProp,
   prefixClassMixin,
   reformatDateString,
+  Tooltip,
 } from '@demos-europe/demosplan-ui'
 import { mapActions, mapState } from 'vuex'
 import ActionStepper from '@DpJs/components/procedure/SegmentsBulkEdit/ActionStepper/ActionStepper.vue'
@@ -417,6 +445,7 @@ export default {
     ActionStepperAction,
     ActionStepperResponse,
     DpBoilerPlateModal,
+    DpContextualHelp,
     DpDatepicker,
     DpEditor: defineAsyncComponent(async () => {
       const { DpEditor } = await import('@demos-europe/demosplan-ui')
@@ -437,6 +466,7 @@ export default {
 
   directives: {
     cleanhtml: CleanHtml,
+    tooltip: Tooltip,
   },
 
   mixins: [prefixClassMixin],
@@ -774,12 +804,26 @@ export default {
     },
 
     fetchPlaces () {
-      return dpApi.get(apiUrl('Place'), { sort: 'sortIndex' })
+      // `description`, `solved` and `locked` are not default fields, so they have to be requested
+      return dpApi.get(apiUrl('Place'), {
+        fields: {
+          Place: [
+            'description',
+            ...(hasPermission('feature_segment_lock_by_workflow_place') ? ['locked'] : []),
+            'name',
+            'solved',
+          ].join(),
+        },
+        sort: 'sortIndex',
+      })
         .then(response => {
           this.places = response.data.data.map(place => {
             return {
               id: place.id,
               name: place.attributes.name,
+              description: place.attributes.description,
+              locked: place.attributes.locked,
+              solved: place.attributes.solved,
             }
           })
         })
