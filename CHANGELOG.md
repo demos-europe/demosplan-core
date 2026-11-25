@@ -6,6 +6,8 @@
 
 ## UNRELEASED
 
+## v4.73.0 (2026-11-25)
+
 ## v4.72.0 (2026-11-25)
 - production image: PHP 8.4.28 and nginx 1.30.7 (November 2026 security releases)
 
