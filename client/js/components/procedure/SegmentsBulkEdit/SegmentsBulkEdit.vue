@@ -10,7 +10,7 @@
 <template>
   <action-stepper
     class="u-mv"
-    :busy="busy"
+    :busy="busy || isLoadingSegmentsWithoutRecommendation"
     :valid="hasActions && hasSegments"
     :return-link="returnLink"
     :step="step"
@@ -874,11 +874,13 @@ export default {
      */
     async loadSegmentsWithoutRecommendation () {
       const requestId = ++this.requestId
+      const recommendationEdit = this.getRecommendationEdit()
 
       this.segmentsWithoutRecommendation = []
       this.pagination.currentPage = 1
 
-      if (!this.isLockingPlaceSelected) {
+      // Recommendations are edited before the place is set, so every segment has one afterwards
+      if (!this.isLockingPlaceSelected || recommendationEdit === 'fills') {
         this.isLoadingSegmentsWithoutRecommendation = false
 
         return
@@ -894,10 +896,13 @@ export default {
         }
 
         const responses = await Promise.all(idChunks.map(idChunk => dpApi.get(apiUrl('StatementSegment', 'list'), {
-          // Relationships are only part of the response if they are included
+          /*
+           * Relationships are only part of the response if they are included.
+           * API 2.0: sparse fieldsets of included resources use the type name, not the relationship name.
+           */
           fields: {
-            assignee: 'firstname,lastname',
-            parentStatement: 'externId',
+            AssignableUser: 'firstname,lastname',
+            Statement: 'externId',
             StatementSegment: 'assignee,externId,parentStatement,recommendation,text',
           },
           filter: {
@@ -912,6 +917,7 @@ export default {
           include: 'assignee,parentStatement',
         })))
         const loadedSegments = responses.flatMap(response => response.data.data)
+        const assigneeNames = this.getAssigneeNames(responses.flatMap(response => response.data.included ?? []))
 
         // A newer request was started in the meantime, so this result is outdated
         if (requestId !== this.requestId) {
@@ -919,8 +925,8 @@ export default {
         }
 
         this.segmentsWithoutRecommendation = loadedSegments
-          .filter(segment => isEmptyHtml(segment.attributes.recommendation))
-          .map(segment => this.toTableRow(segment))
+          .filter(segment => recommendationEdit === 'empties' || isEmptyHtml(segment.attributes.recommendation))
+          .map(segment => this.toTableRow(segment, assigneeNames))
       } catch (error) {
         console.error(error)
         dplan.notify.notify('error', Translator.trans('error.api.generic'))
@@ -931,11 +937,32 @@ export default {
       }
     },
 
-    toTableRow (segment) {
+    getAssigneeNames (includedResources) {
+      return Object.fromEntries(includedResources
+        .filter(resource => resource.type === 'AssignableUser')
+        .map(resource => [resource.id, `${resource.attributes.firstname} ${resource.attributes.lastname}`]))
+    },
+
+    /**
+     * What the recommendation text of this bulk edit does to the stored recommendations: the same
+     * rules as in the backend, where "attach" with an empty text changes nothing.
+     * @return {'fills'|'empties'|'keeps'}
+     */
+    getRecommendationEdit () {
+      const { isTextAttached, text } = this.actions.addRecommendations
+
+      if (!isEmptyHtml(text)) {
+        return 'fills'
+      }
+
+      return isTextAttached ? 'keeps' : 'empties'
+    },
+
+    toTableRow (segment, assigneeNames) {
       const assigneeId = segment.relationships?.assignee?.data?.id
 
       return {
-        assigneeName: assigneeId ? this.assignableUsers.find(user => user.id === assigneeId)?.name ?? '—' : '—',
+        assigneeName: assigneeNames[assigneeId] ?? '—',
         externId: segment.attributes.externId,
         href: Routing.generate('dplan_statement_segments_list', {
           procedureId: this.procedureId,
