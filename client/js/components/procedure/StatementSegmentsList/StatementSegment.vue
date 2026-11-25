@@ -326,8 +326,9 @@
           </dp-multiselect>
           <dp-inline-notification
             v-if="showLockWithoutRecommendationHint"
-            class="mt-2"
             :message="Translator.trans('segment.recommendation.none.lock.hint')"
+            class="mt-2"
+            data-cy="statementSegment:lockWithoutRecommendationHint"
             type="info"
           />
         </div>
