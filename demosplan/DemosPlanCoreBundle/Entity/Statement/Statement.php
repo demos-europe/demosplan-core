@@ -103,6 +103,10 @@ use UnexpectedValueException;
 #[ORM\Entity(repositoryClass: StatementRepository::class)]
 class Statement extends CoreEntity implements UuidEntityInterface, StatementInterface
 {
+    public const SOURCE_SYSTEM_ASSESSMENT_TABLE_IMPORT = 'assessment_table_import';
+
+    public const SOURCE_SYSTEM_INTAKE_PREFIX = 'intake:';
+
     private const ON_DELETE_SET_NULL = 'SET NULL';
 
     /**
@@ -221,8 +225,9 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     protected $internId;
 
     /**
-     * Identifies the statement this one was imported from, when it originates from an assessment
-     * table export of a procedure on another instance.
+     * Identifies the statement this one was imported from, in the system named by
+     * {@link Statement::$sourceSystem}, e.g. an assessment table export of a procedure on another
+     * instance or an external system delivering statements.
      *
      * Unlike {@link StatementInterface::$externId} this is unambiguous: statement copies share
      * their externId within a procedure, so only this reference can pair an imported statement
@@ -230,6 +235,19 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
      */
     #[ORM\Column(name: 'source_statement_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
     protected ?string $sourceStatementId = null;
+
+    /**
+     * Where {@link Statement::$sourceStatementId} comes from: {@link Statement::SOURCE_SYSTEM_ASSESSMENT_TABLE_IMPORT}
+     * or {@link Statement::SOURCE_SYSTEM_INTAKE_PREFIX} followed by the login of the sending API user.
+     */
+    #[ORM\Column(name: 'source_system', type: 'string', length: 255, nullable: true)]
+    protected ?string $sourceSystem = null;
+
+    /**
+     * The statement (copy) this one is paired with in the procedure it is sent to on another system.
+     */
+    #[ORM\Column(name: 'remote_statement_id', type: 'string', length: 36, nullable: true, options: ['fixed' => true])]
+    protected ?string $remoteStatementId = null;
 
     /**
      * @var User
@@ -1354,6 +1372,30 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function getSourceStatementId(): ?string
     {
         return $this->sourceStatementId;
+    }
+
+    public function setSourceSystem(?string $sourceSystem): Statement
+    {
+        $this->sourceSystem = $sourceSystem;
+
+        return $this;
+    }
+
+    public function getSourceSystem(): ?string
+    {
+        return $this->sourceSystem;
+    }
+
+    public function setRemoteStatementId(?string $remoteStatementId): Statement
+    {
+        $this->remoteStatementId = $remoteStatementId;
+
+        return $this;
+    }
+
+    public function getRemoteStatementId(): ?string
+    {
+        return $this->remoteStatementId;
     }
 
     /**
@@ -3622,6 +3664,17 @@ class Statement extends CoreEntity implements UuidEntityInterface, StatementInte
     public function isOriginal(): bool
     {
         return null === $this->getOriginal();
+    }
+
+    /**
+     * A row of the assessment table: not an original, deleted, a move placeholder or a segment.
+     */
+    public function isAssessmentTableRow(): bool
+    {
+        return !$this->isOriginal()
+            && !$this->isDeleted()
+            && null === $this->getMovedStatement()
+            && !$this instanceof Segment;
     }
 
     /**
