@@ -7,6 +7,32 @@
 ## UNRELEASED
 - addons can save the fields they add to the procedure settings page, e.g. through an API Platform endpoint, when the settings are saved
 
+## v4.73.0 (2026-11-25)
+
+## v4.72.0 (2026-11-25)
+- production image: PHP 8.4.28 and nginx 1.30.7 (November 2026 security releases)
+
+## v4.71.0 (2026-11-24)
+
+### Added
+- The statement list shows a version history for statements
+- Custom fields can be displayed in the statement list, either in their own column or combined in one shared column with tooltip (configurable per custom field)
+- The location reference (Ortsbezug) of a statement can be stored separately from the drawn geometry (feature permission `feature_diplankarte_split_location_reference`); a statement can be submitted with only a location reference
+- Keycloak role "Datenerfassung" is mapped to the data input role
+- The export modal's tag filter only shows tags that are in use
+
+### Changed
+- The map libraries run in an updated version, so the layer switcher accordions and search work again
+- Customer URLs generated outside of requests (e.g. in emails and account deletion links) use the configured project domain; `customer_url_keep_context_host` keeps the current host for single-host instances
+
+### Fixed
+- The archive filter of the procedure list no longer depends on the archive permission
+- The procedure protocol PDF has a proper document title
+
+## v4.70.2 (2026-11-20)
+- The notes on the profile page for setting up two-factor authentication are clearer: they now show that scanning the QR code or entering the TOTP code are alternatives, and that a 6-digit code is expected
+- The segments list keeps the URL filter and the selected columns again
+
 ## v4.70.1 (2026-11-19)
 - Security update: PHP 8.4.28 and nginx 1.30.7
 - The statement list has a version history that also shows changes to custom fields
@@ -75,6 +101,12 @@
 - production image: PHP 8.4.28 and nginx 1.30.7 (November 2026 security releases)
 
 ## v4.66.0 (2026-11-05)
+- Node.js 24.22.1 for the image build, CI and `engines` (October 2026 security release)
+- `MailService` implements the new `MailServiceInterface` of the contract layer, so addons can queue mails
+- composer.json declares every PHP extension the application needs (adds apcu, exif, pcntl, pdo_mysql; drops soap, posix), so a missing extension fails the image build
+- production image: PHP extensions bcmath, bz2, calendar, ffi, gettext, mysqli, shmop, soap, sysvmsg, sysvsem, sysvshm and xsl removed; compiler toolchain removed from the fpm image (~220 MB smaller)
+- The institution resources `InvitedToeb`, `InvitableToeb` (JSON:API 2.0) and `InvitableInstitution` (API Platform 3.0) expose the attribute `hasActiveUsers`: true if the organisation has a non-deleted user with an institution role in the current customer
+- The lists of invitable institutions (institution tags page, "add institution" list of a procedure) include every organisation that is accepted as public agency in the current customer, also if none of its users holds an institution role. Such an organisation can be added to a procedure
 
 ## v4.65.0 (2026-10-22)
 
