@@ -116,7 +116,9 @@ export function useTagsCreateForm (props) {
     const topicId = newTag.value.topic
 
     if (isTagTitleTaken(newTag.value.title)) {
+      // Shown next to the field (where the component supports it) and as notification for all other components
       tagError.value = Translator.trans('tag.name.unique.error')
+      dplan.notify.error(tagError.value)
 
       return Promise.resolve()
     }
@@ -156,7 +158,9 @@ export function useTagsCreateForm (props) {
 
   const saveNewTopic = () => {
     if (isTopicTitleTaken(newTopic.value.title)) {
+      // Shown next to the field (where the component supports it) and as notification for all other components
       topicError.value = Translator.trans('tag.topic.name.duplicate.error')
+      dplan.notify.error(topicError.value)
 
       return Promise.resolve()
     }
