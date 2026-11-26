@@ -19,6 +19,7 @@ use demosplan\DemosPlanCoreBundle\Entity\Statement\Tag;
 use demosplan\DemosPlanCoreBundle\Entity\Statement\TagTopic;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTopicTitleException;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\Statement\TagService;
 use demosplan\DemosPlanCoreBundle\Traits\DI\RefreshElasticsearchIndexTrait;
 use Doctrine\ORM\EntityNotFoundException;
@@ -28,6 +29,8 @@ use Tests\Base\FunctionalTestCase;
 class TagServiceTest extends FunctionalTestCase
 {
     use RefreshElasticsearchIndexTrait;
+
+    private const TAG_DESCRIPTION = 'Fachliche Beschreibung';
 
     /**
      * @var TagService
@@ -99,6 +102,34 @@ class TagServiceTest extends FunctionalTestCase
 
         $result = $this->sut->getTag($testTag->getId());
         static::assertNull($result->getDefaultAssignee());
+    }
+
+    public function testSetDescription(): void
+    {
+        $testTag = TagFactory::createOne();
+
+        $this->sut->setDescription($testTag->_real(), self::TAG_DESCRIPTION);
+
+        $this->getEntityManager()->clear();
+        self::assertSame(self::TAG_DESCRIPTION, $this->sut->getTag($testTag->getId())->getDescription());
+
+        $this->sut->setDescription($this->sut->getTag($testTag->getId()), '');
+
+        $this->getEntityManager()->clear();
+        self::assertNull($this->sut->getTag($testTag->getId())->getDescription());
+    }
+
+    public function testSetDescriptionTooLongIsRejected(): void
+    {
+        $testTag = TagFactory::createOne(['description' => self::TAG_DESCRIPTION]);
+
+        try {
+            $this->sut->setDescription($testTag->_real(), str_repeat('a', 1001));
+            self::fail('Expected a ViolationsException for a description longer than 1000 characters.');
+        } catch (ViolationsException) {
+            $this->getEntityManager()->clear();
+            self::assertSame(self::TAG_DESCRIPTION, $this->sut->getTag($testTag->getId())->getDescription());
+        }
     }
 
     public function testDuplicatedTopic(): void

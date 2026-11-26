@@ -65,12 +65,12 @@ final class UserFactory extends PersistentProxyObjectFactory
     protected function defaults(): array|callable
     {
         return [
-            'authCodeEmailEnabled'       => self::faker()->boolean(),
+            'authCodeEmailEnabled'       => false,
             'createdDate'                => self::faker()->dateTime(),
-            'deleted'                    => self::faker()->boolean(),
+            'deleted'                    => false,
             'modifiedDate'               => self::faker()->dateTime(),
             'providedByIdentityProvider' => self::faker()->boolean(),
-            'totpEnabled'                => self::faker()->boolean(),
+            'totpEnabled'                => false,
         ];
     }
 

@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Tests\Base;
 
 use DemosEurope\DemosplanAddon\Utilities\Json;
+use demosplan\DemosPlanCoreBundle\DataGenerator\Factory\User\UserFactory;
 use demosplan\DemosPlanCoreBundle\Entity\Procedure\Procedure;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\EventListener\SetHttpTestPermissionsListener;
@@ -55,6 +56,23 @@ abstract class AbstractApiTest extends FunctionalTestCase
     /**
      * @return string the JWT token to authenticate in API requests as the given user
      */
+    /**
+     * Creates a persisted user that is able to authenticate and is not redirected to the welcome page.
+     *
+     * @param array<string, mixed> $attributes overrides for the factory defaults
+     */
+    protected function createApiUser(array $attributes = []): User
+    {
+        return UserFactory::new(array_merge([
+            'login' => 'api-test-user-'.uniqid('', true).'@example.com',
+        ], $attributes))
+            ->afterInstantiate(static function (User $user): void {
+                $user->setProfileCompleted(true);
+            })
+            ->create()
+            ->_real();
+    }
+
     protected function initializeUser(User $user): string
     {
         $token = $this->tokenManager->create($user);

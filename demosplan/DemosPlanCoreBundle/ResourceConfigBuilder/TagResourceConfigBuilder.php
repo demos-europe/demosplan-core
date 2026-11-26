@@ -32,6 +32,7 @@ use EDT\JsonApi\ResourceConfig\Builder\MagicResourceConfigBuilder;
  *
  * @property-read ToOneRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, TagInterface, TagTopicInterface> $topic
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, TagInterface> $title
+ * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, TagInterface> $description
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, TagInterface> $createDate
  * @property-read AttributeConfigBuilderInterface<ClauseFunctionInterface<bool>, TagInterface> $sortIndex
  * @property-read ToManyRelationshipConfigBuilderInterface<ClauseFunctionInterface<bool>, OrderBySortMethodInterface, TagInterface, StatementInterface> $statements
