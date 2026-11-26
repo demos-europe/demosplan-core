@@ -222,7 +222,12 @@ export default {
         value: '',
       },
       bypassAddonWarningModal: false,
-      extraFieldsPayload: null, // Payload emitted by addons hooked into `administration.edit.extra.fields`
+      /*
+       * Payload emitted by addons hooked into `administration.edit.extra.fields`, sent when the form is saved.
+       * It has the same shape as `addonPayload`: `attributes` (the data to save), `id` (id of the resource to update),
+       * `method` (e.g. 'PATCH'), `resourceType` (the JSON:API type) and `url` (a route name or a full path).
+       */
+      extraFieldsPayload: null,
       isInterfaceAddonLoaded: false,
       isLoadingPlisData: false,
     }
@@ -343,8 +348,15 @@ export default {
             .then(() => {
               this.submitConfigForm(formElement)
             })
-            // The form is not submitted when an addon request fails
-            .catch(error => console.error('Saving the addon fields failed', error))
+            .catch(error => {
+              // The form is not submitted when an addon request fails
+              console.error('Saving the addon fields failed', error)
+
+              // The messages of the server are already shown by dpApi, so only show a generic one if there are none
+              if (!error?.data?.meta?.messages) {
+                dplan.notify.error(Translator.trans('error.api.generic'))
+              }
+            })
         } else {
           this.submitConfigForm(formElement)
         }
