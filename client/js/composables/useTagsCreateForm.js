@@ -90,7 +90,7 @@ export function useTagsCreateForm (props) {
   const openForm = (form) => {
     currentForm.value = form
   }
-  
+
   const updateForm = ({ key, value }) => {
     newTag.value[key] = value
   }
