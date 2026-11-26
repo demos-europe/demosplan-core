@@ -324,6 +324,13 @@
               </div>
             </template>
           </dp-multiselect>
+          <dp-inline-notification
+            v-if="showLockWithoutRecommendationHint"
+            :message="Translator.trans('segment.recommendation.none.lock.hint')"
+            class="mt-2"
+            data-cy="statementSegment:lockWithoutRecommendationHint"
+            type="info"
+          />
         </div>
 
         <dp-checkbox
@@ -534,6 +541,7 @@ import {
   DpContextualHelp,
   DpDatepicker,
   DpIcon,
+  DpInlineNotification,
   DpLabel,
   DpLoading,
   DpMultiselect,
@@ -553,6 +561,7 @@ import { defineAsyncComponent } from 'vue'
 import DpBoilerPlateModal from '@DpJs/components/statement/DpBoilerPlateModal.vue'
 import DpClaim from '@DpJs/components/statement/DpClaim.vue'
 import ImageModal from '@DpJs/components/shared/ImageModal.vue'
+import { isEmptyHtml } from '@DpJs/lib/shared/isEmptyHtml'
 import RecommendationModal from '../Shared/RecommendationModal.vue'
 import SegmentTags from './SegmentTags.vue'
 import TextContentRenderer from '@DpJs/components/shared/TextContentRenderer.vue'
@@ -582,6 +591,7 @@ export default {
       return DpEditor
     }),
     DpIcon,
+    DpInlineNotification,
     DpLabel,
     DpLoading,
     DpMultiselect,
@@ -833,6 +843,14 @@ export default {
       const placeId = this.segment.relationships?.place?.data?.id
 
       return !!this.placeItems[placeId]?.attributes?.locked
+    },
+
+    showLockWithoutRecommendationHint () {
+      // With linked boilerplates, the stored text has empty tags; the editor content has them filled in
+      const isEditorContentReady = this.canLinkBoilerplate && this.recommendationEmbedded !== null && !this.recommendationEmbeddedLoading
+      const recommendation = isEditorContentReady ? this.recommendationForEditor : this.segment.attributes.recommendation
+
+      return !!this.selectedPlace.locked && isEmptyHtml(recommendation)
     },
 
     lockTooltipText () {
