@@ -1,6 +1,6 @@
 {% set omitPrefix = omitCssPrefix ?? true %}
 {% set contextualHelpId = 'contextualHelp' ~ random() %}
-{# 'icon' or 'hint' renders only that part, e.g. to place the icon inside a <legend> and keep the wizard hint out of it #}
+{# 'icon' or 'hint' renders only that part, e.g. to place the icon inside a legend element and keep the wizard hint out of it #}
 {% set part = part ?? null %}
 
 {# Helper that is only used in "Wizard" mode in administration_edit view in conjunction with .o-wizard. Remove as soon as possible. #}
