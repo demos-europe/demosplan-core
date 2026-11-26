@@ -28,7 +28,7 @@
         :value="scaleObj.scale"
         :selected="currentScale === scaleObj.scale"
       >
-        1:{{ scaleObj.scale.toLocaleString() }}
+        1:{{ scaleObj.scale.toLocaleString('de-DE') }}
       </option>
     </select>
   </div>

@@ -106,7 +106,7 @@ export default {
                 showOnlyOverlayCategory: data.showOnlyOverlayCategory ?? false,
                 mapExtent: convertExtentToFlatArray(data.mapExtent) ?? defaultMapExtent, // Maximum extent of the map
                 boundingBox: convertExtentToFlatArray(data.boundingBox) ?? defaultBoundingBox, // Extent on load of the map
-                scales: data.scales?.map(scale => ({ label: `1:${scale.toLocaleString()}`, value: scale })) ?? [],
+                scales: data.scales?.map(scale => ({ label: `1:${scale.toLocaleString('de-DE')}`, value: scale })) ?? [],
                 territory: data.territory ?? {},
               },
               id: response.data.included[0].id,
