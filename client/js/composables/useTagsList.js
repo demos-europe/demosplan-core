@@ -238,7 +238,13 @@ export function useTagsList () {
     pendingItemId.value = id
 
     return store.dispatch(`${type}/save`, id)
-      .then(closeEditForm)
+      .then(response => {
+        if ([200, 204].includes(response?.status)) {
+          dplan.notify.confirm(Translator.trans(type === TAG ? 'confirm.tag.renamed' : 'confirm.topic.renamed'))
+        }
+
+        closeEditForm()
+      })
       .finally(clearPending)
   }
 
