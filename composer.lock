@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "caa0aedda378a400a18f5611e47425b9",
+    "content-hash": "101b16c35d96be21f2c90fced55f84af",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -10755,16 +10755,16 @@
         },
         {
             "name": "phpoffice/phpspreadsheet",
-            "version": "5.11.0",
+            "version": "5.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPOffice/PhpSpreadsheet.git",
-                "reference": "3aa1f0d0f3c658b803c18050ac49244d07d96907"
+                "reference": "f03bcf6cbcae3a719b9b56c32077379b5cde2190"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/3aa1f0d0f3c658b803c18050ac49244d07d96907",
-                "reference": "3aa1f0d0f3c658b803c18050ac49244d07d96907",
+                "url": "https://api.github.com/repos/PHPOffice/PhpSpreadsheet/zipball/f03bcf6cbcae3a719b9b56c32077379b5cde2190",
+                "reference": "f03bcf6cbcae3a719b9b56c32077379b5cde2190",
                 "shasum": ""
             },
             "require": {
@@ -10862,9 +10862,9 @@
             ],
             "support": {
                 "issues": "https://github.com/PHPOffice/PhpSpreadsheet/issues",
-                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/5.11.0"
+                "source": "https://github.com/PHPOffice/PhpSpreadsheet/tree/5.12.0"
             },
-            "time": "2026-11-08T06:29:49+00:00"
+            "time": "2026-11-22T06:48:07+00:00"
         },
         {
             "name": "phpoffice/phpword",
