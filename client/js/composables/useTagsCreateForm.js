@@ -46,9 +46,11 @@ export function useTagsCreateForm (props) {
   const newTopic = ref({ title: '' })
   const tagError = ref('')
   const topicError = ref('')
+  const topicSelectError = ref('')
 
-  // Remove the error state as soon as the user changes the title
+  // Remove the error state as soon as the user changes the title or selects a topic
   watch(() => newTag.value.title, () => { tagError.value = '' })
+  watch(() => newTag.value.topic, () => { topicSelectError.value = '' })
   watch(() => newTopic.value.title, () => { topicError.value = '' })
 
   const tags = computed(() => store.state[TAG].items)
@@ -82,6 +84,7 @@ export function useTagsCreateForm (props) {
     resetFormData()
     tagError.value = ''
     topicError.value = ''
+    topicSelectError.value = ''
   }
 
   /**
@@ -206,6 +209,7 @@ export function useTagsCreateForm (props) {
     saveNewTopic,
     tagError,
     topicError,
+    topicSelectError,
     topicsAsOptions,
     updateForm,
   }
