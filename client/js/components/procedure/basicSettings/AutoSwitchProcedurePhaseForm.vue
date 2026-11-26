@@ -89,7 +89,7 @@
             <legend class="weight--bold block is-label">
               {{ Translator.trans('period.new') }}
             </legend>
-            <div class="flex items-center gap-1">
+            <div class="flex items-end gap-1">
               <dp-date-range-picker
                 id="procedurePhasePeriod"
                 :data-cy="dataCyPhasePeriod"
@@ -108,7 +108,7 @@
                 start-disabled
                 @input:end-date="handleInputEndDate"
               />
-              <span class="color--grey whitespace-nowrap">
+              <span class="color--grey whitespace-nowrap pb-1">
                 23:59 {{ Translator.trans('clock') }}
               </span>
             </div>

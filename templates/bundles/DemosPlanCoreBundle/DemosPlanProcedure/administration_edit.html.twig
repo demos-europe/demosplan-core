@@ -813,7 +813,7 @@
                                             showPlainHint: true
                                         } %}
 
-                                        <div class="flex items-center gap-1 w-1/2">
+                                        <div class="flex items-end gap-1 w-1/2">
                                             <dp-date-range-picker
                                                 data-cy="procedurePeriod"
                                                 data-dp-validate-error-fieldname="{{ "period.institutions"|trans }}"
@@ -829,7 +829,7 @@
                                                 :calendars-after="2"
                                                 enforce-plausible-dates>
                                             </dp-date-range-picker>
-                                            <span class="color--grey whitespace-nowrap">
+                                            <span class="color--grey whitespace-nowrap pb-1">
                                                 23:59 {{ "clock"|trans }}
                                             </span>
                                         </div>
@@ -960,7 +960,7 @@
                                             cssClasses:'mb-1',
                                             showPlainHint: true
                                         } %}
-                                        <div class="flex items-center gap-1 w-1/2">
+                                        <div class="flex items-end gap-1 w-1/2">
                                             <dp-date-range-picker
                                                 data-cy="publicParticipationPeriod"
                                                 data-dp-validate-error-fieldname="{{ "period.public"|trans }}"
@@ -976,7 +976,7 @@
                                                 :calendars-after="2"
                                                 enforce-plausible-dates>
                                             </dp-date-range-picker>
-                                            <span class="color--grey whitespace-nowrap">
+                                            <span class="color--grey whitespace-nowrap pb-1">
                                                 23:59 {{ "clock"|trans }}
                                             </span>
                                         </div>
