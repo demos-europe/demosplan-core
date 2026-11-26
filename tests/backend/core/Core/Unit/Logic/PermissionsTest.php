@@ -3032,6 +3032,7 @@ class PermissionsTest extends FunctionalTestCase
         bool $isMember,
         array $allowedPermissions,
         array $disallowedPermissions,
+        bool $isProcedureTemplate = false,
     ): void {
         // do debug a specific permission enable debugging and paste dataset name
         $debugPermission = false;
@@ -3051,6 +3052,7 @@ class PermissionsTest extends FunctionalTestCase
         }
 
         $inviteOrgaForDataInput = in_array(Role::PROCEDURE_DATA_INPUT, $roles);
+        $this->procedure['master'] = $isProcedureTemplate;
 
         $this->setUpSessionForTestCase($isInProcedure, $ownsProcedure, $isMember);
 
@@ -3090,7 +3092,8 @@ class PermissionsTest extends FunctionalTestCase
                 'procedurePublicParticipationPhase',
                 'isInProcedure',
                 'ownsProcedure',
-                'isMember'
+                'isMember',
+                'isProcedureTemplate'
             );
 
             foreach ($allowedPermissions as $permission) {
@@ -3347,6 +3350,8 @@ class PermissionsTest extends FunctionalTestCase
             ->willReturn($this->procedure['orgaId']);
         $stub->method('isDeleted')
             ->willReturn(false);
+        $stub->method('getMaster')
+            ->willReturn($this->procedure['master'] ?? false);
 
         if ($testCase['isMember']) {
             $stub->method('getOrganisation')
@@ -3434,6 +3439,7 @@ class PermissionsTest extends FunctionalTestCase
             sprintf('[%s] ownsProcedure', $failureMetaData['ownsProcedure'] ? 'x' : ' '),
             sprintf('[%s] isInProcedure', $failureMetaData['isInProcedure'] ? 'x' : ' '),
             sprintf('[%s] isMember', $failureMetaData['isMember'] ? 'x' : ' '),
+            sprintf('[%s] isProcedureTemplate', ($failureMetaData['isProcedureTemplate'] ?? false) ? 'x' : ' '),
         ];
 
         $roleClassReflection = new ReflectionClass(Role::class);

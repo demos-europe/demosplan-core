@@ -17,6 +17,7 @@ use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Event\Tag\UpdateTagEvent;
 use demosplan\DemosPlanCoreBundle\Exception\DuplicatedTagTitleException;
+use demosplan\DemosPlanCoreBundle\Exception\ViolationsException;
 use demosplan\DemosPlanCoreBundle\Logic\FileService;
 use demosplan\DemosPlanCoreBundle\Logic\FileUploadService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
@@ -87,7 +88,18 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
             && array_key_exists('r_defaultAssigneeId', $requestPost)) {
             $data['defaultAssigneeId'] = $requestPost['r_defaultAssigneeId'];
         }
-        $statementHandler->handleTagBoilerplate($tag, $data, $procedure);
+        $data['description'] = null;
+        if ($permissions->hasPermission('field_tag_description')
+            && array_key_exists('r_tagDescription', $requestPost)) {
+            $data['description'] = $requestPost['r_tagDescription'];
+        }
+        $isSaved = true;
+        try {
+            $statementHandler->handleTagBoilerplate($tag, $data, $procedure);
+        } catch (ViolationsException $violationsException) {
+            $this->getMessageBag()->addViolationExceptions($violationsException);
+            $isSaved = false;
+        }
         $templateVars = [];
         $tagEntity = $statementHandler->getTag($tag);
         if (null === $tagEntity) {
@@ -98,13 +110,14 @@ class DemosPlanStatementTagController extends DemosPlanStatementController
             return $this->redirectToRoute('DemosPlan_statement_administration_tags', ['procedure' => $procedure]);
         }
         $templateVars['tag'] = $tagEntity;
+        $templateVars['procedureTemplate'] = $tagEntity->getTopic()->getProcedure()->getMaster();
         $templateVars['boilerplates'] = $procedureService->getBoilerplateList($procedure);
         if ($permissions->hasPermission('feature_tag_default_assignee')) {
             $templateVars['authorizedUsers'] = $procedureService->getAuthorizedUsers($procedure)
                 ->sortBy(static fn (User $user): string => $user->getFullname())
                 ->values();
         }
-        if (null !== $data['action']) {
+        if ($isSaved && null !== $data['action']) {
             $this->getMessageBag()->add('confirm', 'confirm.tag.edited');
             $eventDispatcher->dispatch(
                 new UpdateTagEvent($tagEntity->getId()),

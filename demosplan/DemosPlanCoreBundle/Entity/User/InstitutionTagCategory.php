@@ -51,6 +51,7 @@ class InstitutionTagCategory extends CoreEntity implements UuidEntityInterface, 
      * @var Collection<int, InstitutionTag>
      */
     #[ORM\OneToMany(targetEntity: InstitutionTag::class, mappedBy: 'category', cascade: ['remove'])]
+    #[ORM\OrderBy(['creationDate' => 'ASC', 'label' => 'ASC'])]
     protected $tags;
 
     #[ORM\Column(type: 'datetime', nullable: false)]
