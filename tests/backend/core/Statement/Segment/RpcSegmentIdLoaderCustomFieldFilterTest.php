@@ -44,10 +44,13 @@ class RpcSegmentIdLoaderCustomFieldFilterTest extends FunctionalTestCase
     /** @var array<string, Segment>|null */
     private ?array $segments = null;
 
+    private ?int $nextExternId = null;
+
     protected function setUp(): void
     {
         parent::setUp();
 
+        $this->nextExternId = 1;
         $this->loginTestUser();
         $this->enablePermissions(['feature_json_api_statement_segment', 'field_segments_custom_fields']);
         $this->procedure = ProcedureFactory::new()->withDefaultSettings()->create()->_real();
@@ -282,6 +285,7 @@ class RpcSegmentIdLoaderCustomFieldFilterTest extends FunctionalTestCase
     {
         $attributes = [
             'procedure'                => $this->procedure,
+            'externId'                 => (string) $this->nextExternId++,
             'parentStatementOfSegment' => StatementFactory::createOne(['procedure' => $this->procedure])->_real(),
         ];
         if ([] !== $valuesByFieldId) {
