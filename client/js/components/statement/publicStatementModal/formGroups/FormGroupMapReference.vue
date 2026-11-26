@@ -42,6 +42,7 @@
         :class="prefixClass('u-mb-0_25')"
         data-cy="formGroupMap:notLocated"
         :checked="statement.r_location === 'notLocated'"
+        :disabled="disabled"
         value="notLocated"
         @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }"
       />
@@ -71,7 +72,7 @@
       />
 
       <a
-        v-show="isLocationSelected"
+        v-show="isLocationSelected && !disabled"
         href="#"
         :class="[
           isLocationSelected ? prefixClass('bg-color--grey-light-2') : '',
@@ -122,6 +123,7 @@
         name="r_county"
         :required="statement.r_location === 'county'"
         :class="prefixClass('o-form__control-select')"
+        :disabled="disabled"
         :value="statement.r_county"
         @change="val => setStatementData({r_county: val.target.value})"
       >

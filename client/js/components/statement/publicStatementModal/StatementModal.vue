@@ -132,32 +132,40 @@
 
         <div
           v-if="loggedIn && hasPermission('feature_elements_use_negative_report') && planningDocumentsHasNegativeStatement"
-          class="flex mt-4"
+          class="mt-4 mb-3"
         >
-          <dp-radio
-            id="negative_report_false"
-            name="r_isNegativeReport"
-            data-cy="statementModal:publicParticipationParticipate"
-            class="u-mr-2"
-            :checked="formData.r_isNegativeReport === '0'"
-            :label="{
-              text: Translator.trans('public.participation.participate')
-            }"
-            value="0"
-            @change="() => { setStatementData({ r_isNegativeReport: '0'}) }"
-          />
-          <dp-radio
-            id="negative_report_true"
-            :checked="formData.r_isNegativeReport === '1'"
-            data-cy="statementModal:indicationerror"
-            :disabled="canNotBeNegativeReport"
-            :label="{
-              hint: Translator.trans('link.title.indicationerror'),
-              text: Translator.trans('indicationerror')
-            }"
-            name="r_isNegativeReport"
-            value="1"
-            @change="() => { setStatementData({ r_isNegativeReport: '1'}) }"
+          <div class="flex">
+            <dp-radio
+              id="negative_report_false"
+              name="r_isNegativeReport"
+              data-cy="statementModal:publicParticipationParticipate"
+              class="u-mr-2"
+              :checked="formData.r_isNegativeReport === '0'"
+              :label="{
+                text: Translator.trans('public.participation.participate')
+              }"
+              value="0"
+              @change="() => { setStatementData({ r_isNegativeReport: '0'}) }"
+            />
+            <dp-radio
+              id="negative_report_true"
+              :checked="isNegativeReport"
+              data-cy="statementModal:indicationerror"
+              :label="{
+                hint: Translator.trans('link.title.indicationerror'),
+                text: Translator.trans('indicationerror')
+              }"
+              name="r_isNegativeReport"
+              value="1"
+              @change="selectNegativeReport"
+            />
+          </div>
+          <dp-inline-notification
+            v-if="negativeReportIgnoresContent"
+            :class="prefixClass('mt-2')"
+            data-cy="statementModal:negativeReportHint"
+            :message="Translator.trans('statement.negative_report.hint')"
+            type="warning"
           />
         </div>
 
@@ -203,15 +211,15 @@
           <dp-label
             :text="Translator.trans('statement.detail.form.statement_text')"
             for="statementText"
-            :required="formData.r_isNegativeReport !== '1'"
+            :required="!isNegativeReport"
           />
           <dp-editor
             id="statementText"
             ref="statementEditor"
             :class="prefixClass('u-mb')"
             :data-dp-validate-error-fieldname="Translator.trans('statement.text.short')"
-            :readonly="formData.r_isNegativeReport === '1'"
-            :required="formData.r_isNegativeReport !== '1'"
+            :readonly="isNegativeReport"
+            :required="!isNegativeReport"
             :toolbar-items="{
               mark: true,
               strikethrough: true
@@ -265,7 +273,7 @@
               aria-labelledby="documentReference"
               :class="prefixClass('btn--blank o-link--default text-left')"
               data-cy="statementModal:elementAssign"
-              :disabled="formData.r_isNegativeReport !== '0'"
+              :disabled="isNegativeReport"
               @click="gotoTab('procedureDetailsDocumentlist')"
             >
               <i
@@ -282,6 +290,7 @@
               <button
                 aria-labelledby="documentReference"
                 :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up w-fit')"
+                :disabled="isNegativeReport"
                 @click="gotoTab('procedureDetailsDocumentlist')"
               >
                 <i
@@ -294,6 +303,7 @@
               <button
                 aria-labelledby="documentReference"
                 :class="prefixClass('btn--blank o-link--default u-mr-0_5-lap-up w-fit')"
+                :disabled="isNegativeReport"
                 :href="Routing.generate( 'DemosPlan_procedure_public_detail', { procedure: procedureId }) + '#procedureDetailsDocumentlist'"
                 @click="removeDocumentRelation"
               >
@@ -353,8 +363,8 @@
             :key="formDefinition.key"
             :draft-statement-id="draftStatementId"
             :is-map-enabled="isMapEnabled"
-            :disabled="formData.r_isNegativeReport !== '0'"
-            :required="formDefinition.required && formData.r_isNegativeReport !== '1'"
+            :disabled="isNegativeReport"
+            :required="formDefinition.required && !isNegativeReport"
             :logged-in="loggedIn"
             :counties="counties"
             @go-to-tab="gotoTab"
@@ -396,6 +406,8 @@
                   </a>
                   <label :class="prefixClass('lbl--text float-right')">
                     <input
+                      :checked="isNegativeReport || formData.delete_file.includes(file.hash)"
+                      :disabled="isNegativeReport"
                       :value="file.hash"
                       name="delete_file[]"
                       type="checkbox"
@@ -415,7 +427,7 @@
                 <dp-upload-files
                   id="upload_files"
                   ref="uploadFiles"
-                  :disabled="formData.r_isNegativeReport !== '0'"
+                  :disabled="isNegativeReport"
                   allowed-file-types="pdf-img-zip"
                   :get-file-by-hash="hash => Routing.generate('core_file_procedure', { hash: hash, procedureId: procedureId })"
                   :chunk-size="dplan.settings.uploadChunkSize"
@@ -899,6 +911,28 @@ import { defineAsyncComponent } from 'vue'
 import StatementModalRecheck from './StatementModalRecheck.vue'
 import { useCustomFields } from '@DpJs/composables/useCustomFields'
 
+/*
+ * Fields a negative report (Fehlanzeige) must not carry; the backend only swaps the element category and would keep them otherwise.
+ * 'notLocated' is required: only that value makes the backend drop polygon, priority area and county of an existing draft.
+ */
+const negativeReportContentReset = {
+  location_is_set: 'notLocated',
+  r_county: '',
+  r_document_id: '',
+  r_document_title: '',
+  r_element_title: '',
+  r_location: 'notLocated',
+  r_location_geometry: '',
+  r_location_point: '',
+  r_location_priority_area_key: '',
+  r_location_priority_area_type: '',
+  r_location_reference_geometry: '',
+  r_paragraph_id: '',
+  r_paragraph_title: '',
+  r_text: '',
+  uploadedFiles: '',
+}
+
 // This is the mapping between form field ids and translation keys, which are displayed in the error message if the field contains an error
 const fieldDescriptionsForErrors = {
   r_text: 'statement.text.short',
@@ -1168,14 +1202,6 @@ export default {
       userId: 'userId',
     }),
 
-    canNotBeNegativeReport () {
-      return this.formData.r_element_id !== '' ||
-        this.formData.r_document_id !== '' ||
-        this.formData.r_text !== '' ||
-        this.formData.r_location !== '' ||
-        this.formData.uploadedFiles !== ''
-    },
-
     commentingIcon () {
       return this.continueWriting ? 'fa-commenting' : 'fa-comment'
     },
@@ -1190,6 +1216,20 @@ export default {
 
     fileStorageName () {
       return `uploadedFiles:${this.userId}:${this.procedureId}:${this.draftStatementId}`
+    },
+
+    // "Kein Ortsbezug" and the 'mapLocation' placeholder of drafts without location attributes are not content
+    hasLocationReference () {
+      return ['point', 'priorityAreaType', 'county'].includes(this.formData.r_location)
+    },
+
+    hasStatementContent () {
+      return this.formData.r_element_id !== '' ||
+        this.formData.r_document_id !== '' ||
+        this.formData.r_text !== '' ||
+        this.hasLocationReference ||
+        this.formData.uploadedFiles !== '' ||
+        this.initialFiles.length > 0
     },
 
     initialFiles () {
@@ -1216,6 +1256,14 @@ export default {
 
     isNameUsageRequired () {
       return !this.allowAnonymousStatements && this.formData.r_useName !== '1'
+    },
+
+    isNegativeReport () {
+      return this.formData.r_isNegativeReport === '1'
+    },
+
+    negativeReportIgnoresContent () {
+      return this.isNegativeReport && this.hasStatementContent
     },
 
     personalDataFormDefinitions () {
@@ -1735,6 +1783,27 @@ export default {
       this.setStatementData(elementFields)
     },
 
+    /*
+     * The editor is validated on blur and only reset on focus, so switching to Fehlanzeige and back
+     * would leave a red error border on the empty editor
+     */
+    clearStatementValidationState () {
+      const form = this.$el.querySelector('[data-dp-validate="statementForm"]')
+
+      if (!form) {
+        return
+      }
+
+      const errorClass = this.prefixClass('is-invalid')
+
+      form.querySelectorAll(`.${errorClass}`).forEach(el => el.classList.remove(errorClass))
+    },
+
+    selectNegativeReport () {
+      this.setStatementData({ r_isNegativeReport: '1' })
+      this.clearStatementValidationState()
+    },
+
     removeNotificationsFromStore () {
       this.messages.forEach(message => {
         this.remove(message)
@@ -1772,6 +1841,20 @@ export default {
         this.resetSessionStorage()
         sessionStorage.removeItem('redirectpath')
       }
+    },
+
+    // After a Fehlanzeige save the server holds no content, so the form must not either
+    discardStatementContent () {
+      this.$refs.statementEditor?.resetEditor()
+      this.$refs.uploadFiles?.clearFilesList()
+      this.unsavedFiles = []
+      sessionStorage.removeItem(this.fileStorageName)
+      this.setStatementData({
+        ...negativeReportContentReset,
+        r_element_id: '',
+        r_files_initial: '[]',
+        delete_file: [],
+      })
     },
 
     resetSessionStorage () {
@@ -1871,6 +1954,12 @@ export default {
         return
       }
 
+      if (this.negativeReportIgnoresContent && window.dpconfirm(Translator.trans('statement.negative_report.confirm')) === false) {
+        this.setStatementData({ r_isNegativeReport: '0' })
+
+        return
+      }
+
       this.isLoading = true
       this.setStatementData({ immediate_submit: immediateSubmit })
       this.setStatementData({ r_loadtime: dayjs().unix() })
@@ -1898,7 +1987,22 @@ export default {
      * Handles the actual form POST after custom fields are saved (for existing drafts)
      */
     sendStatementForm (immediateSubmit, keepModalOpen) {
-      const dataToSend = this.prepareDataToSend(this.formData)
+      const contentIgnored = this.negativeReportIgnoresContent
+      // Content stays in the store so it reappears when switching back to "Stellung nehmen"; only the payload is stripped
+      let dataToSend = this.prepareDataToSend(this.formData)
+
+      // Applies to every Fehlanzeige, not only with content: a reopened one carries r_element_id '' which would drop its category
+      if (this.isNegativeReport) {
+        dataToSend = {
+          ...dataToSend,
+          ...negativeReportContentReset,
+          // A Fehlanzeige has no files, so attachments from earlier saves are removed as well
+          delete_file: [...new Set([...this.formData.delete_file, ...this.initialFiles.map(file => file.hash)])],
+        }
+
+        // Omitted so the backend derives the Fehlanzeige category
+        delete dataToSend.r_element_id
+      }
 
       // For existing drafts: Remove custom fields from payload (already saved via API)
       if (this.draftStatementId !== '') {
@@ -1940,7 +2044,11 @@ export default {
           if (response.status === 200) {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.saved'))
 
-            this.updateInitialFilesAfterSave()
+            if (contentIgnored) {
+              this.discardStatementContent()
+            } else {
+              this.updateInitialFilesAfterSave()
+            }
 
             /*
              * If the modal should stay open
@@ -2030,8 +2138,9 @@ export default {
         r_files_initial: data.draftStatement.files ? JSON.stringify(data.draftStatement.files) : [],
         r_ident: this.draftStatementId,
         r_isNegativeReport: data.draftStatement.negativ ? '1' : '0',
-        r_element_id: data.draftStatement.elementId || '',
-        r_element_title: data.draftStatement.element?.title ?? '',
+        // A Fehlanzeige's element is the Fehlanzeige category itself, assigned by the backend; not a user choice
+        r_element_id: (!data.draftStatement.negativ && data.draftStatement.elementId) || '',
+        r_element_title: (!data.draftStatement.negativ && data.draftStatement.element?.title) || '',
         r_paragraph_id: data.draftStatement.paragraphId ?? '',
         r_paragraph_title: data.draftStatement.paragraph?.title ?? '',
         r_document_id: data.draftStatement.document?.id ?? '',
