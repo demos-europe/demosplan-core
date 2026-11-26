@@ -293,10 +293,7 @@ export default {
     handleAddonRequest (addonPayload = this.addonPayload) {
       const payload = this.createAddonPayload(addonPayload)
 
-      /*
-       * An addon can either name a route (`api_resource_create`, `api_resource_update`) or hand over the full path
-       * of its own endpoint, e.g. an API Platform resource, together with the method to use.
-       */
+      // An addon sends either a route name or a root-relative path (e.g. `/api/3.0/...`) plus the method to use.
       const isPath = addonPayload.url.startsWith('/')
       const method = addonPayload.method ?? (addonPayload.url === 'api_resource_update' ? 'PATCH' : 'POST')
       const url = isPath ?
