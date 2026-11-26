@@ -109,8 +109,8 @@ import {
   DpSelect,
   dpValidateMixin,
 } from '@demos-europe/demosplan-ui'
-import { mapActions, mapMutations, mapState } from 'vuex'
 import AddonWrapper from '@DpJs/components/addon/AddonWrapper'
+import { useTagsCreateForm } from '@DpJs/composables/useTagsCreateForm'
 
 export default {
   name: 'TagsCreateForm',
@@ -139,142 +139,8 @@ export default {
     },
   },
 
-  data () {
-    return {
-      currentForm: '',
-      newTag: {
-        title: '',
-        topic: '',
-      },
-      newTopic: {
-        title: '',
-      },
-    }
-  },
-
-  computed: {
-    ...mapState('TagTopic', {
-      TagTopic: 'items',
-    }),
-
-    topicsAsOptions () {
-      return Object.values(this.TagTopic)
-        .map(category => {
-          const { attributes, id } = category
-
-          return {
-            label: attributes.title,
-            value: id,
-          }
-        })
-        .sort((a, b) => a.label.localeCompare(b.label, undefined, { numeric: true, sensitivity: 'base' }))
-    },
-  },
-
-  methods: {
-    ...mapMutations('TagTopic', {
-      updateTagTopic: 'setItem',
-    }),
-
-    ...mapActions('Tag', {
-      createTag: 'create',
-    }),
-
-    ...mapActions('TagTopic', {
-      createTagTopic: 'create',
-      saveTagTopic: 'save',
-    }),
-
-    closeForm () {
-      this.currentForm = ''
-      this.resetFormData()
-    },
-
-    openForm (form) {
-      this.currentForm = form
-    },
-
-    resetFormData () {
-      this.newTopic.title = ''
-      this.newTag = {
-        title: '',
-        topic: '',
-      }
-    },
-
-    saveNewTag () {
-      this.createTag({
-        type: 'Tag',
-        attributes: {
-          title: this.newTag.title,
-        },
-        relationships: {
-          topic: {
-            data: {
-              type: 'TagTopic',
-              id: this.newTag.topic,
-            },
-          },
-        },
-      })
-        .then(response => {
-          if (!response.data.Tag || !this.TagTopic[this.newTag.topic]) {
-            return
-          }
-
-          const parentTopic = this.TagTopic[this.newTag.topic]
-          const newTagId = Object.keys(response.data.Tag)[0]
-
-          this.updateTagTopic({
-            id: this.newTag.topic,
-            type: 'TagTopic',
-            attributes: parentTopic.attributes,
-            relationships: parentTopic.relationships ?
-              {
-                ...parentTopic.relationships,
-                tags: {
-                  data: parentTopic.relationships.tags.data.concat({
-                    type: 'Tag',
-                    id: newTagId,
-                  }),
-                },
-              } :
-              {
-                tags: {
-                  data: [{ type: 'Tag', id: newTagId }],
-                },
-              },
-          })
-
-          this.saveTagTopic(this.newTag.topic)
-          this.$root.$emit('tag:created', newTagId)
-          this.closeForm()
-        })
-    },
-
-    saveNewTopic () {
-      this.createTagTopic({
-        type: 'TagTopic',
-        attributes: {
-          title: this.newTopic.title,
-        },
-        relationships: {
-          procedure: {
-            data: {
-              type: this.isMasterProcedure ? 'ProcedureTemplate' : 'Procedure',
-              id: this.procedureId,
-            },
-          },
-        },
-      })
-        .then(() => {
-          this.closeForm()
-        })
-    },
-
-    updateForm (value) {
-      this.newTag[value.key] = value.value
-    },
+  setup (props) {
+    return useTagsCreateForm(props)
   },
 }
 </script>
