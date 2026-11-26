@@ -15,6 +15,8 @@
 - Tag titles must be unique within their topic instead of within the procedure, both via JSON:API and in
   `TagService::createTag()`; tag topic titles stay unique within the procedure. Both checks ignore case and
   leading/trailing spaces
+- The tag forms check tag titles within the selected topic and topic titles within the procedure before saving,
+  ignoring case and leading/trailing spaces, and show the matching duplicate messages
 
 ### Fixed
 - Tag topics can be renamed to a different spelling of their own title

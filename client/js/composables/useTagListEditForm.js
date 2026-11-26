@@ -34,7 +34,7 @@ import { useTagTitleCheck } from './useTagTitleCheck'
 export function useTagListEditForm (props, emit) {
   const unsavedItem = ref({ title: '' })
 
-  const { isTagTitleTaken, isTopicTitleTaken } = useTagTitleCheck()
+  const { getTopicIdOfTag, isTagTitleTaken, isTopicTitleTaken } = useTagTitleCheck()
 
   const isEditing = computed(() => props.isInEditState === props.nodeElement.id)
 
@@ -71,11 +71,15 @@ export function useTagListEditForm (props, emit) {
     const { attributes, id, type } = props.nodeElement
     const isTitleChanged = attributes.title !== unsavedItem.value.title
     const isTopic = type === 'TagTopic'
-    const isTitleTaken = isTopic ? isTopicTitleTaken : isTagTitleTaken
+    const isTitleTaken = isTopic ?
+      isTopicTitleTaken(unsavedItem.value.title, id) :
+      isTagTitleTaken(unsavedItem.value.title, getTopicIdOfTag(id), id)
 
     // The item itself is excluded, so saving an unchanged title is not reported as duplicate
-    if (isTitleChanged && isTitleTaken(unsavedItem.value.title, id)) {
-      dplan.notify.error(Translator.trans(isTopic ? 'tag.topic.title.duplicate.error' : 'tag.name.unique.error'))
+    if (isTitleChanged && isTitleTaken) {
+      const errorKey = isTopic ? 'tag.topic.title.duplicate.error' : 'tag.title.duplicate.in.topic.error'
+
+      dplan.notify.error(Translator.trans(errorKey))
 
       return
     }
