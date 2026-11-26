@@ -164,7 +164,7 @@ export function useTagsCreateForm (props) {
   const saveNewTopic = () => {
     if (isTopicTitleTaken(newTopic.value.title)) {
       // Shown next to the field (where the component supports it) and as notification for all other components
-      topicError.value = Translator.trans('tag.topic.name.duplicate.error')
+      topicError.value = Translator.trans('tag.topic.title.duplicate.error')
       dplan.notify.error(topicError.value)
 
       return Promise.resolve()

@@ -75,7 +75,7 @@ export function useTagListEditForm (props, emit) {
 
     // The item itself is excluded, so saving an unchanged title is not reported as duplicate
     if (isTitleChanged && isTitleTaken(unsavedItem.value.title, id)) {
-      dplan.notify.error(Translator.trans(isTopic ? 'tag.topic.name.duplicate.error' : 'tag.name.unique.error'))
+      dplan.notify.error(Translator.trans(isTopic ? 'tag.topic.title.duplicate.error' : 'tag.name.unique.error'))
 
       return
     }
