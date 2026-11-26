@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "caa0aedda378a400a18f5611e47425b9",
+    "content-hash": "101b16c35d96be21f2c90fced55f84af",
     "packages": [
         {
             "name": "ankitpokhrel/tus-php",
@@ -24299,16 +24299,16 @@
         },
         {
             "name": "symfony/phpunit-bridge",
-            "version": "v7.4.22",
+            "version": "v7.4.24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/phpunit-bridge.git",
-                "reference": "6acbf2203c2364dc55376644aafba180bcac3ae1"
+                "reference": "2f1721d86ad366bc03d7375c80dce16ac3ddcfb3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/phpunit-bridge/zipball/6acbf2203c2364dc55376644aafba180bcac3ae1",
-                "reference": "6acbf2203c2364dc55376644aafba180bcac3ae1",
+                "url": "https://api.github.com/repos/symfony/phpunit-bridge/zipball/2f1721d86ad366bc03d7375c80dce16ac3ddcfb3",
+                "reference": "2f1721d86ad366bc03d7375c80dce16ac3ddcfb3",
                 "shasum": ""
             },
             "require": {
@@ -24360,7 +24360,7 @@
                 "testing"
             ],
             "support": {
-                "source": "https://github.com/symfony/phpunit-bridge/tree/v7.4.22"
+                "source": "https://github.com/symfony/phpunit-bridge/tree/v7.4.24"
             },
             "funding": [
                 {
@@ -24380,7 +24380,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-10-18T14:39:27+00:00"
+            "time": "2026-11-16T12:48:18+00:00"
         },
         {
             "name": "symfony/polyfill-deepclone",
