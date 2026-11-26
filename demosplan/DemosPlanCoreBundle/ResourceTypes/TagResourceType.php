@@ -126,10 +126,9 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
                         try {
                             $this->checkTitle($title);
                             // title must be unique
-                            $tagsOfProcedure =
-                                $this->currentProcedureService->getProcedure()?->getTags() ?? new ArrayCollection();
-                            $this->checkTitleUnique($title, $tagsOfProcedure);
+                            $this->checkTitleUniqueInTopic($tag, $title);
                             $tag->setTitle($title);
+                            $this->resourceTypeService->validateObject($tag);
                         } catch (InvalidArgumentException $e) {
                             throw $e;
                         } catch (Exception $e) {
@@ -181,8 +180,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
                         // check Tag
                         $this->checkTitle($entityData->getAttributes()['title'] ?? null);
                         // title must be unique
-                        $tagsOfProcedure = $this->currentProcedureService->getProcedure()?->getTags() ?? new ArrayCollection();
-                        $this->checkTitleUnique($entityData->getAttributes()['title'], $tagsOfProcedure);
+                        $this->checkTitleUniqueInTopic($tag, $entityData->getAttributes()['title']);
                         // check TagTopic
                         $tagTopicId = ((array) $entityData->getToOneRelationships())['topic']['id'] ?? null;
                         $existingTopicsOfProcedrue =
@@ -190,6 +188,7 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
                         $this->checkTopicIdInProcedure($tagTopicId, $existingTopicsOfProcedrue);
 
                         $tag->setSortIndex($this->tagRepository->getNextSortIndex($tagTopicId));
+                        $this->resourceTypeService->validateObject($tag);
 
                         $this->tagRepository->persistEntities([$tag]);
                     } catch (InvalidArgumentException $e) {
@@ -219,19 +218,26 @@ final class TagResourceType extends DplanResourceType implements TagResourceType
         }
     }
 
-    private function checkTitleUnique(string $title, Collection $tagsOfProcedure): void
+    private function checkTitleUniqueInTopic(TagInterface $tag, string $title): void
     {
-        if (1 < count(
-            $tagsOfProcedure->filter(fn (TagInterface $t) => $t->getTitle() === $title))
-        ) {
+        $normalizedTitle = $this->normalizeTitle($title);
+        $otherTagsWithTitle = $tag->getTopic()->getTags()->filter(
+            fn (TagInterface $t) => $t !== $tag && $this->normalizeTitle($t->getTitle()) === $normalizedTitle
+        );
+        if (!$otherTagsWithTitle->isEmpty()) {
             $this->logger->error(
-                'TagResourceType tried to set non-unique title for a tag',
-                ['tagName' => $title]
+                'TagResourceType tried to set a tag title that already exists within the topic',
+                ['tagName' => $title, 'tagTopicId' => $tag->getTopic()->getId()]
             );
-            $this->messageBag->add('error', 'tag.name.unique.error');
+            $this->messageBag->add('error', 'tag.title.duplicate.in.topic.error');
 
-            throw new InvalidArgumentException('Tag title must be unique');
+            throw new InvalidArgumentException('Tag title must be unique within the topic');
         }
+    }
+
+    private function normalizeTitle(string $title): string
+    {
+        return mb_strtolower(trim($title));
     }
 
     private function checkTopicIdInProcedure(string $topicId, Collection $topicsOfProcedure): void

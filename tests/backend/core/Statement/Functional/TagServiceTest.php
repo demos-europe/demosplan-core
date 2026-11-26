@@ -234,4 +234,27 @@ class TagServiceTest extends FunctionalTestCase
         $this->expectException(DuplicatedTagTitleException::class);
         $this->sut->createTag($testTag1->getTitle(), $testTopic1->_real());
     }
+
+    public function testCreateTagWithDifferentSpellingOfTitleInSameTopicIsRejected(): void
+    {
+        $topic = TagTopicFactory::createOne();
+        TagFactory::createOne(['topic' => $topic, 'title' => 'Baulärm']);
+
+        $this->expectException(DuplicatedTagTitleException::class);
+
+        $this->sut->createTag('  baulärm ', $topic->_real());
+    }
+
+    public function testCreateTagWithTitleOfTagInOtherTopicOfSameProcedureIsAccepted(): void
+    {
+        $procedure = ProcedureFactory::createOne();
+        $topic = TagTopicFactory::createOne(['procedure' => $procedure, 'title' => 'Lärm']);
+        TagFactory::createOne(['topic' => $topic, 'title' => 'Baulärm']);
+        $otherTopic = TagTopicFactory::createOne(['procedure' => $procedure, 'title' => 'Baustelle']);
+
+        $tag = $this->sut->createTag('Baulärm', $otherTopic->_real());
+
+        self::assertSame($otherTopic->getId(), $tag->getTopic()->getId());
+        self::assertSame(2, TagFactory::repository()->count(['title' => 'Baulärm']));
+    }
 }

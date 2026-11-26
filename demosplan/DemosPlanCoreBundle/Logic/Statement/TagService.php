@@ -90,13 +90,12 @@ class TagService implements TagServiceInterface
      */
     public function createTag(string $title, TagTopicInterface $topic, bool $persistAndFlush = true): TagInterface
     {
-        $procedureId = $topic->getProcedure()->getId();
         if ('' === $title) {
             throw new InvalidArgumentException('Tag title may not be empty.');
         }
 
-        if (!$this->tagRepository->isTagTitleFree($procedureId, $title)) {
-            throw DuplicatedTagTitleException::createFromTitleAndProcedureId($topic, $title);
+        if ($this->isTagTitleTakenInTopic($title, $topic)) {
+            throw DuplicatedTagTitleException::createFromTitleAndTopic($topic, $title);
         }
 
         $toCreate = new Tag($title, $topic);
@@ -107,6 +106,21 @@ class TagService implements TagServiceInterface
         }
 
         return $toCreate;
+    }
+
+    private function isTagTitleTakenInTopic(string $title, TagTopicInterface $topic): bool
+    {
+        $normalizedTitle = $this->normalizeTitle($title);
+
+        return $topic->getTags()->exists(
+            fn (int|string $key, TagInterface $tag): bool => $this->normalizeTitle($tag->getTitle())
+                === $normalizedTitle
+        );
+    }
+
+    private function normalizeTitle(string $title): string
+    {
+        return mb_strtolower(trim($title));
     }
 
     /**
