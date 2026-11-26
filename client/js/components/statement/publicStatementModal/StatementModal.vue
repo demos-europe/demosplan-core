@@ -464,16 +464,12 @@
           :class="prefixClass('text-right sm:text-center md:text-right mb-2 flow-root')"
         >
           <!-- Logged in, existing draft statement -->
-          <dp-loading
-            v-if="isLoading"
-            :class="prefixClass('align-text-bottom inline-block')"
-            hide-label
-          />
           <button
             v-if="displayEditSubmit"
             type="submit"
-            :disabled="isLoading"
-            :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-palm')"
+            :aria-busy="isSubmitting('default')"
+            :disabled="isLoading && !isSubmitting('default')"
+            :class="[prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-palm'), isSubmitting('default') ? prefixClass('is-busy') : '']"
             data-cy="saveChangedStatement"
             @click="sendStatement"
           >
@@ -482,8 +478,9 @@
           <button
             v-if="displayEditSubmit"
             type="submit"
-            :disabled="isLoading"
-            :class="prefixClass('btn btn--secondary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-palm u-ml-0_5-desk-up')"
+            :aria-busy="isSubmitting('save')"
+            :disabled="isLoading && !isSubmitting('save')"
+            :class="[prefixClass('btn btn--secondary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-palm u-ml-0_5-desk-up'), isSubmitting('save') ? prefixClass('is-busy') : '']"
             data-cy="saveChangedStatementWothoutClosing"
             @click="e => sendStatement(e,false, true)"
           >
@@ -495,19 +492,22 @@
             <button
               v-if="hasPermission('feature_draft_statement_citizen_immediate_submit') && draftStatementId === ''"
               type="submit"
-              :disabled="isLoading"
+              :aria-busy="isSubmitting('immediate')"
+              :disabled="isLoading && !isSubmitting('immediate')"
               data-cy="statementModal:statementSaveImmediate"
-              :class="prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down')"
+              :class="[prefixClass('btn btn--primary u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down'), isSubmitting('immediate') ? prefixClass('is-busy') : '']"
               @click="e => sendStatement(e,true)"
             >
               {{ Translator.trans('statement.save.immediate') }}
             </button>
             <button
               type="submit"
-              :disabled="isLoading"
+              :aria-busy="isSubmitting('default')"
+              :disabled="isLoading && !isSubmitting('default')"
               :class="[
                 hasPermission('feature_draft_statement_citizen_immediate_submit') ? prefixClass('btn--secondary') : prefixClass('btn--primary'),
-                prefixClass('btn u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down u-ml-0_5-desk-up')
+                prefixClass('btn u-1-of-1-palm u-1-of-2-lap u-mt-0_5-lap-down u-ml-0_5-desk-up'),
+                isSubmitting('default') ? prefixClass('is-busy') : ''
               ]"
               data-cy="statementModal:saveAsDraft"
               @click="sendStatement"
@@ -535,11 +535,6 @@
           v-else
           :class="prefixClass('flex flex-col sm:flex-row justify-end gap-2 mt-4')"
         >
-          <dp-loading
-            v-if="isLoading"
-            :class="prefixClass('align-text-bottom inline-block')"
-            hide-label
-          />
           <button
             type="reset"
             :disabled="isLoading"
@@ -799,14 +794,10 @@
             {{ Translator.trans('go.back.to.personal.data') }}
           </button>
 
-          <dp-loading
-            v-if="isLoading"
-            :class="prefixClass('align-text-bottom inline-block')"
-            hide-label
-          />
           <button
-            :class="prefixClass('btn btn--primary sm:w-1/2 md:w-auto')"
-            :disabled="isLoading"
+            :aria-busy="isSubmitting('default')"
+            :class="[prefixClass('btn btn--primary sm:w-1/2 md:w-auto'), isSubmitting('default') ? prefixClass('is-busy') : '']"
+            :disabled="isLoading && !isSubmitting('default')"
             data-cy="sendStatementNow"
             type="button"
             @click.prevent="e => dpValidateAction('recheckForm', () => sendStatement(e))"
@@ -889,7 +880,6 @@ import {
   DpInlineNotification,
   DpInput,
   DpLabel,
-  DpLoading,
   DpModal,
   DpMultiselect,
   DpMultistepNav,
@@ -967,7 +957,6 @@ export default {
     DpInlineNotification,
     DpInput,
     DpLabel,
-    DpLoading,
     DpModal,
     DpMultiselect,
     DpMultistepNav,
@@ -1165,6 +1154,8 @@ export default {
       formFields: [...this.statementFormFields, ...this.personalDataFormFields, ...this.feedbackFormFields],
       hasPlanningDocuments: this.initHasPlanningDocuments,
       isLoading: false,
+      // Which save button triggered the running request, so only that one shows the busy state
+      submittingAction: '',
       makePublicLabel: (() => {
         let label = Translator.trans('explanation.statement.public', { projectName: this.projectName })
 
@@ -1799,6 +1790,10 @@ export default {
       form.querySelectorAll(`.${errorClass}`).forEach(el => el.classList.remove(errorClass))
     },
 
+    isSubmitting (action) {
+      return this.isLoading && this.submittingAction === action
+    },
+
     selectNegativeReport () {
       this.setStatementData({ r_isNegativeReport: '1' })
       this.clearStatementValidationState()
@@ -1950,6 +1945,11 @@ export default {
     sendStatement (e, immediateSubmit = false, keepModalOpen = false) {
       e.preventDefault()
 
+      // The busy button stays enabled to keep its look, so a second click must be ignored here
+      if (this.isLoading) {
+        return
+      }
+
       if (this.validateStatementStep() === false || this.validateRecheckStep() === false) {
         return
       }
@@ -1961,6 +1961,7 @@ export default {
       }
 
       this.isLoading = true
+      this.submittingAction = immediateSubmit ? 'immediate' : (keepModalOpen ? 'save' : 'default')
       this.setStatementData({ immediate_submit: immediateSubmit })
       this.setStatementData({ r_loadtime: dayjs().unix() })
 
