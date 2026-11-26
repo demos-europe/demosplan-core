@@ -16,6 +16,12 @@
     background: #f7f7f7;
 }
 
+// Matches when the surrounding fieldset is disabled, e.g. DpUploadFiles with the disabled attribute
+.uppy-DragDrop-container:disabled {
+    cursor: not-allowed;
+    opacity: .4;
+}
+
 .uppy-DragDrop-inner {
     padding: 20px;
     width: 100%;
