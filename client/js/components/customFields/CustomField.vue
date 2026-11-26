@@ -154,6 +154,16 @@ export default {
       },
     },
 
+    /**
+     * Renders the field as optional regardless of its isRequired flag,
+     * e.g. while the surrounding form doesn't need this input
+     */
+    ignoreRequired: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+
     isActiveEdit: {
       type: [Boolean, null],
       required: false,
@@ -265,8 +275,12 @@ export default {
         return null
       }
 
+      const definition = this.ignoreRequired ?
+        { ...this.resolvedDefinition, attributes: { ...this.resolvedDefinition.attributes, isRequired: false } } :
+        this.resolvedDefinition
+
       return {
-        ...this.resolvedDefinition,
+        ...definition,
         value: this.transformValueForRenderer(rawValue),
       }
     },

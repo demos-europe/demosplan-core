@@ -174,6 +174,8 @@
           v-if="(draftStatementId && !draftHasLocalStorageData) && hasPermission('feature_statements_custom_fields')"
           :class="prefixClass('mb-2')"
           :definition-source-id="procedureId"
+          :disabled="isNegativeReport"
+          :ignore-required="isNegativeReport"
           :list-title="Translator.trans('statement.data')"
           :resource-id="draftStatementId"
           :show-empty="true"
@@ -199,7 +201,9 @@
             ref="customFieldRefs"
             :class="prefixClass('mb-2')"
             :definition-source-id="procedureId"
+            :disabled="isNegativeReport"
             :field-data="{ id: customField.id, value: customField.value }"
+            :ignore-required="isNegativeReport"
             :resource-id="draftStatementId"
             mode="editable"
             resource-type="DraftStatement"
@@ -1209,6 +1213,10 @@ export default {
       return `uploadedFiles:${this.userId}:${this.procedureId}:${this.draftStatementId}`
     },
 
+    hasCustomFieldValues () {
+      return (this.formData.customFields || []).some(({ value }) => Array.isArray(value) ? value.length > 0 : value !== null && value !== undefined && value !== '')
+    },
+
     // "Kein Ortsbezug" and the 'mapLocation' placeholder of drafts without location attributes are not content
     hasLocationReference () {
       return ['point', 'priorityAreaType', 'county'].includes(this.formData.r_location)
@@ -1219,6 +1227,7 @@ export default {
         this.formData.r_document_id !== '' ||
         this.formData.r_text !== '' ||
         this.hasLocationReference ||
+        this.hasCustomFieldValues ||
         this.formData.uploadedFiles !== '' ||
         this.initialFiles.length > 0
     },
@@ -1416,6 +1425,7 @@ export default {
           id: field.id,
           name: field.attributes.name,
           description: field.attributes.description,
+          fieldType: field.attributes.fieldType,
           isRequired: field.attributes.isRequired || false,
           options: Array.isArray(field.attributes.options) ? field.attributes.options : [],
           // Initialize value based on field type to avoid null issues
@@ -1844,6 +1854,7 @@ export default {
       this.$refs.uploadFiles?.clearFilesList()
       this.unsavedFiles = []
       sessionStorage.removeItem(this.fileStorageName)
+      this.resetCustomFieldState()
       this.setStatementData({
         ...negativeReportContentReset,
         r_element_id: '',
@@ -1899,13 +1910,15 @@ export default {
        * - In CustomField loop mode: restored from localStorage, then updated by user changes
        * Empty arrays are included intentionally to allow clearing multiselect fields on the server.
        */
-      const customFieldValues = (this.formData.customFields || [])
-        .filter(field => field.id && field.value !== undefined &&
-          (field.value !== null || this.fieldIdsWithServerValues.includes(field.id)))
-        .map(field => ({
-          id: field.id,
-          value: field.value,
-        }))
+      const customFieldValues = this.isNegativeReport ?
+        this.getClearedCustomFieldValues() :
+        (this.formData.customFields || [])
+          .filter(field => field.id && field.value !== undefined &&
+            (field.value !== null || this.fieldIdsWithServerValues.includes(field.id)))
+          .map(field => ({
+            id: field.id,
+            value: field.value,
+          }))
 
       if (customFieldValues.length === 0) {
         return Promise.resolve()
@@ -1919,6 +1932,15 @@ export default {
         this.draftStatementId,
         customFieldValues,
       )
+    },
+
+    // A Fehlanzeige carries no custom field values, so only fields that have a value on the server need clearing
+    getClearedCustomFieldValues () {
+      return this.fieldIdsWithServerValues.map(id => {
+        const fieldType = this.selectableCustomFields.find(field => field.id === id)?.fieldType
+
+        return { id, value: fieldType === 'multiSelect' ? [] : null }
+      })
     },
 
     handleCustomFieldValueUpdateFromList ({ fieldId, value }) {
@@ -2003,6 +2025,7 @@ export default {
 
         // Omitted so the backend derives the Fehlanzeige category
         delete dataToSend.r_element_id
+        delete dataToSend.customFields
       }
 
       // For existing drafts: Remove custom fields from payload (already saved via API)
