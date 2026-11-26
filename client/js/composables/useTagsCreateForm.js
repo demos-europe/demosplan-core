@@ -144,7 +144,7 @@ export function useTagsCreateForm (props) {
       },
     })
       .then(response => {
-        if (!response.data || !response.data.Tag || !tagTopics.value[topicId]) {
+        if (!response?.data?.Tag || !tagTopics.value[topicId]) {
           return
         }
 
