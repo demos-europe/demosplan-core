@@ -8,6 +8,7 @@
  */
 
 import { computed, ref } from 'vue'
+import { useTagTitleCheck } from './useTagTitleCheck'
 
 /**
  * Shared state and logic for a single row (tag or tag topic) of the tag list.
@@ -32,6 +33,8 @@ import { computed, ref } from 'vue'
  */
 export function useTagListEditForm (props, emit) {
   const unsavedItem = ref({ title: '' })
+
+  const { isTagTitleTaken, isTopicTitleTaken } = useTagTitleCheck()
 
   const isEditing = computed(() => props.isInEditState === props.nodeElement.id)
 
@@ -66,12 +69,22 @@ export function useTagListEditForm (props, emit) {
 
   const saveItem = () => {
     const { attributes, id, type } = props.nodeElement
+    const isTitleChanged = attributes.title !== unsavedItem.value.title
+    const isTopic = type === 'TagTopic'
+    const isTitleTaken = isTopic ? isTopicTitleTaken : isTagTitleTaken
+
+    // The item itself is excluded, so saving an unchanged title is not reported as duplicate
+    if (isTitleChanged && isTitleTaken(unsavedItem.value.title, id)) {
+      dplan.notify.error(Translator.trans(isTopic ? 'tag.topic.name.duplicate.error' : 'tag.name.unique.error'))
+
+      return
+    }
 
     emit('save', {
       id,
       attributes: unsavedItem.value,
       type,
-      isTitleChanged: attributes.title !== unsavedItem.value.title,
+      isTitleChanged,
     })
   }
 
