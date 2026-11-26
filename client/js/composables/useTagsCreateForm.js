@@ -148,8 +148,13 @@ export function useTagsCreateForm (props) {
 
         addTagToTopic(topicId, newTagId)
         store.dispatch(`${TAG_TOPIC}/save`, topicId)
+          .catch(error => console.log(error))
         proxy.$root.$emit('tag:created', newTagId)
         closeForm()
+      })
+      .catch(error => {
+        console.log(error)
+        dplan.notify.error(Translator.trans('error.api.generic'))
       })
       .finally(() => {
         isSaving.value = false
@@ -182,11 +187,15 @@ export function useTagsCreateForm (props) {
       },
     })
       .then(response => {
-        if (!response.data) {
+        if (!response?.data) {
           return
         }
 
         closeForm()
+      })
+      .catch(error => {
+        console.log(error)
+        dplan.notify.error(Translator.trans('error.api.generic'))
       })
       .finally(() => {
         isSaving.value = false
