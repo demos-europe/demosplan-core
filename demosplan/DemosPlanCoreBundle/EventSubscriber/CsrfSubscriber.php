@@ -21,6 +21,8 @@ use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class CsrfSubscriber implements EventSubscriberInterface
 {
+    private const CSP_REPORT_ROUTE = 'csp_report';
+
     public function __construct(
         private readonly CsrfTokenManagerInterface $csrfTokenManager,
         private readonly MessageBagInterface $messageBag,
@@ -33,7 +35,8 @@ class CsrfSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
 
-        if ($request->isMethod('GET')) {
+        // Browser-sent CSP violation reports can't carry a CSRF token
+        if ($request->isMethod('GET') || self::CSP_REPORT_ROUTE === $request->attributes->get('_route')) {
             return;
         }
 
