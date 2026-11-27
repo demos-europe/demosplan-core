@@ -40,6 +40,7 @@
         }"
         name="r_location"
         :checked="statement.location_is_set === 'county'"
+        :disabled="disabled"
         value="county"
         @change="() => { setStatementData({ r_location: 'county', location_is_set: 'county' }) }"
       />
@@ -49,6 +50,7 @@
         ref="locationCountySelect"
         name="r_county"
         :class="prefixClass('o-form__control-select')"
+        :disabled="disabled"
         :value="statement.r_county"
         @change="val => setStatementData({r_county: val.target.value})"
       >
@@ -77,6 +79,7 @@
         }"
         name="r_location"
         :checked="statement.location_is_set === 'notLocated'"
+        :disabled="disabled"
         value="notLocated"
         @change="() => { setStatementData({r_location: 'notLocated', location_is_set: 'notLocated'}) }"
       />

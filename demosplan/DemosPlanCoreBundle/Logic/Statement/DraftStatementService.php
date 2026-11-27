@@ -2082,6 +2082,13 @@ class DraftStatementService
             return $statement;
         }
 
+        // A negative report carries no custom field values, so required fields don't apply to it
+        if (array_key_exists('r_isNegativeReport', $data) && '1' === (string) $data['r_isNegativeReport']) {
+            $statement[CustomFieldPropertyName::columnName->value] = new CustomFieldValuesList();
+
+            return $statement;
+        }
+
         if (!array_key_exists(CustomFieldPropertyName::twigRequestName->value, $data)) {
             return $statement;
         }

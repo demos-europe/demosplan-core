@@ -40,8 +40,10 @@ All rights reserved
             >
               <custom-field
                 :definition="definition"
+                :disabled="disabled"
                 :enable-toggle="enableToggle"
                 :field-data="{ id: field.id, value: field.value }"
+                :ignore-required="ignoreRequired"
                 :is-active-edit="getIsActiveEdit(field.id)"
                 :mode="mode"
                 :resource-id="resourceId"
@@ -143,8 +145,10 @@ All rights reserved
           >
             <custom-field
               :definition="definition"
+              :disabled="disabled"
               :enable-toggle="enableToggle"
               :field-data="{ id: field.id, value: field.value }"
+              :ignore-required="ignoreRequired"
               :is-active-edit="getIsActiveEdit(field.id)"
               :mode="mode"
               :resource-id="resourceId"
@@ -203,6 +207,12 @@ export default {
       required: true,
     },
 
+    disabled: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+
     enableToggle: {
       type: Boolean,
       required: false,
@@ -220,6 +230,13 @@ export default {
       required: false,
       default: 'vertical',
       validator: val => ['vertical', 'horizontal', 'grid'].includes(val),
+    },
+
+    // Passed to each field, see CustomField
+    ignoreRequired: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
 
     listTitle: {
@@ -454,6 +471,14 @@ export default {
             this.$emit('hasContent', this.hasFieldsToRender)
           })
         })
+    },
+
+    // Reloads the values from the server, for changes made outside this list
+    refresh () {
+      const { clearCustomFieldValues } = useCustomFields()
+
+      clearCustomFieldValues(this.resourceType, this.resourceId)
+      this.fetchCustomFieldsData()
     },
 
     getIsActiveEdit (fieldId) {

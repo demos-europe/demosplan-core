@@ -320,6 +320,17 @@ export function useCustomFields () {
   }
 
   /**
+   * Drop the cached values of one resource, e.g. after another request changed them on the server.
+   *
+   * @param {string} resourceType
+   * @param {string} resourceId
+   */
+  const clearCustomFieldValues = (resourceType, resourceId) => {
+    cachedIndividualValues.delete(`${resourceType}:${resourceId}`)
+    pendingIndividualFetches.delete(`${resourceType}:${resourceId}`)
+  }
+
+  /**
    * Update custom field values via JSON:API.
    * Supports both single and batch updates (multiple fields in one call).
    * Returns a Promise (use .then() for handling).
@@ -369,6 +380,7 @@ export function useCustomFields () {
   }
 
   return {
+    clearCustomFieldValues,
     clearCustomFieldsDefinitions,
     createCustomFieldDefinition,
     deleteCustomFieldDefinition,
