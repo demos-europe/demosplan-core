@@ -1800,6 +1800,15 @@ export default {
       form.querySelectorAll(`.${errorClass}`).forEach(el => el.classList.remove(errorClass))
     },
 
+    // Maps the save variant to the button that triggers it, see isSubmitting
+    getSubmittingAction (immediateSubmit, keepModalOpen) {
+      if (immediateSubmit) {
+        return 'immediate'
+      }
+
+      return keepModalOpen ? 'save' : 'default'
+    },
+
     isSubmitting (action) {
       return this.isLoading && this.submittingAction === action
     },
@@ -1983,7 +1992,7 @@ export default {
       }
 
       this.isLoading = true
-      this.submittingAction = immediateSubmit ? 'immediate' : (keepModalOpen ? 'save' : 'default')
+      this.submittingAction = this.getSubmittingAction(immediateSubmit, keepModalOpen)
       this.setStatementData({ immediate_submit: immediateSubmit })
       this.setStatementData({ r_loadtime: dayjs().unix() })
 
