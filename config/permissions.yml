@@ -2012,7 +2012,7 @@ feature_public_index_map:
     label: 'Hat public index eine Karte?'
     loginRequired: false
 feature_public_index_map_fit_bounds:
-    descriptipon: |-
+    description: |-
         By default the public_index map view is set to a specified zoom level and coordinate.
         When activating this permission, the map will be fitted to the bounds of the coordinates of all procedures,
         which is the same behavior that is always triggered when filtering the procedure list.
