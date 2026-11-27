@@ -14,7 +14,8 @@ import CustomField from '@DpJs/components/customFields/CustomField.vue'
 import PublicStatementStore from '@DpJs/store/statement/PublicStatement'
 import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal.vue'
 
-const { mockDpApiGet, mockMakeFormPost, mockUpdateCustomFields } = vi.hoisted(() => ({
+const { mockClearCustomFieldValues, mockDpApiGet, mockMakeFormPost, mockUpdateCustomFields } = vi.hoisted(() => ({
+  mockClearCustomFieldValues: vi.fn(),
   mockDpApiGet: vi.fn(),
   mockMakeFormPost: vi.fn(),
   mockUpdateCustomFields: vi.fn(),
@@ -27,7 +28,7 @@ vi.mock('@demos-europe/demosplan-ui', async importOriginal => ({
 }))
 
 vi.mock('@DpJs/composables/useCustomFields', () => ({
-  useCustomFields: () => ({ updateCustomFields: mockUpdateCustomFields }),
+  useCustomFields: () => ({ clearCustomFieldValues: mockClearCustomFieldValues, updateCustomFields: mockUpdateCustomFields }),
 }))
 
 type FormData = Record<string, unknown>
@@ -440,6 +441,33 @@ describe('StatementModal with negative report', () => {
       await flushPromises()
 
       expect(refreshCustomFieldsList).toHaveBeenCalledTimes(1)
+    })
+
+    // The backend clears custom fields with every negative report, also when the form shows nothing to discard
+    it('drops cached custom field values after saving a negative report without other input', async () => {
+      const { wrapper } = await mountModal()
+      const vm = wrapper.vm as unknown as { draftStatementId: string, sendStatement: (e: unknown, immediateSubmit: boolean, keepModalOpen: boolean) => void }
+
+      vm.draftStatementId = 'draft-1'
+      await setFormData(wrapper, { r_isNegativeReport: '1' })
+      vm.sendStatement(submitEvent(), false, true)
+      await flushPromises()
+
+      expect(mockClearCustomFieldValues).toHaveBeenCalledWith('DraftStatement', 'draft-1')
+      expect(refreshCustomFieldsList).toHaveBeenCalledTimes(1)
+    })
+
+    it('keeps cached custom field values after saving a regular statement', async () => {
+      const { wrapper } = await mountModal()
+      const vm = wrapper.vm as unknown as { draftStatementId: string, sendStatement: (e: unknown, immediateSubmit: boolean, keepModalOpen: boolean) => void }
+
+      vm.draftStatementId = 'draft-1'
+      await setFormData(wrapper, { r_text: '<p>Text</p>' })
+      vm.sendStatement(submitEvent(), false, true)
+      await flushPromises()
+
+      expect(mockClearCustomFieldValues).not.toHaveBeenCalled()
+      expect(refreshCustomFieldsList).not.toHaveBeenCalled()
     })
 
     // Required fields would reject a clearing request, so the backend clears them as part of the Fehlanzeige save

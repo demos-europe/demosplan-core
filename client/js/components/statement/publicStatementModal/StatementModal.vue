@@ -1865,8 +1865,6 @@ export default {
       this.unsavedFiles = []
       sessionStorage.removeItem(this.fileStorageName)
       this.resetCustomFieldState()
-      // The list keeps its own copy of the values, which the backend has just cleared
-      this.$refs.customFieldsList?.refresh()
       this.setStatementData({
         ...negativeReportContentReset,
         r_element_id: '',
@@ -2040,6 +2038,7 @@ export default {
      */
     sendStatementForm (immediateSubmit, keepModalOpen) {
       const contentIgnored = this.negativeReportIgnoresContent
+      const isNegativeReport = this.isNegativeReport
       const dataToSend = this.buildStatementPayload()
 
       let route = Routing.generate('DemosPlan_statement_public_participation_new_ajax', { procedure: this.procedureId }) + (immediateSubmit ? '?immediate_submit=true' : '')
@@ -2076,7 +2075,7 @@ export default {
           if (response.status === 200) {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.saved'))
 
-            this.updateFormAfterSave(contentIgnored)
+            this.updateFormAfterSave(contentIgnored, isNegativeReport)
 
             /*
              * If the modal should stay open
@@ -2247,19 +2246,35 @@ export default {
       }
     },
 
-    /*
-     * For "normal" way of updating the statement we don't need this, because we reload the page.
-     * But if we want to keep the modal open, we have to update the files all by ourselves.
-     */
     // A saved Fehlanzeige holds no content on the server, so the form is emptied instead of keeping its files
-    updateFormAfterSave (contentIgnored) {
+    updateFormAfterSave (contentIgnored, isNegativeReport) {
       if (contentIgnored) {
         this.discardStatementContent()
       } else {
         this.updateInitialFilesAfterSave()
       }
+
+      if (isNegativeReport) {
+        this.reloadCustomFieldValues()
+      }
     },
 
+    // The backend clears custom fields with every saved Fehlanzeige, so cached and listed values are outdated
+    reloadCustomFieldValues () {
+      if (this.draftStatementId === '') {
+        return
+      }
+
+      const { clearCustomFieldValues } = useCustomFields()
+
+      clearCustomFieldValues('DraftStatement', this.draftStatementId)
+      this.$refs.customFieldsList?.refresh()
+    },
+
+    /*
+     * For "normal" way of updating the statement we don't need this, because we reload the page.
+     * But if we want to keep the modal open, we have to update the files all by ourselves.
+     */
     updateInitialFilesAfterSave () {
       let currentFiles = hasOwnProp(this.formData, 'r_files_initial') ? JSON.parse(this.formData.r_files_initial) : []
 
