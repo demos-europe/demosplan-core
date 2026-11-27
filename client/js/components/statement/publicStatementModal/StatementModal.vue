@@ -172,6 +172,7 @@
         <!-- Existing draft WITHOUT localStorage: CustomFieldsList self-fetches, manages fieldset internally -->
         <custom-fields-list
           v-if="(draftStatementId && !draftHasLocalStorageData) && hasPermission('feature_statements_custom_fields')"
+          ref="customFieldsList"
           :class="prefixClass('mb-2')"
           :definition-source-id="procedureId"
           :disabled="isNegativeReport"
@@ -1864,6 +1865,8 @@ export default {
       this.unsavedFiles = []
       sessionStorage.removeItem(this.fileStorageName)
       this.resetCustomFieldState()
+      // The list keeps its own copy of the values, which the backend has just cleared
+      this.$refs.customFieldsList?.refresh()
       this.setStatementData({
         ...negativeReportContentReset,
         r_element_id: '',

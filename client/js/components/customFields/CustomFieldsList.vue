@@ -473,6 +473,14 @@ export default {
         })
     },
 
+    // Reloads the values from the server, for changes made outside this list
+    refresh () {
+      const { clearCustomFieldValues } = useCustomFields()
+
+      clearCustomFieldValues(this.resourceType, this.resourceId)
+      this.fetchCustomFieldsData()
+    },
+
     getIsActiveEdit (fieldId) {
       return this.enableToggle ? (this.activeEditFieldId === null || this.activeEditFieldId === fieldId) : null
     },

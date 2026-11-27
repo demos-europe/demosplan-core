@@ -11,7 +11,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { flushPromises, shallowMount } from '@vue/test-utils'
 import { createStore } from 'vuex'
 import CustomField from '@DpJs/components/customFields/CustomField.vue'
-import CustomFieldsList from '@DpJs/components/customFields/CustomFieldsList.vue'
 import PublicStatementStore from '@DpJs/store/statement/PublicStatement'
 import StatementModal from '@DpJs/components/statement/publicStatementModal/StatementModal.vue'
 
@@ -50,6 +49,17 @@ const LocationGroupStub = { ...PlainStub, props: ['disabled', 'required'] }
 
 const LabelStub = { ...PlainStub, props: ['required', 'text'] }
 
+const refreshCustomFieldsList = vi.fn()
+
+// Existing drafts render the self-fetching list, which is refreshed after saving a negative report
+const CustomFieldsListStub = {
+  ...PlainStub,
+  name: 'CustomFieldsList',
+  props: ['disabled', 'ignoreRequired'],
+  emits: ['loaded'],
+  methods: { refresh: refreshCustomFieldsList },
+}
+
 const resetEditor = vi.fn()
 const clearFilesList = vi.fn()
 
@@ -86,6 +96,7 @@ const mountModal = async (props: Record<string, unknown> = {}) => {
     global: {
       plugins: [store],
       stubs: {
+        CustomFieldsList: CustomFieldsListStub,
         DpCheckbox: PlainStub,
         DpEditor: { ...PlainStub, props: ['readonly', 'required'], methods: { resetEditor } },
         DpInput: PlainStub,
@@ -262,7 +273,7 @@ describe('StatementModal with negative report', () => {
       ;(wrapper.vm as unknown as { draftStatementId: string }).draftStatementId = 'draft-1'
       await setFormData(wrapper, { r_isNegativeReport: '1' })
 
-      const list = () => wrapper.findComponent(CustomFieldsList)
+      const list = () => wrapper.findComponent(CustomFieldsListStub)
 
       expect(list().props()).toMatchObject({ disabled: true, ignoreRequired: true })
 
@@ -411,6 +422,26 @@ describe('StatementModal with negative report', () => {
       expect(lastPostedPayload()).toMatchObject({ r_element_id: 'element-1', r_text: '<p>Text</p>' })
     })
 
+    // The list keeps its own copy of the values, which the backend clears with the negative report
+    it('reloads the custom fields list of an existing draft after saving a negative report', async () => {
+      const { wrapper } = await mountModal()
+      const vm = wrapper.vm as unknown as {
+        draftStatementId: string
+        selectableCustomFields: { id: string, fieldType: string, value: unknown }[]
+        sendStatement: (e: unknown, immediateSubmit: boolean, keepModalOpen: boolean) => void
+      }
+
+      vm.draftStatementId = 'draft-1'
+      vm.selectableCustomFields = [{ id: 'single', fieldType: 'singleSelect', value: null }]
+      await wrapper.vm.$nextTick()
+      wrapper.findComponent(CustomFieldsListStub).vm.$emit('loaded', [{ id: 'single', value: 'option-2' }])
+      await setFormData(wrapper, { r_isNegativeReport: '1' })
+      vm.sendStatement(submitEvent(), false, true)
+      await flushPromises()
+
+      expect(refreshCustomFieldsList).toHaveBeenCalledTimes(1)
+    })
+
     // Required fields would reject a clearing request, so the backend clears them as part of the Fehlanzeige save
     it('leaves clearing the custom fields of an existing draft to the statement save', async () => {
       const { wrapper } = await mountModal()
@@ -423,7 +454,7 @@ describe('StatementModal with negative report', () => {
       vm.draftStatementId = 'draft-1'
       vm.selectableCustomFields = [{ id: 'single', fieldType: 'singleSelect', value: null }]
       await wrapper.vm.$nextTick()
-      wrapper.findComponent(CustomFieldsList).vm.$emit('loaded', [{ id: 'single', value: 'option-2' }])
+      wrapper.findComponent(CustomFieldsListStub).vm.$emit('loaded', [{ id: 'single', value: 'option-2' }])
       await setFormData(wrapper, { r_isNegativeReport: '1' })
       vm.sendStatement(submitEvent())
       await flushPromises()
