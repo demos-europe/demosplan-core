@@ -36,6 +36,8 @@
             var sw = new L.LatLng(bbsw[0], bbsw[1]);
             var ne = new L.LatLng(bbne[0], bbne[1]);
             var bbox = new L.LatLngBounds(sw,ne);
+            // Only the top of the map box is visible on load, so procedures at the extent's southern edge need room below to be centred
+            var maxBbox = new L.LatLngBounds(new L.LatLng(sw.lat - 0.2 * (ne.lat - sw.lat), sw.lng), ne);
 
             {% block initialSettings %}
                 var initialZoom = 8;
@@ -55,7 +57,7 @@
                         //crs: mapprojection,
                         //maxZoom: 14,
                         minZoom: minZoom,
-                        bounds: bbox,
+                        bounds: maxBbox,
                         transparent: true
 
                     });
@@ -64,10 +66,10 @@
             map = L.map('map', {
                 center: new L.LatLng(initialLat, initialLon),
                 zoom: initialZoom,
-                zoomSnap: 0.5,
+                zoomSnap: 0.25,
                 zoomDelta: 0.5,
                 layers: [publicBaselayer],
-                maxBounds: bbox,
+                maxBounds: maxBbox,
                 attributionControl: false
             });
 
