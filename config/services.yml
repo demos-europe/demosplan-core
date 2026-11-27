@@ -90,6 +90,8 @@ services:
 
     DemosEurope\DemosplanAddon\Contracts\Services\MailServiceInterface: '@demosplan\DemosPlanCoreBundle\Logic\MailService'
 
+    DemosEurope\DemosplanAddon\Contracts\Services\CustomerUrlGeneratorInterface: '@demosplan\DemosPlanCoreBundle\Logic\Customer\CustomerUrlGenerator'
+
     demosplan\DemosPlanCoreBundle\Logic\Ai\AiModeResolver:
         arguments:
             $providers: !tagged_iterator 'dplan.ai.mode.provider'
