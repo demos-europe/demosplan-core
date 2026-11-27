@@ -65,6 +65,7 @@
                 center: new L.LatLng(initialLat, initialLon),
                 zoom: initialZoom,
                 zoomSnap: 0.5,
+                zoomDelta: 0.5,
                 layers: [publicBaselayer],
                 maxBounds: bbox,
                 attributionControl: false
@@ -186,7 +187,8 @@
                 }
 
                 proceduresLength > 0 && visibleMarkers.length > 0 && (hasPermission('feature_public_index_map_fit_bounds') || isFilteredUrl)
-                    ?  map.fitBounds(markersLayer.getBounds().pad(0.2))
+                    // maxZoom keeps a single procedure from opening at street level
+                    ?  map.fitBounds(markersLayer.getBounds().pad(0.1), { maxZoom: 12 })
                     :  map.setView(map.options.center, map.options.zoom)
             }
         });
