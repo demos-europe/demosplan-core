@@ -85,7 +85,6 @@ class Config {
         'cc-', // Classes for the cookie consent banner (cc-banner etc)
         'ol-', // Classes for open layers (to prevent our overrides)
         'plupload_', // Classes for plUpload (to prevent our overrides)
-        'v-tooltip', // V-tooltip
         'tooltip', // V-tooltip
       ],
       defaultExcludePatterns: [
