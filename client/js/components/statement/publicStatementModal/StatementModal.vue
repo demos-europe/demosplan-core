@@ -2014,12 +2014,7 @@ export default {
       }
     },
 
-    /**
-     * Extracted statement form submission logic
-     * Handles the actual form POST after custom fields are saved (for existing drafts)
-     */
-    sendStatementForm (immediateSubmit, keepModalOpen) {
-      const contentIgnored = this.negativeReportIgnoresContent
+    buildStatementPayload () {
       // Content stays in the store so it reappears when switching back to "Stellung nehmen"; only the payload is stripped
       let dataToSend = this.prepareDataToSend(this.formData)
 
@@ -2042,6 +2037,17 @@ export default {
         delete dataToSend.customFields
       }
       // For new statements: Keep custom fields in payload
+
+      return dataToSend
+    },
+
+    /**
+     * Extracted statement form submission logic
+     * Handles the actual form POST after custom fields are saved (for existing drafts)
+     */
+    sendStatementForm (immediateSubmit, keepModalOpen) {
+      const contentIgnored = this.negativeReportIgnoresContent
+      const dataToSend = this.buildStatementPayload()
 
       let route = Routing.generate('DemosPlan_statement_public_participation_new_ajax', { procedure: this.procedureId }) + (immediateSubmit ? '?immediate_submit=true' : '')
 
@@ -2077,11 +2083,7 @@ export default {
           if (response.status === 200) {
             dplan.notify.notify('confirm', Translator.trans('confirm.statement.saved'))
 
-            if (contentIgnored) {
-              this.discardStatementContent()
-            } else {
-              this.updateInitialFilesAfterSave()
-            }
+            this.updateFormAfterSave(contentIgnored)
 
             /*
              * If the modal should stay open
@@ -2256,6 +2258,15 @@ export default {
      * For "normal" way of updating the statement we don't need this, because we reload the page.
      * But if we want to keep the modal open, we have to update the files all by ourselves.
      */
+    // A saved Fehlanzeige holds no content on the server, so the form is emptied instead of keeping its files
+    updateFormAfterSave (contentIgnored) {
+      if (contentIgnored) {
+        this.discardStatementContent()
+      } else {
+        this.updateInitialFilesAfterSave()
+      }
+    },
+
     updateInitialFilesAfterSave () {
       let currentFiles = hasOwnProp(this.formData, 'r_files_initial') ? JSON.parse(this.formData.r_files_initial) : []
 
