@@ -25,6 +25,7 @@ use demosplan\DemosPlanCoreBundle\Entity\User\Customer;
 use demosplan\DemosPlanCoreBundle\Entity\User\Orga;
 use demosplan\DemosPlanCoreBundle\Entity\User\User;
 use demosplan\DemosPlanCoreBundle\Logic\User\RoleHandler;
+use demosplan\DemosPlanCoreBundle\ResourceTypes\InstitutionLocationContactResourceType;
 use demosplan\DemosPlanCoreBundle\ResourceTypes\InvitedPublicAgencyResourceType;
 use Doctrine\ORM\EntityManagerInterface;
 use Tests\Base\JsonApiTest;
@@ -108,6 +109,36 @@ class InvitedPublicAgencyResourceTypeTest extends JsonApiTest
         // Assert
         self::assertCount(1, $response['data']);
         self::assertSame(['legalName'], array_keys($response['data'][0]['attributes']));
+    }
+
+    public function testListIncludesTheHouseNumberOfTheLocationContact(): void
+    {
+        // Arrange
+        $orga = $this->createInvitedOrga(RoleInterface::PUBLIC_AGENCY_WORKER);
+        $orga->setStreet('Teststrasse');
+        $orga->setHouseNumber('42');
+        $this->getApiEntityManager()->flush();
+
+        // Act
+        $response = $this->executeListRequest(
+            InvitedPublicAgencyResourceType::getName(),
+            $this->user,
+            $this->procedure,
+            urlParameters: [
+                'include' => 'locationContacts',
+                'fields'  => [
+                    InvitedPublicAgencyResourceType::getName()        => 'locationContacts',
+                    InstitutionLocationContactResourceType::getName() => 'street,houseNumber',
+                ],
+            ]
+        );
+
+        // Assert
+        self::assertCount(1, $response['included']);
+        self::assertSame(
+            ['street' => 'Teststrasse', 'houseNumber' => '42'],
+            $response['included'][0]['attributes']
+        );
     }
 
     /**

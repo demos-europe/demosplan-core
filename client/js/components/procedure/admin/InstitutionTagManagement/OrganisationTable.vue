@@ -98,10 +98,11 @@ All rights reserved
               </dt>
               <template v-if="locationContacts && hasAdress(locationContacts)">
                 <dd
-                  v-if="locationContacts.street"
+                  v-if="locationContacts.street || locationContacts.houseNumber"
                   class="ml-0"
+                  data-cy="organisationTable:streetAndHouseNumber"
                 >
-                  {{ locationContacts.street }}
+                  {{ streetAndHouseNumber(locationContacts) }}
                 </dd>
                 <dd
                   v-if="locationContacts.postalcode"
@@ -286,7 +287,7 @@ export default {
       },
       filteredItems: null,
       isLoading: true,
-      locationContactFields: ['street', 'postalcode', 'city'],
+      locationContactFields: ['street', 'houseNumber', 'postalcode', 'city'],
       pagination: {},
       searchTerm: '',
       selectedItems: [],
@@ -608,7 +609,7 @@ export default {
     },
 
     hasAdress (locationContacts) {
-      return locationContacts?.street || locationContacts?.postalcode ||
+      return locationContacts?.street || locationContacts?.houseNumber || locationContacts?.postalcode ||
         locationContacts?.city
     },
 
@@ -650,6 +651,10 @@ export default {
 
     sortFields (fields) {
       return [...fields].sort((a, b) => a.definition.attributes.name.localeCompare(b.definition.attributes.name))
+    },
+
+    streetAndHouseNumber ({ street, houseNumber }) {
+      return [street, houseNumber].filter(Boolean).join(' ')
     },
 
     /**

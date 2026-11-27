@@ -33,6 +33,7 @@ class InstitutionLocationContactResourceType extends DplanResourceType
         $configBuilder = $this->getConfig(BaseAddressResourceConfigBuilder::class);
         $configBuilder->id->readable();
         $configBuilder->street->readable();
+        $configBuilder->houseNumber->readable();
         $configBuilder->postalcode->readable();
         $configBuilder->city->readable();
         if ($this->currentUser->hasPermission('field_organisation_phone')) {
