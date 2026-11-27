@@ -891,7 +891,10 @@ export default {
     },
 
     toggleInfobox () {
-      this.currentAction = 'details'
+      // Tabs switch via hashchange; keeps the URL and the active tab in sync
+      globalThis.location.hash = 'details'
+      // The currentAction watcher does not fire if the details tab is already active
+      this.showInfobox = true
       this.$refs.metadataFlyout.isExpanded = false
     },
 
