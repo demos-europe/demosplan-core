@@ -11,6 +11,7 @@
 namespace Tests\Core\DraftStatement;
 
 use DateTime;
+use demosplan\DemosPlanCoreBundle\CustomField\CustomFieldValuesList;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadProcedureData;
 use demosplan\DemosPlanCoreBundle\DataFixtures\ORM\TestData\LoadUserData;
 use demosplan\DemosPlanCoreBundle\Entity\Document\Elements;
@@ -1711,5 +1712,38 @@ class DraftStatementServiceTest extends FunctionalTestCase
         ], []);
 
         static::assertSame('', $statement['polygon']);
+    }
+
+    public function testExtractCustomFieldsClearsValuesOfNegativeReport(): void
+    {
+        $this->loginTestUser();
+        $this->enablePermissions(['feature_statements_custom_fields']);
+
+        $statement = $this->sut->extractCustomFields(
+            ['r_isNegativeReport' => '1'],
+            [],
+            $this->testDraftStatement->getProcedureId()
+        );
+
+        static::assertInstanceOf(CustomFieldValuesList::class, $statement['custom_fields']);
+        static::assertTrue($statement['custom_fields']->isEmpty());
+    }
+
+    public function testExtractCustomFieldsDoesNotValidateSentValuesOfNegativeReport(): void
+    {
+        $this->loginTestUser();
+        $this->enablePermissions(['feature_statements_custom_fields']);
+
+        // An unknown field id would make the value validation throw
+        $statement = $this->sut->extractCustomFields(
+            [
+                'r_isNegativeReport' => '1',
+                'customFields'       => json_encode([['id' => 'unknown-field', 'value' => null]]),
+            ],
+            [],
+            $this->testDraftStatement->getProcedureId()
+        );
+
+        static::assertTrue($statement['custom_fields']->isEmpty());
     }
 }
