@@ -33,6 +33,7 @@ use demosplan\DemosPlanCoreBundle\Logic\ProcedureAccessEvaluator;
 use demosplan\DemosPlanCoreBundle\Logic\User\CustomerService;
 use demosplan\DemosPlanCoreBundle\Repository\ProcedureRepository;
 use demosplan\DemosPlanCoreBundle\Resources\config\GlobalConfig;
+use demosplan\DemosPlanCoreBundle\Security\ApiToken\ApiTokenContextInterface;
 use demosplan\DemosPlanCoreBundle\Utilities\DemosPlanTools;
 use Exception;
 use InvalidArgumentException;
@@ -133,6 +134,13 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
      * @var array<non-empty-string, ResolvablePermissionCollection> mapping from addon name to permissions
      */
     private array $addonPermissionCollections = [];
+
+    /**
+     * Set per request by {@see \demosplan\DemosPlanCoreBundle\EventListener\ConfigureApiTokenContextListener},
+     * in workers by {@see \demosplan\DemosPlanCoreBundle\Logic\Ocx\OcxWorkerContext}.
+     * When set, a permission is granted only if the user has it and the context allows it.
+     */
+    private ?ApiTokenContextInterface $apiTokenContext = null;
 
     public function __construct(
         AddonRegistry $addonRegistry,
@@ -1114,7 +1122,7 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         if (!$resolvablePermission instanceof ResolvablePermission) {
             throw AccessDeniedException::unknownAddonPermission($permissionName, $addonIdentifier, $this->user);
         }
-        if (!$this->isResolvablePermissionEnabled($resolvablePermission)) {
+        if (!$this->isAddonPermissionGranted($permissionName, $resolvablePermission)) {
             throw AccessDeniedException::missingAddonPermission($permissionName, $addonIdentifier, $this->user);
         }
     }
@@ -1143,7 +1151,19 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
         // addon permission, evaluating via resolver
         $resolvablePermission = $this->getAddonPermission($permissionName, $addonIdentifier);
 
-        return $resolvablePermission instanceof ResolvablePermission && $this->isResolvablePermissionEnabled($resolvablePermission);
+        return $resolvablePermission instanceof ResolvablePermission && $this->isAddonPermissionGranted($permissionName, $resolvablePermission);
+    }
+
+    /**
+     * An API token context restricts addon permissions like core ones: only what it allows passes.
+     */
+    private function isAddonPermissionGranted(string $permissionName, ResolvablePermission $resolvablePermission): bool
+    {
+        if (null !== $this->apiTokenContext && !$this->apiTokenContext->allowsPermission($permissionName)) {
+            return false;
+        }
+
+        return $this->isResolvablePermissionEnabled($resolvablePermission);
     }
 
     public function isPermissionKnown($permissionIdentifier): bool
@@ -1210,6 +1230,9 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
             if ($this->permissions[$permission]->isLoginRequired() && (null === $this->user || !$this->user->isLoggedIn())) {
                 throw new SessionUnavailableException('Für diese Aktion müssen Sie angemeldet sein.', 1001);
             }
+            if (null !== $this->apiTokenContext && !$this->apiTokenContext->allowsPermission($permission)) {
+                throw AccessDeniedException::missingPermission($permission, $this->user);
+            }
         } else {
             // handle guest Exceptions differently as redirects
             // may be different
@@ -1224,6 +1247,20 @@ class Permissions implements PermissionsInterface, PermissionEvaluatorInterface
     public function setProcedure(?ProcedureInterface $procedure): void
     {
         $this->procedure = $procedure;
+    }
+
+    /**
+     * This service is shared, so the context outlives the work it was set for. A worker that sets it
+     * must reset it to null when done, or the next message in the process is checked against it.
+     */
+    public function setApiTokenContext(?ApiTokenContextInterface $context): void
+    {
+        $this->apiTokenContext = $context;
+    }
+
+    public function getApiTokenContext(): ?ApiTokenContextInterface
+    {
+        return $this->apiTokenContext;
     }
 
     /**
