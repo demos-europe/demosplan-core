@@ -26,7 +26,16 @@ interface InstitutionAttributes {
   participationFeedbackEmailAddress: string | null
 }
 
-const createItem = ({ id = 'orga-1', ...attributes }: { id?: string } & Partial<InstitutionAttributes> = {}) => ({
+interface LocationContactAttributes {
+  city: string
+  houseNumber: string
+  postalcode: string
+  street: string
+}
+
+type CreateItemOptions = { id?: string, locationContactId?: string } & Partial<InstitutionAttributes>
+
+const createItem = ({ id = 'orga-1', locationContactId, ...attributes }: CreateItemOptions = {}) => ({
   id,
   attributes: {
     hasActiveUsers: true,
@@ -34,7 +43,22 @@ const createItem = ({ id = 'orga-1', ...attributes }: { id?: string } & Partial<
     participationFeedbackEmailAddress: 'beteiligung@example.org',
     ...attributes,
   },
-  relationships: {},
+  relationships: locationContactId ?
+    { locationContacts: { data: [{ id: locationContactId, type: 'InstitutionLocationContact' }] } } :
+    {},
+})
+
+type CreateLocationContactOptions = { id?: string } & Partial<LocationContactAttributes>
+
+const createLocationContact = ({ id = 'contact-1', ...attributes }: CreateLocationContactOptions = {}) => ({
+  id,
+  attributes: {
+    city: 'Kiel',
+    houseNumber: '42',
+    postalcode: '24111',
+    street: 'Teststrasse',
+    ...attributes,
+  },
 })
 
 // Renders the name cell and the expanded content per item so they can be asserted without the real table
@@ -64,13 +88,20 @@ describe('OrganisationTable', () => {
   let list: Mock
   let wrapper: VueWrapper<any>
 
-  const mountTable = (items: ReturnType<typeof createItem>[], resourceType: 'InvitableToeb' | 'InvitedToeb' = 'InvitedToeb') => {
+  const mountTable = (
+    items: ReturnType<typeof createItem>[],
+    resourceType: 'InvitableToeb' | 'InvitedToeb' = 'InvitedToeb',
+    locationContacts: ReturnType<typeof createLocationContact>[] = [],
+  ) => {
     list = vi.fn(() => ({ meta: { pagination: { currentPage: 1, perPage: 50, total: items.length, totalPages: 1 } } }))
     const emptyModule = { namespaced: true, state: () => ({ items: {} }), actions: { list: vi.fn(() => ({})) } }
     const store = createStore({
       modules: {
         FilterFlyout: { namespaced: true, getters: { getFilterQuery: () => ({}) } },
-        InstitutionLocationContact: emptyModule,
+        InstitutionLocationContact: {
+          namespaced: true,
+          state: () => ({ items: Object.fromEntries(locationContacts.map(contact => [contact.id, contact])) }),
+        },
         InstitutionTag: emptyModule,
         InstitutionTagCategory: emptyModule,
         [resourceType]: {
@@ -153,5 +184,32 @@ describe('OrganisationTable', () => {
     const requestedFields = list.mock.calls[0][1].fields.InvitedToeb.split(',')
 
     expect(requestedFields).toContain('hasActiveUsers')
+  })
+
+  it('displays the house number next to the street', async () => {
+    mountTable([createItem({ locationContactId: 'contact-1' })], 'InvitedToeb', [createLocationContact()])
+    await flushPromises()
+
+    expect(wrapper.find('[data-cy="organisationTable:streetAndHouseNumber"]').text()).toBe('Teststrasse 42')
+  })
+
+  it('displays the street alone if no house number is given', async () => {
+    mountTable(
+      [createItem({ locationContactId: 'contact-1' })],
+      'InvitedToeb',
+      [createLocationContact({ houseNumber: '', street: 'Teststrasse 112' })],
+    )
+    await flushPromises()
+
+    expect(wrapper.find('[data-cy="organisationTable:streetAndHouseNumber"]').text()).toBe('Teststrasse 112')
+  })
+
+  it('requests the house number of the location contact from the api', async () => {
+    mountTable([createItem()])
+    await flushPromises()
+
+    const requestedFields = list.mock.calls[0][1].fields.InstitutionLocationContact.split(',')
+
+    expect(requestedFields).toContain('houseNumber')
   })
 })
