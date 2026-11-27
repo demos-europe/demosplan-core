@@ -10,11 +10,9 @@
 
 namespace demosplan\DemosPlanCoreBundle\Controller\Procedure;
 
-use DemosEurope\DemosplanAddon\Contracts\CurrentUserInterface;
 use DemosEurope\DemosplanAddon\Contracts\PermissionsInterface;
 use demosplan\DemosPlanCoreBundle\Attribute\DplanPermissions;
 use demosplan\DemosPlanCoreBundle\Entity\User\Role;
-use demosplan\DemosPlanCoreBundle\Exception\MessageBagException;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\CurrentProcedureService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\ExportService;
 use demosplan\DemosPlanCoreBundle\Logic\Procedure\NameGenerator;
@@ -26,52 +24,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class DemosPlanProcedureExportController extends DemosPlanProcedureController
 {
-    /**
-     * @param string $procedure
-     *
-     * @return RedirectResponse|Response
-     *
-     * @throws MessageBagException
-     */
-    #[DplanPermissions('area_public_participation')]
-    #[Route(path: '/verfahren/{procedure}/titlepage/export', name: 'DemosPlan_title_page_export.tex.twig')]
-    public function titlePageExport(
-        CurrentUserInterface $currentUser,
-        PermissionsInterface $permissions,
-        NameGenerator $nameGenerator,
-        ProcedureServiceOutput $procedureServiceOutput,
-        TranslatorInterface $translator,
-        $procedure,
-    ) {
-        // is the user permitted to view the procedure at all?
-        if (!$permissions->ownsProcedure() && (!$currentUser->getUser()->isLoggedIn() || !$permissions->hasPermissionsetRead())) {
-            // owning planners should always be able to export procedure
-            $this->getLogger()->warning('User tried to export Procedure but does not have sufficient permissions');
-            $this->getMessageBag()->add('error', 'error.export');
-
-            return $this->redirectToRoute('core_home');
-        }
-
-        $title = 'export.titlepage';
-        $pdfContent = $procedureServiceOutput->generatePdfForTitlePage($procedure, $title);
-        $pdfName = $translator->trans($title, [], 'page-title');
-
-        if ('' === $pdfContent) {
-            throw new Exception('PDF-Export fehlgeschlagen');
-        }
-
-        $response = new Response($pdfContent, Response::HTTP_OK);
-        $response->headers->set('Pragma', 'public');
-        $response->headers->set('Content-Type', 'application/pdf');
-        $response->headers->set('Content-Disposition', $nameGenerator->generateDownloadFilename($pdfName));
-
-        return $response;
-    }
-
     /**
      * PDF-Export der Institutionen-Liste.
      *

@@ -185,6 +185,7 @@ class TagTopicRepository extends CoreRepository implements ObjectInterface
                         $newTag = new Tag($existingTag->getTitle(), $newTopic);
                         $newTag->setBoilerplate($existingTag->getBoilerplate());
                         $newTag->setSortIndex($existingTag->getSortIndex());
+                        $newTag->setDescription($existingTag->getDescription());
                         $this->getEntityManager()->persist($newTag);
                         $newTopic->addTag($newTag);
                     }

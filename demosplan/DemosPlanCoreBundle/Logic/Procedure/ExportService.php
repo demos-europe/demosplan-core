@@ -131,6 +131,7 @@ class ExportService
         PermissionsInterface $permissions,
         ProcedureOutput $procedureOutput,
         private readonly ProcedureService $procedureService,
+        private readonly ProcedureTitlePageExporter $titlePageExporter,
         private readonly SegmentsByStatementsExporter $segmentsByStatementsExporter,
         private readonly StatementResourceType $statementResourceType,
         private readonly StatementService $statementService,
@@ -340,19 +341,27 @@ class ExportService
     /**
      * This method includes a cover page ("Deckblatt.pdf") in the procedure export
      * in each procedure directory.
-     * Possibly @improve T20979.
      */
     public function addTitlePageToZip(string $procedureId, string $procedureName, ZipStream $zip): ZipStream
     {
-        $titleForPage = 'titlepage';
-
         if (!$this->permissions->hasPermission('feature_institution_participation')) {
             return $zip;
         }
 
         try {
-            $titlepage = $this->getProcedureOutput()->generatePdfForTitlePage($procedureId, $titleForPage);
-            $this->zipExportService->addStringToZipStream($procedureName.'/Deckblatt.pdf', $titlepage, $zip);
+            $procedure = $this->procedureService->getProcedure($procedureId);
+            if (null === $procedure) {
+                throw new InvalidArgumentException('No procedure found.');
+            }
+            Settings::setPdfRendererPath($this->rendererPath);
+            Settings::setPdfRendererName($this->rendererName);
+            $this->zipExportService->addWriterToZipStream(
+                $this->titlePageExporter->createWriter($procedure),
+                $procedureName.'/Deckblatt.pdf',
+                $zip,
+                'tmp_export_procedure_titlepage_',
+                '.pdf'
+            );
             $this->logger->info('deckblatt created', ['id' => $procedureId, 'name' => $procedureName]);
         } catch (Exception $e) {
             $this->logger->warning('deckblatt could not be created. ', [$e]);

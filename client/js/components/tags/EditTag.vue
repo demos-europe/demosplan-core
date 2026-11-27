@@ -12,17 +12,42 @@
     :assignee="assignee"
     :attachmode="attachmode"
     :boilerplate="boilerplate"
+    :description="description"
     :set-assignee="setAssignee"
     :set-attachmode="setAttachmode"
     :set-boilerplate="setBoilerplate"
+    :handle-submit="handleSubmit"
+    :set-description="setDescription"
+  />
+
+  <dp-confirm-dialog
+    ref="confirmDialog"
+    :confirm-button-text="Translator.trans('tag.description.change.confirm.button')"
+    content-header-classes="text-h2"
+    :decline-button-text="Translator.trans('abort')"
+    :header="Translator.trans('tag.description.change.confirm.header')"
+    icon="warning"
+    :message="Translator.trans('tag.description.change.confirm.message')"
   />
 </template>
 
 <script>
+import { DpConfirmDialog, validateForm } from '@demos-europe/demosplan-ui'
+
 export default {
   name: 'EditTag',
 
+  components: {
+    DpConfirmDialog,
+  },
+
   props: {
+    isProcedureTemplate: {
+      required: false,
+      type: Boolean,
+      default: false,
+    },
+
     selectedAssignee: {
       required: false,
       type: Object,
@@ -40,6 +65,12 @@ export default {
       type: Object,
       default: () => ({ id: '', label: '' }),
     },
+
+    selectedDescription: {
+      required: false,
+      type: String,
+      default: '',
+    },
   },
 
   data () {
@@ -47,10 +78,55 @@ export default {
       assignee: this.selectedAssignee,
       attachmode: this.selectedAttachmode,
       boilerplate: this.selectedBoilerplate,
+      description: this.selectedDescription,
+      isConfirmed: false,
     }
   },
 
+  computed: {
+    // Changing or deleting an existing description needs confirmation, except in the procedure template
+    needsConfirmation () {
+      if (this.isProcedureTemplate || this.selectedDescription === '') {
+        return false
+      }
+
+      return this.description !== this.selectedDescription
+    },
+  },
+
   methods: {
+    async handleSubmit (event) {
+      // Second click, triggered below after the user confirmed
+      if (this.isConfirmed) {
+        this.isConfirmed = false
+
+        return
+      }
+
+      // Without confirmation, dpValidate validates and submits on its own
+      if (!this.needsConfirmation) {
+        return
+      }
+
+      const button = event.currentTarget
+      const form = button.closest('form')
+
+      // Invalid form: let dpValidate show the errors, no dialog
+      if (!validateForm(form).valid) {
+        return
+      }
+
+      // Stop dpValidate until the user has answered the dialog
+      event.preventDefault()
+      event.stopImmediatePropagation()
+
+      if (await this.$refs.confirmDialog.open()) {
+        // Click again so dpValidate validates and submits as usual
+        this.isConfirmed = true
+        button.click()
+      }
+    },
+
     setAssignee (val) {
       this.assignee = val
     },
@@ -63,6 +139,10 @@ export default {
       this.boilerplate = val
       // Choosing a boilerplate implies the "existing" mode.
       this.attachmode = 'existing'
+    },
+
+    setDescription (val) {
+      this.description = val
     },
   },
 }

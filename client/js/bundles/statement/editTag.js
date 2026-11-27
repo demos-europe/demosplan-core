@@ -11,11 +11,11 @@
  * This is the entrypoint for edit_tag.html.twig
  */
 
-import { DpEditor, DpMultiselect, DpRadio, dpValidate } from '@demos-europe/demosplan-ui'
+import { DpEditor, DpMultiselect, DpRadio, DpTextArea, dpValidate } from '@demos-europe/demosplan-ui'
 import EditTag from '@DpJs/components/tags/EditTag.vue'
 import { initialize } from '@DpJs/InitVue'
 
-const components = { DpEditor, DpMultiselect, DpRadio, EditTag }
+const components = { DpEditor, DpMultiselect, DpRadio, DpTextArea, EditTag }
 
 initialize(components).then(() => {
   dpValidate()

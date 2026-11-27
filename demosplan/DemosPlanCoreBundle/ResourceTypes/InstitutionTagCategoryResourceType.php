@@ -18,10 +18,13 @@ use demosplan\DemosPlanCoreBundle\Logic\ApiRequest\ResourceType\DplanResourceTyp
 use demosplan\DemosPlanCoreBundle\Repository\InstitutionTagRepository;
 use demosplan\DemosPlanCoreBundle\ResourceConfigBuilder\InstitutionTagCategoryResourceConfigBuilder;
 use EDT\JsonApi\ResourceConfig\Builder\ResourceConfigBuilderInterface;
+use EDT\PathBuilding\End;
 use EDT\Wrapping\PropertyBehavior\FixedSetBehavior;
 
 /**
  * @property-read CustomerResourceType $customer
+ * @property-read End $creationDate
+ * @property-read End $name
  */
 class InstitutionTagCategoryResourceType extends DplanResourceType
 {
@@ -73,6 +76,14 @@ class InstitutionTagCategoryResourceType extends DplanResourceType
         );
 
         return $institutionTagCategoryConfig;
+    }
+
+    public function getDefaultSortMethods(): array
+    {
+        return [
+            $this->sortMethodFactory->propertyAscending($this->creationDate),
+            $this->sortMethodFactory->propertyAscending($this->name),
+        ];
     }
 
     public function isAvailable(): bool

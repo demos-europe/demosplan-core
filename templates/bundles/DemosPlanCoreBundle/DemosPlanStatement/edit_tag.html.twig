@@ -24,10 +24,12 @@
         {{ include('@DemosPlanCore/DemosPlanCore/includes/csrf.html.twig') }}
 
         <edit-tag
+            :is-procedure-template="Boolean({{ templateVars.procedureTemplate ? 'true' : 'false' }})"
             :selected-assignee="JSON.parse('{{ currentAssignee|json_encode|e('js', 'utf-8') }}')"
             :selected-attachmode="'{{ currentAttachmode }}'"
             :selected-boilerplate="JSON.parse('{{ currentBoilerplate|json_encode|e('js', 'utf-8') }}')"
-            v-slot="{ assignee, attachmode, boilerplate, setAssignee, setAttachmode, setBoilerplate }"
+            :selected-description="JSON.parse('{{ (templateVars.tag.description|default(''))|json_encode|e('js', 'utf-8') }}')"
+            v-slot="{ assignee, attachmode, boilerplate, description, handleSubmit, setAssignee, setAttachmode, setBoilerplate, setDescription }"
         >
         {{ uiComponent('form.row', {
             elements: [
@@ -41,6 +43,19 @@
                 }
             ]
         }) }}
+
+        {% if permissions.field_tag_description is defined and permissions.field_tag_description.enabled == true %}
+            <dp-text-area
+                id="r_tagDescription"
+                :hint="Translator.trans('tag.description.hint')"
+                :label="Translator.trans('description')"
+                :maxlength="1000"
+                :value="description"
+                class="mb-4"
+                name="r_tagDescription"
+                @input="val => setDescription(val)"
+            ></dp-text-area>
+        {% endif %}
 
         {% if permissions.feature_tag_default_assignee is defined and permissions.feature_tag_default_assignee.enabled == true %}
             {% set assigneeOptions = [{ id: '', label: 'not.assigned'|trans }] %}
@@ -158,7 +173,7 @@
         {% endif %}
 
         <div class="text-right u-mt-0_5 space-inline-s">
-            <button type="submit" class="btn btn--primary">{{ "save" |trans }}</button>
+            <button type="submit" class="btn btn--primary" @click="handleSubmit">{{ "save" |trans }}</button>
             <a class="btn btn--secondary" href="{{ path('DemosPlan_statement_administration_tags', {'procedure': procedure}) }}#{{ tag }}">
                 {{ "abort"|trans }}
             </a>
