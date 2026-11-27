@@ -411,7 +411,8 @@ describe('StatementModal with negative report', () => {
       expect(lastPostedPayload()).toMatchObject({ r_element_id: 'element-1', r_text: '<p>Text</p>' })
     })
 
-    it('clears saved custom field values of an existing draft', async () => {
+    // Required fields would reject a clearing request, so the backend clears them as part of the Fehlanzeige save
+    it('leaves clearing the custom fields of an existing draft to the statement save', async () => {
       const { wrapper } = await mountModal()
       const vm = wrapper.vm as unknown as {
         draftStatementId: string
@@ -420,26 +421,15 @@ describe('StatementModal with negative report', () => {
       }
 
       vm.draftStatementId = 'draft-1'
-      vm.selectableCustomFields = [
-        { id: 'empty', fieldType: 'singleSelect', value: null },
-        { id: 'multi', fieldType: 'multiSelect', value: [] },
-        { id: 'single', fieldType: 'singleSelect', value: null },
-      ]
+      vm.selectableCustomFields = [{ id: 'single', fieldType: 'singleSelect', value: null }]
       await wrapper.vm.$nextTick()
-      // The list reports the values saved on the server; only those need clearing
-      wrapper.findComponent(CustomFieldsList).vm.$emit('loaded', [
-        { id: 'empty', value: null },
-        { id: 'multi', value: ['option-1'] },
-        { id: 'single', value: 'option-2' },
-      ])
+      wrapper.findComponent(CustomFieldsList).vm.$emit('loaded', [{ id: 'single', value: 'option-2' }])
       await setFormData(wrapper, { r_isNegativeReport: '1' })
       vm.sendStatement(submitEvent())
       await flushPromises()
 
-      expect(mockUpdateCustomFields).toHaveBeenCalledWith('DraftStatement', 'draft-1', [
-        { id: 'multi', value: [] },
-        { id: 'single', value: null },
-      ])
+      expect(mockUpdateCustomFields).not.toHaveBeenCalled()
+      expect(lastPostedPayload()).toMatchObject({ r_isNegativeReport: '1' })
     })
   })
 })

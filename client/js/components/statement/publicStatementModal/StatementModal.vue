@@ -1909,7 +1909,8 @@ export default {
      * Returns a Promise that resolves when batch save completes
      */
     saveCustomFields () {
-      if (!this.draftStatementId) {
+      // The backend clears custom fields when saving a Fehlanzeige; required fields would reject a separate clearing request
+      if (!this.draftStatementId || this.isNegativeReport) {
         return Promise.resolve()
       }
 
@@ -1919,15 +1920,13 @@ export default {
        * - In CustomField loop mode: restored from localStorage, then updated by user changes
        * Empty arrays are included intentionally to allow clearing multiselect fields on the server.
        */
-      const customFieldValues = this.isNegativeReport ?
-        this.getClearedCustomFieldValues() :
-        (this.formData.customFields || [])
-          .filter(field => field.id && field.value !== undefined &&
-            (field.value !== null || this.fieldIdsWithServerValues.includes(field.id)))
-          .map(field => ({
-            id: field.id,
-            value: field.value,
-          }))
+      const customFieldValues = (this.formData.customFields || [])
+        .filter(field => field.id && field.value !== undefined &&
+          (field.value !== null || this.fieldIdsWithServerValues.includes(field.id)))
+        .map(field => ({
+          id: field.id,
+          value: field.value,
+        }))
 
       if (customFieldValues.length === 0) {
         return Promise.resolve()
@@ -1941,15 +1940,6 @@ export default {
         this.draftStatementId,
         customFieldValues,
       )
-    },
-
-    // A Fehlanzeige carries no custom field values, so only fields that have a value on the server need clearing
-    getClearedCustomFieldValues () {
-      return this.fieldIdsWithServerValues.map(id => {
-        const fieldType = this.selectableCustomFields.find(field => field.id === id)?.fieldType
-
-        return { id, value: fieldType === 'multiSelect' ? [] : null }
-      })
     },
 
     handleCustomFieldValueUpdateFromList ({ fieldId, value }) {
