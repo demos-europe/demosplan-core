@@ -141,8 +141,7 @@ const contentControlsState = (wrapper: Wrapper) => {
   }
 }
 
-// The dpconfirm global returns window.confirm's boolean at runtime, although its global type says Promise<boolean>
-const mockConfirm = (confirmed: boolean) => vi.fn(() => confirmed) as unknown as typeof window.dpconfirm
+const mockConfirm = (confirmed: boolean) => vi.fn(() => confirmed)
 
 const submitEvent = () => ({ preventDefault: vi.fn() })
 
