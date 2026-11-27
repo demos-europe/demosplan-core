@@ -833,40 +833,6 @@ export default {
       }))
     },
 
-    /**
-     * Shows legends when their respective layers are shown
-     *
-     * Only used in special cases
-     * @improve T15718
-     */
-    displayLegends (recursive) {
-      //  Grab dom reference
-      const mapLegends = $(this.prefixClass('.js__mapLayerLegends'))
-
-      //  Initially hide all legends
-      mapLegends.find('[data-layername]').addClass(this.prefixClass('sr-only'))
-
-      //  Loop layers
-      this.map.getLayers().forEach((layer, idx, a) => {
-        //  Loop layer groups
-        if (layer instanceof LayerGroup) {
-          layer.getLayers().forEach((sublayer, jdx, b) => {
-            if (recursive) {
-              //  Attach behavior
-              sublayer.on('propertychange', (evt) => {
-                this.displayLegends(false)
-              })
-            }
-
-            //  Show appropriate legend if layer is visible
-            if (sublayer.getVisible()) {
-              mapLegends.find('[data-layername="' + sublayer.get('title') + '"]').removeClass(this.prefixClass('sr-only'))
-            }
-          })
-        }
-      })
-    },
-
     doAllTheOtherExcitingStuff () {
       // Ensure map has correct dimensions before fitting to initial extent
       this.$nextTick(() => {
@@ -2257,10 +2223,6 @@ export default {
 
       if (JSON.stringify(this.procedureInitialExtent) === JSON.stringify(this.procedureDefaultInitialExtent) && this.procedureSettings.coordinate !== '') {
         this.panToCoordinate(JSON.parse('[' + this.procedureSettings.coordinate + ']'))
-      }
-
-      if (hasPermission('feature_map_layer_legend_file')) {
-        this.displayLegends(true)
       }
 
       this.$root.$on('toolbar:drag', () => this.resizeOnDrag())
