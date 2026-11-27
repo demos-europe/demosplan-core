@@ -141,6 +141,7 @@
               data-cy="statementModal:publicParticipationParticipate"
               class="u-mr-2"
               :checked="formData.r_isNegativeReport === '0'"
+              :disabled="isLoading"
               :label="{
                 text: Translator.trans('public.participation.participate')
               }"
@@ -151,6 +152,7 @@
               id="negative_report_true"
               :checked="isNegativeReport"
               data-cy="statementModal:indicationerror"
+              :disabled="isLoading"
               :label="{
                 hint: Translator.trans('link.title.indicationerror'),
                 text: Translator.trans('indicationerror')

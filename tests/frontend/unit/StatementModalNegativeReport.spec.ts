@@ -125,6 +125,10 @@ const hintIsShown = (wrapper: Wrapper) => wrapper
   .findAllComponents({ name: 'DpInlineNotification' })
   .some(notification => notification.props('message') === 'statement.negative_report.hint')
 
+const reportTypeRadios = (wrapper: Wrapper) => wrapper
+  .findAllComponents({ name: 'DpRadio' })
+  .filter(radio => ['negative_report_false', 'negative_report_true'].includes(radio.props('id')))
+
 const buttonWithText = (wrapper: Wrapper, text: string) => wrapper.findAll('button').find(button => button.text().includes(text))
 
 const isDisabled = (button: ReturnType<typeof buttonWithText>) => button?.attributes('disabled') !== undefined
@@ -285,6 +289,30 @@ describe('StatementModal with negative report', () => {
   })
 
   describe('saving', () => {
+    // The report type decides how the form request is built, so it must not change after validation and confirmation
+    it('disables the report type while an existing draft is being saved', async () => {
+      let finishCustomFieldSave = () => {}
+
+      mockUpdateCustomFields.mockReturnValueOnce(new Promise(resolve => {
+        finishCustomFieldSave = () => resolve({})
+      }))
+      const { wrapper } = await mountModal()
+      const vm = wrapper.vm as unknown as { draftStatementId: string, sendStatement: (e: unknown) => void }
+
+      vm.draftStatementId = 'draft-1'
+      await setFormData(wrapper, { customFields: [{ id: 'field-1', value: 'value' }], r_text: '<p>Text</p>' })
+      vm.sendStatement(submitEvent())
+      await wrapper.vm.$nextTick()
+
+      expect(reportTypeRadios(wrapper)).toHaveLength(2)
+      expect(reportTypeRadios(wrapper).every(radio => radio.props('disabled') === true)).toBe(true)
+
+      finishCustomFieldSave()
+      await flushPromises()
+
+      expect(reportTypeRadios(wrapper).every(radio => radio.props('disabled') === false)).toBe(true)
+    })
+
     it('keeps the statement and sends nothing when the confirmation is cancelled', async () => {
       window.dpconfirm = mockConfirm(false)
       const { store, wrapper } = await mountModal()
