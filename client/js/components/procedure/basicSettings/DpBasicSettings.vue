@@ -25,6 +25,7 @@
       :submit-without-interface-activation="submitWithoutInterfaceActivation"
       :unselect-all-auth-users="unselectAllAuthUsers"
       :update-addon-payload="updateAddonPayload"
+      :update-extra-fields-payload="updateExtraFieldsPayload"
     />
   </div>
 </template>
@@ -221,6 +222,12 @@ export default {
         value: '',
       },
       bypassAddonWarningModal: false,
+      /*
+       * Payload emitted by addons hooked into `administration.edit.extra.fields`, sent when the form is saved.
+       * It has the same shape as `addonPayload`: `attributes` (the data to save), `id` (id of the resource to update),
+       * `method` (e.g. 'PATCH'), `resourceType` (the JSON:API type) and `url` (a route name or a full path).
+       */
+      extraFieldsPayload: null,
       isInterfaceAddonLoaded: false,
       isLoadingPlisData: false,
     }
@@ -267,13 +274,14 @@ export default {
   },
 
   methods: {
-    createAddonPayload () {
-      const { attributes, id, resourceType, url } = this.addonPayload
+    createAddonPayload (addonPayload = this.addonPayload) {
+      const { attributes, id, method, resourceType, url } = addonPayload
+      const isUpdate = url === 'api_resource_update' || method === 'PATCH'
 
       return {
         type: resourceType,
         attributes,
-        relationships: url === 'api_resource_update' ?
+        relationships: isUpdate ?
           undefined :
           {
             procedure: {
@@ -283,19 +291,26 @@ export default {
               },
             },
           },
-        ...(url === 'api_resource_update' ? { id } : {}),
+        ...(isUpdate ? { id } : {}),
       }
     },
 
-    handleAddonRequest () {
-      const payload = this.createAddonPayload()
+    handleAddonRequest (addonPayload = this.addonPayload) {
+      const payload = this.createAddonPayload(addonPayload)
+
+      // An addon sends either a route name or a root-relative path (e.g. `/api/3.0/...`) plus the method to use.
+      const isPath = addonPayload.url.startsWith('/')
+      const method = addonPayload.method ?? (addonPayload.url === 'api_resource_update' ? 'PATCH' : 'POST')
+      const url = isPath ?
+        addonPayload.url :
+        Routing.generate(addonPayload.url, {
+          resourceType: addonPayload.resourceType,
+          ...(addonPayload.url === 'api_resource_update' && { resourceId: addonPayload.id }),
+        })
 
       const addonRequest = dpApi({
-        method: this.addonPayload.url === 'api_resource_update' ? 'PATCH' : 'POST',
-        url: Routing.generate(this.addonPayload.url, {
-          resourceType: this.addonPayload.resourceType,
-          ...(this.addonPayload.url === 'api_resource_update' && { resourceId: this.addonPayload.id }),
-        }),
+        method,
+        url,
         data: {
           data: payload,
         },
@@ -318,10 +333,32 @@ export default {
       const addonHasValue = !!this.addonPayload.value || !!this.addonPayload.initValue
 
       this.dpValidateAction('configForm', () => {
+        const addonRequests = []
+
+        // The extra fields are updates which can be repeated safely, so they go first. A create must not run again after it succeeded
+        if (this.extraFieldsPayload) {
+          addonRequests.push(() => this.handleAddonRequest(this.extraFieldsPayload))
+        }
+
         if (addonExists && addonHasValue) {
-          this.handleAddonRequest().then(() => {
-            this.submitConfigForm(formElement)
-          })
+          addonRequests.push(() => this.handleAddonRequest())
+        }
+
+        if (addonRequests.length > 0) {
+          addonRequests
+            .reduce((previousRequest, sendRequest) => previousRequest.then(sendRequest), Promise.resolve())
+            .then(() => {
+              this.submitConfigForm(formElement)
+            })
+            .catch(error => {
+              // The form is not submitted when an addon request fails
+              console.error('Saving the addon fields failed', error)
+
+              // The messages of the server are already shown by dpApi, so only show a generic one if there are none
+              if (!error?.data?.meta?.messages) {
+                dplan.notify.error(Translator.trans('error.api.generic'))
+              }
+            })
         } else {
           this.submitConfigForm(formElement)
         }
@@ -334,6 +371,14 @@ export default {
 
     updateAddonPayload (payload) {
       this.addonPayload = payload
+    },
+
+    updateExtraFieldsPayload (payload) {
+      if (payload instanceof Event) {
+        return
+      }
+
+      this.extraFieldsPayload = payload
     },
 
     // Needed for the addon-modal on submit

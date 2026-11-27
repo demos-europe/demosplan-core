@@ -5,6 +5,7 @@
 - **Patch Version**: Incremented for bug fixes.
 
 ## UNRELEASED
+- addons can save the fields they add to the procedure settings page, e.g. through an API Platform endpoint, when the settings are saved
 - Tags get an optional plaintext description of up to 1000 characters (`Tag::$description`), writable through
   JSON:API 2.0 and the tag edit page and readable through API 3.0. Writing it needs the new permission
   `field_tag_description`; projects must grant it explicitly (DPLAN-18350)
