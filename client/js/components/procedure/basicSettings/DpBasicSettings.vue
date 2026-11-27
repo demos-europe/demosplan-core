@@ -335,16 +335,18 @@ export default {
       this.dpValidateAction('configForm', () => {
         const addonRequests = []
 
-        if (addonExists && addonHasValue) {
-          addonRequests.push(this.handleAddonRequest())
+        // The extra fields are updates which can be repeated safely, so they go first. A create must not run again after it succeeded
+        if (this.extraFieldsPayload) {
+          addonRequests.push(() => this.handleAddonRequest(this.extraFieldsPayload))
         }
 
-        if (this.extraFieldsPayload) {
-          addonRequests.push(this.handleAddonRequest(this.extraFieldsPayload))
+        if (addonExists && addonHasValue) {
+          addonRequests.push(() => this.handleAddonRequest())
         }
 
         if (addonRequests.length > 0) {
-          Promise.all(addonRequests)
+          addonRequests
+            .reduce((previousRequest, sendRequest) => previousRequest.then(sendRequest), Promise.resolve())
             .then(() => {
               this.submitConfigForm(formElement)
             })
