@@ -81,25 +81,33 @@ export default {
   data () {
     return {
       areScalesSuitable: false,
-      scales: this.selectedScales,
+      scales: [],
     }
   },
 
   watch: {
     selectedScales: {
       handler (newVal) {
-        this.scales = newVal
+        this.applyScales(newVal)
       },
       deep: true,
+      immediate: true,
     },
   },
 
   methods: {
+    applyScales (scales) {
+      // The ratio check compares neighbours, so the list must be sorted (descending)
+      this.scales = [...scales].sort((a, b) => b.value - a.value)
+      this.areScalesSuitable = this.checkIfScalesAreSuitable()
+      this.$emit('suitableScalesChange', this.areScalesSuitable)
+    },
+
     /**
      * To allow users to pick scales individually but prevent a combination
      * of scales that will cause performance issues (which is triggered by
      * scale jumps that are too big), a simple heuristic is applied here:
-     * a scale must not be bigger than 50x the preceding scale.
+     * a scale must not be bigger than 50x the following scale.
      * @return {boolean}
      */
     checkIfScalesAreSuitable () {
@@ -110,7 +118,7 @@ export default {
       let scaleRatio
 
       for (let i = 0; i < this.scales.length - 1; i++) {
-        scaleRatio = +this.scales[i + 1].value / +this.scales[i].value
+        scaleRatio = +this.scales[i].value / +this.scales[i + 1].value
 
         if (scaleRatio > 50) {
           return false
@@ -120,22 +128,10 @@ export default {
       return true
     },
 
-    sortSelected () {
-      this.scales.sort((a, b) => parseInt(a.value) - parseInt(b.value))
-    },
-
     updateScales (scales) {
-      this.areScalesSuitable = this.checkIfScalesAreSuitable()
-      this.sortSelected()
-      this.$emit('suitableScalesChange', this.areScalesSuitable)
-      this.$emit('update', scales)
+      this.applyScales(scales)
+      this.$emit('update', this.scales)
     },
-  },
-
-  mounted () {
-    this.areScalesSuitable = this.checkIfScalesAreSuitable()
-    this.sortSelected()
-    this.$emit('suitableScalesChange', this.areScalesSuitable)
   },
 }
 </script>
