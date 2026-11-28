@@ -16,7 +16,7 @@
   It Handles Layers and Categories
   both are implicit in the "admin-layer-list-item"-Component
   - !! They can be nested recursivly !!
-  - It uses vuedraggable.
+  - It uses DpDraggable.
 
   -->
   <usage>
